@@ -5,15 +5,16 @@ import { ChannelEntity } from './ChannelEntity';
 import { UserEntity } from './UserEntity';
 
 /**
- * 支出
+ * 支出和收入记录
  */
-@Entity('outflow')
+@Entity('record')
 export class RecordEntity extends AbstractTimestampEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
   /**
-   * 数额
+   * 数额，
+   * 整数为收入，负数为支出
    */
   @Column({ type: 'decimal', precision: 11, scale: 2, nullable: false })
   amount: number;
