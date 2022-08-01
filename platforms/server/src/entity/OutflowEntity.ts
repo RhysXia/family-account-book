@@ -12,7 +12,9 @@ export class RecordEntity extends AbstractTimestampEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  // 数额
+  /**
+   * 数额
+   */
   @Column({ type: 'decimal', precision: 11, scale: 2, nullable: false })
   amount: number;
 

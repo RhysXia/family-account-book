@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AccountBookEntity } from '../entity/AccountBookEntity';
 import { UserEntity } from '../entity/UserEntity';
+import { isDevelopment } from '../utils/env';
 
 const models = [UserEntity, AccountBookEntity];
 
@@ -28,6 +29,7 @@ const models = [UserEntity, AccountBookEntity];
           database,
           synchronize,
           entities: models,
+          logging: isDevelopment ? ['query'] : false,
           entityPrefix: 'fab_',
         };
       },
