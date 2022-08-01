@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AccountBookEntity } from '../entity/AccountBookEntity';
 import { UserEntity } from '../entity/UserEntity';
 
-const models = [UserEntity];
+const models = [UserEntity, AccountBookEntity];
 
 @Module({
   imports: [

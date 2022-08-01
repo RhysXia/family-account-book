@@ -1,11 +1,12 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { AbstractTimestampEntity } from './AbstractTimestampEntity';
 import { UserEntity } from './UserEntity';
 
 /**
- * 项目
+ * 支付和收入渠道
  */
-@Entity('project')
-export class ProjectEntity {
+@Entity('channel')
+export class ChannelEntity extends AbstractTimestampEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -15,12 +16,9 @@ export class ProjectEntity {
   @Column({ nullable: false })
   desc: string;
 
+  @Column({ nullable: false, type: 'json' })
+  extra: Record<string, any>;
+
   @ManyToOne(() => UserEntity, { nullable: false })
   creator: UserEntity;
-
-  @Column({ type: 'timestamptz', nullable: false })
-  createdAt: Date;
-
-  @Column({ type: 'timestamptz', nullable: false })
-  updatedAt: Date;
 }

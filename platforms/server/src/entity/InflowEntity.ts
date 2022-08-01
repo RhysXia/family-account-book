@@ -1,9 +1,9 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 /**
- * 账目记录
+ * 收入
  */
-@Entity('record')
+@Entity('inflow')
 export class RecordEntity {
   @PrimaryGeneratedColumn()
   id: number;

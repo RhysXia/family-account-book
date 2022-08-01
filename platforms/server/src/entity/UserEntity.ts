@@ -1,7 +1,8 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { AbstractTimestampEntity } from './AbstractTimestampEntity';
 
 @Entity('user')
-export class UserEntity {
+export class UserEntity extends AbstractTimestampEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
