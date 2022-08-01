@@ -1,14 +1,36 @@
-import { Query, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { UserEntity } from '../../entity/UserEntity';
 import { UserService } from '../../service/UserService';
+import { SESSION_CURRENT_USER } from '../../utils/constants';
 import CurrentUser from '../decorator/CurrentUser';
-import { User } from '../graphql';
+import Session from '../decorator/Session';
+import { SignUpUserInput, SignInUserInput, User } from '../graphql';
 
 @Resolver('User')
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
   @Query()
-  async users(@CurrentUser() user: User): Promise<Array<User>> {
-    return this.userService.findAll();
+  async currentUser(
+    @CurrentUser({ required: true }) user: UserEntity,
+  ): Promise<User> {
+    return user;
+  }
+
+  @Mutation()
+  async signIn(
+    @Session() session: Record<string, any>,
+    @Args('user') user: SignInUserInput,
+  ): Promise<User> {
+    const currentUser = await this.userService.signIn(user);
+
+    session[SESSION_CURRENT_USER] = currentUser;
+
+    return currentUser;
+  }
+
+  @Mutation()
+  async signUp(@Args('user') signUpUser: SignUpUserInput): Promise<User> {
+    return this.userService.signUp(signUpUser);
   }
 }

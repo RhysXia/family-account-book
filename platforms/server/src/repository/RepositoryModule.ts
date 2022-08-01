@@ -2,10 +2,23 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AccountBookEntity } from '../entity/AccountBookEntity';
+import { RecordEntity } from '../entity/RecordEntity';
+import { SavingsEntity } from '../entity/SavingsEntity';
+import { SessionEntity } from '../entity/SessionEntity';
+import { TagEntity } from '../entity/TagEntity';
 import { UserEntity } from '../entity/UserEntity';
 import { isDevelopment } from '../utils/env';
 
-const models = [UserEntity, AccountBookEntity];
+const models = [
+  SessionEntity,
+  UserEntity,
+  AccountBookEntity,
+  TagEntity,
+  SavingsEntity,
+  RecordEntity,
+];
+
+const features = TypeOrmModule.forFeature(models);
 
 @Module({
   imports: [
@@ -34,7 +47,8 @@ const models = [UserEntity, AccountBookEntity];
         };
       },
     }),
-    TypeOrmModule.forFeature(models),
+    features,
   ],
+  exports: [features],
 })
 export class RepositoryModule {}

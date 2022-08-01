@@ -6,7 +6,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { AbstractTimestampEntity } from './AbstractTimestampEntity';
+import { AbstractTimestampEntity } from './abstract/AbstractTimestampEntity';
 import { UserEntity } from './UserEntity';
 
 /**

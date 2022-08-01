@@ -1,8 +1,9 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { AbstractTimestampEntity } from './AbstractTimestampEntity';
+import { AbstractTimestampEntity } from './abstract/AbstractTimestampEntity';
 import { AccountBookEntity } from './AccountBookEntity';
-import { ChannelEntity } from './ChannelEntity';
 import { UserEntity } from './UserEntity';
+import { SavingsEntity } from './SavingsEntity';
+import { TagEntity } from './TagEntity';
 
 /**
  * 支出和收入记录
@@ -19,6 +20,9 @@ export class RecordEntity extends AbstractTimestampEntity {
   @Column({ type: 'decimal', precision: 11, scale: 2, nullable: false })
   amount: number;
 
+  @Column({ nullable: false })
+  desc: number;
+
   /**
    * 所属账本
    */
@@ -28,9 +32,12 @@ export class RecordEntity extends AbstractTimestampEntity {
   @ManyToOne(() => UserEntity, { nullable: false })
   creator: UserEntity;
 
+  @ManyToOne(() => TagEntity, { nullable: false })
+  tag: TagEntity;
+
   /**
-   * 支付渠道，可以不填
+   * 支付或者收入渠道，可以不填
    */
-  @ManyToOne(() => ChannelEntity, { nullable: true })
-  channel: ChannelEntity;
+  @ManyToOne(() => SavingsEntity, { nullable: true })
+  savings: SavingsEntity;
 }

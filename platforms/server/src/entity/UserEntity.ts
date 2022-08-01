@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { AbstractTimestampEntity } from './AbstractTimestampEntity';
+import { AbstractTimestampEntity } from './abstract/AbstractTimestampEntity';
 
 @Entity('user')
 export class UserEntity extends AbstractTimestampEntity {
@@ -12,6 +12,9 @@ export class UserEntity extends AbstractTimestampEntity {
   @Column({ nullable: false })
   password: string;
 
-  @Column({})
-  email: string | null;
+  @Column({ unique: true, nullable: false })
+  nickname: string;
+
+  @Column({ nullable: true })
+  email?: string;
 }

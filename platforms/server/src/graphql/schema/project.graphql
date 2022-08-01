@@ -1,0 +1,14 @@
+type Project {
+  id: Int!
+  name: String!
+  desc: String!
+}
+
+input ProjectInput {
+  username: String!
+  password: String!
+}
+
+type Mutation {
+  createProject(user: ProjectInput!): Project!
+}

@@ -1,18 +1,15 @@
-import {
-  createParamDecorator,
-  ExecutionContext,
-  HttpException,
-  HttpStatus,
-} from '@nestjs/common';
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { SESSION_CURRENT_USER } from '../../utils/constants';
 
 const CurrentUser = createParamDecorator(
-  (data: boolean | undefined, ctx: ExecutionContext) => {
+  (data: { required?: boolean } = {}, ctx: ExecutionContext) => {
     const { session } = GqlExecutionContext.create(ctx).getContext().req;
     const currentUser = session[SESSION_CURRENT_USER];
-    if (data && !currentUser) {
-      throw new HttpException('请先登录', HttpStatus.UNAUTHORIZED);
+    const required = data.required;
+
+    if (required && !currentUser) {
+      throw new Error('请先登录');
     }
 
     return currentUser;
