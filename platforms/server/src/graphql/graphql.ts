@@ -8,9 +8,27 @@
 /* tslint:disable */
 /* eslint-disable */
 
+export enum Direction {
+    DESC = "DESC",
+    AESC = "AESC"
+}
+
+export interface OrderBy {
+    field: string;
+    direction: Direction;
+}
+
+export interface Pagination {
+    skip?: Nullable<number>;
+    take?: Nullable<number>;
+    orderBy: OrderBy[];
+}
+
 export interface ProjectInput {
-    username: string;
-    password: string;
+    name: string;
+    desc: string;
+    adminIds: number[];
+    memberIds: number[];
 }
 
 export interface SignUpUserInput {
@@ -29,6 +47,8 @@ export interface Project {
     id: number;
     name: string;
     desc: string;
+    admins: User[];
+    members: User[];
 }
 
 export interface IMutation {
@@ -46,6 +66,7 @@ export interface User {
 
 export interface IQuery {
     currentUser(): User | Promise<User>;
+    users(name: string, pagination?: Nullable<Pagination>): User[] | Promise<User[]>;
 }
 
 type Nullable<T> = T | null;

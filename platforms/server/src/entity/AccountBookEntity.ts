@@ -26,10 +26,18 @@ export class AccountBookEntity extends AbstractTimestampEntity {
   @ManyToOne(() => UserEntity, { nullable: false })
   creator: UserEntity;
 
-  // 账本成员
+  // 管理员
   @ManyToMany(() => UserEntity)
   @JoinTable({
-    name: 'project_user',
+    name: 'project_admin',
+    joinColumn: { name: 'project_id' },
+    inverseJoinColumn: { name: 'admin_id' },
+  })
+
+  // 账本普通成员
+  @ManyToMany(() => UserEntity)
+  @JoinTable({
+    name: 'project_member',
     joinColumn: { name: 'project_id' },
     inverseJoinColumn: { name: 'member_id' },
   })

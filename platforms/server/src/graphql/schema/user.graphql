@@ -8,6 +8,7 @@ type User {
 
 type Query {
   currentUser: User!
+  users(name: String!, pagination: Pagination): [User!]!
 }
 
 input SignUpUserInput {

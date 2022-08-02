@@ -1,0 +1,15 @@
+enum Direction {
+    DESC,
+    AESC
+}
+
+input OrderBy {
+        field: String!
+        direction: Direction!
+    }
+
+input Pagination {
+    skip: Int
+    take: Int
+    orderBy: [OrderBy!]!
+}

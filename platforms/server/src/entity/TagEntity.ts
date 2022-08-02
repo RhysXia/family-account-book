@@ -3,7 +3,27 @@ import { AbstractTimestampEntity } from './abstract/AbstractTimestampEntity';
 import { AccountBookEntity } from './AccountBookEntity';
 import { UserEntity } from './UserEntity';
 
-export type TagType = 'income' | 'expense';
+/**
+ * 标签类型
+ */
+export enum TagType {
+  /**
+   * 收入
+   */
+  INCOME = 'INCOME',
+  /**
+   * 支出
+   */
+  EXPENDITURE = 'EXPENDITURE',
+  /**
+   * 投资
+   */
+  INVESTMENT = 'INVESTMENT',
+  /**
+   * 贷款（借钱）
+   */
+  LOAD = 'LOAD',
+}
 
 /**
  * 标签
@@ -16,7 +36,7 @@ export class TagEntity extends AbstractTimestampEntity {
   @Column({ nullable: false })
   name: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, type: 'enum', enum: TagType })
   type: TagType;
 
   @ManyToOne(() => UserEntity, { nullable: false })

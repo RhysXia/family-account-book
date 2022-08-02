@@ -1,8 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { DataSource, Like, FindOptionsOrder } from 'typeorm';
 import { PasswordUtil } from '../common/PasswordUtil';
 import { UserEntity } from '../entity/UserEntity';
-import { SignUpUserInput, SignInUserInput } from '../graphql/graphql';
+import {
+  SignUpUserInput,
+  SignInUserInput,
+  Pagination,
+} from '../graphql/graphql';
 
 @Injectable()
 export class UserService {
@@ -10,6 +14,25 @@ export class UserService {
     private readonly passwordUtil: PasswordUtil,
     private readonly dataSource: DataSource,
   ) {}
+
+  async findAll(name: string, pagination: Pagination) {
+    const order: FindOptionsOrder<UserEntity> = {};
+
+    const orderBy = pagination.orderBy;
+
+    orderBy.forEach((it) => {
+      order[it.field] = it.direction;
+    });
+
+    return this.dataSource.manager.find(UserEntity, {
+      where: {
+        username: Like(`%${name}%`),
+      },
+      order,
+      skip: pagination.skip,
+      take: pagination.take,
+    });
+  }
 
   async signIn(signInUser: SignInUserInput) {
     const user = await this.dataSource.manager.findOne(UserEntity, {

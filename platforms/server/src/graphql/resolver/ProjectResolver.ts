@@ -12,6 +12,6 @@ export class UserResolver {
     @Session() session: Record<string, any>,
     @Args('project') projectInput: ProjectInput,
   ): Promise<User> {
-    return;
+    return
   }
 }

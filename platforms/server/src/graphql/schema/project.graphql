@@ -2,11 +2,15 @@ type Project {
   id: Int!
   name: String!
   desc: String!
+  admins: [User!]!
+  members: [User!]!
 }
 
 input ProjectInput {
-  username: String!
-  password: String!
+  name: String!
+  desc: String!
+  adminIds: [Int!]!
+  memberIds: [Int!]!
 }
 
 type Mutation {
