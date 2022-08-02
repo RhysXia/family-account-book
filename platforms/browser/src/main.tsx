@@ -3,8 +3,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { useAtomsDevtools } from 'jotai/devtools';
 import App from './App';
-import './index.css';
 import { BrowserRouter } from 'react-router-dom';
+import './index.css';
 
 const client = new ApolloClient({
   uri: '/graphql',
