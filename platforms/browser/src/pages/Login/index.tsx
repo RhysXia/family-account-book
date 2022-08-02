@@ -1,9 +1,9 @@
 const Login = () => {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <div className="max-w-md w-full">
-        <h2 className="text-center text-3xl text-gray-800">登录</h2>
-        <div className="shadow rounded-md py-9 px-9 space-y-4 my-8 bg-white">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-t from-yellow-400 to-pink-500">
+      <div className="max-w-md w-full relative">
+        <div className="shadow rounded-md py-9 px-9 space-y-4 my-8 bg-white bg-opacity-25">
+          <h2 className="text-center text-3xl text-gray-800">登录</h2>
           <div className="flex flex-col items-start">
             <label htmlFor="username" className="text-sm text-gray-900">
               用户名
@@ -16,12 +16,12 @@ const Login = () => {
           </div>
 
           <div className="flex flex-col items-start">
-            <label htmlFor="username" className="text-sm text-gray-900">
+            <label htmlFor="password" className="text-sm text-gray-900">
               密码
             </label>
             <input
               type="password"
-              id="username"
+              id="password"
               className="appearance-none block transition-all duration-300 rounded border border-gray-300 text-sm w-full py-2 px-2  my-2 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 hover:border-indigo-500"
             />
           </div>

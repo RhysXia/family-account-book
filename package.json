@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev:server": "cd platforms/server && npm run dev",
+    "dev:browser": "cd platforms/browser && npm run dev",
     "lint": "eslint . --report-unused-disable-directives --ext .js,.ts,.jsx,.tsx --max-warnings 0",
     "lint:fix": "eslint . --report-unused-disable-directives --ext .js,.ts,.jsx,.tsx --max-warnings 0 --fix"
   },
