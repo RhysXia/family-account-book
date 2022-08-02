@@ -13,6 +13,7 @@ const client = new ApolloClient({
 
 const AtomsDevtools = ({ children }) => {
   if (import.meta.env.DEV) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     useAtomsDevtools('demo');
   }
   return children;

@@ -2,6 +2,17 @@
   "name": "root",
   "version": "0.0.1",
   "scripts": {
-    "dev:server": "cd platforms/server && npm run dev"
+    "dev:server": "cd platforms/server && npm run dev",
+    "lint": "eslint . --report-unused-disable-directives --ext .js,.ts,.jsx,.tsx --max-warnings 0",
+    "lint:fix": "eslint . --report-unused-disable-directives --ext .js,.ts,.jsx,.tsx --max-warnings 0 --fix"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
+    "@typescript-eslint/parser": "^5.0.0",
+    "eslint": "^8.0.1",
+    "eslint-config-react-app": "^7.0.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "^2.3.2"
   }
 }

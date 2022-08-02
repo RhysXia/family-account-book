@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { Outlet, Route, Routes, useNavigate } from 'react-router-dom';
 import { currentUser } from '../../store/user';
 
-export default () => {
+const Dashboard = () => {
   const [user] = useAtom(currentUser);
 
   const navigate = useNavigate();
@@ -12,7 +12,7 @@ export default () => {
     if (!user) {
       navigate('/login');
     }
-  }, [user, navigate]);
+  }, [navigate, user]);
 
   if (!user) {
     return null;
@@ -34,3 +34,5 @@ export default () => {
     </div>
   );
 };
+
+export default Dashboard;

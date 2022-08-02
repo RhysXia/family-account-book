@@ -22,7 +22,7 @@ export class UserResolver {
     @Args('name') name: string,
     @Args('pagination') pagination: Pagination,
   ) {
-    return 
+    return;
   }
 
   @Mutation()
