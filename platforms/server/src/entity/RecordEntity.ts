@@ -15,7 +15,7 @@ export class RecordEntity extends AbstractTimestampEntity {
 
   /**
    * 数额，
-   * 整数为收入，负数为支出
+   * 正数为收入，负数为支出
    */
   @Column({ type: 'decimal', precision: 11, scale: 2, nullable: false })
   amount: number;
