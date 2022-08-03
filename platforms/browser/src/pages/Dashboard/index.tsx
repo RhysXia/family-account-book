@@ -1,7 +1,8 @@
-import { gql, useLazyQuery, useQuery } from '@apollo/client';
+import { gql, useLazyQuery } from '@apollo/client';
 import { useAtom } from 'jotai';
 import { useCallback, useEffect } from 'react';
 import { Outlet, Route, Routes, useNavigate } from 'react-router-dom';
+import Header from '../../components/Header';
 import { currentUser } from '../../store/user';
 
 const currentUserGql = gql`
@@ -46,7 +47,7 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard">
-      <div className="header">header</div>
+      <Header />
       <div className="main">
         <div className="aside">
           <Routes>

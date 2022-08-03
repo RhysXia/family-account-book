@@ -7,7 +7,6 @@ import { SavingsEntity } from '../entity/SavingsEntity';
 import { SessionEntity } from '../entity/SessionEntity';
 import { TagEntity } from '../entity/TagEntity';
 import { UserEntity } from '../entity/UserEntity';
-import { isDevelopment } from '../utils/env';
 
 const models = [
   SessionEntity,
