@@ -42,7 +42,7 @@ const features = TypeOrmModule.forFeature(models);
           database,
           synchronize,
           entities: models,
-          logging: isDevelopment ? ['query'] : false,
+          // logging: isDevelopment ? ['query'] : false,
           entityPrefix: 'fab_',
         };
       },

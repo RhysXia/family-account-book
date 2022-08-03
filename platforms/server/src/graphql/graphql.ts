@@ -41,6 +41,7 @@ export interface SignUpUserInput {
 export interface SignInUserInput {
     username: string;
     password: string;
+    rememberMe?: Nullable<boolean>;
 }
 
 export interface Project {

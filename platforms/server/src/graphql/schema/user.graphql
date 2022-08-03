@@ -21,6 +21,7 @@ input SignUpUserInput {
 input SignInUserInput {
   username: String!
   password: String!
+  rememberMe: Boolean
 }
 
 type Mutation {

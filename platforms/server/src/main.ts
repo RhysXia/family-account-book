@@ -27,7 +27,7 @@ async function bootstrap() {
       saveUninitialized: false,
       store: new TypeormStore({
         cleanupLimit: 2,
-        ttl: 60 * 60 * 24 * 7,
+        // ttl: 60 * 60 * 24 * 7,
       }).connect(sessionRepository),
     }),
   );

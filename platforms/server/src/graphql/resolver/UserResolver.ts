@@ -1,4 +1,5 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Session as SessionType } from 'express-session';
 import { UserEntity } from '../../entity/UserEntity';
 import { UserService } from '../../service/UserService';
 import { SESSION_CURRENT_USER } from '../../utils/constants';
@@ -27,12 +28,16 @@ export class UserResolver {
 
   @Mutation()
   async signIn(
-    @Session() session: Record<string, any>,
+    @Session() session: SessionType,
     @Args('user') user: SignInUserInput,
   ): Promise<User> {
     const currentUser = await this.userService.signIn(user);
 
     session[SESSION_CURRENT_USER] = currentUser;
+
+    if (user.rememberMe) {
+      session.cookie.maxAge = 1000 * 60 * 60 * 24 * 7;
+    }
 
     return currentUser;
   }
