@@ -5,11 +5,7 @@ import { useAtomsDevtools } from 'jotai/devtools';
 import App from './App';
 import { BrowserRouter } from 'react-router-dom';
 import './assets/styles/index.less';
-
-const client = new ApolloClient({
-  uri: '/graphql',
-  cache: new InMemoryCache(),
-});
+import apolloClient from './apolloClient';
 
 const AtomsDevtools = ({ children }) => {
   if (import.meta.env.DEV) {
@@ -21,7 +17,7 @@ const AtomsDevtools = ({ children }) => {
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <ApolloProvider client={client}>
+    <ApolloProvider client={apolloClient}>
       <AtomsDevtools>
         <BrowserRouter>
           <App />
