@@ -6,6 +6,7 @@ import clsx from 'clsx';
 import { Link, useLocation, useRoutes, matchPath } from 'react-router-dom';
 import { gql, useQuery } from '@apollo/client';
 import { AccountBook } from '../../types/accountBook';
+import { useState } from 'react';
 
 const { Option } = Select;
 
@@ -33,6 +34,8 @@ const Header = () => {
   );
 
   const accountBooks = data?.accountBooks || [];
+
+  const [active] = useState(() => accountBooks.length ?? accountBooks[0]);
 
   const { pathname } = useLocation();
 
@@ -76,7 +79,7 @@ const Header = () => {
             </div>
           </div>
           <div>
-            <Select className="w-32" placeholder="请选择账本">
+            <Select className="w-32" defaultValue={}>
               {accountBooks.map((it) => (
                 <Option value={it.id}>{it.name}</Option>
               ))}
