@@ -1,4 +1,4 @@
-type Project {
+type AccountBook {
   id: Int!
   name: String!
   desc: String!
@@ -6,7 +6,7 @@ type Project {
   members: [User!]!
 }
 
-input ProjectInput {
+input AccountBookInput {
   name: String!
   desc: String!
   adminIds: [Int!]!
@@ -14,5 +14,9 @@ input ProjectInput {
 }
 
 type Mutation {
-  createProject(user: ProjectInput!): Project!
+  createAccountBook(accountBook: AccountBookInput!): AccountBook!
+}
+
+type Query {
+  accountBooks: [AccountBook!]!
 }

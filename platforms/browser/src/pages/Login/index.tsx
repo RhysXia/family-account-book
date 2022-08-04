@@ -4,6 +4,7 @@ import { useAtom } from 'jotai';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { currentUser } from '../../store/user';
+import { User } from '../../types/user';
 
 const loginGql = gql`
   mutation ($username: String!, $password: String!, $rememberMe: Boolean) {
@@ -28,7 +29,7 @@ const Login = () => {
 
   const [, setUser] = useAtom(currentUser);
 
-  const [login] = useMutation(loginGql);
+  const [login] = useMutation<{ signIn: User }>(loginGql);
 
   const handleFinish = useCallback(
     async (value) => {
@@ -37,7 +38,7 @@ const Login = () => {
         message.error(errors[0].message);
         return;
       }
-      setUser(data);
+      setUser(data!.signIn);
       navigate('/');
     },
     [login, setUser, navigate],

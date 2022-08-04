@@ -33,6 +33,7 @@ export class AccountBookEntity extends AbstractTimestampEntity {
     joinColumn: { name: 'project_id' },
     inverseJoinColumn: { name: 'admin_id' },
   })
+  admins: Array<UserEntity>;
 
   // 账本普通成员
   @ManyToMany(() => UserEntity)

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, Like, FindOptionsOrder } from 'typeorm';
 import { PasswordUtil } from '../common/PasswordUtil';
+import { AccountBookEntity } from '../entity/AccountBookEntity';
 import { UserEntity } from '../entity/UserEntity';
 import {
   SignUpUserInput,
@@ -74,7 +75,21 @@ export class UserService {
       user.createdAt = now;
       user.updatedAt = now;
 
-      return manager.save(user);
+      const userEntity = await manager.save(user);
+
+      // 为用户创建一个默认账本
+      const accountBook = new AccountBookEntity();
+
+      accountBook.name = '默认账本';
+      accountBook.desc = '默认账本';
+      accountBook.creator = userEntity;
+      accountBook.admins = [userEntity];
+      accountBook.createdAt = now;
+      accountBook.updatedAt = now;
+
+      await manager.save(accountBook);
+
+      return userEntity;
     });
   }
 }

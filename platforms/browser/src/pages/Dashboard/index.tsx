@@ -4,6 +4,7 @@ import { useCallback, useEffect } from 'react';
 import { Outlet, Route, Routes, useNavigate } from 'react-router-dom';
 import Header from '../../components/Header';
 import { currentUser } from '../../store/user';
+import { User } from '../../types/user';
 
 const currentUserGql = gql`
   query {
@@ -18,7 +19,7 @@ const currentUserGql = gql`
 const Dashboard = () => {
   const [user, setUser] = useAtom(currentUser);
 
-  const [getCurrentUser] = useLazyQuery(currentUserGql);
+  const [getCurrentUser] = useLazyQuery<{ currentUser: User }>(currentUserGql);
 
   const navigate = useNavigate();
 
@@ -34,7 +35,7 @@ const Dashboard = () => {
       return;
     }
 
-    setUser(data);
+    setUser(data!.currentUser);
   }, [user, getCurrentUser, navigate, setUser]);
 
   useEffect(() => {

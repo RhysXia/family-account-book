@@ -11,6 +11,7 @@
   "dependencies": {
     "@apollo/client": "^3.6.9",
     "antd": "^4.22.3",
+    "clsx": "^1.2.1",
     "graphql": "^16.5.0",
     "jotai": "^1.7.7",
     "react": "^18.2.0",

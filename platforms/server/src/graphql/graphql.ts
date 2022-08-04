@@ -13,6 +13,13 @@ export enum Direction {
     AESC = "AESC"
 }
 
+export interface AccountBookInput {
+    name: string;
+    desc: string;
+    adminIds: number[];
+    memberIds: number[];
+}
+
 export interface OrderBy {
     field: string;
     direction: Direction;
@@ -22,13 +29,6 @@ export interface Pagination {
     skip?: Nullable<number>;
     take?: Nullable<number>;
     orderBy: OrderBy[];
-}
-
-export interface ProjectInput {
-    name: string;
-    desc: string;
-    adminIds: number[];
-    memberIds: number[];
 }
 
 export interface SignUpUserInput {
@@ -44,7 +44,7 @@ export interface SignInUserInput {
     rememberMe?: Nullable<boolean>;
 }
 
-export interface Project {
+export interface AccountBook {
     id: number;
     name: string;
     desc: string;
@@ -53,9 +53,15 @@ export interface Project {
 }
 
 export interface IMutation {
-    createProject(user: ProjectInput): Project | Promise<Project>;
+    createAccountBook(accountBook: AccountBookInput): AccountBook | Promise<AccountBook>;
     signIn(user: SignInUserInput): User | Promise<User>;
     signUp(user: SignUpUserInput): User | Promise<User>;
+}
+
+export interface IQuery {
+    accountBooks(): AccountBook[] | Promise<AccountBook[]>;
+    currentUser(): User | Promise<User>;
+    users(name: string, pagination?: Nullable<Pagination>): User[] | Promise<User[]>;
 }
 
 export interface User {
@@ -63,11 +69,6 @@ export interface User {
     username: string;
     nickname: string;
     email?: Nullable<string>;
-}
-
-export interface IQuery {
-    currentUser(): User | Promise<User>;
-    users(name: string, pagination?: Nullable<Pagination>): User[] | Promise<User[]>;
 }
 
 type Nullable<T> = T | null;

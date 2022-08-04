@@ -5,6 +5,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { join } from 'path';
 import { ServiceModule } from '../service/ServiceModule';
 import { TagDataLoader } from './dataloader/TagDataLoader';
+import { AccountBookResolver } from './resolver/AccountBookResolver';
 import { UserResolver } from './resolver/UserResolver';
 @Module({
   imports: [
@@ -26,6 +27,6 @@ import { UserResolver } from './resolver/UserResolver';
     }),
     ServiceModule,
   ],
-  providers: [TagDataLoader, UserResolver],
+  providers: [TagDataLoader, UserResolver, AccountBookResolver],
 })
 export class GraphqlModule {}
