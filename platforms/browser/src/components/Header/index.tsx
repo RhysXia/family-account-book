@@ -1,9 +1,13 @@
 import Logo from './logo.svg';
-import { Avatar, Dropdown, Menu } from 'antd';
+import { Avatar, Dropdown, Menu, Input, Select } from 'antd';
 import { useAtom } from 'jotai';
 import { currentUser } from '../../store/user';
 import clsx from 'clsx';
 import { Link, useLocation, useRoutes, matchPath } from 'react-router-dom';
+import { gql, useQuery } from '@apollo/client';
+import { AccountBook } from '../../types/accountBook';
+
+const { Option } = Select;
 
 const navigation = [
   {
@@ -12,8 +16,23 @@ const navigation = [
   },
 ];
 
+const getAcountBooks = gql`
+  {
+    accountBooks {
+      id
+      name
+    }
+  }
+`;
+
 const Header = () => {
   const [user] = useAtom(currentUser);
+
+  const { data } = useQuery<{ accountBooks: Array<AccountBook> }>(
+    getAcountBooks,
+  );
+
+  const accountBooks = data?.accountBooks || [];
 
   const { pathname } = useLocation();
 
@@ -37,7 +56,7 @@ const Header = () => {
             <div className="flex-shrink-0 flex items-center">
               <img src={Logo} alt="logo" className="h-8 w-auto" />
             </div>
-            <div className="hidden sm:block sm:ml-6">
+            <div className="block ml-6">
               <div className="flex space-x-4">
                 {navigation.map((item) => (
                   <Link
@@ -55,6 +74,13 @@ const Header = () => {
                 ))}
               </div>
             </div>
+          </div>
+          <div>
+            <Select className="w-32" placeholder="请选择账本">
+              {accountBooks.map((it) => (
+                <Option value={it.id}>{it.name}</Option>
+              ))}
+            </Select>
           </div>
           <div>
             <Dropdown overlay={overlay}>
