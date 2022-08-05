@@ -1,45 +1,13 @@
-import { useAtom } from 'jotai';
-import { useCallback, useEffect } from 'react';
-import { Outlet, Route, Routes, useNavigate } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
+import Aside from '../../components/Aside';
 import Header from '../../components/Header';
-import { getCurrentUser } from '../../api';
-import { storeCurrentUser } from '../../store/user';
 
 const Dashboard = () => {
-  const [currentUser, setCurrentUser] = useAtom(storeCurrentUser);
-
-  const navigate = useNavigate();
-
-  const handleCurrentUser = useCallback(async () => {
-    if (currentUser) {
-      return;
-    }
-
-    try {
-      const data = await getCurrentUser();
-      setCurrentUser(data);
-    } catch (err) {
-      navigate('/login');
-    }
-  }, [currentUser, navigate, setCurrentUser]);
-
-  useEffect(() => {
-    handleCurrentUser();
-  }, [handleCurrentUser]);
-
-  if (!currentUser) {
-    return null;
-  }
-
   return (
-    <div className="dashboard">
+    <div className="flex flex-col min-h-screen">
       <Header />
-      <div className="main">
-        <div className="aside">
-          <Routes>
-            <Route path="/" element={<div>aaa</div>} />
-          </Routes>
-        </div>
+      <div className="flex flex-row flex-1">
+        <Aside />
         <div className="content">
           <Outlet />
         </div>

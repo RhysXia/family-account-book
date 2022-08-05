@@ -1,17 +1,10 @@
-import { Outlet, Route, Routes } from 'react-router-dom';
-import Dashboard from './pages/Dashboard';
-import Login from './pages/Login';
+import { useRoutes } from 'react-router-dom';
+import routes from './routes';
 
 const App = () => {
-  return (
-    <>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Dashboard />} />
-      </Routes>
-      <Outlet />
-    </>
-  );
+  const element = useRoutes(routes);
+
+  return element;
 };
 
 export default App;

@@ -1,13 +1,12 @@
 import Logo from './logo.svg';
 import { Avatar, Dropdown, Menu, Select } from 'antd';
 import { useAtom } from 'jotai';
-import { storeCurrentUser } from '../../store/user';
+import { currentUser } from '../../store/user';
 import clsx from 'clsx';
 import { Link, useLocation, matchPath } from 'react-router-dom';
 import {
-  storeAccountBooks,
-  storeActiveAccountBookId,
-  storeActiveAccountBook,
+  activeAccountBook as activeAccountBookStore,
+  accountBooks as accountBooksStore,
 } from '../../store/accountBook';
 import { useCallback, useEffect } from 'react';
 import { getAccountBooks } from '../../api/accountBook';
@@ -22,30 +21,36 @@ const navigation = [
 ];
 
 const Header = () => {
-  const [user] = useAtom(storeCurrentUser);
+  const [user] = useAtom(currentUser);
 
-  const [accountBooks = [], setAccountBooks] = useAtom(storeAccountBooks);
-  // const [activeAccountBookId, setActiveAccountBookId] = useAtom(
-  //   storeActiveAccountBookId,
-  // );
+  const [activeAccountBook, setActiveAccountBook] = useAtom(
+    activeAccountBookStore,
+  );
 
-  // const [activeAccountBook] = useAtom(storeActiveAccountBook);
+  const [accountBooks, setAccountBooks] = useAtom(accountBooksStore);
 
   const { pathname } = useLocation();
 
-  // const handleAccountBook = useCallback(() => {
-  //   setAccountBooks(async (prev) => {
-  //     if (prev) {
-  //       return prev;
-  //     }
-  //     const array = await getAccountBooks();
-  //     return array;
-  //   });
-  // }, [setAccountBooks]);
+  const handleAccountBook = useCallback(async () => {
+    const array = await getAccountBooks();
 
-  // useEffect(() => {
-  //   handleAccountBook();
-  // }, [handleAccountBook]);
+    setAccountBooks(array);
+    if (array.length) {
+      setActiveAccountBook(array[0]);
+    }
+  }, [setActiveAccountBook, setAccountBooks]);
+
+  const handleActiveBookChange = useCallback(
+    (id: number) => {
+      const accountBook = accountBooks?.find((it) => it.id === id);
+      setActiveAccountBook(accountBook);
+    },
+    [setActiveAccountBook, accountBooks],
+  );
+
+  useEffect(() => {
+    handleAccountBook();
+  }, [handleAccountBook]);
 
   const overlay = (
     <Menu
@@ -86,14 +91,18 @@ const Header = () => {
               </div>
             </div>
           </div>
-          <div>
-            <Select className="w-32" defaultValue={1}>
-              {accountBooks.map((it) => (
-                <Option value={it.id}>{it.name}</Option>
+          <div className="space-x-2">
+            <Select
+              className="w-32"
+              value={activeAccountBook?.id}
+              onChange={handleActiveBookChange}
+            >
+              {accountBooks?.map((it) => (
+                <Option value={it.id} key={it.id}>
+                  {it.name}
+                </Option>
               ))}
             </Select>
-          </div>
-          <div>
             <Dropdown overlay={overlay}>
               <Avatar className="bg-indigo-500 cursor-pointer">
                 {user?.nickname}

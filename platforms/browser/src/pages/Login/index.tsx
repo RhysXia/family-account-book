@@ -1,9 +1,9 @@
 import { Form, Input, Checkbox, Button, message } from 'antd';
 import { useAtom } from 'jotai';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signIn } from '../../api';
-import { storeCurrentUser } from '../../store/user';
+import { currentUser as currentUserStore } from '../../store/user';
 
 type FormType = {
   username: string;
@@ -16,20 +16,25 @@ const Login = () => {
 
   const navigate = useNavigate();
 
-  const [, setCurrentUser] = useAtom(storeCurrentUser);
+  const [currentUser, setCurrentUser] = useAtom(currentUserStore);
 
   const handleFinish = useCallback(
     async (value: FormType) => {
       try {
         const data = await signIn(value);
         setCurrentUser(data);
-        navigate('/');
       } catch (err) {
         message.error((err as Error).message);
       }
     },
-    [setCurrentUser, navigate],
+    [setCurrentUser],
   );
+
+  useEffect(() => {
+    if (currentUser) {
+      navigate('/', { replace: true });
+    }
+  }, [currentUser, navigate]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-tr from-yellow-400 to-pink-500">
