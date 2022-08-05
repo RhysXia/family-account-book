@@ -1,48 +1,33 @@
-import { gql, useLazyQuery } from '@apollo/client';
 import { useAtom } from 'jotai';
 import { useCallback, useEffect } from 'react';
 import { Outlet, Route, Routes, useNavigate } from 'react-router-dom';
 import Header from '../../components/Header';
-import { currentUser } from '../../store/user';
-import { User } from '../../types/user';
-
-const currentUserGql = gql`
-  query {
-    currentUser {
-      id
-      username
-      nickname
-    }
-  }
-`;
+import { getCurrentUser } from '../../api';
+import { storeCurrentUser } from '../../store/user';
 
 const Dashboard = () => {
-  const [user, setUser] = useAtom(currentUser);
-
-  const [getCurrentUser] = useLazyQuery<{ currentUser: User }>(currentUserGql);
+  const [currentUser, setCurrentUser] = useAtom(storeCurrentUser);
 
   const navigate = useNavigate();
 
   const handleCurrentUser = useCallback(async () => {
-    if (user) {
+    if (currentUser) {
       return;
     }
 
-    const { data, error } = await getCurrentUser();
-
-    if (error) {
+    try {
+      const data = await getCurrentUser();
+      setCurrentUser(data);
+    } catch (err) {
       navigate('/login');
-      return;
     }
-
-    setUser(data!.currentUser);
-  }, [user, getCurrentUser, navigate, setUser]);
+  }, [currentUser, navigate, setCurrentUser]);
 
   useEffect(() => {
     handleCurrentUser();
   }, [handleCurrentUser]);
 
-  if (!user) {
+  if (!currentUser) {
     return null;
   }
 

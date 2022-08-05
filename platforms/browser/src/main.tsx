@@ -5,7 +5,7 @@ import { useAtomsDevtools } from 'jotai/devtools';
 import App from './App';
 import { BrowserRouter } from 'react-router-dom';
 import './assets/styles/index.less';
-import apolloClient from './apolloClient';
+import { apolloClient } from './api';
 
 const AtomsDevtools = ({ children }) => {
   if (import.meta.env.DEV) {

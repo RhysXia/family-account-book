@@ -1,12 +1,16 @@
 import Logo from './logo.svg';
-import { Avatar, Dropdown, Menu, Input, Select } from 'antd';
+import { Avatar, Dropdown, Menu, Select } from 'antd';
 import { useAtom } from 'jotai';
-import { currentUser } from '../../store/user';
+import { storeCurrentUser } from '../../store/user';
 import clsx from 'clsx';
-import { Link, useLocation, useRoutes, matchPath } from 'react-router-dom';
-import { gql, useQuery } from '@apollo/client';
-import { AccountBook } from '../../types/accountBook';
-import { useState } from 'react';
+import { Link, useLocation, matchPath } from 'react-router-dom';
+import {
+  storeAccountBooks,
+  storeActiveAccountBookId,
+  storeActiveAccountBook,
+} from '../../store/accountBook';
+import { useCallback, useEffect } from 'react';
+import { getAccountBooks } from '../../api/accountBook';
 
 const { Option } = Select;
 
@@ -17,27 +21,31 @@ const navigation = [
   },
 ];
 
-const getAcountBooks = gql`
-  {
-    accountBooks {
-      id
-      name
-    }
-  }
-`;
-
 const Header = () => {
-  const [user] = useAtom(currentUser);
+  const [user] = useAtom(storeCurrentUser);
 
-  const { data } = useQuery<{ accountBooks: Array<AccountBook> }>(
-    getAcountBooks,
-  );
+  const [accountBooks = [], setAccountBooks] = useAtom(storeAccountBooks);
+  // const [activeAccountBookId, setActiveAccountBookId] = useAtom(
+  //   storeActiveAccountBookId,
+  // );
 
-  const accountBooks = data?.accountBooks || [];
-
-  const [active] = useState(() => accountBooks.length ?? accountBooks[0]);
+  // const [activeAccountBook] = useAtom(storeActiveAccountBook);
 
   const { pathname } = useLocation();
+
+  // const handleAccountBook = useCallback(() => {
+  //   setAccountBooks(async (prev) => {
+  //     if (prev) {
+  //       return prev;
+  //     }
+  //     const array = await getAccountBooks();
+  //     return array;
+  //   });
+  // }, [setAccountBooks]);
+
+  // useEffect(() => {
+  //   handleAccountBook();
+  // }, [handleAccountBook]);
 
   const overlay = (
     <Menu
@@ -79,7 +87,7 @@ const Header = () => {
             </div>
           </div>
           <div>
-            <Select className="w-32" defaultValue={}>
+            <Select className="w-32" defaultValue={1}>
               {accountBooks.map((it) => (
                 <Option value={it.id}>{it.name}</Option>
               ))}
