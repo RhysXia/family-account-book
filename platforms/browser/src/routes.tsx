@@ -1,6 +1,7 @@
 import { RouteObject } from 'react-router-dom';
 import RequireAuth from './components/RequireAuth';
 import AccountBook from './pages/AccountBook';
+import Income from './pages/AccountBook/Income';
 import CreateAccountBook from './pages/CreateAccountBook';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -37,6 +38,10 @@ const routes: Array<RouteObject> = [
       {
         path: '',
         element: <div>aaa</div>,
+      },
+      {
+        path: 'income',
+        element: <Income />,
       },
     ],
   },

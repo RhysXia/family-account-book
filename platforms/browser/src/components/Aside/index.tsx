@@ -1,21 +1,79 @@
 import { Menu } from 'antd';
 import { ItemType } from 'antd/lib/menu/hooks/useItems';
+import { useAtom } from 'jotai';
+import { activeAccountBook as activeAccountBookStore } from '../../store/accountBook';
+import {
+  AppstoreOutlined,
+  ShopOutlined,
+  CreditCardOutlined,
+  TagsOutlined,
+  DollarCircleOutlined,
+} from '@ant-design/icons';
+import { useCallback } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const items: Array<ItemType> = [
   {
-    label: '首页',
-    key: 'index',
+    label: '总览',
+    key: '',
+    icon: <AppstoreOutlined />,
+  },
+  {
+    label: '支出',
+    key: 'expend',
+    icon: <ShopOutlined />,
+    children: [
+      {
+        label: '预算',
+        key: 'expend-budget',
+      },
+    ],
+  },
+  {
+    label: '收入',
+    key: 'income',
+    icon: <DollarCircleOutlined />,
+  },
+  {
+    label: '储蓄',
+    key: 'savings',
+    icon: <CreditCardOutlined />,
+  },
+  {
+    label: '标签',
+    key: 'tags',
+    icon: <TagsOutlined />,
   },
 ];
 
 const Aside = () => {
+  const [activeAccountBook1] = useAtom(activeAccountBookStore);
+
+  const { pathname } = useLocation();
+
+  const navigate = useNavigate();
+
+  const handleSelect = useCallback(
+    (value: { key: string }) => {
+      navigate(value.key);
+    },
+    [navigate],
+  );
+
+  const selectKey = pathname.replace(/\/accountBook\/\d+\/?/, '');
+
   return (
-    <div>
+    <div className="min-h-full w-60 bg-gray-50  border-r">
+      <div className="px-6 py-2">
+        <h1 className="font-bold text-xl">{activeAccountBook1?.name}</h1>
+        <div className="text-sm text-gray-500 text-ellipsis">
+          {activeAccountBook1?.desc}
+        </div>
+      </div>
       <Menu
-        theme="dark"
-        className="min-h-full w-60"
-        defaultSelectedKeys={['1']}
-        defaultOpenKeys={['sub1']}
+        onSelect={handleSelect}
+        className="min-h-full w-full bg-inherit border-r-0"
+        defaultSelectedKeys={[selectKey]}
         mode="inline"
         items={items}
       />

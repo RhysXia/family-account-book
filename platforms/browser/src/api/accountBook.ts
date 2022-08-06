@@ -33,6 +33,7 @@ export const getAccountBookById = async (id: number) => {
         accountBook(id: $id) {
           id
           name
+          desc
           createdAt
           updatedAt
         }

@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getAccountBooks } from '../../api/accountBook';
 import { AccountBook } from '../../types/accountBook';
-import { Plus } from 'react-feather';
 import { fromTime } from '../../utils/dayjs';
 import { useNavigate } from 'react-router-dom';
+import { PlusOutlined } from '@ant-design/icons';
 
 const Home = () => {
   const [accountBooks, setAccountBooks] = useState<Array<AccountBook>>([]);
@@ -35,7 +35,7 @@ const Home = () => {
           className="py-4 px-4 flex items-center transition-all hover:bg-gray-100 cursor-pointer"
         >
           <div className="border rounded-full h-9 w-9 flex items-center justify-center bg-blue-500 text-white">
-            <Plus />
+            <PlusOutlined />
           </div>
           <div className="px-3">
             <div className="font-semibold text-base">新帐本</div>

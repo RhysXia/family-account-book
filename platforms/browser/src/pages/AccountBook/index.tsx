@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
 import { getAccountBookById } from '../../api/accountBook';
 import Aside from '../../components/Aside';
-import Header from '../../components/Header';
 import useConstantFn from '../../hooks/useConstanFn';
 import { activeAccountBook } from '../../store/accountBook';
 
@@ -17,8 +16,6 @@ const AccountBook = () => {
   const handleAccountBook = useConstantFn(async (idStr: string) => {
     const id = +idStr;
 
-    console.log(id)
-
     if (Number.isNaN(id)) {
       navigate('/notfound');
       return;
@@ -31,7 +28,6 @@ const AccountBook = () => {
       const value = await getAccountBookById(id);
       setAccounBook(value);
     } catch (err) {
-      console.log(err)
       navigate('/notfound');
     }
   });
@@ -45,13 +41,10 @@ const AccountBook = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-      <div className="flex flex-row flex-1">
-        <Aside />
-        <div className="content">
-          <Outlet />
-        </div>
+    <div className="flex flex-row min-h-screen">
+      <Aside />
+      <div className="content">
+        <Outlet />
       </div>
     </div>
   );

@@ -1,8 +1,9 @@
 @tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 @import 'antd/dist/antd.variable.less';
+
+@tailwind components;
+@tailwind utilities;
 
 html {
   --ant-primary-color: theme(colors.indigo.500);
@@ -44,4 +45,20 @@ html {
   --ant-info-color: #1890ff;
   --ant-info-color-deprecated-bg: #e6f7ff;
   --ant-info-color-deprecated-border: #91d5ff;
+}
+
+.ant-menu-item {
+  @apply flex flex-row items-center;
+}
+
+.ant-menu {
+  @apply text-gray-600;
+}
+
+.ant-menu-item,
+.ant-menu-submenu {
+  .ant-menu-item-icon {
+    @apply text-xl;
+    line-height: 1;
+  }
 }
