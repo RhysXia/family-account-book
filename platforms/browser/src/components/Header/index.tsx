@@ -1,56 +1,21 @@
 import Logo from './logo.svg';
-import { Avatar, Dropdown, Menu, Select } from 'antd';
+import { Avatar, Dropdown, Menu } from 'antd';
 import { useAtom } from 'jotai';
 import { currentUser } from '../../store/user';
 import clsx from 'clsx';
 import { Link, useLocation, matchPath } from 'react-router-dom';
-import {
-  activeAccountBook as activeAccountBookStore,
-  accountBooks as accountBooksStore,
-} from '../../store/accountBook';
-import { useCallback, useEffect } from 'react';
-import { getAccountBooks } from '../../api/accountBook';
-
-const { Option } = Select;
 
 const navigation = [
   {
     name: '创建账本',
-    href: '/account/create',
+    href: '/dashboard/accountBook/create',
   },
 ];
 
 const Header = () => {
   const [user] = useAtom(currentUser);
 
-  const [activeAccountBook, setActiveAccountBook] = useAtom(
-    activeAccountBookStore,
-  );
-
-  const [accountBooks, setAccountBooks] = useAtom(accountBooksStore);
-
   const { pathname } = useLocation();
-
-  const handleAccountBook = useCallback(async () => {
-    const array = await getAccountBooks();
-
-    setAccountBooks(array);
-    if (array.length) {
-      setActiveAccountBook(array[0]);
-    }
-  }, [setActiveAccountBook, setAccountBooks]);
-
-  const handleActiveBookChange = useCallback(
-    (id: number) => {
-      const accountBook = accountBooks?.find((it) => it.id === id);
-      setActiveAccountBook(accountBook);
-    },
-    [setActiveAccountBook, accountBooks],
-  );
-
-  useEffect(() => {
-    handleAccountBook();
-  }, [handleAccountBook]);
 
   const overlay = (
     <Menu
@@ -92,20 +57,9 @@ const Header = () => {
             </div>
           </div>
           <div className="space-x-2">
-            <Select
-              className="w-32"
-              value={activeAccountBook?.id}
-              onChange={handleActiveBookChange}
-            >
-              {accountBooks?.map((it) => (
-                <Option value={it.id} key={it.id}>
-                  {it.name}
-                </Option>
-              ))}
-            </Select>
             <Dropdown overlay={overlay}>
               <Avatar className="bg-indigo-500 cursor-pointer">
-                {user?.nickname}
+                {user?.username}
               </Avatar>
             </Dropdown>
           </div>

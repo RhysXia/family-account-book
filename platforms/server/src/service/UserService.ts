@@ -6,6 +6,7 @@ import {
   SignUpUserInput,
   SignInUserInput,
   Pagination,
+  AccountBook,
 } from '../graphql/graphql';
 
 @Injectable()
@@ -14,6 +15,19 @@ export class UserService {
     private readonly passwordUtil: PasswordUtil,
     private readonly dataSource: DataSource,
   ) {}
+
+  /**
+   * 模糊查询
+   * @param username
+   * @param limit
+   */
+  findByUsernameLike(username: string, limit: number) {
+    return this.dataSource.manager.find(UserEntity, {
+      where: {
+        username: Like(`%${username}%`),
+      },
+    });
+  }
 
   async findAll(name: string, pagination: Pagination) {
     const order: FindOptionsOrder<UserEntity> = {};
@@ -67,8 +81,6 @@ export class UserService {
       const user = new UserEntity();
       user.username = signUpUser.username;
       user.password = this.passwordUtil.encode(signUpUser.password);
-      user.nickname =
-        signUpUser.nickname || now.getMilliseconds().toString().slice(-9);
       user.email = signUpUser.email;
 
       user.createdAt = now;

@@ -19,11 +19,11 @@ export class UserResolver {
   }
 
   @Query()
-  async users(
-    @Args('name') name: string,
-    @Args('pagination') pagination: Pagination,
+  async searchUsers(
+    @Args('username') username: string,
+    @Args('limit') limit: number,
   ) {
-    return;
+    return this.userService.findByUsernameLike(username, limit);
   }
 
   @Mutation()

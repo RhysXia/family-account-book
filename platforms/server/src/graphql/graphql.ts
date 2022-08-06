@@ -34,8 +34,8 @@ export interface Pagination {
 export interface SignUpUserInput {
     username: string;
     password: string;
-    email?: Nullable<string>;
-    nickname?: Nullable<string>;
+    email: string;
+    avatar?: Nullable<string>;
 }
 
 export interface SignInUserInput {
@@ -44,31 +44,56 @@ export interface SignInUserInput {
     rememberMe?: Nullable<boolean>;
 }
 
-export interface AccountBook {
+export interface Timestamp {
+    createdAt: DateTime;
+    updatedAt: DateTime;
+}
+
+export interface AccountBook extends Timestamp {
     id: number;
     name: string;
     desc: string;
     admins: User[];
     members: User[];
+    createdAt: DateTime;
+    updatedAt: DateTime;
+}
+
+export interface CreateAccountBook extends Timestamp {
+    id: number;
+    name: string;
+    desc: string;
+    createdAt: DateTime;
+    updatedAt: DateTime;
 }
 
 export interface IMutation {
-    createAccountBook(accountBook: AccountBookInput): AccountBook | Promise<AccountBook>;
+    createAccountBook(accountBook: AccountBookInput): CreateAccountBook | Promise<CreateAccountBook>;
     signIn(user: SignInUserInput): User | Promise<User>;
     signUp(user: SignUpUserInput): User | Promise<User>;
 }
 
 export interface IQuery {
     accountBooks(): AccountBook[] | Promise<AccountBook[]>;
+    accountBook(id: number): AccountBook | Promise<AccountBook>;
     currentUser(): User | Promise<User>;
-    users(name: string, pagination?: Nullable<Pagination>): User[] | Promise<User[]>;
+    searchUsers(username: string, limit?: Nullable<number>): SearchUser[] | Promise<SearchUser[]>;
 }
 
-export interface User {
+export interface User extends Timestamp {
     id: number;
     username: string;
-    nickname: string;
     email?: Nullable<string>;
+    avatar?: Nullable<string>;
+    createdAt: DateTime;
+    updatedAt: DateTime;
 }
 
+export interface SearchUser {
+    id: number;
+    username: string;
+    avatar?: Nullable<string>;
+}
+
+export type DateTime = any;
 type Nullable<T> = T | null;

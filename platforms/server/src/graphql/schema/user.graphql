@@ -1,21 +1,31 @@
-type User {
+type User implements Timestamp {
   id: Int!
   username: String!
-  nickname: String!
-
   email: String
+  avatar: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type SearchUser {
+  id: Int!
+  username: String!
+  avatar: String
 }
 
 type Query {
   currentUser: User!
-  users(name: String!, pagination: Pagination): [User!]!
+  """
+  根据模糊搜索用户列表
+  """
+  searchUsers(username: String!, limit: Int = 10): [SearchUser!]!
 }
 
 input SignUpUserInput {
   username: String!
   password: String!
-  email: String
-  nickname: String
+  email: String!
+  avatar: String
 }
 
 input SignInUserInput {

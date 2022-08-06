@@ -1,22 +1,36 @@
-import { RouteObject, Navigate } from 'react-router-dom';
+import { RouteObject } from 'react-router-dom';
 import RequireAuth from './components/RequireAuth';
-import Dashboard from './pages/Dashboard';
+import AccountBook from './pages/AccountBook';
+import CreateAccountBook from './pages/CreateAccountBook';
+import Home from './pages/Home';
 import Login from './pages/Login';
 
 const routes: Array<RouteObject> = [
   {
     path: '/',
-    element: <Navigate to="dashboard" replace={true} />,
+    element: (
+      <RequireAuth>
+        <Home />
+      </RequireAuth>
+    ),
   },
   {
     path: '/login',
     element: <Login />,
   },
   {
-    path: '/dashboard',
+    path: '/accountBook/create',
     element: (
       <RequireAuth>
-        <Dashboard />
+        <CreateAccountBook />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: '/accountBook/:id',
+    element: (
+      <RequireAuth>
+        <AccountBook />
       </RequireAuth>
     ),
     children: [

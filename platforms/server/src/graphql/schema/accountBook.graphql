@@ -1,9 +1,19 @@
-type AccountBook {
+type AccountBook implements Timestamp {
   id: Int!
   name: String!
   desc: String!
   admins: [User!]!
   members: [User!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type CreateAccountBook implements Timestamp {
+  id: Int!
+  name: String!
+  desc: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 input AccountBookInput {
@@ -14,9 +24,13 @@ input AccountBookInput {
 }
 
 type Mutation {
-  createAccountBook(accountBook: AccountBookInput!): AccountBook!
+  createAccountBook(accountBook: AccountBookInput!): CreateAccountBook!
 }
 
 type Query {
   accountBooks: [AccountBook!]!
+  """
+  获取有权限的指定账本
+  """
+  accountBook(id: Int!): AccountBook!
 }

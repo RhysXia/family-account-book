@@ -17,11 +17,16 @@ export class AccountBookResolver {
     @CurrentUser() user: UserEntity,
     @Args('accountBook') accountBookInput: AccountBookInput,
   ): Promise<AccountBook> {
-    return;
+    return this.accountBookService.create(accountBookInput, user);
   }
 
   @Query()
   async accountBooks(@CurrentUser() user: UserEntity) {
     return this.accountBookService.findAllByUser(user);
+  }
+
+  @Query()
+  async accountBook(@CurrentUser() user: UserEntity, @Args('id') id: number) {
+    return this.accountBookService.findByUserAndId(user, id);
   }
 }

@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import { User } from '../types/user';
+import { SearchUser, User } from '../types/user';
 import apolloClient from './apolloClient';
 
 export const signIn = async (value: {
@@ -19,7 +19,10 @@ export const signIn = async (value: {
         ) {
           id
           username
-          nickname
+          email
+          createdAt
+          updatedAt
+          avatar
         }
       }
     `,
@@ -40,7 +43,10 @@ export const getCurrentUser = async () => {
         currentUser {
           id
           username
-          nickname
+          email
+          createdAt
+          updatedAt
+          avatar
         }
       }
     `,
@@ -50,4 +56,29 @@ export const getCurrentUser = async () => {
     throw error;
   }
   return data.currentUser;
+};
+
+export const searchUsers = async (username: string, limit = 10) => {
+  const { data, error } = await apolloClient.query<{
+    searchUsers: Array<SearchUser>;
+  }>({
+    query: gql`
+      query ($username: String!, $limit: Int!) {
+        searchUsers(username: $username, limit: $limit) {
+          id
+          username
+          avatar
+        }
+      }
+    `,
+    variables: {
+      username,
+      limit,
+    },
+  });
+
+  if (error) {
+    throw error;
+  }
+  return data.searchUsers;
 };

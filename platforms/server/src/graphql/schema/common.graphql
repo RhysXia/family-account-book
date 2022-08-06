@@ -1,15 +1,22 @@
+scalar DateTime
+
 enum Direction {
-    DESC,
-    AESC
+  DESC
+  AESC
 }
 
 input OrderBy {
-        field: String!
-        direction: Direction!
-    }
+  field: String!
+  direction: Direction!
+}
 
 input Pagination {
-    skip: Int
-    take: Int
-    orderBy: [OrderBy!]!
+  skip: Int
+  take: Int
+  orderBy: [OrderBy!]!
+}
+
+interface Timestamp {
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
