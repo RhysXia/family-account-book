@@ -1,13 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, Like, FindOptionsOrder } from 'typeorm';
+import { DataSource, In } from 'typeorm';
 import { PasswordUtil } from '../common/PasswordUtil';
 import { UserEntity } from '../entity/UserEntity';
-import {
-  SignUpUserInput,
-  SignInUserInput,
-  Pagination,
-  AccountBook,
-} from '../graphql/graphql';
+import { SignUpUserInput, SignInUserInput } from '../graphql/graphql';
+import { omit } from '../utils/omit';
+import { Like } from 'typeorm';
 
 @Injectable()
 export class UserService {
@@ -16,43 +13,44 @@ export class UserService {
     private readonly dataSource: DataSource,
   ) {}
 
+  async findAllByIds(ids: Array<number>): Promise<Array<UserEntity | Error>> {
+    const users = await this.dataSource.manager.find(UserEntity, {
+      where: {
+        id: In(ids),
+      },
+    });
+
+    return ids.map(
+      (it) => users.find((user) => user.id === it) || new Error('用户不存在'),
+    );
+  }
+
   /**
-   * 模糊查询
+   * 根据用户名模糊查询用户列表
    * @param username
    * @param limit
    */
-  findByUsernameLike(username: string, limit: number) {
+  findAllByUsernameLike(
+    username: string,
+    limit: number,
+  ): Promise<Array<Omit<UserEntity, 'password'>>> {
     return this.dataSource.manager.find(UserEntity, {
+      select: {
+        password: false,
+      },
       where: {
         username: Like(`%${username}%`),
       },
+      take: limit,
     });
   }
 
-  async findAll(name: string, pagination: Pagination) {
-    const order: FindOptionsOrder<UserEntity> = {};
-
-    const orderBy = pagination.orderBy;
-
-    orderBy.forEach((it) => {
-      order[it.field] = it.direction;
-    });
-
-    return this.dataSource.manager.find(UserEntity, {
-      where: {
-        username: Like(`%${name}%`),
-      },
-      order,
-      skip: pagination.skip,
-      take: pagination.take,
-    });
-  }
-
-  async signIn(signInUser: SignInUserInput) {
+  async signIn(
+    signInUser: SignInUserInput,
+  ): Promise<Omit<UserEntity, 'password'>> {
     const user = await this.dataSource.manager.findOne(UserEntity, {
-      where: { username: signInUser.username },
-      select: {
-        password: false,
+      where: {
+        username: signInUser.username,
       },
     });
     if (!user) {
@@ -63,10 +61,12 @@ export class UserService {
       throw new Error('登录失败');
     }
 
-    return user;
+    return omit(user, 'password');
   }
 
-  async signUp(signUpUser: SignUpUserInput) {
+  async signUp(
+    signUpUser: SignUpUserInput,
+  ): Promise<Omit<UserEntity, 'password'>> {
     return this.dataSource.transaction(async (manager) => {
       const oldUser = await manager.findOne(UserEntity, {
         where: { username: signUpUser.username },
@@ -86,7 +86,9 @@ export class UserService {
       user.createdAt = now;
       user.updatedAt = now;
 
-      return await manager.save(user);
+      const savedUser = await manager.save(user);
+
+      return omit(savedUser, 'password');
     });
   }
 }

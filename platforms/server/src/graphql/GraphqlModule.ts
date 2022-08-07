@@ -8,6 +8,9 @@ import { TagDataLoader } from './dataloader/TagDataLoader';
 import { AccountBookResolver } from './resolver/AccountBookResolver';
 import { SavingsResolver } from './resolver/SavingsResolver';
 import { UserResolver } from './resolver/UserResolver';
+import { ApolloServerPluginInlineTrace } from 'apollo-server-core';
+import { UserDataLoader } from './dataloader/UserDataLoader';
+
 @Module({
   imports: [
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
@@ -23,6 +26,8 @@ import { UserResolver } from './resolver/UserResolver';
           definitions: {
             path: join(process.cwd(), 'src/graphql/graphql.ts'),
           },
+          cache: 'bounded',
+          plugins: [ApolloServerPluginInlineTrace()],
         };
       },
     }),
@@ -30,6 +35,7 @@ import { UserResolver } from './resolver/UserResolver';
   ],
   providers: [
     TagDataLoader,
+    UserDataLoader,
     UserResolver,
     AccountBookResolver,
     SavingsResolver,

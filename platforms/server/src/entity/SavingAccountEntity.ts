@@ -4,34 +4,36 @@ import { AccountBookEntity } from './AccountBookEntity';
 import { UserEntity } from './UserEntity';
 
 /**
- * 储蓄
+ * 储蓄账户
  */
-@Entity('savings')
-export class SavingsEntity extends AbstractTimestampEntity {
+@Entity('saving_account')
+export class SavingAccountEntity extends AbstractTimestampEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ nullable: false })
   name: string;
 
-  @Column({ nullable: false })
-  desc: string;
+  @Column({ nullable: true })
+  desc?: string;
 
   /**
-   * 数额，
-   * 整数为收入，负数为支出
+   * 是否弃用
    */
-  @Column({ type: 'decimal', precision: 11, scale: 2, nullable: false })
-  amount: number;
-
-  @Column({ nullable: false, type: 'json' })
-  extra: Record<string, any>;
+  @Column({ nullable: false, default: false })
+  deprecated: boolean;
 
   /**
    * 创建人
    */
   @ManyToOne(() => UserEntity, { nullable: false })
   creator: UserEntity;
+
+  /**
+   * 修改人
+   */
+  @ManyToOne(() => UserEntity, { nullable: false })
+  updater: UserEntity;
 
   /**
    * 所属账本

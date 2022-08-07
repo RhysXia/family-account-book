@@ -13,11 +13,19 @@ export enum Direction {
     AESC = "AESC"
 }
 
-export interface AccountBookInput {
+export interface CreateAccountBookInput {
     name: string;
-    desc: string;
+    desc?: Nullable<string>;
     adminIds: number[];
     memberIds: number[];
+}
+
+export interface UpdateAccountBookInput {
+    id: number;
+    name?: Nullable<string>;
+    desc?: Nullable<string>;
+    adminIds?: Nullable<number[]>;
+    memberIds?: Nullable<number[]>;
 }
 
 export interface OrderBy {
@@ -41,7 +49,7 @@ export interface CreateSavingsInput {
 export interface SignUpUserInput {
     username: string;
     password: string;
-    email: string;
+    email?: Nullable<string>;
     avatar?: Nullable<string>;
 }
 
@@ -59,34 +67,27 @@ export interface Timestamp {
 export interface AccountBook extends Timestamp {
     id: number;
     name: string;
-    desc: string;
+    desc?: Nullable<string>;
     admins: User[];
     members: User[];
     createdAt: DateTime;
     updatedAt: DateTime;
 }
 
-export interface CreateAccountBook extends Timestamp {
-    id: number;
-    name: string;
-    desc: string;
-    createdAt: DateTime;
-    updatedAt: DateTime;
-}
-
 export interface IMutation {
-    createAccountBook(accountBook: AccountBookInput): CreateAccountBook | Promise<CreateAccountBook>;
+    createAccountBook(accountBook: CreateAccountBookInput): AccountBook | Promise<AccountBook>;
+    updateAccountBook(accountBook: UpdateAccountBookInput): AccountBook | Promise<AccountBook>;
     createSavings(savings: CreateSavingsInput): CreateSavings | Promise<CreateSavings>;
     signIn(user: SignInUserInput): User | Promise<User>;
     signUp(user: SignUpUserInput): User | Promise<User>;
 }
 
 export interface IQuery {
-    getSelfAccountBooks(): AccountBook[] | Promise<AccountBook[]>;
-    getAccountBookById(id: number): AccountBook | Promise<AccountBook>;
+    getOwnAccountBookList(): AccountBook[] | Promise<AccountBook[]>;
+    getOwnAccountBookById(id: number): AccountBook | Promise<AccountBook>;
     getSavingsByAccountBookId(accountBookId: number): Savings[] | Promise<Savings[]>;
     getCurrentUser(): User | Promise<User>;
-    searchUsers(username: string, limit?: Nullable<number>): SearchUser[] | Promise<SearchUser[]>;
+    findUserListByUsernameLike(username: string, limit?: Nullable<number>): User[] | Promise<User[]>;
 }
 
 export interface Savings extends Timestamp {
@@ -114,12 +115,6 @@ export interface User extends Timestamp {
     avatar?: Nullable<string>;
     createdAt: DateTime;
     updatedAt: DateTime;
-}
-
-export interface SearchUser {
-    id: number;
-    username: string;
-    avatar?: Nullable<string>;
 }
 
 export type DateTime = any;

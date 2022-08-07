@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { AccountBookEntity } from '../entity/AccountBookEntity';
-import { SavingsEntity } from '../entity/SavingsEntity';
+import { SavingAccountEntity } from '../entity/SavingAccountEntity';
 import { UserEntity } from '../entity/UserEntity';
 import { CreateSavingsInput } from '../graphql/graphql';
 
@@ -31,7 +31,7 @@ export class SavingsService {
       throw new Error('账本不存在');
     }
     const savings = await this.dataSource.manager
-      .createQueryBuilder(SavingsEntity, 'savings')
+      .createQueryBuilder(SavingAccountEntity, 'savings')
       .leftJoin('savings.accountBook', 'accountBook')
       .where('accountBook.id = :id', { id: accountBook.id })
       .getMany();
@@ -60,16 +60,13 @@ export class SavingsService {
       throw new Error('账本不存在');
     }
 
-    const savings = new SavingsEntity();
+    const savings = new SavingAccountEntity();
 
     const now = new Date();
 
     savings.name = name;
     savings.desc = desc;
-    savings.amount = amount;
     savings.creator = user;
-
-    savings.extra = {};
 
     savings.createdAt = now;
     savings.updatedAt = now;

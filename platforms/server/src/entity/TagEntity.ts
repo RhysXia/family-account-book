@@ -20,7 +20,7 @@ export enum TagType {
    */
   INVESTMENT = 'INVESTMENT',
   /**
-   * 贷款（借钱）
+   * 借贷
    */
   LOAD = 'LOAD',
 }

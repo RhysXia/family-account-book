@@ -20,11 +20,14 @@ export class AccountBookEntity extends AbstractTimestampEntity {
   @Column({ nullable: false })
   name: string;
 
-  @Column({ nullable: false })
-  desc: string;
+  @Column({ nullable: true })
+  desc?: string;
 
   @ManyToOne(() => UserEntity, { nullable: false })
   creator: UserEntity;
+
+  @ManyToOne(() => UserEntity, { nullable: false })
+  updater: UserEntity;
 
   // 管理员
   @ManyToMany(() => UserEntity)

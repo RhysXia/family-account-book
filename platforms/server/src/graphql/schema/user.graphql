@@ -7,24 +7,21 @@ type User implements Timestamp {
   updatedAt: DateTime!
 }
 
-type SearchUser {
-  id: Int!
-  username: String!
-  avatar: String
-}
-
 type Query {
+  """
+  获取当前登录用户信息
+  """
   getCurrentUser: User!
   """
   根据模糊搜索用户列表
   """
-  searchUsers(username: String!, limit: Int = 10): [SearchUser!]!
+  findUserListByUsernameLike(username: String!, limit: Int = 10): [User!]!
 }
 
 input SignUpUserInput {
   username: String!
   password: String!
-  email: String!
+  email: String
   avatar: String
 }
 

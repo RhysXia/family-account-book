@@ -2,14 +2,55 @@ import { Injectable } from '@nestjs/common';
 import { Brackets, DataSource, In } from 'typeorm';
 import { AccountBookEntity } from '../entity/AccountBookEntity';
 import { UserEntity } from '../entity/UserEntity';
-import { AccountBook, AccountBookInput } from '../graphql/graphql';
+import {
+  AccountBook,
+  CreateAccountBookInput,
+  UpdateAccountBookInput,
+} from '../graphql/graphql';
+import { omit } from '../utils/omit';
 
 @Injectable()
 export class AccountBookService {
   constructor(private readonly dataSource: DataSource) {}
 
+  async findAdminsByAccountBookId(
+    accountBookId: number,
+  ): Promise<Array<Omit<UserEntity, 'password'>>> {
+    const accountBook = await this.dataSource
+      .createQueryBuilder(AccountBookEntity, 'accountBook')
+      .leftJoinAndSelect('accountBook.admins', 'admin')
+      .where('accountBook.id = :id', { id: accountBookId })
+      .getOne();
+
+    if (!accountBook) {
+      throw new Error('账本不存在');
+    }
+
+    const admins = accountBook.admins.map((it) => omit(it, 'password'));
+
+    return admins;
+  }
+
+  async findMembersByAccountBookId(
+    accountBookId: number,
+  ): Promise<Array<Omit<UserEntity, 'password'>>> {
+    const accountBook = await this.dataSource
+      .createQueryBuilder(AccountBookEntity, 'accountBook')
+      .leftJoinAndSelect('accountBook.members', 'member')
+      .where('accountBook.id = :id', { id: accountBookId })
+      .getOne();
+
+    if (!accountBook) {
+      throw new Error('账本不存在');
+    }
+
+    const members = accountBook.members.map((it) => omit(it, 'password'));
+
+    return members;
+  }
+
   create(
-    accountBookInput: AccountBookInput,
+    accountBookInput: CreateAccountBookInput,
     author: UserEntity,
   ): Promise<AccountBook> {
     return this.dataSource.transaction(async (manager) => {
@@ -18,24 +59,13 @@ export class AccountBookService {
 
       const adminIdSet = new Set(adminIds);
 
-      if (adminIdSet.size !== adminIds.length) {
-        throw new Error('管理员id重复');
-      }
-
       adminIdSet.add(author.id);
 
-      if (adminIdSet.size !== adminIds.length + 1) {
-        throw new Error('无需将自己加入管理员，默认管理员会包含自己');
-      }
-
-      if (memberIds.some((it) => adminIdSet.has(it))) {
-        throw new Error('请不要将用户同时加入管理员和成员');
-      }
-
       const memberIdSet = new Set(memberIds);
-      if (memberIdSet.size !== memberIds.length) {
-        throw new Error('成员id重复');
-      }
+
+      adminIdSet.forEach((it) => {
+        memberIdSet.delete(it);
+      });
 
       const admins = await manager.find(UserEntity, {
         where: {
@@ -43,19 +73,11 @@ export class AccountBookService {
         },
       });
 
-      if (admins.length !== adminIds.length + 1) {
-        throw new Error('请传入正确的管理员id');
-      }
-
       const members = await manager.find(UserEntity, {
         where: {
           id: In(Array.from(memberIdSet)),
         },
       });
-
-      if (members.length !== memberIdSet.size) {
-        throw new Error('请传入正确的成员id');
-      }
 
       const now = new Date();
 
@@ -63,11 +85,73 @@ export class AccountBookService {
       accountBook.name = accountBookInput.name;
       accountBook.desc = accountBookInput.desc;
       accountBook.creator = author;
+      accountBook.updater = author;
       accountBook.admins = admins;
       accountBook.members = members;
       accountBook.createdAt = now;
       accountBook.updatedAt = now;
       return manager.save(accountBook);
+    });
+  }
+
+  async update(
+    accountBookInput: UpdateAccountBookInput,
+    user: UserEntity,
+  ): Promise<AccountBook> {
+    const { id, name, desc, adminIds, memberIds } = accountBookInput;
+
+    return this.dataSource.transaction(async (manager) => {
+      // 只有管理员能更新
+      const accountBook = await manager.findOne(AccountBookEntity, {
+        where: {
+          id,
+          admins: {
+            id: user.id,
+          },
+        },
+      });
+
+      if (!accountBook) {
+        throw new Error('账本不存在');
+      }
+      if (name) {
+        accountBook.name = name;
+      }
+      if (desc) {
+        accountBook.desc = desc;
+      }
+
+      if (adminIds) {
+        const adminIdSet = new Set(adminIds);
+
+        adminIdSet.add(user.id);
+
+        const admins = await manager.find(UserEntity, {
+          where: {
+            id: In(Array.from(adminIdSet)),
+          },
+        });
+        accountBook.admins = admins;
+      }
+
+      if (memberIds) {
+        const memberIdSet = new Set(memberIds);
+
+        accountBook.admins.forEach((it) => {
+          memberIdSet.delete(it.id);
+        });
+
+        const members = await manager.find(UserEntity, {
+          where: {
+            id: In(Array.from(memberIdSet)),
+          },
+        });
+        accountBook.members = members;
+      }
+
+      await manager.save(AccountBookEntity, accountBook);
+
+      return accountBook;
     });
   }
 

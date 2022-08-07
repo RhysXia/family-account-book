@@ -1,36 +1,64 @@
 type AccountBook implements Timestamp {
   id: Int!
   name: String!
-  desc: String!
+  desc: String
+  """
+  管理员
+  """
   admins: [User!]!
+  """
+  普通成员，不包含管理员
+  """
   members: [User!]!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
 
-type CreateAccountBook implements Timestamp {
-  id: Int!
+input CreateAccountBookInput {
   name: String!
-  desc: String!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-}
-
-input AccountBookInput {
-  name: String!
-  desc: String!
+  desc: String
+  """
+  管理员id，自己可以不传，默认自己作为管理员
+  """
   adminIds: [Int!]!
+  """
+  成员id，会过滤在管理员中的用户
+  """
   memberIds: [Int!]!
 }
 
+input UpdateAccountBookInput {
+  id: Int!
+  name: String
+  desc: String
+  """
+  管理员id，需要传全量id，自己可以不传
+  """
+  adminIds: [Int!]
+  """
+  成员id，会过滤在管理员中的用户
+  """
+  memberIds: [Int!]
+}
+
 type Mutation {
-  createAccountBook(accountBook: AccountBookInput!): CreateAccountBook!
+  """
+  创建账本
+  """
+  createAccountBook(accountBook: CreateAccountBookInput!): AccountBook!
+  """
+  更新账本，自己需要为管理员
+  """
+  updateAccountBook(accountBook: UpdateAccountBookInput!): AccountBook!
 }
 
 type Query {
-  getSelfAccountBooks: [AccountBook!]!
   """
-  获取有权限的指定账本
+  获取属于自己的账本，自己为账本管理员或者普通成员
   """
-  getAccountBookById(id: Int!): AccountBook!
+  getOwnAccountBookList: [AccountBook!]!
+  """
+  获取有权限的指定账本，自己为账本管理员或者普通成员
+  """
+  getOwnAccountBookById(id: Int!): AccountBook!
 }

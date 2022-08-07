@@ -1,17 +1,27 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { AbstractTimestampEntity } from './abstract/AbstractTimestampEntity';
 import { AccountBookEntity } from './AccountBookEntity';
 import { UserEntity } from './UserEntity';
-import { SavingsEntity } from './SavingsEntity';
+import { SavingAccountEntity } from './SavingAccountEntity';
 import { TagEntity } from './TagEntity';
+import { SavingAccountBalanceEntity } from './SavingAccountBalanceEntity';
 
 /**
- * 支出和收入记录
+ * 流水记录
  */
-@Entity('record')
-export class RecordEntity extends AbstractTimestampEntity {
+@Entity('flow_record')
+export class FlowRecordEntity extends AbstractTimestampEntity {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column({ nullable: false })
+  desc?: string;
 
   /**
    * 数额，
@@ -19,9 +29,6 @@ export class RecordEntity extends AbstractTimestampEntity {
    */
   @Column({ type: 'decimal', precision: 11, scale: 2, nullable: false })
   amount: number;
-
-  @Column({ nullable: false })
-  desc: string;
 
   /**
    * 所属账本
@@ -32,12 +39,21 @@ export class RecordEntity extends AbstractTimestampEntity {
   @ManyToOne(() => UserEntity, { nullable: false })
   creator: UserEntity;
 
+  @ManyToOne(() => UserEntity, { nullable: false })
+  updator: UserEntity;
+
   @ManyToOne(() => TagEntity, { nullable: false })
   tag: TagEntity;
 
   /**
    * 支付或者收入渠道
    */
-  @ManyToOne(() => SavingsEntity, { nullable: false })
-  savings: SavingsEntity;
+  @ManyToOne(() => SavingAccountEntity, { nullable: false })
+  savingAccount: SavingAccountEntity;
+
+  /**
+   * 余额记录
+   */
+  @OneToOne(() => SavingAccountBalanceEntity, { nullable: false })
+  savingAccountBlance: SavingAccountBalanceEntity;
 }
