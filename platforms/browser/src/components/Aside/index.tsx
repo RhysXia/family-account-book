@@ -24,6 +24,10 @@ const items: Array<ItemType> = [
     icon: <ShopOutlined />,
     children: [
       {
+        label: '支出详情',
+        key: 'expand-detail',
+      },
+      {
         label: '预算',
         key: 'expend-budget',
       },
@@ -63,7 +67,7 @@ const Aside = () => {
   const selectKey = pathname.replace(/\/accountBook\/\d+\/?/, '');
 
   return (
-    <div className="min-h-full w-60 bg-gray-50  border-r">
+    <div className="min-h-full w-60 bg-white border-r border-gray-100 flex flex-col">
       <div className="px-6 py-2">
         <h1 className="font-bold text-xl">{activeAccountBook1?.name}</h1>
         <div className="text-sm text-gray-500 text-ellipsis">
@@ -72,7 +76,7 @@ const Aside = () => {
       </div>
       <Menu
         onSelect={handleSelect}
-        className="min-h-full w-full bg-inherit border-r-0"
+        className="flex-1 w-full bg-inherit border-r-0"
         defaultSelectedKeys={[selectKey]}
         mode="inline"
         items={items}

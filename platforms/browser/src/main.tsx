@@ -6,6 +6,8 @@ import App from './App';
 import { BrowserRouter } from 'react-router-dom';
 import './assets/styles/index.less';
 import { apolloClient } from './api';
+import { ConfigProvider } from 'antd';
+import zhCn from 'antd/es/locale/zh_CN';
 
 const AtomsDevtools = ({ children }) => {
   if (import.meta.env.DEV) {
@@ -17,12 +19,14 @@ const AtomsDevtools = ({ children }) => {
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <ApolloProvider client={apolloClient}>
-      <AtomsDevtools>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </AtomsDevtools>
-    </ApolloProvider>
+    <ConfigProvider locale={zhCn}>
+      <ApolloProvider client={apolloClient}>
+        <AtomsDevtools>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </AtomsDevtools>
+      </ApolloProvider>
+    </ConfigProvider>
   </React.StrictMode>,
 );

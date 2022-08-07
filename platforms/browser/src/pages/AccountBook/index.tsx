@@ -1,5 +1,6 @@
+import { Spin } from 'antd';
 import { useAtom } from 'jotai';
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
 import { getAccountBookById } from '../../api/accountBook';
 import Aside from '../../components/Aside';
@@ -43,10 +44,21 @@ const AccountBook = () => {
   return (
     <div className="flex flex-row min-h-screen">
       <Aside />
-      <div className="content">
-        <Outlet />
+      <div className="flex-1 min-h-full">
+        <Suspense fallback={<Loading />}>
+          <Outlet />
+        </Suspense>
       </div>
     </div>
+  );
+};
+
+const Loading = () => {
+  return (
+    <Spin
+      size="large"
+      className="w-full h-full flex items-center justify-center bg-gray-100"
+    />
   );
 };
 

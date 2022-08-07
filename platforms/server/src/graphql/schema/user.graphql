@@ -14,7 +14,7 @@ type SearchUser {
 }
 
 type Query {
-  currentUser: User!
+  getCurrentUser: User!
   """
   根据模糊搜索用户列表
   """

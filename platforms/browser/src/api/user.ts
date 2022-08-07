@@ -37,10 +37,10 @@ export const signIn = async (value: {
 };
 
 export const getCurrentUser = async () => {
-  const { data, error } = await apolloClient.query<{ currentUser: User }>({
+  const { data, error } = await apolloClient.query<{ getCurrentUser: User }>({
     query: gql`
       query {
-        currentUser {
+        getCurrentUser {
           id
           username
           email
@@ -55,7 +55,7 @@ export const getCurrentUser = async () => {
   if (error) {
     throw error;
   }
-  return data.currentUser;
+  return data.getCurrentUser;
 };
 
 export const searchUsers = async (username: string, limit = 10) => {

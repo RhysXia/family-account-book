@@ -21,7 +21,7 @@ export class RecordEntity extends AbstractTimestampEntity {
   amount: number;
 
   @Column({ nullable: false })
-  desc: number;
+  desc: string;
 
   /**
    * 所属账本
@@ -36,8 +36,8 @@ export class RecordEntity extends AbstractTimestampEntity {
   tag: TagEntity;
 
   /**
-   * 支付或者收入渠道，可以不填
+   * 支付或者收入渠道
    */
-  @ManyToOne(() => SavingsEntity, { nullable: true })
+  @ManyToOne(() => SavingsEntity, { nullable: false })
   savings: SavingsEntity;
 }

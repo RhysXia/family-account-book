@@ -1,0 +1,32 @@
+type Savings implements Timestamp {
+  id: Int!
+  name: String!
+  desc: String!
+  amount: Float!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type CreateSavings implements Timestamp {
+  id: Int!
+  name: String!
+  desc: String!
+  amount: Float!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Query {
+  getSavingsByAccountBookId(accountBookId: Int!): [Savings!]!
+}
+
+input CreateSavingsInput {
+  name: String!
+  desc: String!
+  amount: Float!
+  accountBookId: Int!
+}
+
+type Mutation {
+  createSavings(savings: CreateSavingsInput!): CreateSavings!
+}

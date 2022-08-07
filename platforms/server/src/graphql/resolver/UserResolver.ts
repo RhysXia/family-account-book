@@ -12,7 +12,7 @@ export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
   @Query()
-  async currentUser(
+  async getCurrentUser(
     @CurrentUser({ required: true }) user: UserEntity,
   ): Promise<User> {
     return user;

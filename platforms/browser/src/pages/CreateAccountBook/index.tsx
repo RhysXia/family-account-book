@@ -1,4 +1,4 @@
-import { Button, Form, Input, message } from 'antd';
+import { Button, Form, Input, message, Modal } from 'antd';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createAccountBook } from '../../api/accountBook';
@@ -34,49 +34,50 @@ const CreateAccountBook = () => {
     [navigate],
   );
 
+  const title = (
+    <>
+      <h1 className="font-bold text-xl mb-2">创建新账本</h1>
+      <div className="text-sm text-gray-500 ">创建一个账本</div>
+    </>
+  );
+
   return (
-    <div className="w-screen h-screen flex items-center justify-center bg-gray-200">
-      <div
-        className="shadow-lg rounded-lg overflow-hidden bg-white divide-y divide-gray-200"
-        style={{
-          width: 600,
-        }}
-      >
-        <div className="py-4 px-4">
-          <h1 className="font-bold text-xl mb-2">创建新账本</h1>
-          <div className="text-sm text-gray-500 ">创建一个账本</div>
-        </div>
-        <div className="py-4 px-4">
-          <Form layout="vertical" form={form} onFinish={handleFinish}>
-            <Form.Item
-              name="name"
-              label="账本名称"
-              rules={[{ required: true, message: '账本名称不能为空' }]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
-              name="desc"
-              label="账本描述"
-              rules={[{ required: true, message: '账本描述不能为空' }]}
-            >
-              <Input.TextArea />
-            </Form.Item>
-            <Form.Item name="admins" label="管理员">
-              <UserSelect />
-            </Form.Item>
-            <Form.Item name="members" label="普通成员">
-              <UserSelect />
-            </Form.Item>
-            <Form.Item>
-              <Button block type="primary" htmlType="submit">
-                提交
-              </Button>
-            </Form.Item>
-          </Form>
-        </div>
-      </div>
-    </div>
+    <Modal
+      title={title}
+      visible={true}
+      maskStyle={{ backgroundColor: '#F3F4F6' }}
+      closable={false}
+      footer={null}
+      getContainer={false}
+    >
+      <Form layout="vertical" form={form} onFinish={handleFinish}>
+        <Form.Item
+          name="name"
+          label="账本名称"
+          rules={[{ required: true, message: '账本名称不能为空' }]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          name="desc"
+          label="账本描述"
+          rules={[{ required: true, message: '账本描述不能为空' }]}
+        >
+          <Input.TextArea autoSize={{ minRows: 4 }} />
+        </Form.Item>
+        <Form.Item name="admins" label="管理员">
+          <UserSelect />
+        </Form.Item>
+        <Form.Item name="members" label="普通成员">
+          <UserSelect />
+        </Form.Item>
+        <Form.Item>
+          <Button block type="primary" htmlType="submit">
+            提交
+          </Button>
+        </Form.Item>
+      </Form>
+    </Modal>
   );
 };
 

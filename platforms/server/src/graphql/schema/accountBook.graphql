@@ -28,9 +28,9 @@ type Mutation {
 }
 
 type Query {
-  accountBooks: [AccountBook!]!
+  getSelfAccountBooks: [AccountBook!]!
   """
   获取有权限的指定账本
   """
-  accountBook(id: Int!): AccountBook!
+  getAccountBookById(id: Int!): AccountBook!
 }

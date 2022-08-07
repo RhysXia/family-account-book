@@ -27,11 +27,11 @@ export class SavingsEntity extends AbstractTimestampEntity {
   @Column({ nullable: false, type: 'json' })
   extra: Record<string, any>;
 
+  /**
+   * 创建人
+   */
   @ManyToOne(() => UserEntity, { nullable: false })
   creator: UserEntity;
-
-  @ManyToOne(() => UserEntity, { nullable: false })
-  owner: UserEntity;
 
   /**
    * 所属账本

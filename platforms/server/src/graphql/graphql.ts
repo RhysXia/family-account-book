@@ -31,6 +31,13 @@ export interface Pagination {
     orderBy: OrderBy[];
 }
 
+export interface CreateSavingsInput {
+    name: string;
+    desc: string;
+    amount: number;
+    accountBookId: number;
+}
+
 export interface SignUpUserInput {
     username: string;
     password: string;
@@ -69,15 +76,35 @@ export interface CreateAccountBook extends Timestamp {
 
 export interface IMutation {
     createAccountBook(accountBook: AccountBookInput): CreateAccountBook | Promise<CreateAccountBook>;
+    createSavings(savings: CreateSavingsInput): CreateSavings | Promise<CreateSavings>;
     signIn(user: SignInUserInput): User | Promise<User>;
     signUp(user: SignUpUserInput): User | Promise<User>;
 }
 
 export interface IQuery {
-    accountBooks(): AccountBook[] | Promise<AccountBook[]>;
-    accountBook(id: number): AccountBook | Promise<AccountBook>;
-    currentUser(): User | Promise<User>;
+    getSelfAccountBooks(): AccountBook[] | Promise<AccountBook[]>;
+    getAccountBookById(id: number): AccountBook | Promise<AccountBook>;
+    getSavingsByAccountBookId(accountBookId: number): Savings[] | Promise<Savings[]>;
+    getCurrentUser(): User | Promise<User>;
     searchUsers(username: string, limit?: Nullable<number>): SearchUser[] | Promise<SearchUser[]>;
+}
+
+export interface Savings extends Timestamp {
+    id: number;
+    name: string;
+    desc: string;
+    amount: number;
+    createdAt: DateTime;
+    updatedAt: DateTime;
+}
+
+export interface CreateSavings extends Timestamp {
+    id: number;
+    name: string;
+    desc: string;
+    amount: number;
+    createdAt: DateTime;
+    updatedAt: DateTime;
 }
 
 export interface User extends Timestamp {

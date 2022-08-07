@@ -4,11 +4,11 @@ import apolloClient from './apolloClient';
 
 export const getAccountBooks = async () => {
   const { data, error } = await apolloClient.query<{
-    accountBooks: Array<AccountBook>;
+    getSelfAccountBooks: Array<AccountBook>;
   }>({
     query: gql`
       {
-        accountBooks {
+        getSelfAccountBooks {
           id
           name
           createdAt
@@ -21,16 +21,16 @@ export const getAccountBooks = async () => {
   if (error) {
     throw error;
   }
-  return data.accountBooks;
+  return data.getSelfAccountBooks;
 };
 
 export const getAccountBookById = async (id: number) => {
   const { data, error } = await apolloClient.query<{
-    accountBook: AccountBook;
+    getAccountBookById: AccountBook;
   }>({
     query: gql`
       query ($id: Int!) {
-        accountBook(id: $id) {
+        getAccountBookById(id: $id) {
           id
           name
           desc
@@ -47,7 +47,7 @@ export const getAccountBookById = async (id: number) => {
   if (error) {
     throw error;
   }
-  return data.accountBook;
+  return data.getAccountBookById;
 };
 
 export const createAccountBook = async (accountBook: {

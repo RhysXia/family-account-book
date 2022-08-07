@@ -1,10 +1,13 @@
+import { lazy } from 'react';
 import { RouteObject } from 'react-router-dom';
 import RequireAuth from './components/RequireAuth';
 import AccountBook from './pages/AccountBook';
-import Income from './pages/AccountBook/Income';
 import CreateAccountBook from './pages/CreateAccountBook';
 import Home from './pages/Home';
 import Login from './pages/Login';
+
+const Income = lazy(() => import('./pages/AccountBook/Income'));
+const Savings = lazy(() => import('./pages/AccountBook/Savings'));
 
 const routes: Array<RouteObject> = [
   {
@@ -42,6 +45,10 @@ const routes: Array<RouteObject> = [
       {
         path: 'income',
         element: <Income />,
+      },
+      {
+        path: 'savings',
+        element: <Savings />,
       },
     ],
   },

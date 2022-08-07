@@ -4,6 +4,7 @@ import { AccountBook } from '../../types/accountBook';
 import { fromTime } from '../../utils/dayjs';
 import { useNavigate } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
+import { Modal } from 'antd';
 
 const Home = () => {
   const [accountBooks, setAccountBooks] = useState<Array<AccountBook>>([]);
@@ -18,21 +19,26 @@ const Home = () => {
     navigate('/accountBook/create');
   }, [navigate]);
 
+  const title = (
+    <>
+      <h1 className="font-bold text-xl mb-2">欢迎使用开源节流</h1>
+      <div className="text-sm text-gray-500 ">创建或者选择一个账本</div>
+    </>
+  );
+
   return (
-    <div className="w-screen h-screen flex items-center justify-center bg-gray-200">
-      <div
-        className="shadow-lg rounded-lg overflow-hidden bg-white divide-y divide-gray-200"
-        style={{
-          width: 600,
-        }}
-      >
-        <div className="py-4 px-4">
-          <h1 className="font-bold text-xl mb-2">欢迎使用开源节流</h1>
-          <div className="text-sm text-gray-500 ">创建或者选择一个账本</div>
-        </div>
+    <Modal
+      title={title}
+      visible={true}
+      maskStyle={{ backgroundColor: '#F3F4F6' }}
+      closable={false}
+      footer={null}
+      getContainer={false}
+    >
+      <div className="-m-5">
         <div
           onClick={handleClick}
-          className="py-4 px-4 flex items-center transition-all hover:bg-gray-100 cursor-pointer"
+          className="px-4 py-4 flex items-center transition-all hover:bg-gray-100 cursor-pointer"
         >
           <div className="border rounded-full h-9 w-9 flex items-center justify-center bg-blue-500 text-white">
             <PlusOutlined />
@@ -47,7 +53,7 @@ const Home = () => {
             <div
               onClick={() => navigate(`/accountBook/${it.id}`)}
               key={it.id}
-              className="py-4 px-4 flex items-center transition-all hover:bg-gray-100 cursor-pointer"
+              className="px-4 py-4 flex items-center transition-all hover:bg-gray-100 cursor-pointer"
             >
               <div className="border rounded-full h-9 w-9 flex items-center justify-center bg-gray-100 text-gray-400 font-semibold">
                 {index + 1}
@@ -62,7 +68,7 @@ const Home = () => {
           );
         })}
       </div>
-    </div>
+    </Modal>
   );
 };
 

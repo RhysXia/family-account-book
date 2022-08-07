@@ -6,6 +6,7 @@ import { join } from 'path';
 import { ServiceModule } from '../service/ServiceModule';
 import { TagDataLoader } from './dataloader/TagDataLoader';
 import { AccountBookResolver } from './resolver/AccountBookResolver';
+import { SavingsResolver } from './resolver/SavingsResolver';
 import { UserResolver } from './resolver/UserResolver';
 @Module({
   imports: [
@@ -27,6 +28,11 @@ import { UserResolver } from './resolver/UserResolver';
     }),
     ServiceModule,
   ],
-  providers: [TagDataLoader, UserResolver, AccountBookResolver],
+  providers: [
+    TagDataLoader,
+    UserResolver,
+    AccountBookResolver,
+    SavingsResolver,
+  ],
 })
 export class GraphqlModule {}
