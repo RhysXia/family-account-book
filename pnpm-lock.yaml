@@ -77,6 +77,7 @@ importers:
       '@types/express': ^4.17.13
       '@types/express-session': ^1.17.5
       '@types/node': ^16.0.0
+      apollo-server-core: ^3.10.0
       apollo-server-express: ^3.10.0
       class-transformer: ^0.5.1
       class-validator: ^0.13.2
@@ -98,13 +99,14 @@ importers:
       typeorm: ^0.3.7
       typescript: ^4.3.5
     dependencies:
-      '@nestjs/apollo': 10.0.19_vrcxsxcmh567id4ork53buvjpe
+      '@nestjs/apollo': 10.0.19_64ot4xrxm5sav47svbax6ppq6e
       '@nestjs/common': 8.4.7_allg6cauirbqzgqcmexy2wdnoq
       '@nestjs/config': 2.2.0_zyw32gfu5yv6lfoz64j5eiekme
       '@nestjs/core': 8.4.7_vfcxgjfmqg6zhc6pfncoklq5wm
       '@nestjs/graphql': 10.0.21_z5uy7ljave7vuh2rzmmn7vgk2e
       '@nestjs/platform-express': 8.4.7_7tsmhnugyerf5okgqzer2mfqme
       '@nestjs/typeorm': 9.0.0_zhrs42futwpjx7z3p6twpp4g7i
+      apollo-server-core: 3.10.0_graphql@16.5.0
       apollo-server-express: 3.10.0_graphql@16.5.0
       class-transformer: 0.5.1
       class-validator: 0.13.2
@@ -421,7 +423,7 @@ packages:
     dev: false
 
   /@apollographql/graphql-playground-html/1.6.29:
-    resolution: {integrity: sha1-p6ZGYUolX2LhDc9kp/aOrUHexFM=}
+    resolution: {integrity: sha512-xCcXpoz52rI4ksJSdOCxeOCn2DLocxwHf9dVT/Q90Pte1LX+LY+91SFtJF3KXVHH8kEin+g1KKCQPKBjZJfWNA==}
     dependencies:
       xss: 1.0.13
     dev: false
@@ -1912,7 +1914,7 @@ packages:
     dev: true
 
   /@josephg/resolvable/1.0.1:
-    resolution: {integrity: sha1-abxNt1TXnhovF6ZQ00ZuA42Upes=}
+    resolution: {integrity: sha512-CtzORUwWTTOTqfVtHaKRJ0I1kNQd1bpn3sUh8I3nJDVY+5/M/Oe1DnEWzPQvqq/xPIIkzzzIP7mfCoAjFRvDhg==}
     dev: false
 
   /@jridgewell/gen-mapping/0.1.1:
@@ -1967,7 +1969,7 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.14
     dev: true
 
-  /@nestjs/apollo/10.0.19_vrcxsxcmh567id4ork53buvjpe:
+  /@nestjs/apollo/10.0.19_64ot4xrxm5sav47svbax6ppq6e:
     resolution: {integrity: sha512-uj10uZOQYBeUMYnKma0gpBSFDubZnXp4mqIRMJFNTF/0lEywFUEmdIc4IiRFSN3C4SY4EDIbUyDAMDRE3Ablew==}
     peerDependencies:
       '@apollo/gateway': ^0.44.1 || ^0.46.0 || ^0.48.0 || ^0.49.0 || ^0.50.0 || ^2.0.0
@@ -1991,6 +1993,7 @@ packages:
       '@nestjs/common': 8.4.7_allg6cauirbqzgqcmexy2wdnoq
       '@nestjs/core': 8.4.7_vfcxgjfmqg6zhc6pfncoklq5wm
       '@nestjs/graphql': 10.0.21_z5uy7ljave7vuh2rzmmn7vgk2e
+      apollo-server-core: 3.10.0_graphql@16.5.0
       apollo-server-express: 3.10.0_graphql@16.5.0
       graphql: 16.5.0
       iterall: 1.3.0
@@ -3200,7 +3203,7 @@ packages:
     dev: true
 
   /async-retry/1.3.3:
-    resolution: {integrity: sha1-Dn82wE2EeOeli9vtgM7fl3eF8oA=}
+    resolution: {integrity: sha512-wfr/jstw9xNi/0teMHrRW7dsz3Lt5ARhYNZ2ewpadnhaIp5mbALhOAP+EAdsC7t4Z6wqsDVv9+W6gm1Dk9mEyw==}
     dependencies:
       retry: 0.13.1
     dev: false
@@ -3759,7 +3762,7 @@ packages:
     dev: true
 
   /cssfilter/0.0.10:
-    resolution: {integrity: sha1-xtJnJjKi5cg+AT5oZKQs6N79IK4=}
+    resolution: {integrity: sha512-FAaLDaplstoRsDR8XGYH51znUN0UY7nMc6Z9/fvE8EXGwvJE9hu7W2vHwx1+bd6gCYnln9nLbzxFTrcO9YQDZw==}
     dev: false
 
   /csstype/3.1.0:
@@ -7948,7 +7951,7 @@ packages:
     dev: true
 
   /whatwg-mimetype/3.0.0:
-    resolution: {integrity: sha1-X6GnYjhn/xr2yj3HKta4pCCL66c=}
+    resolution: {integrity: sha512-nt+N2dzIutVRxARx1nghPKGv1xHikU7HKdfafKkLNLindmPU/ch3U31NOCGGA/dmPcmb1VlofO0vnKAcsm0o/Q==}
     engines: {node: '>=12'}
     dev: false
 
