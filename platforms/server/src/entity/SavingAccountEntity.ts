@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  DeleteDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { AbstractTimestampEntity } from './abstract/AbstractTimestampEntity';
 import { AccountBookEntity } from './AccountBookEntity';
 import { UserEntity } from './UserEntity';
@@ -18,12 +24,6 @@ export class SavingAccountEntity extends AbstractTimestampEntity {
   desc?: string;
 
   /**
-   * 是否弃用
-   */
-  @Column({ nullable: false, default: false })
-  deprecated: boolean;
-
-  /**
    * 创建人
    */
   @ManyToOne(() => UserEntity, { nullable: false })
@@ -40,4 +40,10 @@ export class SavingAccountEntity extends AbstractTimestampEntity {
    */
   @ManyToOne(() => AccountBookEntity, { nullable: false })
   accountBook: AccountBookEntity;
+
+  /**
+   * 删除时间
+   */
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }

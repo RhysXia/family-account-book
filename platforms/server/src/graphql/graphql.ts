@@ -85,16 +85,15 @@ export interface IMutation {
 export interface IQuery {
     getAccountBookList(): AccountBook[] | Promise<AccountBook[]>;
     getAccountBookById(id: number): AccountBook | Promise<AccountBook>;
-    getSavingsByAccountBookId(accountBookId: number): Savings[] | Promise<Savings[]>;
+    getSavingsByAccountBookId(accountBookId: number): SavingAccount[] | Promise<SavingAccount[]>;
     getCurrentUser(): User | Promise<User>;
     findUserListByUsernameLike(username: string, limit?: Nullable<number>): User[] | Promise<User[]>;
 }
 
-export interface Savings extends Timestamp {
+export interface SavingAccount extends Timestamp {
     id: number;
     name: string;
-    desc: string;
-    amount: number;
+    desc?: Nullable<string>;
     createdAt: DateTime;
     updatedAt: DateTime;
 }

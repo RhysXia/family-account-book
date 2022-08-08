@@ -1,8 +1,7 @@
-type Savings implements Timestamp {
+type SavingAccount implements Timestamp {
   id: Int!
   name: String!
-  desc: String!
-  amount: Float!
+  desc: String
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -17,7 +16,7 @@ type CreateSavings implements Timestamp {
 }
 
 type Query {
-  getSavingsByAccountBookId(accountBookId: Int!): [Savings!]!
+  getSavingsByAccountBookId(accountBookId: Int!): [SavingAccount!]!
 }
 
 input CreateSavingsInput {

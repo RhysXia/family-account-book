@@ -10,6 +10,7 @@ type AccountBook implements Timestamp {
   普通成员，不包含管理员
   """
   members: [User!]!
+
   createdAt: DateTime!
   updatedAt: DateTime!
 }

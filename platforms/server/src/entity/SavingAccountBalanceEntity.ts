@@ -1,10 +1,4 @@
-import {
-  Column,
-  Entity,
-  Index,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { AbstractTimestampEntity } from './abstract/AbstractTimestampEntity';
 import { SavingAccountEntity } from './SavingAccountEntity';
 import { UserEntity } from './UserEntity';
@@ -18,23 +12,16 @@ export class SavingAccountBalanceEntity extends AbstractTimestampEntity {
   id: number;
 
   /**
-   * 排序，说明账户余额变化的先后顺序
-   */
-  @Index()
-  @Column({ nullable: false })
-  order: number;
-
-  /**
    * 余额
    */
   @Column({ type: 'decimal', precision: 11, scale: 2, nullable: false })
   amount: number;
 
   /**
-   * 变化日期，通常和order大小一致
+   * 交易日期
    */
   @Column({ type: 'timestamptz', nullable: false })
-  changedAt: Date;
+  dealAt: Date;
 
   /**
    * 创建人
