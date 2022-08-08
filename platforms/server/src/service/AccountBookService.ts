@@ -91,8 +91,6 @@ export class AccountBookService {
         },
       });
 
-      const now = new Date();
-
       const accountBook = new AccountBookEntity();
       accountBook.name = accountBookInput.name;
       accountBook.desc = accountBookInput.desc;
@@ -100,8 +98,7 @@ export class AccountBookService {
       accountBook.updater = author;
       accountBook.admins = admins;
       accountBook.members = members;
-      accountBook.createdAt = now;
-      accountBook.updatedAt = now;
+
       return manager.save(accountBook);
     });
   }

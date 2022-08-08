@@ -8,7 +8,6 @@ import { TagDataLoader } from './dataloader/TagDataLoader';
 import { AccountBookResolver } from './resolver/AccountBookResolver';
 import { SavingsResolver } from './resolver/SavingsResolver';
 import { UserResolver } from './resolver/UserResolver';
-import { ApolloServerPluginInlineTrace } from 'apollo-server-core';
 import { UserDataLoader } from './dataloader/UserDataLoader';
 
 @Module({

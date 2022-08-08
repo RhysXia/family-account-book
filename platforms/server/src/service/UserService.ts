@@ -76,15 +76,10 @@ export class UserService {
         throw new Error('用户已存在');
       }
 
-      const now = new Date();
-
       const user = new UserEntity();
       user.username = signUpUser.username;
       user.password = this.passwordUtil.encode(signUpUser.password);
       user.email = signUpUser.email;
-
-      user.createdAt = now;
-      user.updatedAt = now;
 
       const savedUser = await manager.save(user);
 

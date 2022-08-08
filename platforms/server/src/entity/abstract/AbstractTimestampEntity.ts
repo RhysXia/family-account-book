@@ -1,9 +1,9 @@
-import { Column } from 'typeorm';
+import { CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 export class AbstractTimestampEntity {
-  @Column({ type: 'timestamptz', nullable: false })
+  @CreateDateColumn()
   createdAt: Date;
 
-  @Column({ type: 'timestamptz', nullable: false })
+  @UpdateDateColumn()
   updatedAt: Date;
 }
