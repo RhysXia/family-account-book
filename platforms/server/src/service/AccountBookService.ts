@@ -7,20 +7,20 @@ import {
   CreateAccountBookInput,
   UpdateAccountBookInput,
 } from '../graphql/graphql';
-import { omit } from '../utils/omit';
 
 @Injectable()
 export class AccountBookService {
   constructor(private readonly dataSource: DataSource) {}
 
-  async findAdminsByAccountBookId(
+  async findAdminIdsByAccountBookId(
     accountBookId: number,
-  ): Promise<Array<Omit<UserEntity, 'password'>>> {
+  ): Promise<Array<number>> {
     const accountBook = await this.dataSource.manager.findOne(
       AccountBookEntity,
       {
-        relations: {
-          admins: true,
+        loadRelationIds: {
+          relations: ['admins'],
+          disableMixedMap: true,
         },
         where: {
           id: accountBookId,
@@ -32,19 +32,18 @@ export class AccountBookService {
       throw new Error('账本不存在');
     }
 
-    const admins = accountBook.admins.map((it) => omit(it, 'password'));
-
-    return admins;
+    return accountBook.admins.map((it) => it.id);
   }
 
-  async findMembersByAccountBookId(
+  async findMemberIdsByAccountBookId(
     accountBookId: number,
-  ): Promise<Array<Omit<UserEntity, 'password'>>> {
+  ): Promise<Array<number>> {
     const accountBook = await this.dataSource.manager.findOne(
       AccountBookEntity,
       {
-        relations: {
-          members: true,
+        loadRelationIds: {
+          relations: ['members'],
+          disableMixedMap: true,
         },
         where: {
           id: accountBookId,
@@ -56,9 +55,7 @@ export class AccountBookService {
       throw new Error('账本不存在');
     }
 
-    const members = accountBook.members.map((it) => omit(it, 'password'));
-
-    return members;
+    return accountBook.members.map((it) => it.id);
   }
 
   create(

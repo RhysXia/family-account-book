@@ -8,6 +8,7 @@ import {
 } from '@nestjs/graphql';
 import { UserEntity } from '../../entity/UserEntity';
 import { AccountBookService } from '../../service/AccountBookService';
+import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
 import {
   AccountBook,
@@ -17,16 +18,26 @@ import {
 
 @Resolver('AccountBook')
 export class AccountBookResolver {
-  constructor(private readonly accountBookService: AccountBookService) {}
+  constructor(
+    private readonly accountBookService: AccountBookService,
+    private readonly useDataLoader: UserDataLoader,
+  ) {}
 
   @ResolveField()
   async admins(@Parent() accountBook: AccountBook) {
-    return this.accountBookService.findAdminsByAccountBookId(accountBook.id);
+    const ids = await this.accountBookService.findAdminIdsByAccountBookId(
+      accountBook.id,
+    );
+
+    return this.useDataLoader.loadMany(ids);
   }
 
   @ResolveField()
   async members(@Parent() accountBook: AccountBook) {
-    return this.accountBookService.findMembersByAccountBookId(accountBook.id);
+    const ids = await this.accountBookService.findMemberIdsByAccountBookId(
+      accountBook.id,
+    );
+    return this.useDataLoader.loadMany(ids);
   }
 
   @Mutation()
