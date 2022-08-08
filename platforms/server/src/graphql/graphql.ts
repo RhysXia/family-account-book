@@ -16,8 +16,8 @@ export enum Direction {
 export interface CreateAccountBookInput {
     name: string;
     desc?: Nullable<string>;
-    adminIds: number[];
-    memberIds: number[];
+    adminIds?: Nullable<number[]>;
+    memberIds?: Nullable<number[]>;
 }
 
 export interface UpdateAccountBookInput {
@@ -83,8 +83,8 @@ export interface IMutation {
 }
 
 export interface IQuery {
-    getOwnAccountBookList(): AccountBook[] | Promise<AccountBook[]>;
-    getOwnAccountBookById(id: number): AccountBook | Promise<AccountBook>;
+    getAccountBookList(): AccountBook[] | Promise<AccountBook[]>;
+    getAccountBookById(id: number): AccountBook | Promise<AccountBook>;
     getSavingsByAccountBookId(accountBookId: number): Savings[] | Promise<Savings[]>;
     getCurrentUser(): User | Promise<User>;
     findUserListByUsernameLike(username: string, limit?: Nullable<number>): User[] | Promise<User[]>;

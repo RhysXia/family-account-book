@@ -46,15 +46,15 @@ export class AccountBookResolver {
   }
 
   @Query()
-  async getOwnAccountBookList(@CurrentUser() user: UserEntity) {
+  async getAccountBookList(@CurrentUser() user: UserEntity) {
     return this.accountBookService.findAllByUser(user);
   }
 
   @Query()
-  async getOwnAccountBookById(
+  async getAccountBookById(
     @CurrentUser() user: UserEntity,
     @Args('id') id: number,
   ) {
-    return this.accountBookService.findByUserAndId(user, id);
+    return this.accountBookService.findByIdAndUser(id, user);
   }
 }

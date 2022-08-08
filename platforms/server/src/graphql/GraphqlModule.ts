@@ -26,8 +26,9 @@ import { UserDataLoader } from './dataloader/UserDataLoader';
           definitions: {
             path: join(process.cwd(), 'src/graphql/graphql.ts'),
           },
+          csrfPrevention: true,
           cache: 'bounded',
-          plugins: [ApolloServerPluginInlineTrace()],
+          plugins: [],
         };
       },
     }),

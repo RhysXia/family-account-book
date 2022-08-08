@@ -48,6 +48,7 @@ const features = TypeOrmModule.forFeature(models);
           entities: models,
           logging: isDevelopment ? ['query'] : false,
           entityPrefix: 'fab_',
+          cache: true,
         };
       },
     }),

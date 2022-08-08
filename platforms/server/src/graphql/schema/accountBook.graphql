@@ -20,11 +20,11 @@ input CreateAccountBookInput {
   """
   管理员id，自己可以不传，默认自己作为管理员
   """
-  adminIds: [Int!]!
+  adminIds: [Int!]
   """
   成员id，会过滤在管理员中的用户
   """
-  memberIds: [Int!]!
+  memberIds: [Int!]
 }
 
 input UpdateAccountBookInput {
@@ -56,9 +56,9 @@ type Query {
   """
   获取属于自己的账本，自己为账本管理员或者普通成员
   """
-  getOwnAccountBookList: [AccountBook!]!
+  getAccountBookList: [AccountBook!]!
   """
-  获取有权限的指定账本，自己为账本管理员或者普通成员
+  获取有权限的指定账本，自己需要为账本管理员或者普通成员
   """
-  getOwnAccountBookById(id: Int!): AccountBook!
+  getAccountBookById(id: Int!): AccountBook!
 }

@@ -16,11 +16,17 @@ export class AccountBookService {
   async findAdminsByAccountBookId(
     accountBookId: number,
   ): Promise<Array<Omit<UserEntity, 'password'>>> {
-    const accountBook = await this.dataSource
-      .createQueryBuilder(AccountBookEntity, 'accountBook')
-      .leftJoinAndSelect('accountBook.admins', 'admin')
-      .where('accountBook.id = :id', { id: accountBookId })
-      .getOne();
+    const accountBook = await this.dataSource.manager.findOne(
+      AccountBookEntity,
+      {
+        relations: {
+          admins: true,
+        },
+        where: {
+          id: accountBookId,
+        },
+      },
+    );
 
     if (!accountBook) {
       throw new Error('账本不存在');
@@ -34,11 +40,17 @@ export class AccountBookService {
   async findMembersByAccountBookId(
     accountBookId: number,
   ): Promise<Array<Omit<UserEntity, 'password'>>> {
-    const accountBook = await this.dataSource
-      .createQueryBuilder(AccountBookEntity, 'accountBook')
-      .leftJoinAndSelect('accountBook.members', 'member')
-      .where('accountBook.id = :id', { id: accountBookId })
-      .getOne();
+    const accountBook = await this.dataSource.manager.findOne(
+      AccountBookEntity,
+      {
+        relations: {
+          members: true,
+        },
+        where: {
+          id: accountBookId,
+        },
+      },
+    );
 
     if (!accountBook) {
       throw new Error('账本不存在');
@@ -54,8 +66,8 @@ export class AccountBookService {
     author: UserEntity,
   ): Promise<AccountBook> {
     return this.dataSource.transaction(async (manager) => {
-      const adminIds = accountBookInput.adminIds;
-      const memberIds = accountBookInput.memberIds;
+      const adminIds = accountBookInput.adminIds || [];
+      const memberIds = accountBookInput.memberIds || [];
 
       const adminIdSet = new Set(adminIds);
 
@@ -166,7 +178,7 @@ export class AccountBookService {
       .getMany();
   }
 
-  async findByUserAndId(user: UserEntity, id: number) {
+  async findByIdAndUser(id: number, user: UserEntity) {
     return await this.dataSource.manager
       .createQueryBuilder(AccountBookEntity, 'accountBook')
       .leftJoin('accountBook.admins', 'admin')
