@@ -3,11 +3,18 @@ import { PasswordUtil } from '../common/PasswordUtil';
 import { ManagerModule } from '../manager/ManagerModule';
 import { RepositoryModule } from '../repository/RepositoryModule';
 import { AccountBookService } from './AccountBookService';
-import { SavingsService } from './SavingsService';
+import { SavingAccountMoneyService } from './SavingAccountBalanceService';
+import { SavingAccountService } from './SavingAccountService';
 import { TagService } from './TagService';
 import { UserService } from './UserService';
 
-const services = [UserService, TagService, AccountBookService, SavingsService];
+const services = [
+  UserService,
+  TagService,
+  AccountBookService,
+  SavingAccountService,
+  SavingAccountMoneyService,
+];
 
 @Module({
   imports: [RepositoryModule, ManagerModule],

@@ -11,6 +11,10 @@ type AccountBook implements Timestamp {
   """
   members: [User!]!
 
+  creator: User!
+
+  updater: User!
+
   createdAt: DateTime!
   updatedAt: DateTime!
 }

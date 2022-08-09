@@ -6,9 +6,10 @@ import { join } from 'path';
 import { ServiceModule } from '../service/ServiceModule';
 import { TagDataLoader } from './dataloader/TagDataLoader';
 import { AccountBookResolver } from './resolver/AccountBookResolver';
-import { SavingsResolver } from './resolver/SavingsResolver';
+import { SavingAccountResolver } from './resolver/SavingAccountResolver';
 import { UserResolver } from './resolver/UserResolver';
 import { UserDataLoader } from './dataloader/UserDataLoader';
+import { SavingAccountMoneyDataLoader } from './dataloader/SavingAccountAmountDataLoader';
 
 @Module({
   imports: [
@@ -36,9 +37,10 @@ import { UserDataLoader } from './dataloader/UserDataLoader';
   providers: [
     TagDataLoader,
     UserDataLoader,
+    SavingAccountMoneyDataLoader,
     UserResolver,
     AccountBookResolver,
-    SavingsResolver,
+    SavingAccountResolver,
   ],
 })
 export class GraphqlModule {}

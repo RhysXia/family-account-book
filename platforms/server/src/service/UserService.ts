@@ -13,16 +13,12 @@ export class UserService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async findAllByIds(ids: Array<number>): Promise<Array<UserEntity | Error>> {
-    const users = await this.dataSource.manager.find(UserEntity, {
+  async findAllByIds(ids: Array<number>): Promise<Array<UserEntity>> {
+    return await this.dataSource.manager.find(UserEntity, {
       where: {
         id: In(ids),
       },
     });
-
-    return ids.map(
-      (it) => users.find((user) => user.id === it) || new Error('用户不存在'),
-    );
   }
 
   /**

@@ -24,16 +24,26 @@ export class SavingAccountEntity extends AbstractTimestampEntity {
   desc?: string;
 
   /**
+   * 初始金额
+   */
+  @Column({ type: 'decimal', precision: 11, scale: 2, nullable: false })
+  initialAmount: number;
+
+  /**
    * 创建人
    */
   @ManyToOne(() => UserEntity, { nullable: false })
   creator: UserEntity;
+  @Column()
+  creatorId: number;
 
   /**
    * 修改人
    */
   @ManyToOne(() => UserEntity, { nullable: false })
   updater: UserEntity;
+  @Column()
+  updaterId: number;
 
   /**
    * 所属账本

@@ -6,6 +6,10 @@ import { UserService } from '../../service/UserService';
 @Injectable({ scope: Scope.REQUEST })
 export class UserDataLoader extends DataLoader<number, UserEntity> {
   constructor(userService: UserService) {
-    super((ids) => userService.findAllByIds([...ids]));
+    super(async (ids) => {
+      const list = await userService.findAllByIds([...ids]);
+
+      return ids.map((id) => list.find((it) => it.id === id));
+    });
   }
 }

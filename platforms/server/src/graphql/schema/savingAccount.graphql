@@ -4,28 +4,41 @@ type SavingAccount implements Timestamp {
   desc: String
   createdAt: DateTime!
   updatedAt: DateTime!
-}
 
-type CreateSavings implements Timestamp {
-  id: Int!
-  name: String!
-  desc: String!
+  """
+  余额
+  """
   amount: Float!
-  createdAt: DateTime!
-  updatedAt: DateTime!
+
+  creator: User!
+  updater: User!
 }
 
 type Query {
-  getSavingsByAccountBookId(accountBookId: Int!): [SavingAccount!]!
+  getSavingAccountListByAccountBookId(accountBookId: Int!): [SavingAccount!]!
 }
 
-input CreateSavingsInput {
+input CreateSavingAccountInput {
   name: String!
-  desc: String!
+  desc: String
+  """
+  余额
+  """
   amount: Float!
   accountBookId: Int!
 }
 
+input UpdateSavingAccountInput {
+  id: Int!
+  name: String
+  desc: String
+  """
+  余额
+  """
+  amount: Float
+}
+
 type Mutation {
-  createSavings(savings: CreateSavingsInput!): CreateSavings!
+  createSavingAccount(savingAccount: CreateSavingAccountInput!): SavingAccount!
+  updateSavingAccount(savingAccount: UpdateSavingAccountInput!): SavingAccount!
 }

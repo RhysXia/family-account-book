@@ -39,11 +39,18 @@ export interface Pagination {
     orderBy: OrderBy[];
 }
 
-export interface CreateSavingsInput {
+export interface CreateSavingAccountInput {
     name: string;
-    desc: string;
+    desc?: Nullable<string>;
     amount: number;
     accountBookId: number;
+}
+
+export interface UpdateSavingAccountInput {
+    id: number;
+    name?: Nullable<string>;
+    desc?: Nullable<string>;
+    amount?: Nullable<number>;
 }
 
 export interface SignUpUserInput {
@@ -70,6 +77,8 @@ export interface AccountBook extends Timestamp {
     desc?: Nullable<string>;
     admins: User[];
     members: User[];
+    creator: User;
+    updater: User;
     createdAt: DateTime;
     updatedAt: DateTime;
 }
@@ -77,7 +86,8 @@ export interface AccountBook extends Timestamp {
 export interface IMutation {
     createAccountBook(accountBook: CreateAccountBookInput): AccountBook | Promise<AccountBook>;
     updateAccountBook(accountBook: UpdateAccountBookInput): AccountBook | Promise<AccountBook>;
-    createSavings(savings: CreateSavingsInput): CreateSavings | Promise<CreateSavings>;
+    createSavingAccount(savingAccount: CreateSavingAccountInput): SavingAccount | Promise<SavingAccount>;
+    updateSavingAccount(savingAccount: UpdateSavingAccountInput): SavingAccount | Promise<SavingAccount>;
     signIn(user: SignInUserInput): User | Promise<User>;
     signUp(user: SignUpUserInput): User | Promise<User>;
 }
@@ -85,7 +95,7 @@ export interface IMutation {
 export interface IQuery {
     getAccountBookList(): AccountBook[] | Promise<AccountBook[]>;
     getAccountBookById(id: number): AccountBook | Promise<AccountBook>;
-    getSavingsByAccountBookId(accountBookId: number): SavingAccount[] | Promise<SavingAccount[]>;
+    getSavingAccountListByAccountBookId(accountBookId: number): SavingAccount[] | Promise<SavingAccount[]>;
     getCurrentUser(): User | Promise<User>;
     findUserListByUsernameLike(username: string, limit?: Nullable<number>): User[] | Promise<User[]>;
 }
@@ -96,15 +106,9 @@ export interface SavingAccount extends Timestamp {
     desc?: Nullable<string>;
     createdAt: DateTime;
     updatedAt: DateTime;
-}
-
-export interface CreateSavings extends Timestamp {
-    id: number;
-    name: string;
-    desc: string;
     amount: number;
-    createdAt: DateTime;
-    updatedAt: DateTime;
+    creator: User;
+    updater: User;
 }
 
 export interface User extends Timestamp {

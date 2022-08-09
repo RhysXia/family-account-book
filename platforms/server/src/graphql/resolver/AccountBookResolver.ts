@@ -6,6 +6,7 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
+import { AccountBookEntity } from '../../entity/AccountBookEntity';
 import { UserEntity } from '../../entity/UserEntity';
 import { AccountBookService } from '../../service/AccountBookService';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
@@ -20,24 +21,40 @@ import {
 export class AccountBookResolver {
   constructor(
     private readonly accountBookService: AccountBookService,
-    private readonly useDataLoader: UserDataLoader,
+    private readonly userDataLoader: UserDataLoader,
   ) {}
 
   @ResolveField()
   async admins(@Parent() accountBook: AccountBook) {
-    const ids = await this.accountBookService.findAdminIdsByAccountBookId(
-      accountBook.id,
-    );
-
-    return this.useDataLoader.loadMany(ids);
+    if (accountBook.admins) {
+      return accountBook.admins;
+    }
+    return this.accountBookService.findAdminsByAccountBookId(accountBook.id);
   }
 
   @ResolveField()
-  async members(@Parent() accountBook: AccountBook) {
-    const ids = await this.accountBookService.findMemberIdsByAccountBookId(
-      accountBook.id,
-    );
-    return this.useDataLoader.loadMany(ids);
+  async members(@Parent() accountBook: AccountBookEntity) {
+    if (accountBook.members) {
+      return accountBook.members;
+    }
+
+    return this.accountBookService.findMembersByAccountBookId(accountBook.id);
+  }
+
+  @ResolveField()
+  async creator(@Parent() accountBook: AccountBookEntity) {
+    if (accountBook.creator) {
+      return accountBook.creator;
+    }
+    return this.userDataLoader.load(accountBook.creatorId);
+  }
+
+  @ResolveField()
+  async updater(@Parent() accountBook: AccountBookEntity) {
+    if (accountBook.updater) {
+      return accountBook.updater;
+    }
+    return this.userDataLoader.load(accountBook.updaterId);
   }
 
   @Mutation()

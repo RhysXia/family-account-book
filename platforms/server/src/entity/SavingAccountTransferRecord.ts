@@ -1,12 +1,5 @@
-import {
-  Column,
-  Entity,
-  ManyToOne,
-  OneToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { AbstractTimestampEntity } from './abstract/AbstractTimestampEntity';
-import { SavingAccountBalanceEntity } from './SavingAccountBalanceEntity';
 import { SavingAccountEntity } from './SavingAccountEntity';
 import { UserEntity } from './UserEntity';
 
@@ -56,20 +49,8 @@ export class SavingAccountTransferRecordEntity extends AbstractTimestampEntity {
   to: SavingAccountEntity;
 
   /**
-   * 转出记录
-   */
-  @OneToOne(() => SavingAccountBalanceEntity, { nullable: false })
-  fromBalance: SavingAccountBalanceEntity;
-
-  /**
-   * 转入记录
-   */
-  @OneToOne(() => SavingAccountBalanceEntity, { nullable: false })
-  toBalance: SavingAccountBalanceEntity;
-
-  /**
-   * 变化日期，和fromBalance以及toBalance相一致
+   * 交易时间
    */
   @Column({ type: 'timestamptz', nullable: false })
-  changedAt: Date;
+  dealAt: Date;
 }

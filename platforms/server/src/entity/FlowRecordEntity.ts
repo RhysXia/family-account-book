@@ -1,16 +1,9 @@
-import {
-  Column,
-  Entity,
-  ManyToOne,
-  OneToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { AbstractTimestampEntity } from './abstract/AbstractTimestampEntity';
 import { AccountBookEntity } from './AccountBookEntity';
 import { UserEntity } from './UserEntity';
 import { SavingAccountEntity } from './SavingAccountEntity';
 import { TagEntity } from './TagEntity';
-import { SavingAccountBalanceEntity } from './SavingAccountBalanceEntity';
 
 /**
  * 流水记录
@@ -52,8 +45,8 @@ export class FlowRecordEntity extends AbstractTimestampEntity {
   savingAccount: SavingAccountEntity;
 
   /**
-   * 余额记录
+   * 交易时间
    */
-  @OneToOne(() => SavingAccountBalanceEntity, { nullable: false })
-  savingAccountBlance: SavingAccountBalanceEntity;
+  @Column({ type: 'timestamptz', nullable: false })
+  dealAt: Date;
 }

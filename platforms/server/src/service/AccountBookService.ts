@@ -12,15 +12,14 @@ import {
 export class AccountBookService {
   constructor(private readonly dataSource: DataSource) {}
 
-  async findAdminIdsByAccountBookId(
+  async findAdminsByAccountBookId(
     accountBookId: number,
-  ): Promise<Array<number>> {
+  ): Promise<Array<UserEntity>> {
     const accountBook = await this.dataSource.manager.findOne(
       AccountBookEntity,
       {
-        loadRelationIds: {
-          relations: ['admins'],
-          disableMixedMap: true,
+        relations: {
+          admins: true,
         },
         where: {
           id: accountBookId,
@@ -32,18 +31,17 @@ export class AccountBookService {
       throw new Error('账本不存在');
     }
 
-    return accountBook.admins.map((it) => it.id);
+    return accountBook.admins;
   }
 
-  async findMemberIdsByAccountBookId(
+  async findMembersByAccountBookId(
     accountBookId: number,
-  ): Promise<Array<number>> {
+  ): Promise<Array<UserEntity>> {
     const accountBook = await this.dataSource.manager.findOne(
       AccountBookEntity,
       {
-        loadRelationIds: {
-          relations: ['members'],
-          disableMixedMap: true,
+        relations: {
+          members: true,
         },
         where: {
           id: accountBookId,
@@ -55,7 +53,7 @@ export class AccountBookService {
       throw new Error('账本不存在');
     }
 
-    return accountBook.members.map((it) => it.id);
+    return accountBook.members;
   }
 
   create(
@@ -166,9 +164,8 @@ export class AccountBookService {
       .createQueryBuilder(AccountBookEntity, 'accountBook')
       .leftJoin('accountBook.admins', 'admin')
       .leftJoin('accountBook.members', 'member')
-      .where('admin.id = :id')
-      .orWhere('member.id = :id')
-      .setParameter('id', user.id)
+      .where('admin.id = :adminId', { adminId: user.id })
+      .orWhere('member.id = :memberId', { memberId: user.id })
       .getMany();
   }
 
@@ -177,16 +174,15 @@ export class AccountBookService {
       .createQueryBuilder(AccountBookEntity, 'accountBook')
       .leftJoin('accountBook.admins', 'admin')
       .leftJoin('accountBook.members', 'member')
-      .where('accountBook.id = :accountBookId', { id })
+      .where('accountBook.id = :accountBookId', { accountBookId: id })
       .andWhere(
         new Brackets((qb) => {
-          qb.where('admin.id = :id').orWhere('member.id = :id');
+          qb.where('admin.id = :adminId', { adminId: user.id }).orWhere(
+            'member.id = :memberId',
+            { memberId: user.id },
+          );
         }),
       )
-      .setParameters({
-        accountBookId: id,
-        id: user.id,
-      })
       .getOne();
   }
 }

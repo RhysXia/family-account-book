@@ -1,13 +1,12 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { AbstractTimestampEntity } from './abstract/AbstractTimestampEntity';
 import { SavingAccountEntity } from './SavingAccountEntity';
-import { UserEntity } from './UserEntity';
 
 /**
- * 储蓄账户余额
+ * 储蓄账户余额记录
  */
-@Entity('saving_account_balance')
-export class SavingAccountBalanceEntity extends AbstractTimestampEntity {
+@Entity('saving_account_money_record')
+export class SavingAccountMoneyRecordEntity extends AbstractTimestampEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -20,24 +19,14 @@ export class SavingAccountBalanceEntity extends AbstractTimestampEntity {
   /**
    * 交易日期
    */
-  @Column({ type: 'timestamptz', nullable: false })
+  @Column({ type: 'date', nullable: false })
   dealAt: Date;
-
-  /**
-   * 创建人
-   */
-  @ManyToOne(() => UserEntity, { nullable: false })
-  creator: UserEntity;
-
-  /**
-   * 修改人
-   */
-  @ManyToOne(() => UserEntity, { nullable: false })
-  updater: UserEntity;
 
   /**
    * 所属账户
    */
   @ManyToOne(() => SavingAccountEntity, { nullable: false })
   savingAccount: SavingAccountEntity;
+  @Column()
+  savingAccountId: number;
 }

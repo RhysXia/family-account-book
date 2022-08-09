@@ -25,9 +25,13 @@ export class AccountBookEntity extends AbstractTimestampEntity {
 
   @ManyToOne(() => UserEntity, { nullable: false })
   creator: UserEntity;
+  @Column()
+  creatorId: number;
 
   @ManyToOne(() => UserEntity, { nullable: false })
   updater: UserEntity;
+  @Column()
+  updaterId: number;
 
   // 管理员
   @ManyToMany(() => UserEntity)
