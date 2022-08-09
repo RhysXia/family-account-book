@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Brackets, DataSource, In } from 'typeorm';
+import { DataSource, In } from 'typeorm';
 import { AccountBookEntity } from '../entity/AccountBookEntity';
 import { UserEntity } from '../entity/UserEntity';
 import {
@@ -175,14 +175,12 @@ export class AccountBookService {
       .leftJoin('accountBook.admins', 'admin')
       .leftJoin('accountBook.members', 'member')
       .where('accountBook.id = :accountBookId', { accountBookId: id })
-      .andWhere(
-        new Brackets((qb) => {
-          qb.where('admin.id = :adminId', { adminId: user.id }).orWhere(
-            'member.id = :memberId',
-            { memberId: user.id },
-          );
-        }),
-      )
+      .andWhere((qb) => {
+        qb.where('admin.id = :adminId', { adminId: user.id }).orWhere(
+          'member.id = :memberId',
+          { memberId: user.id },
+        );
+      })
       .getOne();
   }
 }

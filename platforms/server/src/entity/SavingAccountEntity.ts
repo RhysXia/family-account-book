@@ -57,6 +57,8 @@ export class SavingAccountEntity extends AbstractTimestampEntity {
    */
   @ManyToOne(() => AccountBookEntity, { nullable: false })
   accountBook: AccountBookEntity;
+  @Column()
+  accountBookId: number;
 
   /**
    * 删除时间

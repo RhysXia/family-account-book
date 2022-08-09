@@ -96,6 +96,7 @@ export interface IQuery {
     getAccountBookList(): AccountBook[] | Promise<AccountBook[]>;
     getAccountBookById(id: number): AccountBook | Promise<AccountBook>;
     getSavingAccountListByAccountBookId(accountBookId: number): SavingAccount[] | Promise<SavingAccount[]>;
+    getSavingAccountById(id: number): SavingAccount | Promise<SavingAccount>;
     getCurrentUser(): User | Promise<User>;
     findUserListByUsernameLike(username: string, limit?: Nullable<number>): User[] | Promise<User[]>;
 }

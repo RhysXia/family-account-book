@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Brackets, DataSource } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { AccountBookEntity } from '../entity/AccountBookEntity';
 import { SavingAccountMoneyRecordEntity } from '../entity/SavingAccountMoneyRecordEntity';
 import { SavingAccountEntity } from '../entity/SavingAccountEntity';
@@ -14,6 +14,42 @@ import { SavingAccountMoneyViewEntity } from '../entity/SavingAccountMoneyViewEn
 export class SavingAccountService {
   constructor(private readonly dataSource: DataSource) {}
 
+  async findOneByIdAndUser(id: number, user: UserEntity) {
+    const savingAccountEntity = await this.dataSource.manager.findOne(
+      SavingAccountEntity,
+      {
+        where: {
+          id,
+        },
+      },
+    );
+
+    if (!savingAccountEntity) {
+      throw new Error('储蓄账户不存在');
+    }
+
+    const accountBook = await this.dataSource.manager
+      .createQueryBuilder(AccountBookEntity, 'accountBook')
+      .leftJoin('accountBook.admins', 'admin')
+      .leftJoin('accountBook.members', 'member')
+      .where('accountBook.id = :id', {
+        id: savingAccountEntity.accountBookId,
+      })
+      .andWhere((qb) => {
+        qb.where('admin.id = :adminId', { adminId: user.id }).orWhere(
+          'member.id = :memberId',
+          { memberId: user.id },
+        );
+      })
+      .getOne();
+
+    if (!accountBook) {
+      throw new Error('储蓄账户不存在');
+    }
+
+    return savingAccountEntity;
+  }
+
   async findAllByAccountBookIdAndUser(accountBookId: number, user: UserEntity) {
     const accountBook = await this.dataSource.manager
       .createQueryBuilder(AccountBookEntity, 'accountBook')
@@ -22,14 +58,12 @@ export class SavingAccountService {
       .where('accountBook.id = :id', {
         id: accountBookId,
       })
-      .andWhere(
-        new Brackets((qb) => {
-          qb.where('admin.id = :adminId', { adminId: user.id }).orWhere(
-            'member.id = :memberId',
-            { memberId: user.id },
-          );
-        }),
-      )
+      .andWhere((qb) => {
+        qb.where('admin.id = :adminId', { adminId: user.id }).orWhere(
+          'member.id = :memberId',
+          { memberId: user.id },
+        );
+      })
       .getOne();
 
     if (!accountBook) {
@@ -55,14 +89,12 @@ export class SavingAccountService {
         .where('accountBook.id = :id', {
           id: accountBookId,
         })
-        .andWhere(
-          new Brackets((qb) => {
-            qb.where('admin.id = :adminId', { adminId: user.id }).orWhere(
-              'member.id = :memberId',
-              { memberId: user.id },
-            );
-          }),
-        )
+        .andWhere((qb) => {
+          qb.where('admin.id = :adminId', { adminId: user.id }).orWhere(
+            'member.id = :memberId',
+            { memberId: user.id },
+          );
+        })
         .getOne();
 
       if (!accountBook) {
@@ -115,15 +147,11 @@ export class SavingAccountService {
           },
         );
 
-        console.log(
-          moneyEntity,
-          typeof moneyEntity.amount,
-          typeof moneyEntity.createdAt,
-          typeof moneyEntity.id,
-          typeof moneyEntity.savingAccountId,
-        );
+        const defaultAmount = moneyEntity
+          ? moneyEntity.amount
+          : savingAccount.initialAmount;
 
-        const diff = amount - moneyEntity.amount;
+        const diff = amount - defaultAmount;
 
         await manager
           .createQueryBuilder()

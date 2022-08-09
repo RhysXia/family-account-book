@@ -16,6 +16,7 @@ type SavingAccount implements Timestamp {
 
 type Query {
   getSavingAccountListByAccountBookId(accountBookId: Int!): [SavingAccount!]!
+  getSavingAccountById(id: Int!): SavingAccount!
 }
 
 input CreateSavingAccountInput {

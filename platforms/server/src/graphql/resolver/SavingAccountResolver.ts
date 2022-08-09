@@ -60,6 +60,14 @@ export class SavingAccountResolver {
     );
   }
 
+  @Query()
+  async getSavingAccountById(
+    @Args('id') id: number,
+    @CurrentUser({ required: true }) user: UserEntity,
+  ) {
+    return this.savingAccountService.findOneByIdAndUser(id, user);
+  }
+
   @Mutation()
   async createSavingAccount(
     @Args('savingAccount') savingsInput: CreateSavingAccountInput,

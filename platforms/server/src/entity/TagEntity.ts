@@ -41,6 +41,8 @@ export class TagEntity extends AbstractTimestampEntity {
 
   @ManyToOne(() => UserEntity, { nullable: false })
   creator: UserEntity;
+  @Column()
+  creatorId: number;
 
   /**
    * 所属账本
