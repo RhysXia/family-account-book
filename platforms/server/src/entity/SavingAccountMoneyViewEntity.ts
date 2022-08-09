@@ -1,16 +1,23 @@
 import { ViewColumn, ViewEntity } from 'typeorm';
+import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 import { SavingAccountMoneyRecordEntity } from './SavingAccountMoneyRecordEntity';
 
 /**
  * 最新余额记录
  */
 @ViewEntity({
+  name: 'saving_account_money_view',
   expression: (dataSource) => {
     return dataSource
       .createQueryBuilder()
-      .select('b2.*')
-      .from((cb) => {
-        return cb
+      .select('b2.id', 'id')
+      .addSelect('b2."savingAccountId"', 'savingAccountId')
+      .addSelect('b2.amount', 'amount')
+      .addSelect('b2."createdAt"', 'createdAt')
+      .addSelect('b2."updatedAt"', 'updatedAt')
+      .addSelect('b2."dealAt"', 'dealAt')
+      .from((qb) => {
+        return qb
           .select(
             'row_number() over (partition by b1.savingAccountId order by b1.dealAt desc) rowNumber,  b1.*',
           )
@@ -26,7 +33,9 @@ export class SavingAccountMoneyViewEntity {
   /**
    * 余额
    */
-  @ViewColumn()
+  @ViewColumn({
+    transformer: new ColumnNumericTransformer(),
+  })
   amount: number;
 
   /**

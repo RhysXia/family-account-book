@@ -4,6 +4,7 @@ import { AccountBookEntity } from './AccountBookEntity';
 import { UserEntity } from './UserEntity';
 import { SavingAccountEntity } from './SavingAccountEntity';
 import { TagEntity } from './TagEntity';
+import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 
 /**
  * 流水记录
@@ -20,7 +21,13 @@ export class FlowRecordEntity extends AbstractTimestampEntity {
    * 数额，
    * 正数为收入，负数为支出
    */
-  @Column({ type: 'decimal', precision: 11, scale: 2, nullable: false })
+  @Column({
+    type: 'decimal',
+    precision: 11,
+    scale: 2,
+    nullable: false,
+    transformer: new ColumnNumericTransformer(),
+  })
   amount: number;
 
   /**

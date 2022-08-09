@@ -1,7 +1,7 @@
 import { Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import { SavingAccountMoneyViewEntity } from '../../entity/SavingAccountMoneyViewEntity';
-import { SavingAccountMoneyService } from '../../service/SavingAccountBalanceService';
+import { SavingAccountMoneyService } from '../../service/SavingAccountMoneyService';
 
 /**
  * 账户最新交易记录

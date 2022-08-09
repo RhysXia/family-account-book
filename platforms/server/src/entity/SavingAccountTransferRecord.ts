@@ -1,4 +1,5 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 import { AbstractTimestampEntity } from './abstract/AbstractTimestampEntity';
 import { SavingAccountEntity } from './SavingAccountEntity';
 import { UserEntity } from './UserEntity';
@@ -21,7 +22,13 @@ export class SavingAccountTransferRecordEntity extends AbstractTimestampEntity {
    * 数额，
    * 正数
    */
-  @Column({ type: 'decimal', precision: 11, scale: 2, nullable: false })
+  @Column({
+    type: 'decimal',
+    precision: 11,
+    scale: 2,
+    nullable: false,
+    transformer: new ColumnNumericTransformer(),
+  })
   amount: number;
 
   /**

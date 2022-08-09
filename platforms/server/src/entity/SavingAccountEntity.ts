@@ -5,6 +5,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 import { AbstractTimestampEntity } from './abstract/AbstractTimestampEntity';
 import { AccountBookEntity } from './AccountBookEntity';
 import { UserEntity } from './UserEntity';
@@ -26,7 +27,13 @@ export class SavingAccountEntity extends AbstractTimestampEntity {
   /**
    * 初始金额
    */
-  @Column({ type: 'decimal', precision: 11, scale: 2, nullable: false })
+  @Column({
+    type: 'decimal',
+    precision: 11,
+    scale: 2,
+    nullable: false,
+    transformer: new ColumnNumericTransformer(),
+  })
   initialAmount: number;
 
   /**

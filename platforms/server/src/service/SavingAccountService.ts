@@ -8,6 +8,7 @@ import {
   CreateSavingAccountInput,
   UpdateSavingAccountInput,
 } from '../graphql/graphql';
+import { SavingAccountMoneyViewEntity } from '../entity/SavingAccountMoneyViewEntity';
 
 @Injectable()
 export class SavingAccountService {
@@ -105,19 +106,37 @@ export class SavingAccountService {
       }
 
       if (amount) {
-        const diff = amount - savingAccount.initialAmount;
+        const moneyEntity = await manager.findOne(
+          SavingAccountMoneyViewEntity,
+          {
+            where: {
+              savingAccountId: savingAccount.id,
+            },
+          },
+        );
 
-        manager
+        console.log(
+          moneyEntity,
+          typeof moneyEntity.amount,
+          typeof moneyEntity.createdAt,
+          typeof moneyEntity.id,
+          typeof moneyEntity.savingAccountId,
+        );
+
+        const diff = amount - moneyEntity.amount;
+
+        await manager
           .createQueryBuilder()
           .update(SavingAccountMoneyRecordEntity)
           .set({
             amount: () => 'amount + ' + diff,
           })
-          .where('savingAccountId = :id', {
-            id: savingAccount.id,
-          });
+          .where('savingAccountId = :savingAccountId', {
+            savingAccountId: savingAccount.id,
+          })
+          .execute();
 
-        savingAccount.initialAmount = amount;
+        savingAccount.initialAmount += diff;
       }
 
       return manager.save(savingAccount);

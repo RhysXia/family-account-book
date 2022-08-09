@@ -3,7 +3,7 @@ import { PasswordUtil } from '../common/PasswordUtil';
 import { ManagerModule } from '../manager/ManagerModule';
 import { RepositoryModule } from '../repository/RepositoryModule';
 import { AccountBookService } from './AccountBookService';
-import { SavingAccountMoneyService } from './SavingAccountBalanceService';
+import { SavingAccountMoneyService } from './SavingAccountMoneyService';
 import { SavingAccountService } from './SavingAccountService';
 import { TagService } from './TagService';
 import { UserService } from './UserService';
