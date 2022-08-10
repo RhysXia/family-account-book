@@ -1,0 +1,51 @@
+enum TagType {
+  """
+  收入
+  """
+  INCOME
+  """
+  支出
+  """
+  EXPENDITURE
+  """
+  投资
+  """
+  INVESTMENT
+  """
+  借贷
+  """
+  LOAD
+}
+
+type Tag {
+  id: Int!
+  name: String!
+  type: TagType!
+
+  createdAt: DateTime!
+  updatedAt: DateTime!
+
+  creator: User!
+
+  accountBook: AccountBook!
+}
+
+input CreateTagInput {
+  name: String!
+  type: TagType!
+  accountBookId: Int!
+}
+
+input UpdateTagInput {
+  id: Int!
+  name: String!
+}
+
+type Mutation {
+  createTag(tag: CreateTagInput!): Tag!
+  updateTag(tag: UpdateTagInput!): Tag!
+}
+
+type Query {
+  getTagsByAccountBookId(accountBookId: Int!): [Tag!]!
+}

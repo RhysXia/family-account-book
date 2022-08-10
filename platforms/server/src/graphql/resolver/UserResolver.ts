@@ -1,20 +1,45 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
 import { Session as SessionType } from 'express-session';
 import { UserEntity } from '../../entity/UserEntity';
+import { AccountBookService } from '../../service/AccountBookService';
 import { UserService } from '../../service/UserService';
 import { SESSION_CURRENT_USER } from '../../utils/constants';
 import CurrentUser from '../decorator/CurrentUser';
 import Session from '../decorator/Session';
-import { SignUpUserInput, SignInUserInput, User } from '../graphql';
+import { SignUpUserInput, SignInUserInput, User, Pagination } from '../graphql';
 
 @Resolver('User')
 export class UserResolver {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly accountBookService: AccountBookService,
+  ) {}
+
+  @ResolveField()
+  async accountBooks(
+    @Parent() parent: User,
+    @Args('pagination') pagination?: Pagination,
+  ) {
+    return this.accountBookService.findAllByUserIdAndPagination(
+      parent.id,
+      pagination,
+    );
+  }
+
+  @ResolveField()
+  async accountBook(@Parent() parent: User, @Args('id') id: number) {
+    return this.accountBookService.findOneByIdAndUserId(id, parent.id);
+  }
 
   @Query()
-  async getCurrentUser(
-    @CurrentUser({ required: true }) user: UserEntity,
-  ): Promise<User> {
+  async getCurrentUser(@CurrentUser({ required: true }) user: UserEntity) {
     return user;
   }
 
@@ -43,7 +68,7 @@ export class UserResolver {
   }
 
   @Mutation()
-  async signUp(@Args('user') signUpUser: SignUpUserInput): Promise<User> {
+  async signUp(@Args('user') signUpUser: SignUpUserInput) {
     return this.userService.signUp(signUpUser);
   }
 }

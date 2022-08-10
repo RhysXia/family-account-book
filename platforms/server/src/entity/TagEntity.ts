@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  DeleteDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { AbstractTimestampEntity } from './abstract/AbstractTimestampEntity';
 import { AccountBookEntity } from './AccountBookEntity';
 import { UserEntity } from './UserEntity';
@@ -44,9 +50,17 @@ export class TagEntity extends AbstractTimestampEntity {
   @Column()
   creatorId: number;
 
+  @ManyToOne(() => UserEntity, { nullable: false })
+  updater: UserEntity;
+  @Column()
+  updaterId: number;
+
   /**
    * 所属账本
    */
   @ManyToOne(() => AccountBookEntity, { nullable: false })
   accountBook: AccountBookEntity;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }

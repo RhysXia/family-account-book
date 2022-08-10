@@ -1,81 +1,39 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { Brackets, DataSource } from 'typeorm';
 import { AccountBookEntity } from '../entity/AccountBookEntity';
 import { SavingAccountMoneyRecordEntity } from '../entity/SavingAccountMoneyRecordEntity';
 import { SavingAccountEntity } from '../entity/SavingAccountEntity';
 import { UserEntity } from '../entity/UserEntity';
 import {
   CreateSavingAccountInput,
+  Pagination,
   UpdateSavingAccountInput,
 } from '../graphql/graphql';
 import { SavingAccountMoneyViewEntity } from '../entity/SavingAccountMoneyViewEntity';
+import { applyPagination } from '../utils/applyPagination';
 
 @Injectable()
 export class SavingAccountService {
   constructor(private readonly dataSource: DataSource) {}
 
-  async findOneByIdAndUser(id: number, user: UserEntity) {
-    const savingAccountEntity = await this.dataSource.manager.findOne(
-      SavingAccountEntity,
-      {
-        where: {
-          id,
-        },
+  findOneByIdAndAccountBookId(id: number, accountBookId: number) {
+    return this.dataSource.manager.findOne(SavingAccountEntity, {
+      where: {
+        id,
+        accountBookId,
       },
-    );
-
-    if (!savingAccountEntity) {
-      throw new Error('储蓄账户不存在');
-    }
-
-    const accountBook = await this.dataSource.manager
-      .createQueryBuilder(AccountBookEntity, 'accountBook')
-      .leftJoin('accountBook.admins', 'admin')
-      .leftJoin('accountBook.members', 'member')
-      .where('accountBook.id = :id', {
-        id: savingAccountEntity.accountBookId,
-      })
-      .andWhere((qb) => {
-        qb.where('admin.id = :adminId', { adminId: user.id }).orWhere(
-          'member.id = :memberId',
-          { memberId: user.id },
-        );
-      })
-      .getOne();
-
-    if (!accountBook) {
-      throw new Error('储蓄账户不存在');
-    }
-
-    return savingAccountEntity;
+    });
   }
 
-  async findAllByAccountBookIdAndUser(accountBookId: number, user: UserEntity) {
-    const accountBook = await this.dataSource.manager
-      .createQueryBuilder(AccountBookEntity, 'accountBook')
-      .leftJoin('accountBook.admins', 'admin')
-      .leftJoin('accountBook.members', 'member')
-      .where('accountBook.id = :id', {
-        id: accountBookId,
-      })
-      .andWhere((qb) => {
-        qb.where('admin.id = :adminId', { adminId: user.id }).orWhere(
-          'member.id = :memberId',
-          { memberId: user.id },
-        );
-      })
-      .getOne();
-
-    if (!accountBook) {
-      throw new Error('账本不存在');
-    }
-    const savingAccounts = await this.dataSource.manager
+  async findAllByAccountBookIdAndPagination(
+    accountBookId: number,
+    pagination: Pagination,
+  ) {
+    const qb = this.dataSource.manager
       .createQueryBuilder(SavingAccountEntity, 'savingAccount')
-      .leftJoin('savingAccount.accountBook', 'accountBook')
-      .where('accountBook.id = :id', { id: accountBook.id })
-      .getMany();
+      .where('accountBook.accountBookId = :accountBookId', { accountBookId });
 
-    return savingAccounts;
+    return applyPagination(qb, pagination).getMany();
   }
 
   async create(savingsInput: CreateSavingAccountInput, user: UserEntity) {
@@ -89,12 +47,14 @@ export class SavingAccountService {
         .where('accountBook.id = :id', {
           id: accountBookId,
         })
-        .andWhere((qb) => {
-          qb.where('admin.id = :adminId', { adminId: user.id }).orWhere(
-            'member.id = :memberId',
-            { memberId: user.id },
-          );
-        })
+        .andWhere(
+          new Brackets((qb) => {
+            qb.where('admin.id = :adminId', { adminId: user.id }).orWhere(
+              'member.id = :memberId',
+              { memberId: user.id },
+            );
+          }),
+        )
         .getOne();
 
       if (!accountBook) {

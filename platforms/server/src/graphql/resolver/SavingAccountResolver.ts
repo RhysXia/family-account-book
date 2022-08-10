@@ -2,7 +2,6 @@ import {
   Args,
   Mutation,
   Parent,
-  Query,
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
@@ -54,25 +53,6 @@ export class SavingAccountResolver {
       return accountBook.updater;
     }
     return this.userDataLoader.load(accountBook.updaterId);
-  }
-
-  @Query()
-  async getSavingAccountListByAccountBookId(
-    @Args('accountBookId') accountBookId: number,
-    @CurrentUser({ required: true }) user: UserEntity,
-  ) {
-    return this.savingAccountService.findAllByAccountBookIdAndUser(
-      accountBookId,
-      user,
-    );
-  }
-
-  @Query()
-  async getSavingAccountById(
-    @Args('id') id: number,
-    @CurrentUser({ required: true }) user: UserEntity,
-  ) {
-    return this.savingAccountService.findOneByIdAndUser(id, user);
   }
 
   @Mutation()

@@ -1,3 +1,8 @@
+type SavingAccountListWithPagintion {
+  total: Int!
+  data: [AccountBook!]!
+}
+
 type AccountBook implements Timestamp {
   id: Int!
   name: String!
@@ -17,6 +22,10 @@ type AccountBook implements Timestamp {
 
   createdAt: DateTime!
   updatedAt: DateTime!
+
+  savingAccounts(pagination: Pagination): SavingAccountListWithPagintion!
+
+  savingAccount(id: Int!): SavingAccount!
 }
 
 input CreateAccountBookInput {
@@ -57,13 +66,10 @@ type Mutation {
   updateAccountBook(accountBook: UpdateAccountBookInput!): AccountBook!
 }
 
-type Query {
-  """
-  获取属于自己的账本，自己为账本管理员或者普通成员
-  """
-  getAccountBookList: [AccountBook!]!
-  """
-  获取有权限的指定账本，自己需要为账本管理员或者普通成员
-  """
-  getAccountBookById(id: Int!): AccountBook!
-}
+# type Query {
+
+#   """
+#   获取有权限的指定账本，自己需要为账本管理员或者普通成员
+#   """
+#   getAccountBookById(id: Int!): AccountBook!
+# }

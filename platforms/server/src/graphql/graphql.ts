@@ -13,6 +13,13 @@ export enum Direction {
     AESC = "AESC"
 }
 
+export enum TagType {
+    INCOME = "INCOME",
+    EXPENDITURE = "EXPENDITURE",
+    INVESTMENT = "INVESTMENT",
+    LOAD = "LOAD"
+}
+
 export interface CreateAccountBookInput {
     name: string;
     desc?: Nullable<string>;
@@ -36,7 +43,7 @@ export interface OrderBy {
 export interface Pagination {
     skip?: Nullable<number>;
     take?: Nullable<number>;
-    orderBy: OrderBy[];
+    orderBy?: Nullable<OrderBy[]>;
 }
 
 export interface CreateSavingAccountInput {
@@ -51,6 +58,17 @@ export interface UpdateSavingAccountInput {
     name?: Nullable<string>;
     desc?: Nullable<string>;
     amount?: Nullable<number>;
+}
+
+export interface CreateTagInput {
+    name: string;
+    type: TagType;
+    accountBookId: number;
+}
+
+export interface UpdateTagInput {
+    id: number;
+    name: string;
 }
 
 export interface SignUpUserInput {
@@ -71,6 +89,11 @@ export interface Timestamp {
     updatedAt: DateTime;
 }
 
+export interface SavingAccountListWithPagintion {
+    total: number;
+    data: AccountBook[];
+}
+
 export interface AccountBook extends Timestamp {
     id: number;
     name: string;
@@ -81,6 +104,8 @@ export interface AccountBook extends Timestamp {
     updater: User;
     createdAt: DateTime;
     updatedAt: DateTime;
+    savingAccounts: SavingAccountListWithPagintion;
+    savingAccount: SavingAccount;
 }
 
 export interface IMutation {
@@ -88,17 +113,10 @@ export interface IMutation {
     updateAccountBook(accountBook: UpdateAccountBookInput): AccountBook | Promise<AccountBook>;
     createSavingAccount(savingAccount: CreateSavingAccountInput): SavingAccount | Promise<SavingAccount>;
     updateSavingAccount(savingAccount: UpdateSavingAccountInput): SavingAccount | Promise<SavingAccount>;
+    createTag(tag: CreateTagInput): Tag | Promise<Tag>;
+    updateTag(tag: UpdateTagInput): Tag | Promise<Tag>;
     signIn(user: SignInUserInput): User | Promise<User>;
     signUp(user: SignUpUserInput): User | Promise<User>;
-}
-
-export interface IQuery {
-    getAccountBookList(): AccountBook[] | Promise<AccountBook[]>;
-    getAccountBookById(id: number): AccountBook | Promise<AccountBook>;
-    getSavingAccountListByAccountBookId(accountBookId: number): SavingAccount[] | Promise<SavingAccount[]>;
-    getSavingAccountById(id: number): SavingAccount | Promise<SavingAccount>;
-    getCurrentUser(): User | Promise<User>;
-    findUserListByUsernameLike(username: string, limit?: Nullable<number>): User[] | Promise<User[]>;
 }
 
 export interface SavingAccount extends Timestamp {
@@ -113,6 +131,27 @@ export interface SavingAccount extends Timestamp {
     accountBook: AccountBook;
 }
 
+export interface Tag {
+    id: number;
+    name: string;
+    type: TagType;
+    createdAt: DateTime;
+    updatedAt: DateTime;
+    creator: User;
+    accountBook: AccountBook;
+}
+
+export interface IQuery {
+    getTagsByAccountBookId(accountBookId: number): Tag[] | Promise<Tag[]>;
+    getCurrentUser(): User | Promise<User>;
+    findUserListByUsernameLike(username: string, limit?: Nullable<number>): User[] | Promise<User[]>;
+}
+
+export interface AccountBookListWithPagintion {
+    total: number;
+    data: AccountBook[];
+}
+
 export interface User extends Timestamp {
     id: number;
     username: string;
@@ -120,6 +159,8 @@ export interface User extends Timestamp {
     avatar?: Nullable<string>;
     createdAt: DateTime;
     updatedAt: DateTime;
+    accountBooks: AccountBookListWithPagintion;
+    accountBook: AccountBook;
 }
 
 export type DateTime = any;

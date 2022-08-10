@@ -1,3 +1,8 @@
+type AccountBookListWithPagintion {
+  total: Int!
+  data: [AccountBook!]!
+}
+
 type User implements Timestamp {
   id: Int!
   username: String!
@@ -5,6 +10,10 @@ type User implements Timestamp {
   avatar: String
   createdAt: DateTime!
   updatedAt: DateTime!
+
+  accountBooks(pagination: Pagination): AccountBookListWithPagintion!
+
+  accountBook(id: Int!): AccountBook!
 }
 
 type Query {

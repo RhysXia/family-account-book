@@ -2,18 +2,19 @@ import {
   Args,
   Mutation,
   Parent,
-  Query,
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
 import { AccountBookEntity } from '../../entity/AccountBookEntity';
 import { UserEntity } from '../../entity/UserEntity';
 import { AccountBookService } from '../../service/AccountBookService';
+import { SavingAccountService } from '../../service/SavingAccountService';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
 import {
   AccountBook,
   CreateAccountBookInput,
+  Pagination,
   UpdateAccountBookInput,
 } from '../graphql';
 
@@ -22,6 +23,7 @@ export class AccountBookResolver {
   constructor(
     private readonly accountBookService: AccountBookService,
     private readonly userDataLoader: UserDataLoader,
+    private readonly savingAccountService: SavingAccountService,
   ) {}
 
   @ResolveField()
@@ -57,11 +59,33 @@ export class AccountBookResolver {
     return this.userDataLoader.load(accountBook.updaterId);
   }
 
+  @ResolveField()
+  async savingAccounts(
+    @Parent() accountBook: AccountBookEntity,
+    @Args('pagination') pagination?: Pagination,
+  ) {
+    return this.savingAccountService.findAllByAccountBookIdAndPagination(
+      accountBook.id,
+      pagination,
+    );
+  }
+
+  @ResolveField()
+  async savingAccount(
+    @Parent() accountBook: AccountBookEntity,
+    @Args('id') id: number,
+  ) {
+    return this.savingAccountService.findOneByIdAndAccountBookId(
+      id,
+      accountBook.id,
+    );
+  }
+
   @Mutation()
   async createAccountBook(
     @CurrentUser({ required: true }) user: UserEntity,
     @Args('accountBook') accountBookInput: CreateAccountBookInput,
-  ): Promise<AccountBook> {
+  ) {
     return this.accountBookService.create(accountBookInput, user);
   }
 
@@ -69,20 +93,7 @@ export class AccountBookResolver {
   async updateAccountBook(
     @CurrentUser({ required: true }) user: UserEntity,
     @Args('accountBook') accountBookInput: UpdateAccountBookInput,
-  ): Promise<AccountBook> {
-    return this.accountBookService.update(accountBookInput, user);
-  }
-
-  @Query()
-  async getAccountBookList(@CurrentUser() user: UserEntity) {
-    return this.accountBookService.findAllByUser(user);
-  }
-
-  @Query()
-  async getAccountBookById(
-    @CurrentUser() user: UserEntity,
-    @Args('id') id: number,
   ) {
-    return this.accountBookService.findByIdAndUser(id, user);
+    return this.accountBookService.update(accountBookInput, user);
   }
 }

@@ -13,7 +13,7 @@ input OrderBy {
 input Pagination {
   skip: Int
   take: Int
-  orderBy: [OrderBy!]!
+  orderBy: [OrderBy!]
 }
 
 interface Timestamp {

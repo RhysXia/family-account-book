@@ -1,16 +1,39 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, In } from 'typeorm';
+import { Brackets, DataSource, In } from 'typeorm';
 import { AccountBookEntity } from '../entity/AccountBookEntity';
 import { UserEntity } from '../entity/UserEntity';
 import {
-  AccountBook,
   CreateAccountBookInput,
+  Pagination,
   UpdateAccountBookInput,
 } from '../graphql/graphql';
+import { applyPagination } from '../utils/applyPagination';
 
 @Injectable()
 export class AccountBookService {
   constructor(private readonly dataSource: DataSource) {}
+
+  async findAllByUserIdAndPagination(
+    userId: number,
+    pagination?: Pagination,
+  ): Promise<{
+    total: number;
+    data: AccountBookEntity[];
+  }> {
+    const qb = this.dataSource.manager
+      .createQueryBuilder(AccountBookEntity, 'accountBook')
+      .leftJoin('accountBook.admins', 'admin')
+      .leftJoin('accountBook.members', 'member')
+      .where('admin.id = :adminId', { adminId: userId })
+      .orWhere('member.id = :memberId', { memberId: userId });
+
+    const result = await applyPagination(qb, pagination).getManyAndCount();
+
+    return {
+      total: result[1],
+      data: result[0],
+    };
+  }
 
   async findAllByIds(ids: Array<number>) {
     return await this.dataSource.manager.find(AccountBookEntity, {
@@ -67,7 +90,7 @@ export class AccountBookService {
   create(
     accountBookInput: CreateAccountBookInput,
     author: UserEntity,
-  ): Promise<AccountBook> {
+  ): Promise<AccountBookEntity> {
     return this.dataSource.transaction(async (manager) => {
       const adminIds = accountBookInput.adminIds || [];
       const memberIds = accountBookInput.memberIds || [];
@@ -109,7 +132,7 @@ export class AccountBookService {
   async update(
     accountBookInput: UpdateAccountBookInput,
     user: UserEntity,
-  ): Promise<AccountBook> {
+  ): Promise<AccountBookEntity> {
     const { id, name, desc, adminIds, memberIds } = accountBookInput;
 
     return this.dataSource.transaction(async (manager) => {
@@ -167,28 +190,20 @@ export class AccountBookService {
     });
   }
 
-  async findAllByUser(user: UserEntity) {
-    return await this.dataSource.manager
-      .createQueryBuilder(AccountBookEntity, 'accountBook')
-      .leftJoin('accountBook.admins', 'admin')
-      .leftJoin('accountBook.members', 'member')
-      .where('admin.id = :adminId', { adminId: user.id })
-      .orWhere('member.id = :memberId', { memberId: user.id })
-      .getMany();
-  }
-
-  async findByIdAndUser(id: number, user: UserEntity) {
+  async findOneByIdAndUserId(id: number, userId: number) {
     return await this.dataSource.manager
       .createQueryBuilder(AccountBookEntity, 'accountBook')
       .leftJoin('accountBook.admins', 'admin')
       .leftJoin('accountBook.members', 'member')
       .where('accountBook.id = :accountBookId', { accountBookId: id })
-      .andWhere((qb) => {
-        qb.where('admin.id = :adminId', { adminId: user.id }).orWhere(
-          'member.id = :memberId',
-          { memberId: user.id },
-        );
-      })
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('admin.id = :adminId', { adminId: userId }).orWhere(
+            'member.id = :memberId',
+            { memberId: userId },
+          );
+        }),
+      )
       .getOne();
   }
 }

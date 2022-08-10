@@ -11,6 +11,7 @@ import { UserResolver } from './resolver/UserResolver';
 import { UserDataLoader } from './dataloader/UserDataLoader';
 import { SavingAccountMoneyDataLoader } from './dataloader/SavingAccountAmountDataLoader';
 import { AccountBookDataLoader } from './dataloader/AccountBookDataLoader';
+import { QueryComplexityPlugin } from './plugins/QueryComplexityPlugin';
 
 @Module({
   imports: [
@@ -29,7 +30,7 @@ import { AccountBookDataLoader } from './dataloader/AccountBookDataLoader';
           },
           csrfPrevention: true,
           cache: 'bounded',
-          plugins: [],
+          plugins: [new QueryComplexityPlugin(50)],
         };
       },
     }),
