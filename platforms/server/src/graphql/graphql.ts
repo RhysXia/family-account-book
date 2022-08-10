@@ -110,6 +110,7 @@ export interface SavingAccount extends Timestamp {
     amount: number;
     creator: User;
     updater: User;
+    accountBook: AccountBook;
 }
 
 export interface User extends Timestamp {

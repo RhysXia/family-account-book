@@ -69,13 +69,13 @@ export class SavingAccountService {
     if (!accountBook) {
       throw new Error('账本不存在');
     }
-    const savings = await this.dataSource.manager
-      .createQueryBuilder(SavingAccountEntity, 'savings')
-      .leftJoin('savings.accountBook', 'accountBook')
+    const savingAccounts = await this.dataSource.manager
+      .createQueryBuilder(SavingAccountEntity, 'savingAccount')
+      .leftJoin('savingAccount.accountBook', 'accountBook')
       .where('accountBook.id = :id', { id: accountBook.id })
       .getMany();
 
-    return savings;
+    return savingAccounts;
   }
 
   async create(savingsInput: CreateSavingAccountInput, user: UserEntity) {

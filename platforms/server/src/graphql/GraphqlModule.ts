@@ -10,6 +10,7 @@ import { SavingAccountResolver } from './resolver/SavingAccountResolver';
 import { UserResolver } from './resolver/UserResolver';
 import { UserDataLoader } from './dataloader/UserDataLoader';
 import { SavingAccountMoneyDataLoader } from './dataloader/SavingAccountAmountDataLoader';
+import { AccountBookDataLoader } from './dataloader/AccountBookDataLoader';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { SavingAccountMoneyDataLoader } from './dataloader/SavingAccountAmountDa
     TagDataLoader,
     UserDataLoader,
     SavingAccountMoneyDataLoader,
+    AccountBookDataLoader,
     UserResolver,
     AccountBookResolver,
     SavingAccountResolver,

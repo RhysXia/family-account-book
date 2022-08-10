@@ -9,6 +9,7 @@ import {
 import { SavingAccountEntity } from '../../entity/SavingAccountEntity';
 import { UserEntity } from '../../entity/UserEntity';
 import { SavingAccountService } from '../../service/SavingAccountService';
+import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
 import { SavingAccountMoneyDataLoader } from '../dataloader/SavingAccountAmountDataLoader';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
@@ -20,6 +21,7 @@ export class SavingAccountResolver {
     private readonly savingAccountService: SavingAccountService,
     private readonly savingAccountMoneyDataLoader: SavingAccountMoneyDataLoader,
     private readonly userDataLoader: UserDataLoader,
+    private readonly accountBookDataLoader: AccountBookDataLoader,
   ) {}
 
   @ResolveField()
@@ -31,6 +33,11 @@ export class SavingAccountResolver {
     }
 
     return parent.initialAmount;
+  }
+
+  @ResolveField()
+  async accountBook(@Parent() parent: SavingAccountEntity) {
+    return this.accountBookDataLoader.load(parent.accountBookId);
   }
 
   @ResolveField()

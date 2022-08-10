@@ -12,6 +12,9 @@ type SavingAccount implements Timestamp {
 
   creator: User!
   updater: User!
+
+  accountBook: AccountBook!
+
 }
 
 type Query {

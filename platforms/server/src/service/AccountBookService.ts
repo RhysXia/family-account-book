@@ -12,6 +12,14 @@ import {
 export class AccountBookService {
   constructor(private readonly dataSource: DataSource) {}
 
+  async findAllByIds(ids: Array<number>) {
+    return await this.dataSource.manager.find(AccountBookEntity, {
+      where: {
+        id: In(ids),
+      },
+    });
+  }
+
   async findAdminsByAccountBookId(
     accountBookId: number,
   ): Promise<Array<UserEntity>> {
