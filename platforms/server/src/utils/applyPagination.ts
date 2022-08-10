@@ -11,12 +11,12 @@ export const applyPagination = (
   }
 
   let sqb = builder;
-  if (Number.isInteger(pagination.skip)) {
-    sqb = sqb.skip(pagination.skip);
+  if (Number.isInteger(pagination.limit)) {
+    sqb = sqb.limit(pagination.limit);
   }
 
-  if (Number.isInteger(pagination.take)) {
-    sqb = sqb.take(pagination.take);
+  if (Number.isInteger(pagination.offset)) {
+    sqb = sqb.offset(pagination.offset);
   }
 
   const orderBy = pagination.orderBy;

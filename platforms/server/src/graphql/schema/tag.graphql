@@ -22,8 +22,8 @@ type Tag {
   name: String!
   type: TagType!
 
-  createdAt: DateTime!
-  updatedAt: DateTime!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
 
   creator: User!
 

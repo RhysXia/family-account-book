@@ -41,8 +41,8 @@ export interface OrderBy {
 }
 
 export interface Pagination {
-    skip?: Nullable<number>;
-    take?: Nullable<number>;
+    limit?: Nullable<number>;
+    offset?: Nullable<number>;
     orderBy?: Nullable<OrderBy[]>;
 }
 
@@ -84,9 +84,9 @@ export interface SignInUserInput {
     rememberMe?: Nullable<boolean>;
 }
 
-export interface Timestamp {
-    createdAt: DateTime;
-    updatedAt: DateTime;
+export interface EntityTimestamp {
+    createdAt: Timestamp;
+    updatedAt: Timestamp;
 }
 
 export interface AccountBookListWithPagintion {
@@ -94,16 +94,16 @@ export interface AccountBookListWithPagintion {
     data: AccountBook[];
 }
 
-export interface AccountBook extends Timestamp {
+export interface AccountBook extends EntityTimestamp {
     id: number;
     name: string;
     desc?: Nullable<string>;
-    admins: User[];
-    members: User[];
-    creator: User;
-    updater: User;
-    createdAt: DateTime;
-    updatedAt: DateTime;
+    admins: SimpleUser[];
+    members: SimpleUser[];
+    creator: SimpleUser;
+    updater: SimpleUser;
+    createdAt: Timestamp;
+    updatedAt: Timestamp;
     savingAccounts: SavingAccountListWithPagintion;
     savingAccount: SavingAccount;
 }
@@ -126,7 +126,7 @@ export interface IQuery {
     getSelfSavingAccount(id: number): SavingAccount | Promise<SavingAccount>;
     getTagsByAccountBookId(accountBookId: number): Tag[] | Promise<Tag[]>;
     getCurrentUser(): User | Promise<User>;
-    findUserListByUsernameLike(username: string, limit?: Nullable<number>): User[] | Promise<User[]>;
+    findUserListByUsernameLike(username: string, limit?: Nullable<number>): SimpleUser[] | Promise<SimpleUser[]>;
 }
 
 export interface SavingAccountListWithPagintion {
@@ -134,38 +134,54 @@ export interface SavingAccountListWithPagintion {
     data: SavingAccount[];
 }
 
-export interface SavingAccount extends Timestamp {
+export interface AccountHistory {
+    id: number;
+    amount: number;
+    dealAt: Date;
+}
+
+export interface SavingAccount extends EntityTimestamp {
     id: number;
     name: string;
     desc?: Nullable<string>;
-    createdAt: DateTime;
-    updatedAt: DateTime;
+    createdAt: Date;
+    updatedAt: Timestamp;
     amount: number;
-    creator: User;
-    updater: User;
+    creator: SimpleUser;
+    updater: SimpleUser;
     accountBook: AccountBook;
+    accountHistory: AccountHistory[];
 }
 
 export interface Tag {
     id: number;
     name: string;
     type: TagType;
-    createdAt: DateTime;
-    updatedAt: DateTime;
+    createdAt: Timestamp;
+    updatedAt: Timestamp;
     creator: User;
     accountBook: AccountBook;
 }
 
-export interface User extends Timestamp {
+export interface User extends EntityTimestamp {
     id: number;
     username: string;
     email?: Nullable<string>;
     avatar?: Nullable<string>;
-    createdAt: DateTime;
-    updatedAt: DateTime;
+    createdAt: Timestamp;
+    updatedAt: Timestamp;
     accountBooks: AccountBookListWithPagintion;
     accountBook: AccountBook;
 }
 
-export type DateTime = any;
+export interface SimpleUser {
+    id: number;
+    username: string;
+    email?: Nullable<string>;
+    avatar?: Nullable<string>;
+    createdAt: Timestamp;
+    updatedAt: Timestamp;
+}
+
+export type Timestamp = any;
 type Nullable<T> = T | null;

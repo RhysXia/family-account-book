@@ -3,22 +3,31 @@ type SavingAccountListWithPagintion {
   data: [SavingAccount!]!
 }
 
-type SavingAccount implements Timestamp {
+type AccountHistory {
+  id: Int!
+  amount: Float!
+  dealAt: Date!
+}
+
+type SavingAccount implements EntityTimestamp {
   id: Int!
   name: String!
   desc: String
-  createdAt: DateTime!
-  updatedAt: DateTime!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
 
   """
   余额
   """
   amount: Float!
 
-  creator: User!
-  updater: User!
+  creator: SimpleUser!
+  updater: SimpleUser!
 
   accountBook: AccountBook!
+
+  accountHistory: [AccountHistory!]!
+
 }
 
 input CreateSavingAccountInput {

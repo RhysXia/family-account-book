@@ -5,25 +5,25 @@ type AccountBookListWithPagintion {
   data: [AccountBook!]!
 }
 
-type AccountBook implements Timestamp {
+type AccountBook implements EntityTimestamp {
   id: Int!
   name: String!
   desc: String
   """
   管理员
   """
-  admins: [User!]!
+  admins: [SimpleUser!]!
   """
   普通成员，不包含管理员
   """
-  members: [User!]!
+  members: [SimpleUser!]!
 
-  creator: User!
+  creator: SimpleUser!
 
-  updater: User!
+  updater: SimpleUser!
 
-  createdAt: DateTime!
-  updatedAt: DateTime!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
 
   savingAccounts(pagination: Pagination): SavingAccountListWithPagintion!
 

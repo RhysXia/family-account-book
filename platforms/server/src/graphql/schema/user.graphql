@@ -1,16 +1,29 @@
-
-
-type User implements Timestamp {
+type User implements EntityTimestamp {
   id: Int!
   username: String!
   email: String
   avatar: String
-  createdAt: DateTime!
-  updatedAt: DateTime!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
 
+  """
+  获取该用户的账本列表，支持分页
+  """
   accountBooks(pagination: Pagination): AccountBookListWithPagintion!
 
+  """
+  获取该用户有权限的指定id的账本
+  """
   accountBook(id: Int!): AccountBook!
+}
+
+type SimpleUser {
+  id: Int!
+  username: String!
+  email: String
+  avatar: String
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
 }
 
 type Query {
@@ -21,7 +34,7 @@ type Query {
   """
   根据模糊搜索用户列表
   """
-  findUserListByUsernameLike(username: String!, limit: Int = 10): [User!]!
+  findUserListByUsernameLike(username: String!, limit: Int = 10): [SimpleUser!]!
 }
 
 input SignUpUserInput {

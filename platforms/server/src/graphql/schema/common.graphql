@@ -1,22 +1,50 @@
-scalar DateTime
+scalar Timestamp
+scalar Date
 
 enum Direction {
+  """
+  降序
+  """
   DESC
+  """
+  升序
+  """
   ASC
 }
 
+"""
+排序
+"""
 input OrderBy {
+  """
+  字段名
+  """
   field: String!
+  """
+  排序方向
+  """
   direction: Direction!
 }
 
+"""
+分页参数
+"""
 input Pagination {
-  skip: Int
-  take: Int
+  """
+  查询条目数
+  """
+  limit: Int
+  """
+  偏移量
+  """
+  offset: Int
+  """
+  排序
+  """
   orderBy: [OrderBy!]
 }
 
-interface Timestamp {
-  createdAt: DateTime!
-  updatedAt: DateTime!
+interface EntityTimestamp {
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
 }
