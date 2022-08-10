@@ -134,10 +134,10 @@ export interface SavingAccountListWithPagintion {
     data: SavingAccount[];
 }
 
-export interface AccountHistory {
+export interface AmountHistory {
     id: number;
     amount: number;
-    dealAt: DateTime;
+    dealAt: Date;
 }
 
 export interface SavingAccount extends EntityDateTime {
@@ -150,7 +150,7 @@ export interface SavingAccount extends EntityDateTime {
     creator: SimpleUser;
     updater: SimpleUser;
     accountBook: AccountBook;
-    accountHistory: AccountHistory[];
+    getAmountHistoriesByDate: AmountHistory[];
 }
 
 export interface Tag {

@@ -3,10 +3,10 @@ type SavingAccountListWithPagintion {
   data: [SavingAccount!]!
 }
 
-type AccountHistory {
+type AmountHistory {
   id: Int!
   amount: Float!
-  dealAt: DateTime!
+  dealAt: Date!
 }
 
 type SavingAccount implements EntityDateTime {
@@ -26,8 +26,7 @@ type SavingAccount implements EntityDateTime {
 
   accountBook: AccountBook!
 
-  accountHistory: [AccountHistory!]!
-
+  getAmountHistoriesByDate(startDate: Date, endDate: Date): [AmountHistory!]!
 }
 
 input CreateSavingAccountInput {

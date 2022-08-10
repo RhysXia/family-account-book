@@ -45,19 +45,32 @@ export class SavingAccountResolver {
   }
 
   @ResolveField()
-  async creator(@Parent() accountBook: SavingAccountEntity) {
-    if (accountBook.creator) {
-      return accountBook.creator;
+  async creator(@Parent() parent: SavingAccountEntity) {
+    if (parent.creator) {
+      return parent.creator;
     }
-    return this.userDataLoader.load(accountBook.creatorId);
+    return this.userDataLoader.load(parent.creatorId);
   }
 
   @ResolveField()
-  async updater(@Parent() accountBook: SavingAccountEntity) {
-    if (accountBook.updater) {
-      return accountBook.updater;
+  async updater(@Parent() parent: SavingAccountEntity) {
+    if (parent.updater) {
+      return parent.updater;
     }
-    return this.userDataLoader.load(accountBook.updaterId);
+    return this.userDataLoader.load(parent.updaterId);
+  }
+
+  @ResolveField()
+  async getAmountHistoriesByDate(
+    @Parent() parent: SavingAccountEntity,
+    @Args('startDate') startDate: Date,
+    @Args('endDate') endDate: Date,
+  ) {
+    return this.savingAccountMoneyDataLoader.findAllBySavingAccountIdAndDateBetween(
+      parent.id,
+      startDate,
+      endDate,
+    );
   }
 
   @Mutation()
