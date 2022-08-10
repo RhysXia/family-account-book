@@ -1,7 +1,4 @@
-type AccountBookListWithPagintion {
-  total: Int!
-  data: [AccountBook!]!
-}
+
 
 type User implements Timestamp {
   id: Int!

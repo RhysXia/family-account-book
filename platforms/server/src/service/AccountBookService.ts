@@ -27,7 +27,11 @@ export class AccountBookService {
       .where('admin.id = :adminId', { adminId: userId })
       .orWhere('member.id = :memberId', { memberId: userId });
 
-    const result = await applyPagination(qb, pagination).getManyAndCount();
+    const result = await applyPagination(
+      qb,
+      'accountBook',
+      pagination,
+    ).getManyAndCount();
 
     return {
       total: result[1],

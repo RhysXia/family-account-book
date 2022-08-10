@@ -1,4 +1,5 @@
 import {
+  Query,
   Args,
   Mutation,
   Parent,
@@ -95,5 +96,24 @@ export class AccountBookResolver {
     @Args('accountBook') accountBookInput: UpdateAccountBookInput,
   ) {
     return this.accountBookService.update(accountBookInput, user);
+  }
+
+  @Query()
+  async getSelfAccountBookById(
+    @CurrentUser({ required: true }) user: UserEntity,
+    @Args('id') id: number,
+  ) {
+    return this.accountBookService.findOneByIdAndUserId(id, user.id);
+  }
+
+  @Query()
+  async getSelfAccountBooks(
+    @CurrentUser({ required: true }) user: UserEntity,
+    @Args('pagination') pagination?: Pagination,
+  ) {
+    return this.accountBookService.findAllByUserIdAndPagination(
+      user.id,
+      pagination,
+    );
   }
 }

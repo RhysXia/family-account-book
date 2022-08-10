@@ -1,4 +1,6 @@
-type SavingAccountListWithPagintion {
+
+
+type AccountBookListWithPagintion {
   total: Int!
   data: [AccountBook!]!
 }
@@ -66,10 +68,13 @@ type Mutation {
   updateAccountBook(accountBook: UpdateAccountBookInput!): AccountBook!
 }
 
-# type Query {
-
-#   """
-#   获取有权限的指定账本，自己需要为账本管理员或者普通成员
-#   """
-#   getAccountBookById(id: Int!): AccountBook!
-# }
+type Query {
+  """
+  获取有权限的指定账本，自己需要为账本管理员或者普通成员
+  """
+  getSelfAccountBookById(id: Int!): AccountBook!
+  """
+  获取有权限的账本
+  """
+  getSelfAccountBooks(pagination: Pagination): AccountBookListWithPagintion!
+}

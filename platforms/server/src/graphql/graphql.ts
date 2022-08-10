@@ -10,7 +10,7 @@
 
 export enum Direction {
     DESC = "DESC",
-    AESC = "AESC"
+    ASC = "ASC"
 }
 
 export enum TagType {
@@ -89,7 +89,7 @@ export interface Timestamp {
     updatedAt: DateTime;
 }
 
-export interface SavingAccountListWithPagintion {
+export interface AccountBookListWithPagintion {
     total: number;
     data: AccountBook[];
 }
@@ -119,6 +119,21 @@ export interface IMutation {
     signUp(user: SignUpUserInput): User | Promise<User>;
 }
 
+export interface IQuery {
+    getSelfAccountBookById(id: number): AccountBook | Promise<AccountBook>;
+    getSelfAccountBooks(pagination?: Nullable<Pagination>): AccountBookListWithPagintion | Promise<AccountBookListWithPagintion>;
+    getSelfSavingAccounts(pagination?: Nullable<Pagination>): SavingAccountListWithPagintion | Promise<SavingAccountListWithPagintion>;
+    getSelfSavingAccount(id: number): SavingAccount | Promise<SavingAccount>;
+    getTagsByAccountBookId(accountBookId: number): Tag[] | Promise<Tag[]>;
+    getCurrentUser(): User | Promise<User>;
+    findUserListByUsernameLike(username: string, limit?: Nullable<number>): User[] | Promise<User[]>;
+}
+
+export interface SavingAccountListWithPagintion {
+    total: number;
+    data: SavingAccount[];
+}
+
 export interface SavingAccount extends Timestamp {
     id: number;
     name: string;
@@ -139,17 +154,6 @@ export interface Tag {
     updatedAt: DateTime;
     creator: User;
     accountBook: AccountBook;
-}
-
-export interface IQuery {
-    getTagsByAccountBookId(accountBookId: number): Tag[] | Promise<Tag[]>;
-    getCurrentUser(): User | Promise<User>;
-    findUserListByUsernameLike(username: string, limit?: Nullable<number>): User[] | Promise<User[]>;
-}
-
-export interface AccountBookListWithPagintion {
-    total: number;
-    data: AccountBook[];
 }
 
 export interface User extends Timestamp {

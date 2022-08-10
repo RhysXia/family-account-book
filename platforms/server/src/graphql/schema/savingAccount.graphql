@@ -1,3 +1,8 @@
+type SavingAccountListWithPagintion {
+  total: Int!
+  data: [SavingAccount!]!
+}
+
 type SavingAccount implements Timestamp {
   id: Int!
   name: String!
@@ -14,13 +19,7 @@ type SavingAccount implements Timestamp {
   updater: User!
 
   accountBook: AccountBook!
-
 }
-
-# type Query {
-#   getSavingAccountListByAccountBookId(accountBookId: Int!): [SavingAccount!]!
-#   getSavingAccountById(id: Int!): SavingAccount!
-# }
 
 input CreateSavingAccountInput {
   name: String!
@@ -40,6 +39,12 @@ input UpdateSavingAccountInput {
   余额
   """
   amount: Float
+}
+
+type Query {
+  getSelfSavingAccounts(pagination: Pagination): SavingAccountListWithPagintion!
+
+  getSelfSavingAccount(id: Int!): SavingAccount!
 }
 
 type Mutation {

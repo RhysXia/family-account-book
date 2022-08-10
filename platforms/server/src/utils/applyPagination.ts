@@ -3,6 +3,7 @@ import { Pagination } from '../graphql/graphql';
 
 export const applyPagination = (
   builder: SelectQueryBuilder<any>,
+  tableName: string,
   pagination?: Pagination,
 ) => {
   if (!pagination) {
@@ -26,7 +27,7 @@ export const applyPagination = (
   orderBy.forEach((order) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    sqb = sqb.orderBy(order.field, order.direction);
+    sqb = sqb.orderBy(`${tableName}.${order.field}`, order.direction);
   });
 
   return sqb;

@@ -2,6 +2,7 @@ import {
   Args,
   Mutation,
   Parent,
+  Query,
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
@@ -12,7 +13,11 @@ import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
 import { SavingAccountMoneyDataLoader } from '../dataloader/SavingAccountAmountDataLoader';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
-import { CreateSavingAccountInput, UpdateSavingAccountInput } from '../graphql';
+import {
+  CreateSavingAccountInput,
+  Pagination,
+  UpdateSavingAccountInput,
+} from '../graphql';
 
 @Resolver('SavingAccount')
 export class SavingAccountResolver {
@@ -69,5 +74,24 @@ export class SavingAccountResolver {
     @CurrentUser({ required: true }) user: UserEntity,
   ) {
     return this.savingAccountService.update(savingsInput, user);
+  }
+
+  @Query()
+  async getSelfSavingAccounts(
+    @CurrentUser({ required: true }) user: UserEntity,
+    @Args('pagination') pagination?: Pagination,
+  ) {
+    return this.savingAccountService.findAllByUserIdAndPagination(
+      user.id,
+      pagination,
+    );
+  }
+
+  @Query()
+  async getSelfSavingAccount(
+    @CurrentUser({ required: true }) user: UserEntity,
+    @Args('id') id: number,
+  ) {
+    return this.savingAccountService.findOneByIdAndUserId(id, user.id);
   }
 }

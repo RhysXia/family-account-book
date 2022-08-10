@@ -16,6 +16,54 @@ import { applyPagination } from '../utils/applyPagination';
 export class SavingAccountService {
   constructor(private readonly dataSource: DataSource) {}
 
+  findOneByIdAndUserId(id: number, userId: number) {
+    return this.dataSource.manager
+      .createQueryBuilder(SavingAccountEntity, 'savingAccount')
+      .leftJoin('savingAccount.accountBook', 'accountBook')
+      .leftJoin('accountBook.admins', 'admin')
+      .leftJoin('accountBook.members', 'member')
+      .where('savingAccount.id = :id', { id })
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('admin.id = :adminId', { adminId: userId }).orWhere(
+            'member.id = :memberId',
+            { memberId: userId },
+          );
+        }),
+      )
+      .getOne();
+  }
+
+  async findAllByUserIdAndPagination(
+    userId: number,
+    pagination: Pagination,
+  ): Promise<{ total: number; data: Array<SavingAccountEntity> }> {
+    const qb = this.dataSource.manager
+      .createQueryBuilder(SavingAccountEntity, 'savingAccount')
+      .leftJoin('savingAccount.accountBook', 'accountBook')
+      .leftJoin('accountBook.admins', 'admin')
+      .leftJoin('accountBook.members', 'member')
+      .where(
+        new Brackets((qb) => {
+          qb.where('admin.id = :adminId', { adminId: userId }).orWhere(
+            'member.id = :memberId',
+            { memberId: userId },
+          );
+        }),
+      );
+
+    const data = await applyPagination(
+      qb,
+      'savingAccount',
+      pagination,
+    ).getManyAndCount();
+
+    return {
+      total: data[1],
+      data: data[0],
+    };
+  }
+
   findOneByIdAndAccountBookId(id: number, accountBookId: number) {
     return this.dataSource.manager.findOne(SavingAccountEntity, {
       where: {
@@ -28,12 +76,21 @@ export class SavingAccountService {
   async findAllByAccountBookIdAndPagination(
     accountBookId: number,
     pagination: Pagination,
-  ) {
+  ): Promise<{ total: number; data: Array<SavingAccountEntity> }> {
     const qb = this.dataSource.manager
       .createQueryBuilder(SavingAccountEntity, 'savingAccount')
-      .where('accountBook.accountBookId = :accountBookId', { accountBookId });
+      .where('savingAccount.accountBookId = :accountBookId', { accountBookId });
 
-    return applyPagination(qb, pagination).getMany();
+    const data = await applyPagination(
+      qb,
+      'savingAccount',
+      pagination,
+    ).getManyAndCount();
+
+    return {
+      total: data[1],
+      data: data[0],
+    };
   }
 
   async create(savingsInput: CreateSavingAccountInput, user: UserEntity) {

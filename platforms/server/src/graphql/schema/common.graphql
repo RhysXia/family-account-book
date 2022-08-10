@@ -2,7 +2,7 @@ scalar DateTime
 
 enum Direction {
   DESC
-  AESC
+  ASC
 }
 
 input OrderBy {
