@@ -84,9 +84,9 @@ export interface SignInUserInput {
     rememberMe?: Nullable<boolean>;
 }
 
-export interface EntityTimestamp {
-    createdAt: Timestamp;
-    updatedAt: Timestamp;
+export interface EntityDateTime {
+    createdAt: DateTime;
+    updatedAt: DateTime;
 }
 
 export interface AccountBookListWithPagintion {
@@ -94,7 +94,7 @@ export interface AccountBookListWithPagintion {
     data: AccountBook[];
 }
 
-export interface AccountBook extends EntityTimestamp {
+export interface AccountBook extends EntityDateTime {
     id: number;
     name: string;
     desc?: Nullable<string>;
@@ -102,8 +102,8 @@ export interface AccountBook extends EntityTimestamp {
     members: SimpleUser[];
     creator: SimpleUser;
     updater: SimpleUser;
-    createdAt: Timestamp;
-    updatedAt: Timestamp;
+    createdAt: DateTime;
+    updatedAt: DateTime;
     savingAccounts: SavingAccountListWithPagintion;
     savingAccount: SavingAccount;
 }
@@ -137,15 +137,15 @@ export interface SavingAccountListWithPagintion {
 export interface AccountHistory {
     id: number;
     amount: number;
-    dealAt: Date;
+    dealAt: DateTime;
 }
 
-export interface SavingAccount extends EntityTimestamp {
+export interface SavingAccount extends EntityDateTime {
     id: number;
     name: string;
     desc?: Nullable<string>;
-    createdAt: Date;
-    updatedAt: Timestamp;
+    createdAt: DateTime;
+    updatedAt: DateTime;
     amount: number;
     creator: SimpleUser;
     updater: SimpleUser;
@@ -157,19 +157,19 @@ export interface Tag {
     id: number;
     name: string;
     type: TagType;
-    createdAt: Timestamp;
-    updatedAt: Timestamp;
+    createdAt: DateTime;
+    updatedAt: DateTime;
     creator: User;
     accountBook: AccountBook;
 }
 
-export interface User extends EntityTimestamp {
+export interface User extends EntityDateTime {
     id: number;
     username: string;
     email?: Nullable<string>;
     avatar?: Nullable<string>;
-    createdAt: Timestamp;
-    updatedAt: Timestamp;
+    createdAt: DateTime;
+    updatedAt: DateTime;
     accountBooks: AccountBookListWithPagintion;
     accountBook: AccountBook;
 }
@@ -179,9 +179,9 @@ export interface SimpleUser {
     username: string;
     email?: Nullable<string>;
     avatar?: Nullable<string>;
-    createdAt: Timestamp;
-    updatedAt: Timestamp;
+    createdAt: DateTime;
+    updatedAt: DateTime;
 }
 
-export type Timestamp = any;
+export type DateTime = any;
 type Nullable<T> = T | null;

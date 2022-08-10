@@ -1,5 +1,4 @@
-scalar Timestamp
-scalar Date
+scalar DateTime
 
 enum Direction {
   """
@@ -44,7 +43,7 @@ input Pagination {
   orderBy: [OrderBy!]
 }
 
-interface EntityTimestamp {
-  createdAt: Timestamp!
-  updatedAt: Timestamp!
+interface EntityDateTime {
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }

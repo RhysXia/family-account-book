@@ -5,7 +5,7 @@ type AccountBookListWithPagintion {
   data: [AccountBook!]!
 }
 
-type AccountBook implements EntityTimestamp {
+type AccountBook implements EntityDateTime {
   id: Int!
   name: String!
   desc: String
@@ -22,8 +22,8 @@ type AccountBook implements EntityTimestamp {
 
   updater: SimpleUser!
 
-  createdAt: Timestamp!
-  updatedAt: Timestamp!
+  createdAt: DateTime!
+  updatedAt: DateTime!
 
   savingAccounts(pagination: Pagination): SavingAccountListWithPagintion!
 

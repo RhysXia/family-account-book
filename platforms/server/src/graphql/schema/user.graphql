@@ -1,10 +1,10 @@
-type User implements EntityTimestamp {
+type User implements EntityDateTime {
   id: Int!
   username: String!
   email: String
   avatar: String
-  createdAt: Timestamp!
-  updatedAt: Timestamp!
+  createdAt: DateTime!
+  updatedAt: DateTime!
 
   """
   获取该用户的账本列表，支持分页
@@ -22,8 +22,8 @@ type SimpleUser {
   username: String!
   email: String
   avatar: String
-  createdAt: Timestamp!
-  updatedAt: Timestamp!
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 type Query {

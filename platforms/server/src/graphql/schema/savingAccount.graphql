@@ -6,15 +6,15 @@ type SavingAccountListWithPagintion {
 type AccountHistory {
   id: Int!
   amount: Float!
-  dealAt: Date!
+  dealAt: DateTime!
 }
 
-type SavingAccount implements EntityTimestamp {
+type SavingAccount implements EntityDateTime {
   id: Int!
   name: String!
   desc: String
-  createdAt: Timestamp!
-  updatedAt: Timestamp!
+  createdAt: DateTime!
+  updatedAt: DateTime!
 
   """
   余额
