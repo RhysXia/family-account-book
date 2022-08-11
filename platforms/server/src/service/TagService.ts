@@ -3,7 +3,8 @@ import { Brackets, DataSource, In } from 'typeorm';
 import { AccountBookEntity } from '../entity/AccountBookEntity';
 import { TagEntity } from '../entity/TagEntity';
 import { UserEntity } from '../entity/UserEntity';
-import { CreateTagInput, UpdateTagInput } from '../graphql/graphql';
+import { CreateTagInput, Pagination, UpdateTagInput } from '../graphql/graphql';
+import { applyPagination } from '../utils/applyPagination';
 
 @Injectable()
 export class TagService {
@@ -93,12 +94,24 @@ export class TagService {
     });
   }
 
-  findAllByAccountBookId(accountBookId: number) {
-    return this.dataSource.manager.find(TagEntity, {
-      where: {
-        accountBookId,
-      },
-    });
+  async findAllByAccountBookIdAndPagination(
+    accountBookId: number,
+    pagination?: Pagination,
+  ): Promise<{ total: number; data: Array<AccountBookEntity> }> {
+    const qb = this.dataSource
+      .createQueryBuilder(TagEntity, 'tag')
+      .where('tag.accountBookId = :accountBookId', { accountBookId });
+
+    const result = await applyPagination(
+      qb,
+      'tag',
+      pagination,
+    ).getManyAndCount();
+
+    return {
+      total: result[1],
+      data: result[0],
+    };
   }
 
   async findAllByAccountBookIdAndUserId(accountBookId: number, userId: number) {

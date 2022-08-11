@@ -3,6 +3,7 @@ import { PasswordUtil } from '../common/PasswordUtil';
 import { ManagerModule } from '../manager/ManagerModule';
 import { RepositoryModule } from '../repository/RepositoryModule';
 import { AccountBookService } from './AccountBookService';
+import { FlowRecordService } from './FlowRecordService';
 import { SavingAccountMoneyService } from './SavingAccountMoneyService';
 import { SavingAccountService } from './SavingAccountService';
 import { TagService } from './TagService';
@@ -14,6 +15,7 @@ const services = [
   AccountBookService,
   SavingAccountService,
   SavingAccountMoneyService,
+  FlowRecordService,
 ];
 
 @Module({

@@ -1,5 +1,3 @@
-
-
 type AccountBookListWithPagintion {
   total: Int!
   data: [AccountBook!]!
@@ -26,10 +24,13 @@ type AccountBook implements EntityDateTime {
   updatedAt: DateTime!
 
   savingAccounts(pagination: Pagination): SavingAccountListWithPagintion!
-
   savingAccount(id: Int!): SavingAccount!
 
-  tags: [Tag!]!
+  tags(pagination: Pagination): TagListWithPagintion
+  tag(id: Int!): Tag!
+
+  flowRecords(pagination: Pagination): FlowRecordListWithPagintion!
+  flowRecord(id: Int!): FlowRecord!
 }
 
 input CreateAccountBookInput {

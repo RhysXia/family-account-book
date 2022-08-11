@@ -9,9 +9,12 @@ import {
 import { AccountBookEntity } from '../../entity/AccountBookEntity';
 import { UserEntity } from '../../entity/UserEntity';
 import { AccountBookService } from '../../service/AccountBookService';
+import { FlowRecordService } from '../../service/FlowRecordService';
 import { SavingAccountService } from '../../service/SavingAccountService';
 import { TagService } from '../../service/TagService';
+import { FlowRecordDataLoader } from '../dataloader/FlowRecordDataLoader';
 import { SavingAccountDataLoader } from '../dataloader/SavingAccountDataLoader';
+import { TagDataLoader } from '../dataloader/TagDataLoader';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
 import {
@@ -29,6 +32,9 @@ export class AccountBookResolver {
     private readonly savingAccountService: SavingAccountService,
     private readonly tagService: TagService,
     private readonly savingAccountDataLoader: SavingAccountDataLoader,
+    private readonly tagDataLoader: TagDataLoader,
+    private readonly flowRecordDataLoader: FlowRecordDataLoader,
+    private readonly flowRecordService: FlowRecordService,
   ) {}
 
   @ResolveField()
@@ -92,8 +98,52 @@ export class AccountBookResolver {
   }
 
   @ResolveField()
-  async tags(@Parent() parent: AccountBookEntity) {
-    return this.tagService.findAllByAccountBookId(parent.id);
+  async tags(
+    @Parent() parent: AccountBookEntity,
+    @Args('pagination') pagination?: Pagination,
+  ) {
+    return this.tagService.findAllByAccountBookIdAndPagination(
+      parent.id,
+      pagination,
+    );
+  }
+
+  @ResolveField()
+  async tag(@Parent() parent: AccountBookEntity, @Args('id') id: number) {
+    const tag = await this.tagDataLoader.load(id);
+    if (!tag) {
+      throw new Error('标签不存在');
+    }
+    if (tag.accountBookId !== parent.id) {
+      throw new Error('标签不属于该账本');
+    }
+    return tag;
+  }
+
+  @ResolveField()
+  async flowRecords(
+    @Parent() parent: AccountBookEntity,
+    @Args('pagination') pagination?: Pagination,
+  ) {
+    return this.flowRecordService.findAllByAccountBookIdAndPagination(
+      parent.id,
+      pagination,
+    );
+  }
+
+  @ResolveField()
+  async flowRecord(
+    @Parent() parent: AccountBookEntity,
+    @Args('id') id: number,
+  ) {
+    const flowRecord = await this.flowRecordDataLoader.load(id);
+    if (!flowRecord) {
+      throw new Error('流水不存在');
+    }
+    if (flowRecord.accountBookId !== parent.id) {
+      throw new Error('流水不属于该账本');
+    }
+    return flowRecord;
   }
 
   @Mutation()

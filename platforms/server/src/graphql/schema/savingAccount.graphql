@@ -26,7 +26,13 @@ type SavingAccount implements EntityDateTime {
 
   accountBook: AccountBook!
 
-  getAmountHistoriesByDate(startDate: DateTime, endDate: DateTime): [AmountHistory!]!
+  getAmountHistoriesByDate(
+    startDate: DateTime
+    endDate: DateTime
+  ): [AmountHistory!]!
+
+  flowRecords(pagination: Pagination): FlowRecordListWithPagintion!
+  flowRecord(id: Int!): FlowRecord!
 }
 
 input CreateSavingAccountInput {

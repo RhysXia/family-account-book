@@ -8,9 +8,11 @@ import {
 } from '@nestjs/graphql';
 import { SavingAccountEntity } from '../../entity/SavingAccountEntity';
 import { UserEntity } from '../../entity/UserEntity';
+import { FlowRecordService } from '../../service/FlowRecordService';
 import { SavingAccountMoneyService } from '../../service/SavingAccountMoneyService';
 import { SavingAccountService } from '../../service/SavingAccountService';
 import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
+import { FlowRecordDataLoader } from '../dataloader/FlowRecordDataLoader';
 import { SavingAccountMoneyDataLoader } from '../dataloader/SavingAccountAmountDataLoader';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
@@ -28,6 +30,8 @@ export class SavingAccountResolver {
     private readonly savingAccountMoneyDataLoader: SavingAccountMoneyDataLoader,
     private readonly userDataLoader: UserDataLoader,
     private readonly accountBookDataLoader: AccountBookDataLoader,
+    private readonly flowRecordDataLoader: FlowRecordDataLoader,
+    private readonly flowRecordService: FlowRecordService,
   ) {}
 
   @ResolveField()
@@ -76,6 +80,32 @@ export class SavingAccountResolver {
       startDate,
       endDate,
     );
+  }
+
+  @ResolveField()
+  async flowRecords(
+    @Parent() parent: SavingAccountEntity,
+    @Args('pagination') pagination?: Pagination,
+  ) {
+    return this.flowRecordService.findAllBySavingAccountIdAndPagination(
+      parent.id,
+      pagination,
+    );
+  }
+
+  @ResolveField()
+  async flowRecord(
+    @Parent() parent: SavingAccountEntity,
+    @Args('id') id: number,
+  ) {
+    const flowRecord = await this.flowRecordDataLoader.load(id);
+    if (!flowRecord) {
+      throw new Error('流水不存在');
+    }
+    if (flowRecord.savingAccountId !== parent.id) {
+      throw new Error('流水不属于该储蓄账户');
+    }
+    return flowRecord;
   }
 
   @Mutation()

@@ -47,11 +47,22 @@ export interface Pagination {
 }
 
 export interface CreateFlowRecordInput {
-    name: string;
+    desc?: Nullable<string>;
+    dealAt: DateTime;
+    amount: number;
+    accountBookId: number;
+    savingAccountId: number;
+    tagId: number;
 }
 
 export interface UpdateFlowRecordInput {
-    name: string;
+    id: number;
+    desc?: Nullable<string>;
+    dealAt: DateTime;
+    amount: number;
+    accountBookId: number;
+    savingAccountId: number;
+    tagId: number;
 }
 
 export interface CreateSavingAccountInput {
@@ -114,7 +125,10 @@ export interface AccountBook extends EntityDateTime {
     updatedAt: DateTime;
     savingAccounts: SavingAccountListWithPagintion;
     savingAccount: SavingAccount;
-    tags: Tag[];
+    tags?: Nullable<TagListWithPagintion>;
+    tag: Tag;
+    flowRecords: FlowRecordListWithPagintion;
+    flowRecord: FlowRecord;
 }
 
 export interface IMutation {
@@ -133,7 +147,6 @@ export interface IMutation {
 export interface IQuery {
     getAuthAccountBookById(id: number): AccountBook | Promise<AccountBook>;
     getAuthAccountBooks(pagination?: Nullable<Pagination>): AccountBookListWithPagintion | Promise<AccountBookListWithPagintion>;
-    getAuthFlowRecord(id: number): Nullable<FlowRecord> | Promise<Nullable<FlowRecord>>;
     getAuthSavingAccounts(pagination?: Nullable<Pagination>): SavingAccountListWithPagintion | Promise<SavingAccountListWithPagintion>;
     getAuthSavingAccount(id: number): SavingAccount | Promise<SavingAccount>;
     getAuthTagsByAccountBookId(accountBookId: number): Tag[] | Promise<Tag[]>;
@@ -142,9 +155,13 @@ export interface IQuery {
     findUserListByUsernameLike(username: string, limit?: Nullable<number>): SimpleUser[] | Promise<SimpleUser[]>;
 }
 
+export interface FlowRecordListWithPagintion {
+    total: number;
+    data: FlowRecord[];
+}
+
 export interface FlowRecord extends EntityDateTime {
     id: number;
-    name: string;
     desc?: Nullable<string>;
     createdAt: DateTime;
     updatedAt: DateTime;
@@ -179,6 +196,13 @@ export interface SavingAccount extends EntityDateTime {
     updater: SimpleUser;
     accountBook: AccountBook;
     getAmountHistoriesByDate: AmountHistory[];
+    flowRecords: FlowRecordListWithPagintion;
+    flowRecord: FlowRecord;
+}
+
+export interface TagListWithPagintion {
+    total: number;
+    data: Tag[];
 }
 
 export interface Tag extends EntityDateTime {
@@ -190,6 +214,8 @@ export interface Tag extends EntityDateTime {
     creator: SimpleUser;
     updater: SimpleUser;
     accountBook: AccountBook;
+    flowRecords: FlowRecordListWithPagintion;
+    flowRecord: FlowRecord;
 }
 
 export interface User extends EntityDateTime {
@@ -212,5 +238,5 @@ export interface SimpleUser {
     updatedAt: DateTime;
 }
 
-export type DateTime = any;
+export type DateTime = Date;
 type Nullable<T> = T | null;

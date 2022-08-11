@@ -1,3 +1,8 @@
+type TagListWithPagintion {
+  total: Int!
+  data: [Tag!]!
+}
+
 enum TagType {
   """
   收入
@@ -29,6 +34,9 @@ type Tag implements EntityDateTime {
   updater: SimpleUser!
 
   accountBook: AccountBook!
+
+  flowRecords(pagination: Pagination): FlowRecordListWithPagintion!
+  flowRecord(id: Int!): FlowRecord!
 }
 
 input CreateTagInput {

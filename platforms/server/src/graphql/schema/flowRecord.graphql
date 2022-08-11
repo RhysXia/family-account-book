@@ -1,6 +1,10 @@
+type FlowRecordListWithPagintion {
+  total: Int!
+  data: [FlowRecord!]!
+}
+
 type FlowRecord implements EntityDateTime {
   id: Int!
-  name: String!
   desc: String
 
   createdAt: DateTime!
@@ -30,19 +34,32 @@ type FlowRecord implements EntityDateTime {
 }
 
 input CreateFlowRecordInput {
-    name: String!
+  desc: String
+  dealAt: DateTime!
+  amount: Float!
+  accountBookId: Int!
+  savingAccountId: Int!
+  tagId: Int!
 }
 
 input UpdateFlowRecordInput {
-    name: String!
+  id: Int!
+  desc: String
+  dealAt: DateTime!
+  amount: Float!
+  accountBookId: Int!
+  savingAccountId: Int!
+  tagId: Int!
 }
 
-type Query {
-    """获取有权限的记录"""
-    getAuthFlowRecord(id: Int!): FlowRecord
-}
+# type Query {
+#   """
+#   获取有权限的记录
+#   """
+#   getAuthFlowRecord(id: Int!): FlowRecord
+# }
 
 type Mutation {
-    createFlowRecord(flowRecord: CreateFlowRecordInput!): FlowRecord!
-    updateFlowRecord(flowRecord: UpdateFlowRecordInput!): FlowRecord!
+  createFlowRecord(flowRecord: CreateFlowRecordInput!): FlowRecord!
+  updateFlowRecord(flowRecord: UpdateFlowRecordInput!): FlowRecord!
 }

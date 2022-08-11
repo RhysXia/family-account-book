@@ -1,7 +1,7 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { GraphQLModule } from '@nestjs/graphql';
+import { GraphQLModule, DateScalarMode } from '@nestjs/graphql';
 import { join } from 'path';
 import { ServiceModule } from '../service/ServiceModule';
 import { TagDataLoader } from './dataloader/TagDataLoader';
@@ -15,6 +15,8 @@ import { QueryComplexityPlugin } from './plugins/QueryComplexityPlugin';
 import { TagResolver } from './resolver/TagResolver';
 import { FlowRecordResolver } from './resolver/FlowRecordResolver';
 import { SavingAccountDataLoader } from './dataloader/SavingAccountDataLoader';
+import { FlowRecordDataLoader } from './dataloader/FlowRecordDataLoader';
+import { DateTimeScalar } from './scalar/DateTimeScalar';
 
 @Module({
   imports: [
@@ -30,6 +32,9 @@ import { SavingAccountDataLoader } from './dataloader/SavingAccountDataLoader';
           playground: isPlayground,
           definitions: {
             path: join(process.cwd(), 'src/graphql/graphql.ts'),
+            customScalarTypeMapping: {
+              DateTime: 'Date',
+            },
           },
           csrfPrevention: true,
           cache: 'bounded',
@@ -40,11 +45,13 @@ import { SavingAccountDataLoader } from './dataloader/SavingAccountDataLoader';
     ServiceModule,
   ],
   providers: [
+    DateTimeScalar,
     TagDataLoader,
     UserDataLoader,
     SavingAccountMoneyDataLoader,
     AccountBookDataLoader,
     SavingAccountDataLoader,
+    FlowRecordDataLoader,
     UserResolver,
     AccountBookResolver,
     SavingAccountResolver,

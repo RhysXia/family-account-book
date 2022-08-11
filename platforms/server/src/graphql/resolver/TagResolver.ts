@@ -8,11 +8,13 @@ import {
 } from '@nestjs/graphql';
 import { TagEntity } from '../../entity/TagEntity';
 import { UserEntity } from '../../entity/UserEntity';
+import { FlowRecordService } from '../../service/FlowRecordService';
 import { TagService } from '../../service/TagService';
 import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
+import { FlowRecordDataLoader } from '../dataloader/FlowRecordDataLoader';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
-import { CreateTagInput, UpdateTagInput } from '../graphql';
+import { CreateTagInput, Pagination, UpdateTagInput } from '../graphql';
 
 @Resolver('Tag')
 export class TagResolver {
@@ -20,6 +22,8 @@ export class TagResolver {
     private readonly userDataLoader: UserDataLoader,
     private readonly accountBookDataLoader: AccountBookDataLoader,
     private readonly tagService: TagService,
+    private readonly flowRecordDataLoader: FlowRecordDataLoader,
+    private readonly flowRecordService: FlowRecordService,
   ) {}
 
   @ResolveField()
@@ -44,6 +48,29 @@ export class TagResolver {
       return this.accountBook;
     }
     return this.accountBookDataLoader.load(parent.accountBookId);
+  }
+
+  @ResolveField()
+  async flowRecords(
+    @Parent() parent: TagEntity,
+    @Args('pagination') pagination?: Pagination,
+  ) {
+    return this.flowRecordService.findAllByTagIdAndPagination(
+      parent.id,
+      pagination,
+    );
+  }
+
+  @ResolveField()
+  async flowRecord(@Parent() parent: TagEntity, @Args('id') id: number) {
+    const flowRecord = await this.flowRecordDataLoader.load(id);
+    if (!flowRecord) {
+      throw new Error('流水不存在');
+    }
+    if (flowRecord.tagId !== parent.id) {
+      throw new Error('流水不属于该标签');
+    }
+    return flowRecord;
   }
 
   @Query()
