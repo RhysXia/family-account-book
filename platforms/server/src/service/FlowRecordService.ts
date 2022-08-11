@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { Brackets, DataSource, In } from 'typeorm';
+import { Brackets, DataSource, In, MoreThanOrEqual } from 'typeorm';
 import { AccountBookEntity } from '../entity/AccountBookEntity';
 import { FlowRecordEntity } from '../entity/FlowRecordEntity';
 import { SavingAccountEntity } from '../entity/SavingAccountEntity';
 import { SavingAccountMoneyRecordEntity } from '../entity/SavingAccountMoneyRecordEntity';
-import { TagEntity } from '../entity/TagEntity';
+import { TagEntity, TagType } from '../entity/TagEntity';
 import { UserEntity } from '../entity/UserEntity';
 import {
   CreateFlowRecordInput,
@@ -17,8 +17,135 @@ import { applyPagination } from '../utils/applyPagination';
 export class FlowRecordService {
   constructor(private readonly dataSource: DataSource) {}
 
-  async update(flowRecord: UpdateFlowRecordInput, user: UserEntity) {
-    throw new Error('Method not implemented.');
+  async update(flowRecordInput: UpdateFlowRecordInput, user: UserEntity) {
+    return this.dataSource.transaction(async (manager) => {
+      const { id, desc, dealAt, amount, savingAccountId, tagId } =
+        flowRecordInput;
+
+      const flowRecord = await manager
+        .createQueryBuilder(FlowRecordEntity, 'flowRecord')
+        .leftJoin('flowRecord.accountBook', 'accountBook')
+        .leftJoin('accountBook.admins', 'admin')
+        .leftJoin('accountBook.members', 'member')
+        .where('flowRecord.id = :id', { id })
+        .andWhere(
+          new Brackets((qb) => {
+            qb.where('admin.id = :adminId', { adminId: user.id }).orWhere(
+              'member.id = :memberId',
+              { memberId: user.id },
+            );
+          }),
+        )
+        .getOne();
+      if (!flowRecord) {
+        throw new Error('流水不存在');
+      }
+
+      if (desc) {
+        flowRecord.desc = desc;
+      }
+
+      /**
+       * 更换支付方式时，需要修改原先的支付方式的金额，其中包括在dealAt交易日期后的每一笔金额都需要减去account
+       *
+       * 对于更换到的支付方式，交易日期后都需要增加相应金额
+       */
+      if (savingAccountId && savingAccountId !== flowRecord.savingAccountId) {
+        const savingAccount = await manager.findOne(SavingAccountEntity, {
+          where: {
+            id: savingAccountId,
+            accountBookId: flowRecord.accountBookId,
+          },
+        });
+        if (!savingAccount) {
+          throw new Error('储蓄账户不存在');
+        }
+
+        let savingAccountMoneyRecordEntity = await manager
+          .createQueryBuilder(
+            SavingAccountMoneyRecordEntity,
+            'savingAccountMoneyRecord',
+          )
+          .where(
+            'savingAccountMoneyRecord.savingAccountId = :savingAccountId',
+            {
+              savingAccountId: flowRecord.savingAccountId,
+              dealAt: MoreThanOrEqual(flowRecord.dealAt),
+            },
+          );
+
+        if (!savingAccountMoneyRecordEntity) {
+          const savingAccount = await manager.findOne(SavingAccountEntity, {
+            where: {
+              id: flowRecord.savingAccountId,
+            },
+          });
+
+          savingAccountMoneyRecordEntity = new SavingAccountMoneyRecordEntity();
+          savingAccountMoneyRecordEntity.savingAccountId = savingAccountId;
+          savingAccountMoneyRecordEntity.amount = savingAccount.initialAmount;
+          savingAccountMoneyRecordEntity.dealAt = dealAt;
+        }
+
+        // 原来的账户余额需要恢复
+        savingAccountMoneyRecordEntity.amount -= flowRecord.amount;
+
+        await manager.save(savingAccountMoneyRecordEntity);
+
+        let newSavingAccountMoneyRecordEntity = await manager
+          .createQueryBuilder(
+            SavingAccountMoneyRecordEntity,
+            'savingAccountMoneyRecord',
+          )
+          .where(
+            'savingAccountMoneyRecord.savingAccountId = :savingAccountId',
+            {
+              savingAccountId,
+            },
+          )
+          .andWhere(
+            new Brackets((qb) => {
+              qb.where(
+                "to_char(savingAccountMoneyRecord.dealAt, 'YYYY-MM-DD') = to_char(:dealAt::timestamp, 'YYYY-MM-DD')",
+                {
+                  dealAt: dealAt.toISOString(),
+                },
+              );
+            }),
+          )
+          .getOne();
+
+        if (!newSavingAccountMoneyRecordEntity) {
+          const savingAccount = await manager.findOne(SavingAccountEntity, {
+            where: {
+              id: flowRecord.savingAccountId,
+            },
+          });
+
+          newSavingAccountMoneyRecordEntity =
+            new SavingAccountMoneyRecordEntity();
+          newSavingAccountMoneyRecordEntity.savingAccountId = savingAccountId;
+          newSavingAccountMoneyRecordEntity.amount =
+            savingAccount.initialAmount;
+          newSavingAccountMoneyRecordEntity.dealAt = dealAt;
+        }
+
+        flowRecord.savingAccount = savingAccount;
+      }
+
+      if (tagId) {
+        const tag = await manager.findOne(TagEntity, {
+          where: { id: tagId, accountBookId: flowRecord.accountBookId },
+        });
+        if (!tag) {
+          throw new Error('标签不存在');
+        }
+        flowRecord.tag = tag;
+      }
+
+      if (dealAt) {
+      }
+    });
   }
 
   async create(flowRecordInput: CreateFlowRecordInput, user: UserEntity) {
@@ -58,6 +185,25 @@ export class FlowRecordService {
         throw new Error('标签不属于该账本');
       }
 
+      /**
+       * 支出为负数
+       * 收入为正数
+       * 投资可正可负
+       * 借贷可正可负
+       */
+
+      // 支出不能为正数
+      if (tag.type === TagType.EXPENDITURE) {
+        if (amount >= 0) {
+          throw new Error('支出不能为正数');
+        }
+      } else if (tag.type === TagType.INCOME) {
+        if (amount <= 0) {
+          throw new Error('收入不能为负数');
+        }
+      }
+
+      // TODO: 这里需要考虑产生多个交易记录的情况
       let savingAccountMoneyRecordEntity = await manager
         .createQueryBuilder(
           SavingAccountMoneyRecordEntity,
@@ -69,7 +215,7 @@ export class FlowRecordService {
         .andWhere(
           new Brackets((qb) => {
             qb.where(
-              "to_char(savingAccountMoneyRecord.dealAt, 'YYYY-MM-DD') = to_char(:dealAt::timestamp, 'YYYY-MM-DD')",
+              "to_char(savingAccountMoneyRecord.dealAt, 'YYYY-MM-DD') >= to_char(:dealAt::timestamp, 'YYYY-MM-DD')",
               {
                 dealAt: dealAt.toISOString(),
               },
@@ -86,8 +232,6 @@ export class FlowRecordService {
       }
 
       savingAccountMoneyRecordEntity.amount += amount;
-
-      console.log(savingAccountMoneyRecordEntity.amount);
 
       await manager.save(savingAccountMoneyRecordEntity);
 

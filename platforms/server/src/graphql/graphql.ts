@@ -58,11 +58,10 @@ export interface CreateFlowRecordInput {
 export interface UpdateFlowRecordInput {
     id: number;
     desc?: Nullable<string>;
-    dealAt: DateTime;
-    amount: number;
-    accountBookId: number;
-    savingAccountId: number;
-    tagId: number;
+    dealAt?: Nullable<DateTime>;
+    amount?: Nullable<number>;
+    savingAccountId?: Nullable<number>;
+    tagId?: Nullable<number>;
 }
 
 export interface CreateSavingAccountInput {

@@ -45,7 +45,7 @@ export class TagResolver {
   @ResolveField()
   async accountBook(@Parent() parent: TagEntity) {
     if (parent.accountBook) {
-      return this.accountBook;
+      return parent.accountBook;
     }
     return this.accountBookDataLoader.load(parent.accountBookId);
   }

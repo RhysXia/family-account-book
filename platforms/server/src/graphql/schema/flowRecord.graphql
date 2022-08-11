@@ -45,11 +45,10 @@ input CreateFlowRecordInput {
 input UpdateFlowRecordInput {
   id: Int!
   desc: String
-  dealAt: DateTime!
-  amount: Float!
-  accountBookId: Int!
-  savingAccountId: Int!
-  tagId: Int!
+  dealAt: DateTime
+  amount: Float
+  savingAccountId: Int
+  tagId: Int
 }
 
 # type Query {
