@@ -1,0 +1,48 @@
+type FlowRecord implements EntityDateTime {
+  id: Int!
+  name: String!
+  desc: String
+
+  createdAt: DateTime!
+  updatedAt: DateTime!
+
+  """
+  交易时间
+  """
+  dealAt: DateTime!
+
+  creator: SimpleUser!
+  updater: SimpleUser!
+
+  amount: Float!
+
+  accountBook: AccountBook!
+
+  """
+  支付渠道
+  """
+  savingAccount: SavingAccount!
+
+  """
+  所属标签
+  """
+  tag: Tag!
+}
+
+input CreateFlowRecordInput {
+    name: String!
+}
+
+input UpdateFlowRecordInput {
+    name: String!
+}
+
+type Query {
+    """获取有权限的记录"""
+    getAuthFlowRecord(id: Int!): FlowRecord
+}
+
+type Mutation {
+    createFlowRecord(flowRecord: CreateFlowRecordInput!): FlowRecord!
+    updateFlowRecord(flowRecord: UpdateFlowRecordInput!): FlowRecord!
+}

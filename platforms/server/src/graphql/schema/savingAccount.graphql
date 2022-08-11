@@ -50,9 +50,9 @@ input UpdateSavingAccountInput {
 }
 
 type Query {
-  getSelfSavingAccounts(pagination: Pagination): SavingAccountListWithPagintion!
+  getAuthSavingAccounts(pagination: Pagination): SavingAccountListWithPagintion!
 
-  getSelfSavingAccount(id: Int!): SavingAccount!
+  getAuthSavingAccount(id: Int!): SavingAccount!
 }
 
 type Mutation {

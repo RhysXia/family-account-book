@@ -35,21 +35,31 @@ export class FlowRecordEntity extends AbstractTimestampEntity {
    */
   @ManyToOne(() => AccountBookEntity, { nullable: false })
   accountBook: AccountBookEntity;
+  @Column()
+  accountBookId: number;
 
   @ManyToOne(() => UserEntity, { nullable: false })
   creator: UserEntity;
+  @Column()
+  creatorId: number;
 
   @ManyToOne(() => UserEntity, { nullable: false })
-  updator: UserEntity;
+  updater: UserEntity;
+  @Column()
+  updaterId: number;
 
   @ManyToOne(() => TagEntity, { nullable: false })
   tag: TagEntity;
+  @Column()
+  tagId: number;
 
   /**
    * 支付或者收入渠道
    */
   @ManyToOne(() => SavingAccountEntity, { nullable: false })
   savingAccount: SavingAccountEntity;
+  @Column()
+  savingAccountId: number;
 
   /**
    * 交易时间

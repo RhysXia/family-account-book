@@ -47,7 +47,7 @@ export class TagResolver {
   }
 
   @Query()
-  getSelfTagsByAccountBookId(
+  getAuthTagsByAccountBookId(
     @CurrentUser({ required: true }) currentUser: UserEntity,
     @Args('accountBookId') accountBookId: number,
   ) {
@@ -58,7 +58,7 @@ export class TagResolver {
   }
 
   @Query()
-  getSelfTagById(
+  getAuthTagById(
     @CurrentUser({ required: true }) currentUser: UserEntity,
     @Args('id') id: number,
   ) {

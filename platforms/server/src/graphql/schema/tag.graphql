@@ -17,7 +17,7 @@ enum TagType {
   LOAD
 }
 
-type Tag {
+type Tag implements EntityDateTime {
   id: Int!
   name: String!
   type: TagType!
@@ -48,6 +48,6 @@ type Mutation {
 }
 
 type Query {
-  getSelfTagsByAccountBookId(accountBookId: Int!): [Tag!]!
-  getSelfTagById(id: Int!): Tag!
+  getAuthTagsByAccountBookId(accountBookId: Int!): [Tag!]!
+  getAuthTagById(id: Int!): Tag!
 }

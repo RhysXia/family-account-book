@@ -46,6 +46,14 @@ export interface Pagination {
     orderBy?: Nullable<OrderBy[]>;
 }
 
+export interface CreateFlowRecordInput {
+    name: string;
+}
+
+export interface UpdateFlowRecordInput {
+    name: string;
+}
+
 export interface CreateSavingAccountInput {
     name: string;
     desc?: Nullable<string>;
@@ -112,6 +120,8 @@ export interface AccountBook extends EntityDateTime {
 export interface IMutation {
     createAccountBook(accountBook: CreateAccountBookInput): AccountBook | Promise<AccountBook>;
     updateAccountBook(accountBook: UpdateAccountBookInput): AccountBook | Promise<AccountBook>;
+    createFlowRecord(flowRecord: CreateFlowRecordInput): FlowRecord | Promise<FlowRecord>;
+    updateFlowRecord(flowRecord: UpdateFlowRecordInput): FlowRecord | Promise<FlowRecord>;
     createSavingAccount(savingAccount: CreateSavingAccountInput): SavingAccount | Promise<SavingAccount>;
     updateSavingAccount(savingAccount: UpdateSavingAccountInput): SavingAccount | Promise<SavingAccount>;
     createTag(tag: CreateTagInput): Tag | Promise<Tag>;
@@ -121,14 +131,30 @@ export interface IMutation {
 }
 
 export interface IQuery {
-    getSelfAccountBookById(id: number): AccountBook | Promise<AccountBook>;
-    getSelfAccountBooks(pagination?: Nullable<Pagination>): AccountBookListWithPagintion | Promise<AccountBookListWithPagintion>;
-    getSelfSavingAccounts(pagination?: Nullable<Pagination>): SavingAccountListWithPagintion | Promise<SavingAccountListWithPagintion>;
-    getSelfSavingAccount(id: number): SavingAccount | Promise<SavingAccount>;
-    getSelfTagsByAccountBookId(accountBookId: number): Tag[] | Promise<Tag[]>;
-    getSelfTagById(id: number): Tag | Promise<Tag>;
+    getAuthAccountBookById(id: number): AccountBook | Promise<AccountBook>;
+    getAuthAccountBooks(pagination?: Nullable<Pagination>): AccountBookListWithPagintion | Promise<AccountBookListWithPagintion>;
+    getAuthFlowRecord(id: number): Nullable<FlowRecord> | Promise<Nullable<FlowRecord>>;
+    getAuthSavingAccounts(pagination?: Nullable<Pagination>): SavingAccountListWithPagintion | Promise<SavingAccountListWithPagintion>;
+    getAuthSavingAccount(id: number): SavingAccount | Promise<SavingAccount>;
+    getAuthTagsByAccountBookId(accountBookId: number): Tag[] | Promise<Tag[]>;
+    getAuthTagById(id: number): Tag | Promise<Tag>;
     getCurrentUser(): User | Promise<User>;
     findUserListByUsernameLike(username: string, limit?: Nullable<number>): SimpleUser[] | Promise<SimpleUser[]>;
+}
+
+export interface FlowRecord extends EntityDateTime {
+    id: number;
+    name: string;
+    desc?: Nullable<string>;
+    createdAt: DateTime;
+    updatedAt: DateTime;
+    dealAt: DateTime;
+    creator: SimpleUser;
+    updater: SimpleUser;
+    amount: number;
+    accountBook: AccountBook;
+    savingAccount: SavingAccount;
+    tag: Tag;
 }
 
 export interface SavingAccountListWithPagintion {
@@ -155,7 +181,7 @@ export interface SavingAccount extends EntityDateTime {
     getAmountHistoriesByDate: AmountHistory[];
 }
 
-export interface Tag {
+export interface Tag extends EntityDateTime {
     id: number;
     name: string;
     type: TagType;

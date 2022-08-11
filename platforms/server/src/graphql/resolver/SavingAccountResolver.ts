@@ -43,6 +43,9 @@ export class SavingAccountResolver {
 
   @ResolveField()
   async accountBook(@Parent() parent: SavingAccountEntity) {
+    if (parent.accountBook) {
+      return parent.accountBook;
+    }
     return this.accountBookDataLoader.load(parent.accountBookId);
   }
 
@@ -92,7 +95,7 @@ export class SavingAccountResolver {
   }
 
   @Query()
-  async getSelfSavingAccounts(
+  async getAuthSavingAccounts(
     @CurrentUser({ required: true }) user: UserEntity,
     @Args('pagination') pagination?: Pagination,
   ) {
@@ -103,7 +106,7 @@ export class SavingAccountResolver {
   }
 
   @Query()
-  async getSelfSavingAccount(
+  async getAuthSavingAccount(
     @CurrentUser({ required: true }) user: UserEntity,
     @Args('id') id: number,
   ) {

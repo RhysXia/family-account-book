@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Brackets, DataSource } from 'typeorm';
+import { Brackets, DataSource, In } from 'typeorm';
 import { AccountBookEntity } from '../entity/AccountBookEntity';
 import { SavingAccountMoneyRecordEntity } from '../entity/SavingAccountMoneyRecordEntity';
 import { SavingAccountEntity } from '../entity/SavingAccountEntity';
@@ -16,8 +16,16 @@ import { applyPagination } from '../utils/applyPagination';
 export class SavingAccountService {
   constructor(private readonly dataSource: DataSource) {}
 
-  findOneByIdAndUserId(id: number, userId: number) {
-    return this.dataSource.manager
+  findAllByIds(ids: number[]) {
+    return this.dataSource.manager.find(SavingAccountEntity, {
+      where: {
+        id: In(ids),
+      },
+    });
+  }
+
+  async findOneByIdAndUserId(id: number, userId: number) {
+    const savingAccount = await this.dataSource.manager
       .createQueryBuilder(SavingAccountEntity, 'savingAccount')
       .leftJoin('savingAccount.accountBook', 'accountBook')
       .leftJoin('accountBook.admins', 'admin')
@@ -32,6 +40,12 @@ export class SavingAccountService {
         }),
       )
       .getOne();
+
+    if (!savingAccount) {
+      throw new Error('储蓄账户不存在');
+    }
+
+    return savingAccount;
   }
 
   async findAllByUserIdAndPagination(
@@ -62,15 +76,6 @@ export class SavingAccountService {
       total: data[1],
       data: data[0],
     };
-  }
-
-  findOneByIdAndAccountBookId(id: number, accountBookId: number) {
-    return this.dataSource.manager.findOne(SavingAccountEntity, {
-      where: {
-        id,
-        accountBookId,
-      },
-    });
   }
 
   async findAllByAccountBookIdAndPagination(

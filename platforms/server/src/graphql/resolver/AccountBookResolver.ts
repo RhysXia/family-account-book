@@ -11,6 +11,7 @@ import { UserEntity } from '../../entity/UserEntity';
 import { AccountBookService } from '../../service/AccountBookService';
 import { SavingAccountService } from '../../service/SavingAccountService';
 import { TagService } from '../../service/TagService';
+import { SavingAccountDataLoader } from '../dataloader/SavingAccountDataLoader';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
 import {
@@ -27,6 +28,7 @@ export class AccountBookResolver {
     private readonly userDataLoader: UserDataLoader,
     private readonly savingAccountService: SavingAccountService,
     private readonly tagService: TagService,
+    private readonly savingAccountDataLoader: SavingAccountDataLoader,
   ) {}
 
   @ResolveField()
@@ -78,7 +80,15 @@ export class AccountBookResolver {
     @Parent() parent: AccountBookEntity,
     @Args('id') id: number,
   ) {
-    return this.savingAccountService.findOneByIdAndAccountBookId(id, parent.id);
+    const savingAccount = await this.savingAccountDataLoader.load(id);
+
+    if (!savingAccount) {
+      throw new Error('储蓄账户不存在');
+    }
+    if (savingAccount.accountBookId !== parent.id) {
+      throw new Error('储蓄账户不属于该账本');
+    }
+    return savingAccount;
   }
 
   @ResolveField()
@@ -103,7 +113,7 @@ export class AccountBookResolver {
   }
 
   @Query()
-  async getSelfAccountBookById(
+  async getAuthAccountBookById(
     @CurrentUser({ required: true }) user: UserEntity,
     @Args('id') id: number,
   ) {
@@ -111,7 +121,7 @@ export class AccountBookResolver {
   }
 
   @Query()
-  async getSelfAccountBooks(
+  async getAuthAccountBooks(
     @CurrentUser({ required: true }) user: UserEntity,
     @Args('pagination') pagination?: Pagination,
   ) {

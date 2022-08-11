@@ -198,7 +198,7 @@ export class AccountBookService {
   }
 
   async findOneByIdAndUserId(id: number, userId: number) {
-    return await this.dataSource.manager
+    const accountBook = await this.dataSource.manager
       .createQueryBuilder(AccountBookEntity, 'accountBook')
       .leftJoin('accountBook.admins', 'admin')
       .leftJoin('accountBook.members', 'member')
@@ -212,5 +212,11 @@ export class AccountBookService {
         }),
       )
       .getOne();
+
+    if (!accountBook) {
+      throw new Error('账本不存在');
+    }
+
+    return accountBook;
   }
 }
