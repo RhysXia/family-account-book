@@ -28,6 +28,8 @@ type AccountBook implements EntityDateTime {
   savingAccounts(pagination: Pagination): SavingAccountListWithPagintion!
 
   savingAccount(id: Int!): SavingAccount!
+
+  tags: [Tag!]!
 }
 
 input CreateAccountBookInput {

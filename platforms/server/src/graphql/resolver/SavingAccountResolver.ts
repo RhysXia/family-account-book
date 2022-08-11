@@ -8,6 +8,7 @@ import {
 } from '@nestjs/graphql';
 import { SavingAccountEntity } from '../../entity/SavingAccountEntity';
 import { UserEntity } from '../../entity/UserEntity';
+import { SavingAccountMoneyService } from '../../service/SavingAccountMoneyService';
 import { SavingAccountService } from '../../service/SavingAccountService';
 import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
 import { SavingAccountMoneyDataLoader } from '../dataloader/SavingAccountAmountDataLoader';
@@ -23,6 +24,7 @@ import {
 export class SavingAccountResolver {
   constructor(
     private readonly savingAccountService: SavingAccountService,
+    private readonly savingAccountMoneyService: SavingAccountMoneyService,
     private readonly savingAccountMoneyDataLoader: SavingAccountMoneyDataLoader,
     private readonly userDataLoader: UserDataLoader,
     private readonly accountBookDataLoader: AccountBookDataLoader,
@@ -66,7 +68,7 @@ export class SavingAccountResolver {
     @Args('startDate') startDate: Date,
     @Args('endDate') endDate: Date,
   ) {
-    return this.savingAccountMoneyDataLoader.findAllBySavingAccountIdAndDateBetween(
+    return this.savingAccountMoneyService.findAllBySavingAccountIdAndDealAtBetween(
       parent.id,
       startDate,
       endDate,

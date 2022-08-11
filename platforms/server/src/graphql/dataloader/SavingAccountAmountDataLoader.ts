@@ -11,13 +11,6 @@ export class SavingAccountMoneyDataLoader extends DataLoader<
   number,
   SavingAccountMoneyViewEntity
 > {
-  findAllBySavingAccountIdAndDateBetween(
-    id: number,
-    startDate: Date,
-    endDate: Date,
-  ) {
-    throw new Error('Method not implemented.');
-  }
   constructor(savingAccountMoneyService: SavingAccountMoneyService) {
     super(async (savingAccountIds) => {
       const list =

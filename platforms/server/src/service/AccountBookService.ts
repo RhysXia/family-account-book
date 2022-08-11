@@ -153,6 +153,9 @@ export class AccountBookService {
       if (!accountBook) {
         throw new Error('账本不存在');
       }
+
+      accountBook.updater = user;
+
       if (name) {
         accountBook.name = name;
       }

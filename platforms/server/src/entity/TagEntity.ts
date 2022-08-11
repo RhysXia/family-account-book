@@ -60,6 +60,8 @@ export class TagEntity extends AbstractTimestampEntity {
    */
   @ManyToOne(() => AccountBookEntity, { nullable: false })
   accountBook: AccountBookEntity;
+  @Column()
+  accountBookId: number;
 
   @DeleteDateColumn()
   deletedAt?: Date;

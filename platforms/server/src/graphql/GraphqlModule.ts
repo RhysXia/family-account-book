@@ -12,6 +12,7 @@ import { UserDataLoader } from './dataloader/UserDataLoader';
 import { SavingAccountMoneyDataLoader } from './dataloader/SavingAccountAmountDataLoader';
 import { AccountBookDataLoader } from './dataloader/AccountBookDataLoader';
 import { QueryComplexityPlugin } from './plugins/QueryComplexityPlugin';
+import { TagResolver } from './resolver/TagResolver';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { QueryComplexityPlugin } from './plugins/QueryComplexityPlugin';
     UserResolver,
     AccountBookResolver,
     SavingAccountResolver,
+    TagResolver,
   ],
 })
 export class GraphqlModule {}

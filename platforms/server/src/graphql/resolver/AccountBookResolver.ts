@@ -10,6 +10,7 @@ import { AccountBookEntity } from '../../entity/AccountBookEntity';
 import { UserEntity } from '../../entity/UserEntity';
 import { AccountBookService } from '../../service/AccountBookService';
 import { SavingAccountService } from '../../service/SavingAccountService';
+import { TagService } from '../../service/TagService';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
 import {
@@ -25,61 +26,64 @@ export class AccountBookResolver {
     private readonly accountBookService: AccountBookService,
     private readonly userDataLoader: UserDataLoader,
     private readonly savingAccountService: SavingAccountService,
+    private readonly tagService: TagService,
   ) {}
 
   @ResolveField()
-  async admins(@Parent() accountBook: AccountBook) {
-    if (accountBook.admins) {
-      return accountBook.admins;
+  async admins(@Parent() parent: AccountBook) {
+    if (parent.admins) {
+      return parent.admins;
     }
-    return this.accountBookService.findAdminsByAccountBookId(accountBook.id);
+    return this.accountBookService.findAdminsByAccountBookId(parent.id);
   }
 
   @ResolveField()
-  async members(@Parent() accountBook: AccountBookEntity) {
-    if (accountBook.members) {
-      return accountBook.members;
+  async members(@Parent() parent: AccountBookEntity) {
+    if (parent.members) {
+      return parent.members;
     }
 
-    return this.accountBookService.findMembersByAccountBookId(accountBook.id);
+    return this.accountBookService.findMembersByAccountBookId(parent.id);
   }
 
   @ResolveField()
-  async creator(@Parent() accountBook: AccountBookEntity) {
-    if (accountBook.creator) {
-      return accountBook.creator;
+  async creator(@Parent() parent: AccountBookEntity) {
+    if (parent.creator) {
+      return parent.creator;
     }
-    return this.userDataLoader.load(accountBook.creatorId);
+    return this.userDataLoader.load(parent.creatorId);
   }
 
   @ResolveField()
-  async updater(@Parent() accountBook: AccountBookEntity) {
-    if (accountBook.updater) {
-      return accountBook.updater;
+  async updater(@Parent() parent: AccountBookEntity) {
+    if (parent.updater) {
+      return parent.updater;
     }
-    return this.userDataLoader.load(accountBook.updaterId);
+    return this.userDataLoader.load(parent.updaterId);
   }
 
   @ResolveField()
   async savingAccounts(
-    @Parent() accountBook: AccountBookEntity,
+    @Parent() parent: AccountBookEntity,
     @Args('pagination') pagination?: Pagination,
   ) {
     return this.savingAccountService.findAllByAccountBookIdAndPagination(
-      accountBook.id,
+      parent.id,
       pagination,
     );
   }
 
   @ResolveField()
   async savingAccount(
-    @Parent() accountBook: AccountBookEntity,
+    @Parent() parent: AccountBookEntity,
     @Args('id') id: number,
   ) {
-    return this.savingAccountService.findOneByIdAndAccountBookId(
-      id,
-      accountBook.id,
-    );
+    return this.savingAccountService.findOneByIdAndAccountBookId(id, parent.id);
+  }
+
+  @ResolveField()
+  async tags(@Parent() parent: AccountBookEntity) {
+    return this.tagService.findAllByAccountBookId(parent.id);
   }
 
   @Mutation()

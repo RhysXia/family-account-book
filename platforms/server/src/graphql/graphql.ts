@@ -106,6 +106,7 @@ export interface AccountBook extends EntityDateTime {
     updatedAt: DateTime;
     savingAccounts: SavingAccountListWithPagintion;
     savingAccount: SavingAccount;
+    tags: Tag[];
 }
 
 export interface IMutation {
@@ -124,7 +125,8 @@ export interface IQuery {
     getSelfAccountBooks(pagination?: Nullable<Pagination>): AccountBookListWithPagintion | Promise<AccountBookListWithPagintion>;
     getSelfSavingAccounts(pagination?: Nullable<Pagination>): SavingAccountListWithPagintion | Promise<SavingAccountListWithPagintion>;
     getSelfSavingAccount(id: number): SavingAccount | Promise<SavingAccount>;
-    getTagsByAccountBookId(accountBookId: number): Tag[] | Promise<Tag[]>;
+    getSelfTagsByAccountBookId(accountBookId: number): Tag[] | Promise<Tag[]>;
+    getSelfTagById(id: number): Tag | Promise<Tag>;
     getCurrentUser(): User | Promise<User>;
     findUserListByUsernameLike(username: string, limit?: Nullable<number>): SimpleUser[] | Promise<SimpleUser[]>;
 }
@@ -137,7 +139,7 @@ export interface SavingAccountListWithPagintion {
 export interface AmountHistory {
     id: number;
     amount: number;
-    dealAt: Date;
+    dealAt: DateTime;
 }
 
 export interface SavingAccount extends EntityDateTime {
@@ -159,7 +161,8 @@ export interface Tag {
     type: TagType;
     createdAt: DateTime;
     updatedAt: DateTime;
-    creator: User;
+    creator: SimpleUser;
+    updater: SimpleUser;
     accountBook: AccountBook;
 }
 

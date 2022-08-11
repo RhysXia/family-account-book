@@ -25,7 +25,8 @@ type Tag {
   createdAt: DateTime!
   updatedAt: DateTime!
 
-  creator: User!
+  creator: SimpleUser!
+  updater: SimpleUser!
 
   accountBook: AccountBook!
 }
@@ -47,5 +48,6 @@ type Mutation {
 }
 
 type Query {
-  getTagsByAccountBookId(accountBookId: Int!): [Tag!]!
+  getSelfTagsByAccountBookId(accountBookId: Int!): [Tag!]!
+  getSelfTagById(id: Int!): Tag!
 }
