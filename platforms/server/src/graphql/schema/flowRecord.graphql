@@ -37,7 +37,6 @@ input CreateFlowRecordInput {
   desc: String
   dealAt: DateTime!
   amount: Float!
-  accountBookId: Int!
   savingAccountId: Int!
   tagId: Int!
 }

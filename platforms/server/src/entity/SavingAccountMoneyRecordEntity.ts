@@ -1,6 +1,7 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 import { AbstractTimestampEntity } from './abstract/AbstractTimestampEntity';
+import { AccountBookEntity } from './AccountBookEntity';
 import { SavingAccountEntity } from './SavingAccountEntity';
 
 /**
@@ -36,4 +37,12 @@ export class SavingAccountMoneyRecordEntity extends AbstractTimestampEntity {
   savingAccount: SavingAccountEntity;
   @Column()
   savingAccountId: number;
+
+  /**
+   * 所属账本
+   */
+  @ManyToOne(() => AccountBookEntity, { nullable: false })
+  accountBook: AccountBookEntity;
+  @Column()
+  accountBookId: number;
 }

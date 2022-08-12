@@ -50,7 +50,6 @@ export interface CreateFlowRecordInput {
     desc?: Nullable<string>;
     dealAt: DateTime;
     amount: number;
-    accountBookId: number;
     savingAccountId: number;
     tagId: number;
 }

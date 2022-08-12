@@ -9,6 +9,7 @@ import { FlowRecordEntity } from '../../entity/FlowRecordEntity';
 import { UserEntity } from '../../entity/UserEntity';
 import { FlowRecordService } from '../../service/FlowRecordService';
 import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
+import { TagDataLoader } from '../dataloader/TagDataLoader';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
 import { CreateFlowRecordInput, UpdateFlowRecordInput } from '../graphql';
@@ -18,6 +19,7 @@ export class FlowRecordResolver {
   constructor(
     private readonly userDataLoader: UserDataLoader,
     private readonly accountBookDataLoader: AccountBookDataLoader,
+    private readonly tagDataLoader: TagDataLoader,
     private readonly flowRecordService: FlowRecordService,
   ) {}
 
@@ -43,6 +45,14 @@ export class FlowRecordResolver {
       return parent.accountBook;
     }
     return this.accountBookDataLoader.load(parent.accountBookId);
+  }
+
+  @ResolveField()
+  async tag(@Parent() parent: FlowRecordEntity) {
+    if (parent.tag) {
+      return parent.tag;
+    }
+    return this.tagDataLoader.load(parent.tagId);
   }
 
   @Mutation()
