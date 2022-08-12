@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Brackets, DataSource, In, MoreThanOrEqual } from 'typeorm';
+import { Brackets, DataSource, In } from 'typeorm';
+import dayjs from 'dayjs';
 import { FlowRecordEntity } from '../entity/FlowRecordEntity';
 import { SavingAccountEntity } from '../entity/SavingAccountEntity';
 import { SavingAccountMoneyRecordEntity } from '../entity/SavingAccountMoneyRecordEntity';
@@ -19,8 +20,11 @@ export class FlowRecordService {
   // TODO 还可以优化
   async update(flowRecordInput: UpdateFlowRecordInput, user: UserEntity) {
     return this.dataSource.transaction(async (manager) => {
-      const { id, desc, dealAt, amount, savingAccountId, tagId } =
-        flowRecordInput;
+      const { id, desc, amount, savingAccountId, tagId } = flowRecordInput;
+
+      const dealAt = dayjs(
+        dayjs(flowRecordInput.dealAt).format('YYYY-MM-DD'),
+      ).toDate();
 
       const flowRecord = await manager
         .createQueryBuilder(FlowRecordEntity, 'flowRecord')
@@ -46,19 +50,39 @@ export class FlowRecordService {
         flowRecord.desc = desc;
       }
 
+      let tag: TagEntity;
+
       if (tagId) {
-        const tag = await manager.findOne(TagEntity, {
+        tag = await manager.findOne(TagEntity, {
           where: { id: tagId, accountBookId: flowRecord.accountBookId },
         });
         if (!tag) {
           throw new Error('标签不存在');
         }
         flowRecord.tag = tag;
+      } else {
+        tag = await manager.findOne(TagEntity, {
+          where: { id: flowRecord.tagId },
+        });
       }
+
+      console.log(flowRecord.dealAt);
+      console.log('==================');
 
       const newSavingAccountId = savingAccountId || flowRecord.savingAccountId;
       const newAmount = amount || flowRecord.amount;
       const newDealAt = dealAt || flowRecord.dealAt;
+
+      // 支出不能为正数
+      if (tag.type === TagType.EXPENDITURE) {
+        if (newAmount >= 0) {
+          throw new Error('支出不能为正数');
+        }
+      } else if (tag.type === TagType.INCOME) {
+        if (newAmount <= 0) {
+          throw new Error('收入不能为负数');
+        }
+      }
 
       /**
        * 更换支付方式时，需要修改原先的支付方式的金额，其中包括在dealAt交易日期后的每一笔金额都需要减去account
@@ -85,7 +109,9 @@ export class FlowRecordService {
         })
         .where('savingAccountId = :savingAccountId', {
           savingAccountId: flowRecord.savingAccountId,
-          dealAt: MoreThanOrEqual(flowRecord.dealAt),
+        })
+        .andWhere('dealAt > :dealAt', {
+          dealAt: flowRecord.dealAt,
         })
         .execute();
 
@@ -98,28 +124,23 @@ export class FlowRecordService {
         .where('savingAccountMoneyRecord.savingAccountId = :savingAccountId', {
           savingAccountId: newSavingAccountId,
         })
-        .andWhere(
-          new Brackets((qb) => {
-            qb.where(
-              "to_char(savingAccountMoneyRecord.dealAt, 'YYYY-MM-DD') = to_char(:dealAt::timestamp, 'YYYY-MM-DD')",
-              {
-                dealAt: newDealAt.toISOString(),
-              },
-            );
-          }),
-        )
+        .andWhere('savingAccountMoneyRecord.dealAt = :dealAt', {
+          dealAt: flowRecord.dealAt,
+        })
         .getOne();
 
       if (!newSavingAccountMoneyRecordEntity) {
         newSavingAccountMoneyRecordEntity =
           new SavingAccountMoneyRecordEntity();
+        newSavingAccountMoneyRecordEntity.accountBookId =
+          flowRecord.accountBookId;
         newSavingAccountMoneyRecordEntity.savingAccount = newSavingAccount;
         newSavingAccountMoneyRecordEntity.amount =
           newSavingAccount.initialAmount;
-        newSavingAccountMoneyRecordEntity.dealAt = dealAt;
+        newSavingAccountMoneyRecordEntity.dealAt = newDealAt;
       }
 
-      newSavingAccountMoneyRecordEntity.amount += amount;
+      newSavingAccountMoneyRecordEntity.amount += newAmount;
       await manager.save(newSavingAccountMoneyRecordEntity);
 
       // 处理其后的交易
@@ -127,26 +148,17 @@ export class FlowRecordService {
         .createQueryBuilder()
         .update(SavingAccountMoneyRecordEntity)
         .set({
-          amount: () => 'amount + ' + amount,
+          amount: () => 'amount + ' + newAmount,
         })
         .where('savingAccountId = :savingAccountId', {
           savingAccountId: newSavingAccountId,
         })
-        .andWhere(
-          new Brackets((qb) => {
-            qb.where(
-              "to_char(dealAt, 'YYYY-MM-DD') > to_char(:dealAt::timestamp, 'YYYY-MM-DD')",
-              {
-                dealAt: dealAt.toISOString(),
-              },
-            );
-          }),
-        )
+        .andWhere('dealAt > :dealAt', { dealAt })
         .execute();
 
       flowRecord.savingAccount = newSavingAccount;
-      flowRecord.dealAt = dealAt;
-      flowRecord.amount = amount;
+      flowRecord.dealAt = newDealAt;
+      flowRecord.amount = newAmount;
 
       return manager.save(flowRecord);
     });
@@ -154,7 +166,11 @@ export class FlowRecordService {
 
   async create(flowRecordInput: CreateFlowRecordInput, user: UserEntity) {
     return this.dataSource.transaction(async (manager) => {
-      const { desc, dealAt, amount, savingAccountId, tagId } = flowRecordInput;
+      const { desc, amount, savingAccountId, tagId } = flowRecordInput;
+
+      const dealAt = dayjs(
+        dayjs(flowRecordInput.dealAt).format('YYYY-MM-DD'),
+      ).toDate();
 
       const savingAccount = await manager
         .createQueryBuilder(SavingAccountEntity, 'savingAccount')
@@ -205,29 +221,20 @@ export class FlowRecordService {
       }
 
       // 这里需要考虑产生多个交易记录的情况
-      let savingAccountMoneyRecordEntity = await manager
-        .createQueryBuilder(
-          SavingAccountMoneyRecordEntity,
-          'savingAccountMoneyRecord',
-        )
-        .where('savingAccountMoneyRecord.savingAccountId = :savingAccountId', {
-          savingAccountId,
-        })
-        .andWhere(
-          new Brackets((qb) => {
-            qb.where(
-              "to_char(savingAccountMoneyRecord.dealAt, 'YYYY-MM-DD') = to_char(:dealAt::timestamp, 'YYYY-MM-DD')",
-              {
-                dealAt: dealAt.toISOString(),
-              },
-            );
-          }),
-        )
-        .getOne();
+      let savingAccountMoneyRecordEntity = await manager.findOne(
+        SavingAccountMoneyRecordEntity,
+        {
+          where: {
+            savingAccountId,
+            dealAt,
+          },
+        },
+      );
 
       if (!savingAccountMoneyRecordEntity) {
         savingAccountMoneyRecordEntity = new SavingAccountMoneyRecordEntity();
         savingAccountMoneyRecordEntity.savingAccountId = savingAccountId;
+        savingAccountMoneyRecordEntity.accountBookId = accountBookId;
         savingAccountMoneyRecordEntity.amount = savingAccount.initialAmount;
         savingAccountMoneyRecordEntity.dealAt = dealAt;
       }
@@ -246,16 +253,7 @@ export class FlowRecordService {
         .where('savingAccountId = :savingAccountId', {
           savingAccountId,
         })
-        .andWhere(
-          new Brackets((qb) => {
-            qb.where(
-              "to_char(dealAt, 'YYYY-MM-DD') > to_char(:dealAt::timestamp, 'YYYY-MM-DD')",
-              {
-                dealAt: dealAt.toISOString(),
-              },
-            );
-          }),
-        )
+        .andWhere('dealAt > :dealAt', { dealAt })
         .execute();
 
       const flowRecordEntity = new FlowRecordEntity();

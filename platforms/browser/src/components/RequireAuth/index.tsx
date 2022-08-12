@@ -1,5 +1,5 @@
 import { useAtom } from 'jotai';
-import { FC, ReactNode, useCallback, useEffect, useLayoutEffect } from 'react';
+import { FC, ReactNode, useCallback, useLayoutEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentUser } from '../../api';
 import { currentUser as currentUserStore } from '../../store/user';

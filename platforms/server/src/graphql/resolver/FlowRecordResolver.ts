@@ -41,7 +41,7 @@ export class FlowRecordResolver {
 
   @ResolveField()
   async accountBook(@Parent() parent: FlowRecordEntity) {
-    if (parent.updater) {
+    if (parent.accountBook) {
       return parent.accountBook;
     }
     return this.accountBookDataLoader.load(parent.accountBookId);
