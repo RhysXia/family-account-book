@@ -13,6 +13,29 @@ import { applyPagination } from '../utils/applyPagination';
 export class AccountBookService {
   constructor(private readonly dataSource: DataSource) {}
 
+  async delete(id: number, user: UserEntity) {
+    const accountBook = await this.dataSource.manager
+      .createQueryBuilder(AccountBookEntity, 'accountBook')
+      .leftJoin('accountBook.admins', 'admin')
+      .leftJoin('accountBook.members', 'member')
+      .where('accountBook.id = :accountBookId', { accountBookId: id })
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('admin.id = :adminId', { adminId: user.id }).orWhere(
+            'member.id = :memberId',
+            { memberId: user.id },
+          );
+        }),
+      )
+      .getOne();
+
+    if (!accountBook) {
+      throw new Error('账本不存在');
+    }
+
+    return this.dataSource.manager.softRemove(accountBook);
+  }
+
   async findAllByUserIdAndPagination(
     userId: number,
     pagination?: Pagination,

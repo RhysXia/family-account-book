@@ -69,6 +69,11 @@ type Mutation {
   更新账本，自己需要为管理员
   """
   updateAccountBook(accountBook: UpdateAccountBookInput!): AccountBook!
+
+  """
+  删除账本
+  """
+  deleteAccountBook(id: Int!): Boolean!
 }
 
 type Query {

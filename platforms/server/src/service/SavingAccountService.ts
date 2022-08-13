@@ -1,7 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { Brackets, DataSource, In } from 'typeorm';
+import {
+  Brackets,
+  DataSource,
+  FindOneOptions,
+  In,
+  MoreThanOrEqual,
+  LessThanOrEqual,
+} from 'typeorm';
 import { AccountBookEntity } from '../entity/AccountBookEntity';
-import { SavingAccountMoneyRecordEntity } from '../entity/SavingAccountMoneyRecordEntity';
+import { SavingAccountHistoryEntity } from '../entity/SavingAccountHistoryEntity';
 import { SavingAccountEntity } from '../entity/SavingAccountEntity';
 import { UserEntity } from '../entity/UserEntity';
 import {
@@ -9,12 +16,49 @@ import {
   Pagination,
   UpdateSavingAccountInput,
 } from '../graphql/graphql';
-import { SavingAccountMoneyViewEntity } from '../entity/SavingAccountMoneyViewEntity';
+import { SavingAccountAmountView } from '../entity/SavingAccountAmountView';
 import { applyPagination } from '../utils/applyPagination';
 
 @Injectable()
 export class SavingAccountService {
   constructor(private readonly dataSource: DataSource) {}
+
+  /**
+   * 获取最新余额
+   * @param savingAccountIds
+   * @returns
+   */
+  async findNewestAmountsBySavingAccountIds(savingAccountIds: Array<number>) {
+    return await this.dataSource.manager.find(SavingAccountAmountView, {
+      where: {
+        savingAccountId: In(savingAccountIds),
+      },
+    });
+  }
+
+  async findHistoriesBySavingAccountIdAndDealAtBetween(
+    savingAccountId: number,
+    startDate: Date,
+    endDate: Date,
+  ) {
+    const where: FindOneOptions<SavingAccountHistoryEntity>['where'] = {
+      savingAccountId,
+    };
+
+    if (startDate) {
+      where.dealAt = MoreThanOrEqual(startDate);
+    }
+    if (endDate) {
+      where.dealAt = LessThanOrEqual(endDate);
+    }
+
+    return this.dataSource.manager.find(SavingAccountHistoryEntity, {
+      where,
+      order: {
+        dealAt: 'ASC',
+      },
+    });
+  }
 
   findAllByIds(ids: number[]) {
     return this.dataSource.manager.find(SavingAccountEntity, {
@@ -160,14 +204,11 @@ export class SavingAccountService {
       }
 
       if (amount) {
-        const moneyEntity = await manager.findOne(
-          SavingAccountMoneyViewEntity,
-          {
-            where: {
-              savingAccountId: savingAccount.id,
-            },
+        const moneyEntity = await manager.findOne(SavingAccountAmountView, {
+          where: {
+            savingAccountId: savingAccount.id,
           },
-        );
+        });
 
         const defaultAmount = moneyEntity
           ? moneyEntity.amount
@@ -177,7 +218,7 @@ export class SavingAccountService {
 
         await manager
           .createQueryBuilder()
-          .update(SavingAccountMoneyRecordEntity)
+          .update(SavingAccountHistoryEntity)
           .set({
             amount: () => 'amount + ' + diff,
           })

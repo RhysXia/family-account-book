@@ -1,20 +1,20 @@
 import { Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
-import { SavingAccountMoneyViewEntity } from '../../entity/SavingAccountMoneyViewEntity';
-import { SavingAccountMoneyService } from '../../service/SavingAccountMoneyService';
+import { SavingAccountAmountView } from '../../entity/SavingAccountAmountView';
+import { SavingAccountService } from '../../service/SavingAccountService';
 
 /**
  * 账户最新交易记录
  */
 @Injectable({ scope: Scope.REQUEST })
-export class SavingAccountMoneyDataLoader extends DataLoader<
+export class SavingAccountAmountDataLoader extends DataLoader<
   number,
-  SavingAccountMoneyViewEntity
+  SavingAccountAmountView
 > {
-  constructor(savingAccountMoneyService: SavingAccountMoneyService) {
+  constructor(savingAccountService: SavingAccountService) {
     super(async (savingAccountIds) => {
       const list =
-        await savingAccountMoneyService.findAllNewestBySavingAccountIds([
+        await savingAccountService.findNewestAmountsBySavingAccountIds([
           ...savingAccountIds,
         ]);
       return savingAccountIds.map((id) =>

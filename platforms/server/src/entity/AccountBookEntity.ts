@@ -1,5 +1,6 @@
 import {
   Column,
+  DeleteDateColumn,
   Entity,
   JoinTable,
   ManyToMany,
@@ -50,4 +51,10 @@ export class AccountBookEntity extends AbstractTimestampEntity {
     inverseJoinColumn: { name: 'member_id' },
   })
   members: Array<UserEntity>;
+
+  /**
+   * 删除时间
+   */
+  @DeleteDateColumn({ type: 'timestamptz' })
+  deletedAt?: Date;
 }

@@ -162,6 +162,15 @@ export class AccountBookResolver {
     return this.accountBookService.update(accountBookInput, user);
   }
 
+  @Mutation()
+  async deleteAccountBook(
+    @CurrentUser({ required: true }) user: UserEntity,
+    @Args('id') id: number,
+  ) {
+    await this.accountBookService.delete(id, user);
+    return true;
+  }
+
   @Query()
   async getAuthAccountBookById(
     @CurrentUser({ required: true }) user: UserEntity,

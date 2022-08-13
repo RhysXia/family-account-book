@@ -9,14 +9,14 @@ import {
   Pagination,
   UpdateFlowRecordInput,
 } from '../graphql/graphql';
-import { SavingAccountMoneyRecordManager } from '../manager/SavingAccountMoneyRecordManager';
+import { SavingAccountHistoryManager } from '../manager/SavingAccountHistoryManager';
 import { applyPagination } from '../utils/applyPagination';
 
 @Injectable()
 export class FlowRecordService {
   constructor(
     private readonly dataSource: DataSource,
-    private readonly savingAccountMoneyRecordManager: SavingAccountMoneyRecordManager,
+    private readonly savingAccountMoneyRecordManager: SavingAccountHistoryManager,
   ) {}
 
   async update(flowRecordInput: UpdateFlowRecordInput, user: UserEntity) {

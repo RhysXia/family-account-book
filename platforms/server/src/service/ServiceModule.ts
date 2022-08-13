@@ -5,8 +5,8 @@ import { ManagerModule } from '../manager/ManagerModule';
 import { RepositoryModule } from '../repository/RepositoryModule';
 import { AccountBookService } from './AccountBookService';
 import { FlowRecordService } from './FlowRecordService';
-import { SavingAccountMoneyService } from './SavingAccountMoneyService';
 import { SavingAccountService } from './SavingAccountService';
+import { SavingAccountTransferRecordService } from './SavingAccountTransferRecordService';
 import { TagService } from './TagService';
 import { UserService } from './UserService';
 
@@ -15,8 +15,8 @@ const services = [
   TagService,
   AccountBookService,
   SavingAccountService,
-  SavingAccountMoneyService,
   FlowRecordService,
+  SavingAccountTransferRecordService,
 ];
 
 @Module({

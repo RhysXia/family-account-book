@@ -9,7 +9,7 @@ import { AccountBookResolver } from './resolver/AccountBookResolver';
 import { SavingAccountResolver } from './resolver/SavingAccountResolver';
 import { UserResolver } from './resolver/UserResolver';
 import { UserDataLoader } from './dataloader/UserDataLoader';
-import { SavingAccountMoneyDataLoader } from './dataloader/SavingAccountAmountDataLoader';
+import { SavingAccountAmountDataLoader } from './dataloader/SavingAccountAmountDataLoader';
 import { AccountBookDataLoader } from './dataloader/AccountBookDataLoader';
 import { QueryComplexityPlugin } from './plugins/QueryComplexityPlugin';
 import { TagResolver } from './resolver/TagResolver';
@@ -18,6 +18,7 @@ import { SavingAccountDataLoader } from './dataloader/SavingAccountDataLoader';
 import { FlowRecordDataLoader } from './dataloader/FlowRecordDataLoader';
 import { DateTimeScalar } from './scalar/DateTimeScalar';
 import { DateScalar } from './scalar/DateScalar';
+import { SavingAccountTransferRecordResolver } from './resolver/SavingAccountTransferRecordResolver';
 
 @Module({
   imports: [
@@ -51,7 +52,7 @@ import { DateScalar } from './scalar/DateScalar';
     DateScalar,
     TagDataLoader,
     UserDataLoader,
-    SavingAccountMoneyDataLoader,
+    SavingAccountAmountDataLoader,
     AccountBookDataLoader,
     SavingAccountDataLoader,
     FlowRecordDataLoader,
@@ -60,6 +61,7 @@ import { DateScalar } from './scalar/DateScalar';
     SavingAccountResolver,
     TagResolver,
     FlowRecordResolver,
+    SavingAccountTransferRecordResolver,
   ],
 })
 export class GraphqlModule {}

@@ -9,11 +9,10 @@ import {
 import { SavingAccountEntity } from '../../entity/SavingAccountEntity';
 import { UserEntity } from '../../entity/UserEntity';
 import { FlowRecordService } from '../../service/FlowRecordService';
-import { SavingAccountMoneyService } from '../../service/SavingAccountMoneyService';
 import { SavingAccountService } from '../../service/SavingAccountService';
 import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
 import { FlowRecordDataLoader } from '../dataloader/FlowRecordDataLoader';
-import { SavingAccountMoneyDataLoader } from '../dataloader/SavingAccountAmountDataLoader';
+import { SavingAccountAmountDataLoader } from '../dataloader/SavingAccountAmountDataLoader';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
 import {
@@ -26,8 +25,7 @@ import {
 export class SavingAccountResolver {
   constructor(
     private readonly savingAccountService: SavingAccountService,
-    private readonly savingAccountMoneyService: SavingAccountMoneyService,
-    private readonly savingAccountMoneyDataLoader: SavingAccountMoneyDataLoader,
+    private readonly savingAccountMoneyDataLoader: SavingAccountAmountDataLoader,
     private readonly userDataLoader: UserDataLoader,
     private readonly accountBookDataLoader: AccountBookDataLoader,
     private readonly flowRecordDataLoader: FlowRecordDataLoader,
@@ -75,7 +73,7 @@ export class SavingAccountResolver {
     @Args('startDate') startDate: Date,
     @Args('endDate') endDate: Date,
   ) {
-    return this.savingAccountMoneyService.findAllBySavingAccountIdAndDealAtBetween(
+    return this.savingAccountService.findHistoriesBySavingAccountIdAndDealAtBetween(
       parent.id,
       startDate,
       endDate,
@@ -110,16 +108,16 @@ export class SavingAccountResolver {
 
   @Mutation()
   async createSavingAccount(
-    @Args('savingAccount') savingsInput: CreateSavingAccountInput,
     @CurrentUser({ required: true }) user: UserEntity,
+    @Args('savingAccount') savingsInput: CreateSavingAccountInput,
   ) {
     return this.savingAccountService.create(savingsInput, user);
   }
 
   @Mutation()
   async updateSavingAccount(
-    @Args('savingAccount') savingsInput: UpdateSavingAccountInput,
     @CurrentUser({ required: true }) user: UserEntity,
+    @Args('savingAccount') savingsInput: UpdateSavingAccountInput,
   ) {
     return this.savingAccountService.update(savingsInput, user);
   }

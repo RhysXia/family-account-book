@@ -77,6 +77,25 @@ export interface UpdateSavingAccountInput {
     amount?: Nullable<number>;
 }
 
+export interface CreateSavingAccountTransferRecord {
+    name: string;
+    desc?: Nullable<string>;
+    amount: number;
+    fromSavingAccountId: number;
+    toSavingAccountId: number;
+    dealAt: Date;
+}
+
+export interface UpdateSavingAccountTransferRecord {
+    id: number;
+    name?: Nullable<string>;
+    desc?: Nullable<string>;
+    amount?: Nullable<number>;
+    fromSavingAccountId?: Nullable<number>;
+    toSavingAccountId?: Nullable<number>;
+    dealAt?: Nullable<Date>;
+}
+
 export interface CreateTagInput {
     name: string;
     type: TagType;
@@ -132,10 +151,13 @@ export interface AccountBook extends EntityDateTime {
 export interface IMutation {
     createAccountBook(accountBook: CreateAccountBookInput): AccountBook | Promise<AccountBook>;
     updateAccountBook(accountBook: UpdateAccountBookInput): AccountBook | Promise<AccountBook>;
+    deleteAccountBook(id: number): boolean | Promise<boolean>;
     createFlowRecord(flowRecord: CreateFlowRecordInput): FlowRecord | Promise<FlowRecord>;
     updateFlowRecord(flowRecord: UpdateFlowRecordInput): FlowRecord | Promise<FlowRecord>;
     createSavingAccount(savingAccount: CreateSavingAccountInput): SavingAccount | Promise<SavingAccount>;
     updateSavingAccount(savingAccount: UpdateSavingAccountInput): SavingAccount | Promise<SavingAccount>;
+    createSavingAccountTransferRecord(record: CreateSavingAccountTransferRecord): SavingAccountTransferRecord | Promise<SavingAccountTransferRecord>;
+    updateSavingAccountTransferRecord(record: UpdateSavingAccountTransferRecord): SavingAccountTransferRecord | Promise<SavingAccountTransferRecord>;
     createTag(tag: CreateTagInput): Tag | Promise<Tag>;
     updateTag(tag: UpdateTagInput): Tag | Promise<Tag>;
     signIn(user: SignInUserInput): User | Promise<User>;
@@ -196,6 +218,20 @@ export interface SavingAccount extends EntityDateTime {
     getAmountHistoriesByDate: AmountHistory[];
     flowRecords: FlowRecordListWithPagintion;
     flowRecord: FlowRecord;
+}
+
+export interface SavingAccountTransferRecord extends EntityDateTime {
+    id: number;
+    name: string;
+    desc?: Nullable<string>;
+    amount: number;
+    creator: SimpleUser;
+    updater: SimpleUser;
+    from: SavingAccount;
+    to: SavingAccount;
+    dealAt: Date;
+    createdAt: DateTime;
+    updatedAt: DateTime;
 }
 
 export interface TagListWithPagintion {

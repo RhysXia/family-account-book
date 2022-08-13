@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { Brackets, EntityManager, LessThan } from 'typeorm';
+import { EntityManager, LessThan } from 'typeorm';
 import { SavingAccountEntity } from '../entity/SavingAccountEntity';
-import { SavingAccountMoneyRecordEntity } from '../entity/SavingAccountMoneyRecordEntity';
+import { SavingAccountHistoryEntity } from '../entity/SavingAccountHistoryEntity';
 
 export type UpdateSavingAccountMoneyRecord = {
   oldAmount: number;
@@ -19,7 +19,7 @@ export type SavingAccountMoneyRecord = {
 };
 
 @Injectable()
-export class SavingAccountMoneyRecordManager {
+export class SavingAccountHistoryManager {
   constructor() {}
 
   async create(
@@ -29,7 +29,7 @@ export class SavingAccountMoneyRecordManager {
     // 之后的数据都加上新的余额
     await manager
       .createQueryBuilder()
-      .update(SavingAccountMoneyRecordEntity)
+      .update(SavingAccountHistoryEntity)
       .set({
         amount: () => 'amount + ' + amount,
       })
@@ -42,7 +42,7 @@ export class SavingAccountMoneyRecordManager {
       .execute();
 
     // 交易时间已经有记录，则直接加上新的余额
-    const record = await manager.findOne(SavingAccountMoneyRecordEntity, {
+    const record = await manager.findOne(SavingAccountHistoryEntity, {
       where: {
         savingAccountId,
         dealAt,
@@ -54,7 +54,7 @@ export class SavingAccountMoneyRecordManager {
     }
 
     // 没有记录，则需要回去交易时间前的最新余额，在此基础上加上新的余额
-    const oldRecord = await manager.findOne(SavingAccountMoneyRecordEntity, {
+    const oldRecord = await manager.findOne(SavingAccountHistoryEntity, {
       where: {
         savingAccountId,
         dealAt: LessThan(dealAt),
@@ -65,7 +65,7 @@ export class SavingAccountMoneyRecordManager {
     });
 
     if (oldRecord) {
-      const newRecord = new SavingAccountMoneyRecordEntity();
+      const newRecord = new SavingAccountHistoryEntity();
       newRecord.amount = oldRecord.amount + amount;
       newRecord.dealAt = dealAt;
       newRecord.savingAccountId = savingAccountId;
@@ -85,7 +85,7 @@ export class SavingAccountMoneyRecordManager {
 
     const initialAccount = savingAccount.initialAmount;
 
-    const newRecord = new SavingAccountMoneyRecordEntity();
+    const newRecord = new SavingAccountHistoryEntity();
     newRecord.amount = initialAccount + amount;
     newRecord.dealAt = dealAt;
     newRecord.savingAccountId = savingAccountId;
@@ -100,7 +100,7 @@ export class SavingAccountMoneyRecordManager {
     // 之后的数据都减去余额
     await manager
       .createQueryBuilder()
-      .update(SavingAccountMoneyRecordEntity)
+      .update(SavingAccountHistoryEntity)
       .set({
         amount: () => 'amount - ' + amount,
       })
@@ -112,7 +112,7 @@ export class SavingAccountMoneyRecordManager {
       })
       .execute();
 
-    const record = await manager.findOne(SavingAccountMoneyRecordEntity, {
+    const record = await manager.findOne(SavingAccountHistoryEntity, {
       where: {
         savingAccountId,
         dealAt,
@@ -120,7 +120,7 @@ export class SavingAccountMoneyRecordManager {
     });
 
     // 前一条记录
-    const oldRecord = await manager.findOne(SavingAccountMoneyRecordEntity, {
+    const oldRecord = await manager.findOne(SavingAccountHistoryEntity, {
       where: {
         savingAccountId,
         dealAt: LessThan(dealAt),
@@ -133,7 +133,7 @@ export class SavingAccountMoneyRecordManager {
     // 如果没有记录，则只需要创建一条记录并在前一条记录基础上减去相应额度即可，所有记录各不相同
     if (!record) {
       if (oldRecord) {
-        const newRecord = new SavingAccountMoneyRecordEntity();
+        const newRecord = new SavingAccountHistoryEntity();
         newRecord.amount = oldRecord.amount - amount;
         newRecord.dealAt = dealAt;
         newRecord.savingAccountId = savingAccountId;
@@ -151,7 +151,7 @@ export class SavingAccountMoneyRecordManager {
       }
 
       const initialAccount = savingAccount.initialAmount;
-      const newRecord = new SavingAccountMoneyRecordEntity();
+      const newRecord = new SavingAccountHistoryEntity();
       newRecord.amount = initialAccount - amount;
       newRecord.dealAt = dealAt;
       newRecord.savingAccountId = savingAccountId;
@@ -197,6 +197,14 @@ export class SavingAccountMoneyRecordManager {
       newDealAt = oldDealAt,
       newSavingAccountId = oldSavingAccountId,
     } = updateValue;
+
+    if (
+      oldAmount === newAmount &&
+      oldSavingAccountId === newSavingAccountId &&
+      oldDealAt.getMilliseconds() === newDealAt.getMilliseconds()
+    ) {
+      return;
+    }
 
     await this.reset(manager, {
       amount: oldAmount,

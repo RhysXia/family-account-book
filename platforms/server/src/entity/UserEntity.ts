@@ -1,4 +1,10 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  DeleteDateColumn,
+  Entity,
+  Index,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { AbstractTimestampEntity } from './abstract/AbstractTimestampEntity';
 
 @Entity('user')
@@ -19,4 +25,10 @@ export class UserEntity extends AbstractTimestampEntity {
 
   @Column({ nullable: true })
   avatar?: string;
+
+  /**
+   * 删除时间
+   */
+  @DeleteDateColumn({ type: 'timestamptz' })
+  deletedAt?: Date;
 }
