@@ -63,6 +63,6 @@ export class SavingAccountEntity extends AbstractTimestampEntity {
   /**
    * 删除时间
    */
-  @DeleteDateColumn()
+  @DeleteDateColumn({ type: 'timestamptz' })
   deletedAt?: Date;
 }

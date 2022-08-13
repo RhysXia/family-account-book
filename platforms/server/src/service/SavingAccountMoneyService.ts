@@ -6,6 +6,7 @@ import {
   LessThanOrEqual,
   MoreThanOrEqual,
 } from 'typeorm';
+import { SavingAccountMoneyRecordEntity } from '../entity/SavingAccountMoneyRecordEntity';
 import { SavingAccountMoneyViewEntity } from '../entity/SavingAccountMoneyViewEntity';
 
 @Injectable()
@@ -25,7 +26,7 @@ export class SavingAccountMoneyService {
     startDate: Date,
     endDate: Date,
   ) {
-    const where: FindOneOptions<SavingAccountMoneyViewEntity>['where'] = {
+    const where: FindOneOptions<SavingAccountMoneyRecordEntity>['where'] = {
       savingAccountId,
     };
 
@@ -36,7 +37,7 @@ export class SavingAccountMoneyService {
       where.dealAt = LessThanOrEqual(endDate);
     }
 
-    return this.dataSource.manager.find(SavingAccountMoneyViewEntity, {
+    return this.dataSource.manager.find(SavingAccountMoneyRecordEntity, {
       where,
       order: {
         dealAt: 'ASC',

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { PasswordUtil } from '../common/PasswordUtil';
 import { ManagerModule } from '../manager/ManagerModule';
 import { RepositoryModule } from '../repository/RepositoryModule';
@@ -19,7 +20,7 @@ const services = [
 ];
 
 @Module({
-  imports: [RepositoryModule, ManagerModule],
+  imports: [ScheduleModule.forRoot(), RepositoryModule, ManagerModule],
   providers: [...services, PasswordUtil],
   exports: [...services],
 })
