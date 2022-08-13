@@ -13,7 +13,7 @@ type FlowRecord implements EntityDateTime {
   """
   交易时间
   """
-  dealAt: DateTime!
+  dealAt: Date!
 
   creator: SimpleUser!
   updater: SimpleUser!
@@ -35,7 +35,7 @@ type FlowRecord implements EntityDateTime {
 
 input CreateFlowRecordInput {
   desc: String
-  dealAt: DateTime!
+  dealAt: Date!
   amount: Float!
   savingAccountId: Int!
   tagId: Int!
@@ -44,7 +44,7 @@ input CreateFlowRecordInput {
 input UpdateFlowRecordInput {
   id: Int!
   desc: String
-  dealAt: DateTime
+  dealAt: Date
   amount: Float
   savingAccountId: Int
   tagId: Int

@@ -6,7 +6,7 @@ type SavingAccountListWithPagintion {
 type AmountHistory {
   id: Int!
   amount: Float!
-  dealAt: DateTime!
+  dealAt: Date!
 }
 
 type SavingAccount implements EntityDateTime {

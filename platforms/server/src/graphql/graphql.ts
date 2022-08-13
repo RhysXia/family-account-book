@@ -48,7 +48,7 @@ export interface Pagination {
 
 export interface CreateFlowRecordInput {
     desc?: Nullable<string>;
-    dealAt: DateTime;
+    dealAt: Date;
     amount: number;
     savingAccountId: number;
     tagId: number;
@@ -57,7 +57,7 @@ export interface CreateFlowRecordInput {
 export interface UpdateFlowRecordInput {
     id: number;
     desc?: Nullable<string>;
-    dealAt?: Nullable<DateTime>;
+    dealAt?: Nullable<Date>;
     amount?: Nullable<number>;
     savingAccountId?: Nullable<number>;
     tagId?: Nullable<number>;
@@ -163,7 +163,7 @@ export interface FlowRecord extends EntityDateTime {
     desc?: Nullable<string>;
     createdAt: DateTime;
     updatedAt: DateTime;
-    dealAt: DateTime;
+    dealAt: Date;
     creator: SimpleUser;
     updater: SimpleUser;
     amount: number;
@@ -180,7 +180,7 @@ export interface SavingAccountListWithPagintion {
 export interface AmountHistory {
     id: number;
     amount: number;
-    dealAt: DateTime;
+    dealAt: Date;
 }
 
 export interface SavingAccount extends EntityDateTime {
