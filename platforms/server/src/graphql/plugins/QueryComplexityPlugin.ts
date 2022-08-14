@@ -24,13 +24,10 @@ export class QueryComplexityPlugin implements ApolloServerPlugin {
   ): Promise<GraphQLRequestListener> {
     return {
       didResolveOperation: async ({ request, document }) => {
-        const query = request.operationName
-          ? separateOperations(document)[request.operationName]
-          : document;
-
         const complexity = getComplexity({
           schema: requestContext.schema,
-          query,
+          operationName: request.operationName,
+          query: document,
           variables: request.variables,
           estimators: [
             fieldExtensionsEstimator(),

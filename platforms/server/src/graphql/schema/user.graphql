@@ -34,7 +34,11 @@ type Query {
   """
   根据模糊搜索用户列表
   """
-  findUserListByUsernameLike(username: String!, limit: Int = 10): [SimpleUser!]!
+  findUserListByUsernameLike(
+    username: String!
+    limit: Int = 10
+    includeSelf: Boolean = false
+  ): [SimpleUser!]!
 }
 
 input SignUpUserInput {

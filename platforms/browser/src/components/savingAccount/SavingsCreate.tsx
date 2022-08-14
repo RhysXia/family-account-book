@@ -1,7 +1,7 @@
 import { Form, Input, InputNumber, Modal, ModalProps } from 'antd';
 import { useAtom } from 'jotai';
 import { FC, useCallback } from 'react';
-import { createSavingAccount } from '../../api';
+import { createSavingAccount } from '../../apollo';
 import { activeAccountBook } from '../../store/accountBook';
 
 const SavingCreate: FC<ModalProps> = (props) => {

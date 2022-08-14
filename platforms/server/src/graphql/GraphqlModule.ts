@@ -20,6 +20,8 @@ import { DateTimeScalar } from './scalar/DateTimeScalar';
 import { DateScalar } from './scalar/DateScalar';
 import { SavingAccountTransferRecordResolver } from './resolver/SavingAccountTransferRecordResolver';
 import { SavingAccountTransferRecordDataLoader } from './dataloader/SavingAccountTransferRecordDataLoader';
+import { ApolloServerPluginUsageReporting } from 'apollo-server-core';
+import { NotFoundError } from '../exception/ServiceError';
 
 @Module({
   imports: [
@@ -28,7 +30,10 @@ import { SavingAccountTransferRecordDataLoader } from './dataloader/SavingAccoun
       driver: ApolloDriver,
       async useFactory(configService: ConfigService) {
         const isPlayground =
-          configService.getOrThrow<string>('GRAPHQL_PLAYGROUND') === 'true';
+          configService.get<string>('GRAPHQL_PLAYGROUND') === 'true';
+
+        const isGraphqlDebug =
+          configService.get<string>('GRAPHQL_DEBUG') === 'true';
 
         return {
           typePaths: ['./**/*.graphql'],
@@ -40,9 +45,19 @@ import { SavingAccountTransferRecordDataLoader } from './dataloader/SavingAccoun
               Date: 'Date',
             },
           },
+          debug: isGraphqlDebug,
           csrfPrevention: true,
           cache: 'bounded',
-          plugins: [new QueryComplexityPlugin(50)],
+          plugins: [
+            new QueryComplexityPlugin(50),
+            ApolloServerPluginUsageReporting({
+              rewriteError(err) {
+                if (err.originalError instanceof NotFoundError) {
+                }
+                return err;
+              },
+            }),
+          ],
         };
       },
     }),

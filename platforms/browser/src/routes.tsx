@@ -2,7 +2,6 @@ import { lazy } from 'react';
 import { RouteObject } from 'react-router-dom';
 import RequireAuth from './components/RequireAuth';
 import AccountBook from './pages/AccountBook';
-import CreateAccountBook from './pages/CreateAccountBook';
 import Home from './pages/Home';
 import Login from './pages/Login';
 
@@ -23,14 +22,6 @@ const routes: Array<RouteObject> = [
     element: <Login />,
   },
   // {
-  //   path: '/accountBook/create',
-  //   element: (
-  //     <RequireAuth>
-  //       <CreateAccountBook />
-  //     </RequireAuth>
-  //   ),
-  // },
-  // {
   //   path: '/accountBook/:id',
   //   element: (
   //     <RequireAuth>
@@ -47,7 +38,7 @@ const routes: Array<RouteObject> = [
   //       element: <Income />,
   //     },
   //     {
-  //       path: 'savings',
+  //       path: 'savingAccount',
   //       element: <Savings />,
   //     },
   //   ],

@@ -3,9 +3,9 @@ import { Table } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import { useAtom } from 'jotai';
 import { useCallback, useEffect, useState } from 'react';
-import { getSavingsList } from '../../../api';
+import { getSavingsList } from '../../../apollo';
 import DashboardAction from '../../../components/DashboardAction';
-import SavingCreate from '../../../components/savings/SavingsCreate';
+import SavingCreate from '../../../components/savingAccount/SavingsCreate';
 import { activeAccountBook } from '../../../store/accountBook';
 import { SavingAccount as SavingsType } from '../../../types/savingAccount';
 

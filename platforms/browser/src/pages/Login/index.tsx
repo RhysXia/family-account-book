@@ -1,9 +1,10 @@
+import { gql, useMutation } from '@apollo/client';
 import { Form, Input, Checkbox, Button, message } from 'antd';
 import { useAtom } from 'jotai';
 import { useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signIn } from '../../api';
-import { currentUser as currentUserStore } from '../../store/user';
+import { currentUserAtom } from '../../store';
+import { User } from '../../types';
 
 type FormType = {
   username: string;
@@ -11,23 +12,45 @@ type FormType = {
   rememberMe?: boolean;
 };
 
+const SIGN_IN = gql`
+  mutation ($username: String!, $password: String!, $rememberMe: Boolean) {
+    signIn(
+      user: {
+        username: $username
+        password: $password
+        rememberMe: $rememberMe
+      }
+    ) {
+      id
+      username
+      email
+      createdAt
+      updatedAt
+      avatar
+    }
+  }
+`;
+
 const Login = () => {
   const [form] = Form.useForm<FormType>();
+  const [signIn] = useMutation<{ signIn: User }>(SIGN_IN);
 
   const navigate = useNavigate();
 
-  const [currentUser, setCurrentUser] = useAtom(currentUserStore);
+  const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
 
   const handleFinish = useCallback(
     async (value: FormType) => {
       try {
-        const data = await signIn(value);
-        setCurrentUser(data);
+        const { data } = await signIn({
+          variables: value,
+        });
+        setCurrentUser(data!.signIn);
       } catch (err) {
         message.error((err as Error).message);
       }
     },
-    [setCurrentUser],
+    [signIn, setCurrentUser],
   );
 
   useEffect(() => {

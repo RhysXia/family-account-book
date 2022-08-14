@@ -175,7 +175,7 @@ export interface IQuery {
     getAuthTagsByAccountBookId(accountBookId: number): Tag[] | Promise<Tag[]>;
     getAuthTagById(id: number): Tag | Promise<Tag>;
     getCurrentUser(): User | Promise<User>;
-    findUserListByUsernameLike(username: string, limit?: Nullable<number>): SimpleUser[] | Promise<SimpleUser[]>;
+    findUserListByUsernameLike(username: string, limit?: Nullable<number>, includeSelf?: Nullable<boolean>): SimpleUser[] | Promise<SimpleUser[]>;
 }
 
 export interface FlowRecordListWithPagintion {

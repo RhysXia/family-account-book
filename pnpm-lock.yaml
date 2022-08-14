@@ -80,6 +80,7 @@ importers:
       '@types/express-session': ^1.17.5
       '@types/node': ^16.0.0
       apollo-server-core: ^3.10.0
+      apollo-server-errors: ^3.3.1
       apollo-server-express: ^3.10.0
       apollo-server-plugin-base: ^3.6.2
       class-transformer: ^0.5.1
@@ -113,6 +114,7 @@ importers:
       '@nestjs/schedule': 2.1.0_zysgbzrbqurgi5bpxpfkrj3lie
       '@nestjs/typeorm': 9.0.0_zhrs42futwpjx7z3p6twpp4g7i
       apollo-server-core: 3.10.0_graphql@16.5.0
+      apollo-server-errors: 3.3.1_graphql@16.5.0
       apollo-server-express: 3.10.0_graphql@16.5.0
       apollo-server-plugin-base: 3.6.2_graphql@16.5.0
       class-transformer: 0.5.1

@@ -5,7 +5,7 @@ import { useAtomsDevtools } from 'jotai/devtools';
 import App from './App';
 import { BrowserRouter } from 'react-router-dom';
 import './assets/styles/index.less';
-import { apolloClient } from './api';
+import { apolloClient } from './apollo';
 import { ConfigProvider } from 'antd';
 import zhCn from 'antd/es/locale/zh_CN';
 

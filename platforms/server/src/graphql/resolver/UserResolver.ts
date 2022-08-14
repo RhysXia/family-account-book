@@ -45,10 +45,16 @@ export class UserResolver {
 
   @Query()
   async findUserListByUsernameLike(
+    @CurrentUser({ required: false }) currentUser: UserEntity | null,
     @Args('username') username: string,
     @Args('limit') limit: number,
+    @Args('includeSelf') includeSelf: boolean,
   ) {
-    return this.userService.findAllByUsernameLike(username, limit);
+    return this.userService.findAllByUsernameLike(username, {
+      limit,
+      includeSelf,
+      currentUser,
+    });
   }
 
   @Mutation()
@@ -61,7 +67,9 @@ export class UserResolver {
     session[SESSION_CURRENT_USER] = currentUser;
 
     if (user.rememberMe) {
+      console.log('====================');
       session.cookie.maxAge = 1000 * 60 * 60 * 24 * 7;
+      console.log(session.cookie)
     }
 
     return currentUser;

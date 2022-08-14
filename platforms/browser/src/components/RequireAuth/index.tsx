@@ -1,10 +1,26 @@
+import { gql, useLazyQuery } from '@apollo/client';
 import { useAtom } from 'jotai';
-import { FC, ReactNode, useCallback, useLayoutEffect } from 'react';
+import { FC, ReactNode, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { currentUser as currentUserStore } from '../../store/user';
+import { currentUserAtom } from '../../store';
+import { User } from '../../types';
+
+const CURRENT_USER = gql`
+  query {
+    getCurrentUser {
+      id
+      username
+      email
+      avatar
+      createdAt
+      updatedAt
+    }
+  }
+`;
 
 const RequireAuth: FC<{ children: ReactNode }> = ({ children }) => {
-  const [currentUser] = useAtom(currentUserStore);
+  const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
+  const [getCurrentUser] = useLazyQuery<{ getCurrentUser: User }>(CURRENT_USER);
 
   const navigate = useNavigate();
 
@@ -12,11 +28,16 @@ const RequireAuth: FC<{ children: ReactNode }> = ({ children }) => {
     if (currentUser) {
       return;
     }
+    const { data } = await getCurrentUser();
+    if (data) {
+      setCurrentUser(data.getCurrentUser);
+      return;
+    }
 
     navigate('/login');
-  }, [currentUser, navigate]);
+  }, [currentUser, setCurrentUser, getCurrentUser, navigate]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     handleCurrentUser();
   }, [handleCurrentUser]);
 

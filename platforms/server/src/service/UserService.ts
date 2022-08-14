@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, In } from 'typeorm';
+import { DataSource, FindManyOptions, In, Not } from 'typeorm';
 import { PasswordUtil } from '../common/PasswordUtil';
 import { UserEntity } from '../entity/UserEntity';
 import { SignUpUserInput, SignInUserInput } from '../graphql/graphql';
@@ -28,15 +28,30 @@ export class UserService {
    */
   findAllByUsernameLike(
     username: string,
-    limit: number,
+    {
+      limit,
+      includeSelf,
+      currentUser,
+    }: {
+      limit: number;
+      includeSelf: boolean;
+      currentUser: UserEntity | null;
+    },
   ): Promise<Array<Omit<UserEntity, 'password'>>> {
+    const where: FindManyOptions<UserEntity>['where'] = {
+      username: Like(`%${username}%`),
+    };
+
+    if (includeSelf) {
+      if (!currentUser) {
+        throw new Error('当前用户不存在');
+      }
+    } else {
+      where.id = Not(currentUser.id);
+    }
+
     return this.dataSource.manager.find(UserEntity, {
-      select: {
-        password: false,
-      },
-      where: {
-        username: Like(`%${username}%`),
-      },
+      where: where,
       take: limit,
     });
   }

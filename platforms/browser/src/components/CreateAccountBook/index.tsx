@@ -1,8 +1,9 @@
+import { gql, useMutation } from '@apollo/client';
 import { Button, Form, Input, message, Modal } from 'antd';
-import { useCallback } from 'react';
+import { FC, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createAccountBook } from '../../api/accountBook';
 import UserSelect from '../../components/UserSelect';
+import { AccountBook } from '../../types';
 
 type FormType = {
   name: string;
@@ -11,7 +12,42 @@ type FormType = {
   members: Array<{ value: number }>;
 };
 
-const CreateAccountBook = () => {
+const CREATE_ACCOUNT_BOOK = gql`
+  mutation CreateAccountBook(
+    $name: String!
+    $desc: String
+    $adminIds: [Int!]
+    $memberIds: [Int!]
+  ) {
+    createAccountBook(
+      accountBook: {
+        name: $name
+        desc: $desc
+        adminIds: $adminIds
+        memberIds: $memberIds
+      }
+    ) {
+      id
+      name
+      desc
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export type CreateAccountBookProps = {
+  visible?: boolean;
+  onVisible?: (visible: boolean) => void;
+};
+
+const CreateAccountBook: FC<CreateAccountBookProps> = ({
+  visible,
+  onVisible,
+}) => {
+  const [createAccountBook] = useMutation<{ createAccountBook: AccountBook }>(
+    CREATE_ACCOUNT_BOOK,
+  );
   const [form] = Form.useForm<FormType>();
 
   const navigate = useNavigate();
@@ -19,19 +55,23 @@ const CreateAccountBook = () => {
   const handleFinish = useCallback(
     async (value: FormType) => {
       try {
-        const { id } = await createAccountBook({
-          name: value.name,
-          desc: value.desc,
-          adminIds: value.admins.map(({ value }) => value),
-          memberIds: value.members.map(({ value }) => value),
+        const { data } = await createAccountBook({
+          variables: {
+            name: value.name,
+            desc: value.desc,
+            adminIds: value.admins?.map(({ value }) => value),
+            memberIds: value.members?.map(({ value }) => value),
+          },
         });
 
-        navigate(`/accoutBook/${id}`);
+        if (data) {
+          navigate(`/accoutBook/${data?.createAccountBook.id}`);
+        }
       } catch (err) {
         message.error((err as Error).message);
       }
     },
-    [navigate],
+    [navigate, createAccountBook],
   );
 
   const title = (
@@ -43,12 +83,11 @@ const CreateAccountBook = () => {
 
   return (
     <Modal
+      visible={visible}
       title={title}
-      visible={true}
-      maskStyle={{ backgroundColor: '#F3F4F6' }}
-      closable={false}
+      closable={true}
       footer={null}
-      getContainer={false}
+      onCancel={() => onVisible?.(false)}
     >
       <Form layout="vertical" form={form} onFinish={handleFinish}>
         <Form.Item
@@ -58,11 +97,7 @@ const CreateAccountBook = () => {
         >
           <Input />
         </Form.Item>
-        <Form.Item
-          name="desc"
-          label="账本描述"
-          rules={[{ required: true, message: '账本描述不能为空' }]}
-        >
+        <Form.Item name="desc" label="账本描述">
           <Input.TextArea autoSize={{ minRows: 4 }} />
         </Form.Item>
         <Form.Item name="admins" label="管理员">
