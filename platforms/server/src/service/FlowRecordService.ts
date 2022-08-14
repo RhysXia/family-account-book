@@ -19,6 +19,36 @@ export class FlowRecordService {
     private readonly savingAccountMoneyRecordManager: SavingAccountHistoryManager,
   ) {}
 
+  async delete(id: number, currentUser: UserEntity) {
+    return this.dataSource.transaction(async (manager) => {
+      const record = await manager.findOne(FlowRecordEntity, {
+        where: {
+          id,
+          accountBook: [
+            {
+              admins: { id: currentUser.id },
+            },
+            {
+              members: { id: currentUser.id },
+            },
+          ],
+        },
+      });
+
+      if (!record) {
+        throw new Error('流水不存在或者没有删除权限');
+      }
+
+      await this.savingAccountMoneyRecordManager.reset(manager, {
+        amount: record.amount,
+        dealAt: record.dealAt,
+        savingAccountId: record.savingAccountId,
+      });
+
+      await manager.remove(record);
+    });
+  }
+
   async update(flowRecordInput: UpdateFlowRecordInput, user: UserEntity) {
     return this.dataSource.transaction(async (manager) => {
       const { id, desc, dealAt, amount, savingAccountId, tagId } =
@@ -68,6 +98,7 @@ export class FlowRecordService {
         const savingAccount = await manager.findOne(SavingAccountEntity, {
           where: {
             id: savingAccountId,
+            accountBookId: flowRecord.accountBookId,
           },
         });
 

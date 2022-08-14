@@ -19,6 +19,7 @@ import { FlowRecordDataLoader } from './dataloader/FlowRecordDataLoader';
 import { DateTimeScalar } from './scalar/DateTimeScalar';
 import { DateScalar } from './scalar/DateScalar';
 import { SavingAccountTransferRecordResolver } from './resolver/SavingAccountTransferRecordResolver';
+import { SavingAccountTransferRecordDataLoader } from './dataloader/SavingAccountTransferRecordDataLoader';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { SavingAccountTransferRecordResolver } from './resolver/SavingAccountTra
     AccountBookDataLoader,
     SavingAccountDataLoader,
     FlowRecordDataLoader,
+    SavingAccountTransferRecordDataLoader,
     UserResolver,
     AccountBookResolver,
     SavingAccountResolver,

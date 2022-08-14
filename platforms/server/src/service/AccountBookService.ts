@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Brackets, DataSource, In } from 'typeorm';
 import { AccountBookEntity } from '../entity/AccountBookEntity';
+import { FlowRecordEntity } from '../entity/FlowRecordEntity';
+import { SavingAccountEntity } from '../entity/SavingAccountEntity';
+import { SavingAccountHistoryEntity } from '../entity/SavingAccountHistoryEntity';
+import { SavingAccountTransferRecordEntity } from '../entity/SavingAccountTransferRecordEntity';
+import { TagEntity } from '../entity/TagEntity';
 import { UserEntity } from '../entity/UserEntity';
 import {
   CreateAccountBookInput,
@@ -14,26 +19,67 @@ export class AccountBookService {
   constructor(private readonly dataSource: DataSource) {}
 
   async delete(id: number, user: UserEntity) {
-    const accountBook = await this.dataSource.manager
-      .createQueryBuilder(AccountBookEntity, 'accountBook')
-      .leftJoin('accountBook.admins', 'admin')
-      .leftJoin('accountBook.members', 'member')
-      .where('accountBook.id = :accountBookId', { accountBookId: id })
-      .andWhere(
-        new Brackets((qb) => {
-          qb.where('admin.id = :adminId', { adminId: user.id }).orWhere(
-            'member.id = :memberId',
-            { memberId: user.id },
-          );
-        }),
-      )
-      .getOne();
+    return this.dataSource.transaction(async (manager) => {
+      const accountBook = await manager.findOne(AccountBookEntity, {
+        where: {
+          id,
+          admins: {
+            id: user.id,
+          },
+        },
+      });
 
-    if (!accountBook) {
-      throw new Error('账本不存在');
-    }
+      if (!accountBook) {
+        throw new Error('账本不存在或者无权限操作');
+      }
 
-    return this.dataSource.manager.softRemove(accountBook);
+      await manager
+        .createQueryBuilder()
+        .delete()
+        .from(SavingAccountTransferRecordEntity)
+        .where('accountBookId = :accountBookId', {
+          accountBookId: id,
+        })
+        .execute();
+
+      await manager
+        .createQueryBuilder()
+        .delete()
+        .from(FlowRecordEntity)
+        .where('accountBookId = :accountBookId', {
+          accountBookId: id,
+        })
+        .execute();
+
+      await manager
+        .createQueryBuilder()
+        .delete()
+        .from(SavingAccountHistoryEntity)
+        .where('accountBookId = :accountBookId', {
+          accountBookId: id,
+        })
+        .execute();
+
+      await manager
+        .createQueryBuilder()
+        .delete()
+        .from(SavingAccountEntity)
+        .where('accountBookId = :accountBookId', {
+          accountBookId: id,
+        })
+        .execute();
+
+      await manager
+        .createQueryBuilder()
+        .delete()
+        .from(TagEntity)
+        .where('accountBookId = :accountBookId', {
+          accountBookId: id,
+        })
+        .execute();
+
+      return manager.remove(accountBook);
+    });
   }
 
   async findAllByUserIdAndPagination(
@@ -174,7 +220,7 @@ export class AccountBookService {
       });
 
       if (!accountBook) {
-        throw new Error('账本不存在');
+        throw new Error('账本不存在或者无权限操作');
       }
 
       accountBook.updater = user;

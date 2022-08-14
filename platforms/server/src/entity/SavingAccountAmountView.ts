@@ -12,6 +12,7 @@ import { SavingAccountHistoryEntity } from './SavingAccountHistoryEntity';
       .createQueryBuilder()
       .select('b2.id', 'id')
       .addSelect('b2."savingAccountId"', 'savingAccountId')
+      .addSelect('b2."accountBookId"', 'accountBookId')
       .addSelect('b2.amount', 'amount')
       .addSelect('b2."createdAt"', 'createdAt')
       .addSelect('b2."updatedAt"', 'updatedAt')
@@ -46,6 +47,9 @@ export class SavingAccountAmountView {
 
   @ViewColumn()
   savingAccountId: number;
+
+  @ViewColumn()
+  accountBookId: number;
 
   @ViewColumn()
   createdAt: Date;

@@ -60,4 +60,5 @@ input UpdateFlowRecordInput {
 type Mutation {
   createFlowRecord(flowRecord: CreateFlowRecordInput!): FlowRecord!
   updateFlowRecord(flowRecord: UpdateFlowRecordInput!): FlowRecord!
+  deleteFlowRecord(id: Int!): Boolean!
 }

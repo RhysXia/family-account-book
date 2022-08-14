@@ -16,6 +16,8 @@ type SavingAccountTransferRecord implements EntityDateTime {
 
   to: SavingAccount!
 
+  accountBook: AccountBook!
+
   dealAt: Date!
 
   createdAt: DateTime!
@@ -49,4 +51,6 @@ type Mutation {
   updateSavingAccountTransferRecord(
     record: UpdateSavingAccountTransferRecord!
   ): SavingAccountTransferRecord!
+
+  deleteSavingAccountTransferRecord(id: Int!): Boolean!
 }

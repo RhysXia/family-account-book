@@ -70,4 +70,13 @@ export class FlowRecordResolver {
   ) {
     return this.flowRecordService.update(flowRecord, currentUser);
   }
+
+  @Mutation()
+  async deleteFlowRecord(
+    @CurrentUser({ required: true }) currentUser: UserEntity,
+    @Args('id') id: number,
+  ) {
+    await this.flowRecordService.delete(id, currentUser);
+    return true;
+  }
 }

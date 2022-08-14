@@ -23,6 +23,31 @@ import { applyPagination } from '../utils/applyPagination';
 export class SavingAccountService {
   constructor(private readonly dataSource: DataSource) {}
 
+  async delete(id: number, currentUser: UserEntity) {
+    return await this.dataSource.transaction(async (manager) => {
+      const savingAccount = await manager.findOne(SavingAccountEntity, {
+        where: {
+          id,
+          accountBook: [
+            {
+              admins: [{ id: currentUser.id }],
+            },
+            {
+              members: [{ id: currentUser.id }],
+            },
+          ],
+        },
+      });
+
+      if (!savingAccount) {
+        throw new Error('储蓄账户不存在或者没有操作权限');
+      }
+
+      // 软删除
+      await manager.softRemove(savingAccount);
+    });
+  }
+
   /**
    * 获取最新余额
    * @param savingAccountIds

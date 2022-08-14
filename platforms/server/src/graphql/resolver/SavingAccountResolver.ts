@@ -68,7 +68,7 @@ export class SavingAccountResolver {
   }
 
   @ResolveField()
-  async getAmountHistoriesByDate(
+  async getHistoriesByDate(
     @Parent() parent: SavingAccountEntity,
     @Args('startDate') startDate: Date,
     @Args('endDate') endDate: Date,
@@ -139,5 +139,14 @@ export class SavingAccountResolver {
     @Args('id') id: number,
   ) {
     return this.savingAccountService.findOneByIdAndUserId(id, user.id);
+  }
+
+  @Mutation()
+  async deleteSavingAccount(
+    @CurrentUser({ required: true }) currentUser: UserEntity,
+    @Args('id') id: number,
+  ) {
+    await this.savingAccountService.delete(id, currentUser);
+    return true;
   }
 }

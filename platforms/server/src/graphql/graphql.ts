@@ -154,10 +154,13 @@ export interface IMutation {
     deleteAccountBook(id: number): boolean | Promise<boolean>;
     createFlowRecord(flowRecord: CreateFlowRecordInput): FlowRecord | Promise<FlowRecord>;
     updateFlowRecord(flowRecord: UpdateFlowRecordInput): FlowRecord | Promise<FlowRecord>;
+    deleteFlowRecord(id: number): boolean | Promise<boolean>;
     createSavingAccount(savingAccount: CreateSavingAccountInput): SavingAccount | Promise<SavingAccount>;
     updateSavingAccount(savingAccount: UpdateSavingAccountInput): SavingAccount | Promise<SavingAccount>;
+    deleteSavingAccount(id: number): boolean | Promise<boolean>;
     createSavingAccountTransferRecord(record: CreateSavingAccountTransferRecord): SavingAccountTransferRecord | Promise<SavingAccountTransferRecord>;
     updateSavingAccountTransferRecord(record: UpdateSavingAccountTransferRecord): SavingAccountTransferRecord | Promise<SavingAccountTransferRecord>;
+    deleteSavingAccountTransferRecord(id: number): boolean | Promise<boolean>;
     createTag(tag: CreateTagInput): Tag | Promise<Tag>;
     updateTag(tag: UpdateTagInput): Tag | Promise<Tag>;
     signIn(user: SignInUserInput): User | Promise<User>;
@@ -215,7 +218,7 @@ export interface SavingAccount extends EntityDateTime {
     creator: SimpleUser;
     updater: SimpleUser;
     accountBook: AccountBook;
-    getAmountHistoriesByDate: AmountHistory[];
+    getHistoriesByDate: AmountHistory[];
     flowRecords: FlowRecordListWithPagintion;
     flowRecord: FlowRecord;
 }
@@ -229,6 +232,7 @@ export interface SavingAccountTransferRecord extends EntityDateTime {
     updater: SimpleUser;
     from: SavingAccount;
     to: SavingAccount;
+    accountBook: AccountBook;
     dealAt: Date;
     createdAt: DateTime;
     updatedAt: DateTime;

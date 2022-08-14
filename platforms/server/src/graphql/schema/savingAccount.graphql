@@ -26,7 +26,7 @@ type SavingAccount implements EntityDateTime {
 
   accountBook: AccountBook!
 
-  getAmountHistoriesByDate(
+  getHistoriesByDate(
     startDate: DateTime
     endDate: DateTime
   ): [AmountHistory!]!
@@ -64,4 +64,5 @@ type Query {
 type Mutation {
   createSavingAccount(savingAccount: CreateSavingAccountInput!): SavingAccount!
   updateSavingAccount(savingAccount: UpdateSavingAccountInput!): SavingAccount!
+  deleteSavingAccount(id: Int!): Boolean!
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { Brackets, DataSource } from 'typeorm';
+import { Brackets, DataSource, In } from 'typeorm';
 import { SavingAccountEntity } from '../entity/SavingAccountEntity';
-import { SavingAccountTransferRecordEntity } from '../entity/SavingAccountTransferRecord';
+import { SavingAccountTransferRecordEntity } from '../entity/SavingAccountTransferRecordEntity';
 import { UserEntity } from '../entity/UserEntity';
 import {
   CreateSavingAccountTransferRecord,
@@ -15,6 +15,50 @@ export class SavingAccountTransferRecordService {
     private readonly dataSource: DataSource,
     private readonly savingAccountHistoryManager: SavingAccountHistoryManager,
   ) {}
+
+  async delete(id: number, currentUser: UserEntity) {
+    return this.dataSource.transaction(async (manager) => {
+      const record = await manager.findOne(SavingAccountTransferRecordEntity, {
+        where: {
+          id,
+          accountBook: [
+            {
+              admins: [{ id: currentUser.id }],
+            },
+            {
+              members: [{ id: currentUser.id }],
+            },
+          ],
+        },
+      });
+
+      if (!record) {
+        throw new Error('记录不存在或者没有操作权限');
+      }
+
+      await this.savingAccountHistoryManager.reset(manager, {
+        amount: -record.amount,
+        dealAt: record.dealAt,
+        savingAccountId: record.from.id,
+      });
+
+      await this.savingAccountHistoryManager.reset(manager, {
+        amount: record.amount,
+        dealAt: record.dealAt,
+        savingAccountId: record.to.id,
+      });
+
+      return manager.remove(record);
+    });
+  }
+
+  findAllByIds(ids: Array<number>) {
+    return this.dataSource.manager.find(SavingAccountTransferRecordEntity, {
+      where: {
+        id: In(ids),
+      },
+    });
+  }
 
   async create(
     record: CreateSavingAccountTransferRecord,

@@ -6,7 +6,7 @@ import { FlowRecordEntity } from '../entity/FlowRecordEntity';
 import { SavingAccountHistoryEntity } from '../entity/SavingAccountHistoryEntity';
 import { SavingAccountAmountView } from '../entity/SavingAccountAmountView';
 import { SavingAccountEntity } from '../entity/SavingAccountEntity';
-import { SavingAccountTransferRecordEntity } from '../entity/SavingAccountTransferRecord';
+import { SavingAccountTransferRecordEntity } from '../entity/SavingAccountTransferRecordEntity';
 import { SessionEntity } from '../entity/SessionEntity';
 import { TagEntity } from '../entity/TagEntity';
 import { UserEntity } from '../entity/UserEntity';
