@@ -1,23 +1,39 @@
-import { useCallback, useEffect, useState } from 'react';
-import { getAccountBooks } from '../../api/accountBook';
-import { AccountBook } from '../../types/accountBook';
+import { useCallback } from 'react';
 import { fromTime } from '../../utils/dayjs';
 import { useNavigate } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
 import { Modal } from 'antd';
+import { AccountBook, PaginationResult } from '../../types';
+import { gql, useQuery } from '@apollo/client';
+
+const GET_ACCOUNT_LIST = gql`
+  query {
+    getAuthAccountBooks {
+      data {
+        id
+        name
+        desc
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
 
 const Home = () => {
-  const [accountBooks, setAccountBooks] = useState<Array<AccountBook>>([]);
+  const { data, loading, error } = useQuery<{
+    getAuthAccountBooks: PaginationResult<AccountBook>;
+  }>(GET_ACCOUNT_LIST);
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    getAccountBooks().then(setAccountBooks);
-  }, []);
 
   const handleClick = useCallback(() => {
     navigate('/accountBook/create');
   }, [navigate]);
+
+  if (loading) {
+    return null;
+  }
 
   const title = (
     <>
@@ -48,7 +64,7 @@ const Home = () => {
             <div className="text-sm text-gray-500 ">创建一个新的账本</div>
           </div>
         </div>
-        {accountBooks.map((it, index) => {
+        {data?.getAuthAccountBooks?.data.map((it, index) => {
           return (
             <div
               onClick={() => navigate(`/accountBook/${it.id}`)}

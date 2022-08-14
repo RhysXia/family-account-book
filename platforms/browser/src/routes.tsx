@@ -22,36 +22,36 @@ const routes: Array<RouteObject> = [
     path: '/login',
     element: <Login />,
   },
-  {
-    path: '/accountBook/create',
-    element: (
-      <RequireAuth>
-        <CreateAccountBook />
-      </RequireAuth>
-    ),
-  },
-  {
-    path: '/accountBook/:id',
-    element: (
-      <RequireAuth>
-        <AccountBook />
-      </RequireAuth>
-    ),
-    children: [
-      {
-        path: '',
-        element: <div>aaa</div>,
-      },
-      {
-        path: 'income',
-        element: <Income />,
-      },
-      {
-        path: 'savings',
-        element: <Savings />,
-      },
-    ],
-  },
+  // {
+  //   path: '/accountBook/create',
+  //   element: (
+  //     <RequireAuth>
+  //       <CreateAccountBook />
+  //     </RequireAuth>
+  //   ),
+  // },
+  // {
+  //   path: '/accountBook/:id',
+  //   element: (
+  //     <RequireAuth>
+  //       <AccountBook />
+  //     </RequireAuth>
+  //   ),
+  //   children: [
+  //     {
+  //       path: '',
+  //       element: <div>aaa</div>,
+  //     },
+  //     {
+  //       path: 'income',
+  //       element: <Income />,
+  //     },
+  //     {
+  //       path: 'savings',
+  //       element: <Savings />,
+  //     },
+  //   ],
+  // },
 ];
 
 export default routes;

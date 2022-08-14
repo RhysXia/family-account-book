@@ -1,15 +1,26 @@
 import { gql } from '@apollo/client';
-import { CreatedSavings, Savings } from '../types/savings';
 import apolloClient from './apolloClient';
 
-export const createSavings = async (savings: {
+export type SimpleSavingAccount = {
+  id: number;
   name: string;
-  desc: string;
+  desc?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CreateSavingAccountInput = {
+  name: string;
+  desc?: string;
   amount: number;
   accountBookId: number;
-}) => {
+};
+
+export const createSavingAccount = async (
+  savingAccount: CreateSavingAccountInput,
+) => {
   const { data, errors } = await apolloClient.mutate<{
-    createSavings: CreatedSavings;
+    createSavingAccount: SimpleSavingAccount;
   }>({
     mutation: gql`
       mutation (
@@ -19,7 +30,7 @@ export const createSavings = async (savings: {
         $accountBookId: Int!
       ) {
         createSavings(
-          savings: {
+          savingAccount: {
             name: $name
             desc: $desc
             amount: $amount
@@ -33,26 +44,25 @@ export const createSavings = async (savings: {
         }
       }
     `,
-    variables: savings,
+    variables: savingAccount,
   });
 
   if (errors?.length) {
     throw errors[0];
   }
-  return data!.createSavings;
+  return data!.createSavingAccount;
 };
 
-export const getSavingsList = async (accountBookId: number) => {
+export const getAuthSavingAccountByAccountBookId = async (accountBookId: number) => {
   const { data, error } = await apolloClient.query<{
-    getSavingsByAccountBookId: Array<Savings>;
+    getAuthSavingAccountById: Array<SimpleSavingAccount>;
   }>({
     query: gql`
       query ($accountBookId: Int!) {
-        getSavingsByAccountBookId(accountBookId: $accountBookId) {
+        getAuthSavingAccountById(accountBookId: $accountBookId) {
           id
           name
           desc
-          amount
           createdAt
           updatedAt
         }
@@ -66,5 +76,5 @@ export const getSavingsList = async (accountBookId: number) => {
   if (error) {
     throw error;
   }
-  return data!.getSavingsByAccountBookId;
+  return data!.getAuthSavingAccountById;
 };

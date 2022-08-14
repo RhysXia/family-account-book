@@ -1,7 +1,7 @@
 import { Form, Input, InputNumber, Modal, ModalProps } from 'antd';
 import { useAtom } from 'jotai';
 import { FC, useCallback } from 'react';
-import { createSavings } from '../../api';
+import { createSavingAccount } from '../../api';
 import { activeAccountBook } from '../../store/accountBook';
 
 const SavingCreate: FC<ModalProps> = (props) => {
@@ -16,7 +16,7 @@ const SavingCreate: FC<ModalProps> = (props) => {
   const handleOk: typeof onOk = useCallback(
     async (e) => {
       await form.validateFields();
-      await createSavings({
+      await createSavingAccount({
         ...form.getFieldsValue(),
         accountBookId: accountBook?.id,
       });

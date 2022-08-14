@@ -1,16 +1,24 @@
 import { gql } from '@apollo/client';
-import { AccountBook, CreatedAccountBook } from '../types/accountBook';
 import apolloClient from './apolloClient';
 
-export const getAccountBooks = async () => {
+export type AccountBook = {
+  id: number;
+  name: string;
+  desc?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export const getAuthAccountBooks = async () => {
   const { data, error } = await apolloClient.query<{
-    getSelfAccountBooks: Array<AccountBook>;
+    getAuthAccountBooks: Array<AccountBook>;
   }>({
     query: gql`
       {
-        getSelfAccountBooks {
+        getAuthAccountBooks {
           id
           name
+          desc
           createdAt
           updatedAt
         }
@@ -21,16 +29,16 @@ export const getAccountBooks = async () => {
   if (error) {
     throw error;
   }
-  return data.getSelfAccountBooks;
+  return data.getAuthAccountBooks;
 };
 
-export const getAccountBookById = async (id: number) => {
+export const getAuthAccountBookById = async (id: number) => {
   const { data, error } = await apolloClient.query<{
-    getAccountBookById: AccountBook;
+    getAuthAccountBookById: AccountBook;
   }>({
     query: gql`
       query ($id: Int!) {
-        getAccountBookById(id: $id) {
+        getAuthAccountBookById(id: $id) {
           id
           name
           desc
@@ -47,17 +55,21 @@ export const getAccountBookById = async (id: number) => {
   if (error) {
     throw error;
   }
-  return data.getAccountBookById;
+  return data.getAuthAccountBookById;
 };
 
-export const createAccountBook = async (accountBook: {
+export type CreateAccountBookInput = {
   name: string;
-  desc: string;
-  adminIds: Array<number>;
-  memberIds: Array<number>;
-}) => {
+  desc?: string;
+  adminIds?: Array<number>;
+  memberIds?: Array<number>;
+};
+
+export const createAccountBook = async (
+  accountBook: CreateAccountBookInput,
+) => {
   const { data, errors } = await apolloClient.mutate<{
-    createAccountBook: CreatedAccountBook;
+    createAccountBook: AccountBook;
   }>({
     mutation: gql`
       mutation (

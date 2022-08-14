@@ -7,7 +7,7 @@ import { getSavingsList } from '../../../api';
 import DashboardAction from '../../../components/DashboardAction';
 import SavingCreate from '../../../components/savings/SavingsCreate';
 import { activeAccountBook } from '../../../store/accountBook';
-import { Savings as SavingsType } from '../../../types/savings';
+import { SavingAccount as SavingsType } from '../../../types/savingAccount';
 
 const columns: ColumnsType<any> = [
   {

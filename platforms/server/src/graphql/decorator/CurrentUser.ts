@@ -1,5 +1,6 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
+import { UserEntity } from '../../entity/UserEntity';
 import { SESSION_CURRENT_USER } from '../../utils/constants';
 
 const CurrentUser = createParamDecorator(
@@ -12,7 +13,13 @@ const CurrentUser = createParamDecorator(
       throw new Error('请先登录');
     }
 
-    return currentUser;
+    const { createdAt, updatedAt, ...others } = currentUser as UserEntity;
+
+    return {
+      ...others,
+      createdAt: new Date(createdAt),
+      updatedAt: new Date(updatedAt),
+    };
   },
 );
 
