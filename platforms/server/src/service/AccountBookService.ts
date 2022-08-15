@@ -7,7 +7,7 @@ import { SavingAccountHistoryEntity } from '../entity/SavingAccountHistoryEntity
 import { SavingAccountTransferRecordEntity } from '../entity/SavingAccountTransferRecordEntity';
 import { TagEntity } from '../entity/TagEntity';
 import { UserEntity } from '../entity/UserEntity';
-import { NotFoundError } from '../exception/ServiceError';
+import { ResourceNotFoundException } from '../exception/ServiceException';
 import {
   CreateAccountBookInput,
   Pagination,
@@ -284,7 +284,7 @@ export class AccountBookService {
       .getOne();
 
     if (!accountBook) {
-      throw new NotFoundError('账本不存在');
+      throw new ResourceNotFoundException('账本不存在');
     }
 
     return accountBook;

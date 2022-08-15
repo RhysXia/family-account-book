@@ -20,8 +20,17 @@ import { DateTimeScalar } from './scalar/DateTimeScalar';
 import { DateScalar } from './scalar/DateScalar';
 import { SavingAccountTransferRecordResolver } from './resolver/SavingAccountTransferRecordResolver';
 import { SavingAccountTransferRecordDataLoader } from './dataloader/SavingAccountTransferRecordDataLoader';
-import { ApolloServerPluginUsageReporting } from 'apollo-server-core';
-import { NotFoundError } from '../exception/ServiceError';
+import {
+  ApolloError,
+  ApolloServerPluginUsageReporting,
+} from 'apollo-server-core';
+import {
+  AuthentizationException,
+  AuthorizationException,
+  BaseServiceException,
+  ParameterException,
+  ResourceNotFoundException,
+} from '../exception/ServiceException';
 
 @Module({
   imports: [
@@ -48,12 +57,37 @@ import { NotFoundError } from '../exception/ServiceError';
           debug: isGraphqlDebug,
           csrfPrevention: true,
           cache: 'bounded',
+          formatError(err) {
+            const { originalError } = err;
+            let code: string;
+            if (originalError instanceof ResourceNotFoundException) {
+              code = 'RESOURCE_NOT_FOUND';
+            } else if (originalError instanceof ParameterException) {
+              code = 'PARAMETER_ERROR';
+            } else if (originalError instanceof AuthorizationException) {
+              code = 'AUTHORIZATION_ERROR';
+            } else if (originalError instanceof AuthentizationException) {
+              code = 'AUTHENTICATION_ERROR';
+            } else if (originalError instanceof BaseServiceException) {
+              code = 'SERVICE_ERROR';
+            }
+
+            if (code) {
+              return new ApolloError(err.message, code, err.extensions);
+            }
+
+            return err;
+          },
           plugins: [
             new QueryComplexityPlugin(50),
             ApolloServerPluginUsageReporting({
               rewriteError(err) {
-                if (err.originalError instanceof NotFoundError) {
+                // Return `null` to avoid reporting `AuthenticationError`s
+                if (err instanceof BaseServiceException) {
+                  return null;
                 }
+
+                // All other errors will be reported.
                 return err;
               },
             }),
