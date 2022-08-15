@@ -5,6 +5,10 @@ import { SavingAccountEntity } from '../entity/SavingAccountEntity';
 import { TagEntity, TagType } from '../entity/TagEntity';
 import { UserEntity } from '../entity/UserEntity';
 import {
+  ParameterException,
+  ResourceNotFoundException,
+} from '../exception/ServiceException';
+import {
   CreateFlowRecordInput,
   Pagination,
   UpdateFlowRecordInput,
@@ -36,7 +40,7 @@ export class FlowRecordService {
       });
 
       if (!record) {
-        throw new Error('流水不存在或者没有删除权限');
+        throw new ResourceNotFoundException('流水不存在');
       }
 
       await this.savingAccountMoneyRecordManager.reset(manager, {
@@ -71,7 +75,7 @@ export class FlowRecordService {
         .getOne();
 
       if (!flowRecord) {
-        throw new Error('流水不存在');
+        throw new ResourceNotFoundException('流水不存在');
       }
 
       if (desc) {
@@ -85,7 +89,7 @@ export class FlowRecordService {
           where: { id: tagId, accountBookId: flowRecord.accountBookId },
         });
         if (!tag) {
-          throw new Error('标签不存在');
+          throw new ResourceNotFoundException('标签不存在');
         }
         flowRecord.tag = tag;
       } else {
@@ -103,7 +107,7 @@ export class FlowRecordService {
         });
 
         if (!savingAccount) {
-          throw new Error('储蓄账户不存在');
+          throw new ResourceNotFoundException('储蓄账户不存在');
         }
       }
 
@@ -114,11 +118,11 @@ export class FlowRecordService {
       // 支出不能为正数
       if (tag.type === TagType.EXPENDITURE) {
         if (newAmount >= 0) {
-          throw new Error('支出不能为正数');
+          throw new ParameterException('支出不能为正数');
         }
       } else if (tag.type === TagType.INCOME) {
         if (newAmount <= 0) {
-          throw new Error('收入不能为负数');
+          throw new ParameterException('收入不能为负数');
         }
       }
 
@@ -160,7 +164,7 @@ export class FlowRecordService {
         .getOne();
 
       if (!savingAccount) {
-        throw new Error('储蓄账户不存在');
+        throw new ResourceNotFoundException('储蓄账户不存在');
       }
 
       const accountBookId = savingAccount.accountBookId;
@@ -170,7 +174,7 @@ export class FlowRecordService {
       });
 
       if (!tag) {
-        throw new Error('标签不存在');
+        throw new ResourceNotFoundException('标签不存在');
       }
 
       /**
@@ -183,11 +187,11 @@ export class FlowRecordService {
       // 支出不能为正数
       if (tag.type === TagType.EXPENDITURE) {
         if (amount >= 0) {
-          throw new Error('支出不能为正数');
+          throw new ParameterException('支出不能为正数');
         }
       } else if (tag.type === TagType.INCOME) {
         if (amount <= 0) {
-          throw new Error('收入不能为负数');
+          throw new ParameterException('收入不能为负数');
         }
       }
 

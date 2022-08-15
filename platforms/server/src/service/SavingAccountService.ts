@@ -18,6 +18,7 @@ import {
 } from '../graphql/graphql';
 import { SavingAccountAmountView } from '../entity/SavingAccountAmountView';
 import { applyPagination } from '../utils/applyPagination';
+import { ResourceNotFoundException } from '../exception/ServiceException';
 
 @Injectable()
 export class SavingAccountService {
@@ -40,7 +41,7 @@ export class SavingAccountService {
       });
 
       if (!savingAccount) {
-        throw new Error('储蓄账户不存在或者没有操作权限');
+        throw new ResourceNotFoundException('储蓄账户不存在');
       }
 
       // 软删除
@@ -111,7 +112,7 @@ export class SavingAccountService {
       .getOne();
 
     if (!savingAccount) {
-      throw new Error('储蓄账户不存在');
+      throw new ResourceNotFoundException('储蓄账户不存在');
     }
 
     return savingAccount;
@@ -189,7 +190,7 @@ export class SavingAccountService {
         .getOne();
 
       if (!accountBook) {
-        throw new Error('账本不存在');
+        throw new ResourceNotFoundException('账本不存在');
       }
 
       const savingAccount = new SavingAccountEntity();
@@ -215,7 +216,7 @@ export class SavingAccountService {
       });
 
       if (!savingAccount) {
-        throw new Error('储蓄账户不存在');
+        throw new ResourceNotFoundException('储蓄账户不存在');
       }
 
       savingAccount.updater = user;

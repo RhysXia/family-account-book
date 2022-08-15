@@ -67,9 +67,7 @@ export class UserResolver {
     session[SESSION_CURRENT_USER] = currentUser;
 
     if (user.rememberMe) {
-      console.log('====================');
       session.cookie.maxAge = 1000 * 60 * 60 * 24 * 7;
-      console.log(session.cookie)
     }
 
     return currentUser;

@@ -4,6 +4,10 @@ import { SavingAccountEntity } from '../entity/SavingAccountEntity';
 import { SavingAccountTransferRecordEntity } from '../entity/SavingAccountTransferRecordEntity';
 import { UserEntity } from '../entity/UserEntity';
 import {
+  ParameterException,
+  ResourceNotFoundException,
+} from '../exception/ServiceException';
+import {
   CreateSavingAccountTransferRecord,
   UpdateSavingAccountTransferRecord,
 } from '../graphql/graphql';
@@ -33,7 +37,7 @@ export class SavingAccountTransferRecordService {
       });
 
       if (!record) {
-        throw new Error('记录不存在或者没有操作权限');
+        throw new ResourceNotFoundException('记录不存在');
       }
 
       await this.savingAccountHistoryManager.reset(manager, {
@@ -74,11 +78,11 @@ export class SavingAccountTransferRecordService {
     } = record;
 
     if (amount <= 0) {
-      throw new Error('金额必须大于0');
+      throw new ParameterException('金额必须大于0');
     }
 
     if (fromSavingAccountId === toSavingAccountId) {
-      throw new Error('转入和转出账户不能相同');
+      throw new ParameterException('转入和转出账户不能相同');
     }
 
     return this.dataSource.transaction(async (manager) => {
@@ -96,7 +100,7 @@ export class SavingAccountTransferRecordService {
         .getOne();
 
       if (!fromSavingAccount) {
-        throw new Error('转出账户不存在');
+        throw new ResourceNotFoundException('转出账户不存在');
       }
 
       const toSavingAccount = await manager
@@ -113,11 +117,11 @@ export class SavingAccountTransferRecordService {
         .getOne();
 
       if (!toSavingAccount) {
-        throw new Error('转入账户不存在');
+        throw new ResourceNotFoundException('转入账户不存在');
       }
 
       if (fromSavingAccount.accountBookId !== toSavingAccount.accountBookId) {
-        throw new Error('转出账户和转入账户不在同一个账本');
+        throw new ParameterException('转出账户和转入账户不在同一个账本');
       }
 
       await this.savingAccountHistoryManager.create(manager, {
@@ -162,7 +166,7 @@ export class SavingAccountTransferRecordService {
     } = record;
 
     if (amount <= 0) {
-      throw new Error('金额必须大于0');
+      throw new ParameterException('金额必须大于0');
     }
 
     return this.dataSource.transaction(async (manager) => {
@@ -177,7 +181,7 @@ export class SavingAccountTransferRecordService {
       });
 
       if (!record) {
-        throw new Error('转账记录不存在');
+        throw new ResourceNotFoundException('转账记录不存在');
       }
 
       await this.savingAccountHistoryManager.reset(manager, {
@@ -225,11 +229,11 @@ export class SavingAccountTransferRecordService {
           .getOne();
 
         if (!fromSavingAccount) {
-          throw new Error('转出账户不存在');
+          throw new ResourceNotFoundException('转出账户不存在');
         }
 
         if (fromSavingAccount.accountBookId !== record.from.accountBookId) {
-          throw new Error('不能跨账本修改转账记录');
+          throw new ParameterException('不能跨账本修改转账记录');
         }
 
         record.from = fromSavingAccount;
@@ -250,18 +254,18 @@ export class SavingAccountTransferRecordService {
           .getOne();
 
         if (!toSavingAccount) {
-          throw new Error('转入账户不存在');
+          throw new ResourceNotFoundException('转入账户不存在');
         }
 
         if (toSavingAccount.accountBookId !== record.to.accountBookId) {
-          throw new Error('不能跨账本修改转账记录');
+          throw new ParameterException('不能跨账本修改转账记录');
         }
 
         record.to = toSavingAccount;
       }
 
       if (record.to.accountBookId !== record.from.accountBookId) {
-        throw new Error('转出账户和转入账户不在同一个账本');
+        throw new ParameterException('转出账户和转入账户不在同一个账本');
       }
 
       await this.savingAccountHistoryManager.create(manager, {

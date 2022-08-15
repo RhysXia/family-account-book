@@ -3,8 +3,11 @@ import { DataSource, FindManyOptions, In, Not } from 'typeorm';
 import { PasswordUtil } from '../common/PasswordUtil';
 import { UserEntity } from '../entity/UserEntity';
 import { SignUpUserInput, SignInUserInput } from '../graphql/graphql';
-import { omit } from '../utils/omit';
 import { Like } from 'typeorm';
+import {
+  AuthentizationException,
+  ParameterException,
+} from '../exception/ServiceException';
 
 @Injectable()
 export class UserService {
@@ -44,7 +47,7 @@ export class UserService {
 
     if (includeSelf) {
       if (!currentUser) {
-        throw new Error('当前用户不存在');
+        throw new ParameterException('当前用户不存在');
       }
     } else {
       where.id = Not(currentUser.id);
@@ -56,35 +59,31 @@ export class UserService {
     });
   }
 
-  async signIn(
-    signInUser: SignInUserInput,
-  ): Promise<Omit<UserEntity, 'password'>> {
+  async signIn(signInUser: SignInUserInput): Promise<UserEntity> {
     const user = await this.dataSource.manager.findOne(UserEntity, {
       where: {
         username: signInUser.username,
       },
     });
     if (!user) {
-      throw new Error('登录失败');
+      throw new AuthentizationException('登录失败');
     }
 
     if (!this.passwordUtil.match(signInUser.password, user.password)) {
-      throw new Error('登录失败');
+      throw new AuthentizationException('登录失败');
     }
 
-    return omit(user, 'password');
+    return user;
   }
 
-  async signUp(
-    signUpUser: SignUpUserInput,
-  ): Promise<Omit<UserEntity, 'password'>> {
+  async signUp(signUpUser: SignUpUserInput): Promise<UserEntity> {
     return this.dataSource.transaction(async (manager) => {
       const oldUser = await manager.findOne(UserEntity, {
         where: { username: signUpUser.username },
       });
 
       if (oldUser) {
-        throw new Error('用户已存在');
+        throw new ParameterException('用户已存在');
       }
 
       const user = new UserEntity();
@@ -94,7 +93,7 @@ export class UserService {
 
       const savedUser = await manager.save(user);
 
-      return omit(savedUser, 'password');
+      return savedUser;
     });
   }
 }

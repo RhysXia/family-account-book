@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { EntityManager, LessThan } from 'typeorm';
 import { SavingAccountEntity } from '../entity/SavingAccountEntity';
 import { SavingAccountHistoryEntity } from '../entity/SavingAccountHistoryEntity';
+import { ResourceNotFoundException } from '../exception/ServiceException';
 
 export type UpdateSavingAccountMoneyRecord = {
   oldAmount: number;
@@ -31,7 +32,7 @@ export class SavingAccountHistoryManager {
     });
 
     if (!savingAccount) {
-      throw new Error('账户不存在');
+      throw new ResourceNotFoundException('账户不存在');
     }
 
     // 可以保证交易时间及以后的金额都是不相同的，所以先把他们都加上amount

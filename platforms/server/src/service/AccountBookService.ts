@@ -31,7 +31,8 @@ export class AccountBookService {
       });
 
       if (!accountBook) {
-        throw new Error('账本不存在或者无权限操作');
+        // 不暴露其他数据信息，一律提示资源不存在
+        throw new ResourceNotFoundException('账本不存在');
       }
 
       await manager
@@ -221,7 +222,7 @@ export class AccountBookService {
       });
 
       if (!accountBook) {
-        throw new ResourceNotFoundException('账本不存在或者无权限操作');
+        throw new ResourceNotFoundException('账本不存在');
       }
 
       accountBook.updater = user;

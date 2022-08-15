@@ -3,6 +3,7 @@ import { Brackets, DataSource, In } from 'typeorm';
 import { AccountBookEntity } from '../entity/AccountBookEntity';
 import { TagEntity } from '../entity/TagEntity';
 import { UserEntity } from '../entity/UserEntity';
+import { ResourceNotFoundException } from '../exception/ServiceException';
 import { CreateTagInput, Pagination, UpdateTagInput } from '../graphql/graphql';
 import { applyPagination } from '../utils/applyPagination';
 
@@ -19,7 +20,7 @@ export class TagService {
       });
 
       if (!tagEntity) {
-        throw new Error('标签不存在');
+        throw new ResourceNotFoundException('标签不存在');
       }
 
       const accountBook = await manager
@@ -40,7 +41,7 @@ export class TagService {
         .getOne();
 
       if (!accountBook) {
-        throw new Error('没有操作权限');
+        throw new ResourceNotFoundException('账本不存在');
       }
 
       tagEntity.name = name;
@@ -70,7 +71,7 @@ export class TagService {
         .getOne();
 
       if (!accountBook) {
-        throw new Error('账本不存在');
+        throw new ResourceNotFoundException('账本不存在');
       }
 
       const tag = new TagEntity();
@@ -131,7 +132,7 @@ export class TagService {
       .getOne();
 
     if (!accountBook) {
-      throw new Error('标签不存在');
+      throw new ResourceNotFoundException('标签不存在');
     }
 
     const tags = await this.dataSource.manager.find(TagEntity, {
@@ -147,7 +148,7 @@ export class TagService {
     });
 
     if (!tag) {
-      throw new Error('标签不存在');
+      throw new ResourceNotFoundException('标签不存在');
     }
 
     const accountBook = await this.dataSource
@@ -168,7 +169,7 @@ export class TagService {
       .getOne();
 
     if (!accountBook) {
-      throw new Error('标签不存在');
+      throw new ResourceNotFoundException('账本不存在');
     }
 
     return tag;

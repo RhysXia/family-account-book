@@ -8,6 +8,7 @@ import {
 } from '@nestjs/graphql';
 import { TagEntity } from '../../entity/TagEntity';
 import { UserEntity } from '../../entity/UserEntity';
+import { ResourceNotFoundException } from '../../exception/ServiceException';
 import { FlowRecordService } from '../../service/FlowRecordService';
 import { TagService } from '../../service/TagService';
 import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
@@ -64,11 +65,8 @@ export class TagResolver {
   @ResolveField()
   async flowRecord(@Parent() parent: TagEntity, @Args('id') id: number) {
     const flowRecord = await this.flowRecordDataLoader.load(id);
-    if (!flowRecord) {
-      throw new Error('流水不存在');
-    }
-    if (flowRecord.tagId !== parent.id) {
-      throw new Error('流水不属于该标签');
+    if (!flowRecord || flowRecord.tagId !== parent.id) {
+      throw new ResourceNotFoundException('流水不存在');
     }
     return flowRecord;
   }

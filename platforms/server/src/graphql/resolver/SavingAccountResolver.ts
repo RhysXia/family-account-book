@@ -8,6 +8,7 @@ import {
 } from '@nestjs/graphql';
 import { SavingAccountEntity } from '../../entity/SavingAccountEntity';
 import { UserEntity } from '../../entity/UserEntity';
+import { ResourceNotFoundException } from '../../exception/ServiceException';
 import { FlowRecordService } from '../../service/FlowRecordService';
 import { SavingAccountService } from '../../service/SavingAccountService';
 import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
@@ -97,11 +98,8 @@ export class SavingAccountResolver {
     @Args('id') id: number,
   ) {
     const flowRecord = await this.flowRecordDataLoader.load(id);
-    if (!flowRecord) {
-      throw new Error('流水不存在');
-    }
-    if (flowRecord.savingAccountId !== parent.id) {
-      throw new Error('流水不属于该储蓄账户');
+    if (!flowRecord || flowRecord.savingAccountId !== parent.id) {
+      throw new ResourceNotFoundException('流水不存在');
     }
     return flowRecord;
   }
