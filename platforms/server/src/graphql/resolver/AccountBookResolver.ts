@@ -8,6 +8,10 @@ import {
 } from '@nestjs/graphql';
 import { AccountBookEntity } from '../../entity/AccountBookEntity';
 import { UserEntity } from '../../entity/UserEntity';
+import {
+  AuthorizationException,
+  ResourceNotFoundException,
+} from '../../exception/ServiceException';
 import { AccountBookService } from '../../service/AccountBookService';
 import { FlowRecordService } from '../../service/FlowRecordService';
 import { SavingAccountService } from '../../service/SavingAccountService';
@@ -89,10 +93,10 @@ export class AccountBookResolver {
     const savingAccount = await this.savingAccountDataLoader.load(id);
 
     if (!savingAccount) {
-      throw new Error('储蓄账户不存在');
+      throw new ResourceNotFoundException('储蓄账户不存在');
     }
     if (savingAccount.accountBookId !== parent.id) {
-      throw new Error('储蓄账户不属于该账本');
+      throw new AuthorizationException('储蓄账户不属于该账本');
     }
     return savingAccount;
   }
@@ -112,10 +116,10 @@ export class AccountBookResolver {
   async tag(@Parent() parent: AccountBookEntity, @Args('id') id: number) {
     const tag = await this.tagDataLoader.load(id);
     if (!tag) {
-      throw new Error('标签不存在');
+      throw new ResourceNotFoundException('标签不存在');
     }
     if (tag.accountBookId !== parent.id) {
-      throw new Error('标签不属于该账本');
+      throw new AuthorizationException('标签不属于该账本');
     }
     return tag;
   }
@@ -138,10 +142,10 @@ export class AccountBookResolver {
   ) {
     const flowRecord = await this.flowRecordDataLoader.load(id);
     if (!flowRecord) {
-      throw new Error('流水不存在');
+      throw new ResourceNotFoundException('流水不存在');
     }
     if (flowRecord.accountBookId !== parent.id) {
-      throw new Error('流水不属于该账本');
+      throw new AuthorizationException('流水不属于该账本');
     }
     return flowRecord;
   }

@@ -13,7 +13,7 @@ export class ResourceNotFoundException extends BaseServiceException {}
 /**
  * 授权异常
  */
-export class AuthorizationException extends BaseServiceException {}
+// export class AuthorizationException extends BaseServiceException {}
 
 /**
  * 认证异常

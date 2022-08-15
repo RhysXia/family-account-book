@@ -1,6 +1,7 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { UserEntity } from '../../entity/UserEntity';
+import { AuthentizationException } from '../../exception/ServiceException';
 import { SESSION_CURRENT_USER } from '../../utils/constants';
 
 const CurrentUser = createParamDecorator(
@@ -10,7 +11,7 @@ const CurrentUser = createParamDecorator(
     const required = data.required;
 
     if (required && !currentUser) {
-      throw new Error('请先登录');
+      throw new AuthentizationException('请先登录');
     }
 
     const { createdAt, updatedAt, ...others } = currentUser as UserEntity;

@@ -26,7 +26,6 @@ import {
 } from 'apollo-server-core';
 import {
   AuthentizationException,
-  AuthorizationException,
   BaseServiceException,
   ParameterException,
   ResourceNotFoundException,
@@ -64,8 +63,6 @@ import {
               code = 'RESOURCE_NOT_FOUND';
             } else if (originalError instanceof ParameterException) {
               code = 'PARAMETER_ERROR';
-            } else if (originalError instanceof AuthorizationException) {
-              code = 'AUTHORIZATION_ERROR';
             } else if (originalError instanceof AuthentizationException) {
               code = 'AUTHENTICATION_ERROR';
             } else if (originalError instanceof BaseServiceException) {
