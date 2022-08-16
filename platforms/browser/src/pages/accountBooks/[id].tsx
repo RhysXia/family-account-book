@@ -4,6 +4,7 @@ import { useAtom } from 'jotai';
 import { Suspense, useEffect } from 'react';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
 import Aside from '../../components/Aside';
+import RequireAuth from '../../components/RequireAuth';
 import { activeAccountBookAtom } from '../../store';
 import { AccountBook } from '../../types';
 
@@ -48,14 +49,16 @@ const AccountBookPage = () => {
   }
 
   return (
-    <div className="flex flex-row min-h-screen">
-      <Aside />
-      <div className="flex-1 min-h-full">
-        <Suspense fallback={<Loading />}>
-          <Outlet />
-        </Suspense>
+    <RequireAuth>
+      <div className="flex flex-row min-h-screen">
+        <Aside />
+        <div className="flex-1 min-h-full">
+          <Suspense fallback={<Loading />}>
+            <Outlet />
+          </Suspense>
+        </div>
       </div>
-    </div>
+    </RequireAuth>
   );
 };
 

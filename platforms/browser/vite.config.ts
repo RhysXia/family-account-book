@@ -14,12 +14,12 @@ export default defineConfig({
     },
   },
   plugins: [
-    Pages(),
     react({
       babel: {
         plugins: [jotaiDebugLabel, jotaiReactRefresh],
       },
     }),
+    Pages(),
   ],
   server: {
     proxy: {

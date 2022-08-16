@@ -1,7 +1,7 @@
 import Logo from './logo.svg';
 import { Avatar, Dropdown, Menu } from 'antd';
 import { useAtom } from 'jotai';
-import { currentUser } from '../../store/user';
+import { currentUserAtom } from '../../store';
 import clsx from 'clsx';
 import { Link, useLocation, matchPath } from 'react-router-dom';
 
@@ -13,7 +13,7 @@ const navigation = [
 ];
 
 const Header = () => {
-  const [user] = useAtom(currentUser);
+  const [currentUser] = useAtom(currentUserAtom);
 
   const { pathname } = useLocation();
 
@@ -59,7 +59,7 @@ const Header = () => {
           <div className="space-x-2">
             <Dropdown overlay={overlay}>
               <Avatar className="bg-indigo-500 cursor-pointer">
-                {user?.username}
+                {currentUser?.username}
               </Avatar>
             </Dropdown>
           </div>

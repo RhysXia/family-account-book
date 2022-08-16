@@ -1,9 +1,10 @@
 import { gql, useMutation } from '@apollo/client';
-import { Form, Input, InputNumber, Modal, ModalProps } from 'antd';
+import { Form, Input, InputNumber, Modal } from 'antd';
 import { useAtom } from 'jotai';
-import { FC, useCallback } from 'react';
-import { activeAccountBookAtom } from '../../store';
-import { SavingAccount } from '../../types';
+import { useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { activeAccountBookAtom } from '../../../../store';
+import { SavingAccount } from '../../../../types';
 
 const CREATE_SAVING_ACCOUNT = gql`
   mutation (
@@ -30,33 +31,41 @@ const CREATE_SAVING_ACCOUNT = gql`
   }
 `;
 
-const SavingAccountCreate: FC<ModalProps> = (props) => {
+const SavingAccountCreate = () => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
+
+  const navigate = useNavigate();
 
   const [createSavingAccount] = useMutation<{
     createSavingAccount: SavingAccount;
   }>(CREATE_SAVING_ACCOUNT);
 
-  const { onOk, ...others } = props;
-
   const [form] = Form.useForm();
 
   const title = <h1 className="font-bold text-xl mb-2">新建储蓄账户</h1>;
 
-  const handleOk: typeof onOk = useCallback(
-    async (e) => {
-      await form.validateFields();
-      await createSavingAccount({
-        ...form.getFieldsValue(),
-        accountBookId: activeAccountBook?.id,
-      });
-      onOk?.(e);
-    },
-    [onOk, form, activeAccountBook, createSavingAccount],
-  );
+  const handleOk = useCallback(async () => {
+    await form.validateFields();
+    await createSavingAccount({
+      ...form.getFieldsValue(),
+      accountBookId: activeAccountBook?.id,
+    });
+    navigate(-1);
+  }, [form, activeAccountBook, createSavingAccount, navigate]);
+
+  const handleCancel = useCallback(() => {
+    navigate(-1);
+  }, [navigate]);
 
   return (
-    <Modal {...others} title={title} onOk={handleOk}>
+    <Modal
+      visible={true}
+      closable={false}
+      getContainer={false}
+      title={title}
+      onOk={handleOk}
+      onCancel={handleCancel}
+    >
       <Form form={form}>
         <Form.Item
           label="名称"

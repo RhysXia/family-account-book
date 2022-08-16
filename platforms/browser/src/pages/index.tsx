@@ -1,11 +1,11 @@
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { fromTime } from '../utils/dayjs';
 import { useNavigate } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
 import { Modal } from 'antd';
 import { AccountBook, PaginationResult } from '../types';
 import { gql, useQuery } from '@apollo/client';
-import CreateAccountBook from '../components/CreateAccountBook';
+import RequireAuth from '../components/RequireAuth';
 
 const GET_ACCOUNT_LIST = gql`
   query {
@@ -26,14 +26,11 @@ const HomePage = () => {
     getAuthAccountBooks: PaginationResult<AccountBook>;
   }>(GET_ACCOUNT_LIST);
 
-  const [createAccountBookModalVisible, setCreateAccountBookModalVisible] =
-    useState(false);
-
   const navigate = useNavigate();
 
   const handleCreateAccountBook = useCallback(() => {
-    setCreateAccountBookModalVisible(true);
-  }, []);
+    navigate('/accountBooks/create');
+  }, [navigate]);
 
   if (loading) {
     return null;
@@ -47,7 +44,7 @@ const HomePage = () => {
   );
 
   return (
-    <>
+    <RequireAuth>
       <Modal
         title={title}
         visible={true}
@@ -90,11 +87,7 @@ const HomePage = () => {
           })}
         </div>
       </Modal>
-      <CreateAccountBook
-        visible={createAccountBookModalVisible}
-        onVisible={setCreateAccountBookModalVisible}
-      />
-    </>
+    </RequireAuth>
   );
 };
 

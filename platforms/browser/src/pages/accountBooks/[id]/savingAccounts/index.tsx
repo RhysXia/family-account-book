@@ -3,9 +3,9 @@ import { gql, useQuery } from '@apollo/client';
 import { Table } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import { useAtom } from 'jotai';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import DashboardAction from '../../../../components/DashboardAction';
-import SavingAccountCreate from '../../../../components/savingAccount/SavingAccountCreate';
 import { activeAccountBookAtom } from '../../../../store';
 import { PaginationResult, SavingAccount } from '../../../../types';
 
@@ -46,8 +46,9 @@ const GET_SAVING_ACCOUNTS = gql`
 `;
 
 const SavingAccountPage = () => {
-  const [createModalVisible, setCreateModalVisible] = useState(false);
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
+
+  const navigate = useNavigate();
 
   const { data } = useQuery<{
     getAuthSavingAccountsByAccountBookId: PaginationResult<SavingAccount>;
@@ -58,12 +59,8 @@ const SavingAccountPage = () => {
   });
 
   const handleCreateButton = useCallback(() => {
-    setCreateModalVisible(true);
-  }, []);
-
-  const handleSavingCreated = useCallback(() => {
-    setCreateModalVisible(false);
-  }, []);
+    navigate('create');
+  }, [navigate]);
 
   const actions = (
     <>
@@ -84,11 +81,6 @@ const SavingAccountPage = () => {
         dataSource={data?.getAuthSavingAccountsByAccountBookId.data.map(
           (it) => ({ ...it, key: it.id }),
         )}
-      />
-      <SavingAccountCreate
-        onCancel={() => setCreateModalVisible(false)}
-        onOk={handleSavingCreated}
-        visible={createModalVisible}
       />
     </DashboardAction>
   );
