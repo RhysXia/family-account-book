@@ -1,11 +1,11 @@
 import { useCallback, useState } from 'react';
-import { fromTime } from '../../utils/dayjs';
+import { fromTime } from '../utils/dayjs';
 import { useNavigate } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
 import { Modal } from 'antd';
-import { AccountBook, PaginationResult } from '../../types';
+import { AccountBook, PaginationResult } from '../types';
 import { gql, useQuery } from '@apollo/client';
-import CreateAccountBook from '../../components/CreateAccountBook';
+import CreateAccountBook from '../components/CreateAccountBook';
 
 const GET_ACCOUNT_LIST = gql`
   query {

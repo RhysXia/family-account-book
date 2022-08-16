@@ -4,10 +4,10 @@ import { Table } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import { useAtom } from 'jotai';
 import { useCallback, useState } from 'react';
-import DashboardAction from '../../../components/DashboardAction';
-import SavingCreate from '../../../components/savingAccount/SavingsCreate';
-import { activeAccountBookAtom } from '../../../store';
-import { PaginationResult, SavingAccount } from '../../../types';
+import DashboardAction from '../../../../components/DashboardAction';
+import SavingAccountCreate from '../../../../components/savingAccount/SavingAccountCreate';
+import { activeAccountBookAtom } from '../../../../store';
+import { PaginationResult, SavingAccount } from '../../../../types';
 
 const columns: ColumnsType<any> = [
   {
@@ -85,7 +85,7 @@ const SavingAccountPage = () => {
           (it) => ({ ...it, key: it.id }),
         )}
       />
-      <SavingCreate
+      <SavingAccountCreate
         onCancel={() => setCreateModalVisible(false)}
         onOk={handleSavingCreated}
         visible={createModalVisible}
