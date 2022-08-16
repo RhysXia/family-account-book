@@ -31,7 +31,7 @@ const SIGN_IN = gql`
   }
 `;
 
-const Login = () => {
+const LoginPage = () => {
   const [form] = Form.useForm<FormType>();
   const [signIn] = useMutation<{ signIn: User }>(SIGN_IN);
 
@@ -93,4 +93,4 @@ const Login = () => {
     </div>
   );
 };
-export default Login;
+export default LoginPage;

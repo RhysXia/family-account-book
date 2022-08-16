@@ -3,7 +3,7 @@ import { gql, useQuery } from '@apollo/client';
 import { Table } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import { useAtom } from 'jotai';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import DashboardAction from '../../../components/DashboardAction';
 import SavingCreate from '../../../components/savingAccount/SavingsCreate';
 import { activeAccountBookAtom } from '../../../store';
@@ -45,7 +45,7 @@ const GET_SAVING_ACCOUNTS = gql`
   }
 `;
 
-const Savings = () => {
+const SavingAccountPage = () => {
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
 
@@ -94,4 +94,4 @@ const Savings = () => {
   );
 };
 
-export default Savings;
+export default SavingAccountPage;

@@ -2,8 +2,8 @@ import { lazy } from 'react';
 import { RouteObject } from 'react-router-dom';
 import RequireAuth from './components/RequireAuth';
 import AccountBook from './pages/AccountBook';
-import Home from './pages/Home';
-import Login from './pages/Login';
+import HomePage from './pages/Home';
+import LoginPage from './pages/Login';
 
 const Income = lazy(() => import('./pages/AccountBook/Income'));
 const SavingAccount = lazy(() => import('./pages/AccountBook/SavingAccount'));
@@ -13,16 +13,16 @@ const routes: Array<RouteObject> = [
     path: '/',
     element: (
       <RequireAuth>
-        <Home />
+        <HomePage />
       </RequireAuth>
     ),
   },
   {
     path: '/login',
-    element: <Login />,
+    element: <LoginPage />,
   },
   {
-    path: '/accountBook/:id',
+    path: '/accountBooks/:id',
     element: (
       <RequireAuth>
         <AccountBook />
@@ -38,7 +38,7 @@ const routes: Array<RouteObject> = [
       //   element: <Income />,
       // },
       {
-        path: 'savingAccount',
+        path: 'savingAccounts',
         element: <SavingAccount />,
       },
     ],

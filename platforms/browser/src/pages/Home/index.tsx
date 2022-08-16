@@ -21,7 +21,7 @@ const GET_ACCOUNT_LIST = gql`
   }
 `;
 
-const Home = () => {
+const HomePage = () => {
   const { data, loading } = useQuery<{
     getAuthAccountBooks: PaginationResult<AccountBook>;
   }>(GET_ACCOUNT_LIST);
@@ -72,7 +72,7 @@ const Home = () => {
           {data?.getAuthAccountBooks?.data.map((it, index) => {
             return (
               <div
-                onClick={() => navigate(`/accountBook/${it.id}`)}
+                onClick={() => navigate(`/accountBooks/${it.id}`)}
                 key={it.id}
                 className="px-4 py-4 flex items-center transition-all hover:bg-gray-100 cursor-pointer"
               >
@@ -98,4 +98,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default HomePage;

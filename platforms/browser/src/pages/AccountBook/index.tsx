@@ -8,7 +8,7 @@ import { activeAccountBookAtom } from '../../store';
 import { AccountBook } from '../../types';
 
 const GET_ACCOUNT_BOOK_BY_ID = gql`
-  query GetAccountBookById($id: Int!) {
+  query ($id: Int!) {
     getAuthAccountBookById(id: $id) {
       id
       name
@@ -30,13 +30,12 @@ const AccountBookPage = () => {
     GET_ACCOUNT_BOOK_BY_ID,
     {
       variables: {
-        id,
+        id: +id!,
       },
     },
   );
 
   useEffect(() => {
-    console.log(error);
     if (data) {
       setActiveAccountBook(data.getAuthAccountBookById);
     } else if (error) {
@@ -44,7 +43,7 @@ const AccountBookPage = () => {
     }
   }, [data, error, setActiveAccountBook, navigate]);
 
-  if (data?.getAuthAccountBookById) {
+  if (!data?.getAuthAccountBookById) {
     return null;
   }
 

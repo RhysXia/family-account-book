@@ -40,7 +40,7 @@ const items: Array<ItemType> = [
   },
   {
     label: '储蓄',
-    key: 'savingAccount',
+    key: 'savingAccounts',
     icon: <CreditCardOutlined />,
   },
   {
