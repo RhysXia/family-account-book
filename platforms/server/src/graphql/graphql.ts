@@ -170,8 +170,8 @@ export interface IMutation {
 export interface IQuery {
     getAuthAccountBookById(id: number): AccountBook | Promise<AccountBook>;
     getAuthAccountBooks(pagination?: Nullable<Pagination>): AccountBookListWithPagintion | Promise<AccountBookListWithPagintion>;
-    getAuthSavingAccounts(pagination?: Nullable<Pagination>): SavingAccountListWithPagintion | Promise<SavingAccountListWithPagintion>;
-    getAuthSavingAccount(id: number): SavingAccount | Promise<SavingAccount>;
+    getAuthSavingAccountsByAccountBookId(accountBookId: number, pagination?: Nullable<Pagination>): SavingAccountListWithPagintion | Promise<SavingAccountListWithPagintion>;
+    getAuthSavingAccountById(id: number): SavingAccount | Promise<SavingAccount>;
     getAuthTagsByAccountBookId(accountBookId: number): Tag[] | Promise<Tag[]>;
     getAuthTagById(id: number): Tag | Promise<Tag>;
     getCurrentUser(): User | Promise<User>;

@@ -118,7 +118,8 @@ export class SavingAccountService {
     return savingAccount;
   }
 
-  async findAllByUserIdAndPagination(
+  async findAllByAccountBookIdAndUserIdAndPagination(
+    accountBookId: number,
     userId: number,
     pagination: Pagination,
   ): Promise<{ total: number; data: Array<SavingAccountEntity> }> {
@@ -127,7 +128,10 @@ export class SavingAccountService {
       .leftJoin('savingAccount.accountBook', 'accountBook')
       .leftJoin('accountBook.admins', 'admin')
       .leftJoin('accountBook.members', 'member')
-      .where(
+      .where('savingAccount.accountBookId = :accountBookId', {
+        accountBookId,
+      })
+      .andWhere(
         new Brackets((qb) => {
           qb.where('admin.id = :adminId', { adminId: userId }).orWhere(
             'member.id = :memberId',

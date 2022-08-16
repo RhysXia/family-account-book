@@ -1,13 +1,13 @@
 import { PlusOutlined } from '@ant-design/icons';
+import { gql, useQuery } from '@apollo/client';
 import { Table } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import { useAtom } from 'jotai';
 import { useCallback, useEffect, useState } from 'react';
-import { getSavingsList } from '../../../apollo';
 import DashboardAction from '../../../components/DashboardAction';
 import SavingCreate from '../../../components/savingAccount/SavingsCreate';
-import { activeAccountBook } from '../../../store/accountBook';
-import { SavingAccount as SavingsType } from '../../../types/savingAccount';
+import { activeAccountBookAtom } from '../../../store';
+import { PaginationResult, SavingAccount } from '../../../types';
 
 const columns: ColumnsType<any> = [
   {
@@ -30,20 +30,32 @@ const columns: ColumnsType<any> = [
   },
 ];
 
+const GET_SAVING_ACCOUNTS = gql`
+  query ($accountBookId: Int!) {
+    getAuthSavingAccountsByAccountBookId(accountBookId: $accountBookId) {
+      data {
+        id
+        name
+        desc
+        amount
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
+
 const Savings = () => {
   const [createModalVisible, setCreateModalVisible] = useState(false);
-  const [accountBook] = useAtom(activeAccountBook);
+  const [activeAccountBook] = useAtom(activeAccountBookAtom);
 
-  const [savingsList, setSavingsList] = useState<Array<SavingsType>>([]);
-
-  const handleGetSavingList = useCallback(async () => {
-    const list = await getSavingsList(accountBook!.id);
-    setSavingsList(list);
-  }, [accountBook]);
-
-  useEffect(() => {
-    handleGetSavingList();
-  }, [handleGetSavingList]);
+  const { data } = useQuery<{
+    getAuthSavingAccountsByAccountBookId: PaginationResult<SavingAccount>;
+  }>(GET_SAVING_ACCOUNTS, {
+    variables: {
+      accountBookId: activeAccountBook?.id,
+    },
+  });
 
   const handleCreateButton = useCallback(() => {
     setCreateModalVisible(true);
@@ -51,8 +63,7 @@ const Savings = () => {
 
   const handleSavingCreated = useCallback(() => {
     setCreateModalVisible(false);
-    handleGetSavingList();
-  }, [handleGetSavingList]);
+  }, []);
 
   const actions = (
     <>
@@ -70,7 +81,9 @@ const Savings = () => {
       <Table
         pagination={false}
         columns={columns}
-        dataSource={savingsList.map((it) => ({ ...it, key: it.id }))}
+        dataSource={data?.getAuthSavingAccountsByAccountBookId.data.map(
+          (it) => ({ ...it, key: it.id }),
+        )}
       />
       <SavingCreate
         onCancel={() => setCreateModalVisible(false)}

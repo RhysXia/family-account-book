@@ -4,7 +4,8 @@ import { useAtom } from 'jotai';
 import { Suspense, useEffect } from 'react';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
 import Aside from '../../components/Aside';
-import useConstantFn from '../../hooks/useConstanFn';
+import { activeAccountBookAtom } from '../../store';
+import { AccountBook } from '../../types';
 
 const GET_ACCOUNT_BOOK_BY_ID = gql`
   query GetAccountBookById($id: Int!) {
@@ -18,28 +19,32 @@ const GET_ACCOUNT_BOOK_BY_ID = gql`
   }
 `;
 
-const AccountBook = () => {
+const AccountBookPage = () => {
   const { id } = useParams();
+
+  const [, setActiveAccountBook] = useAtom(activeAccountBookAtom);
 
   const navigate = useNavigate();
 
-  const { data, error, } = useQuery(GET_ACCOUNT_BOOK_BY_ID, {
-    variables: {
-      id,
+  const { data, error } = useQuery<{ getAuthAccountBookById: AccountBook }>(
+    GET_ACCOUNT_BOOK_BY_ID,
+    {
+      variables: {
+        id,
+      },
     },
-  });
+  );
 
   useEffect(() => {
-    if (error) {
+    console.log(error);
+    if (data) {
+      setActiveAccountBook(data.getAuthAccountBookById);
+    } else if (error) {
       navigate('/notfound');
     }
-  }, [error, navigate]);
+  }, [data, error, setActiveAccountBook, navigate]);
 
-  useEffect(() => {
-    handleAccountBook(id!);
-  }, [handleAccountBook, id]);
-
-  if (!accountBook || accountBook.id !== +id!) {
+  if (data?.getAuthAccountBookById) {
     return null;
   }
 
@@ -64,4 +69,4 @@ const Loading = () => {
   );
 };
 
-export default AccountBook;
+export default AccountBookPage;

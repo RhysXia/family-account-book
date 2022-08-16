@@ -6,7 +6,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 
 const Income = lazy(() => import('./pages/AccountBook/Income'));
-const Savings = lazy(() => import('./pages/AccountBook/Savings'));
+const SavingAccount = lazy(() => import('./pages/AccountBook/SavingAccount'));
 
 const routes: Array<RouteObject> = [
   {
@@ -21,28 +21,28 @@ const routes: Array<RouteObject> = [
     path: '/login',
     element: <Login />,
   },
-  // {
-  //   path: '/accountBook/:id',
-  //   element: (
-  //     <RequireAuth>
-  //       <AccountBook />
-  //     </RequireAuth>
-  //   ),
-  //   children: [
-  //     {
-  //       path: '',
-  //       element: <div>aaa</div>,
-  //     },
-  //     {
-  //       path: 'income',
-  //       element: <Income />,
-  //     },
-  //     {
-  //       path: 'savingAccount',
-  //       element: <Savings />,
-  //     },
-  //   ],
-  // },
+  {
+    path: '/accountBook/:id',
+    element: (
+      <RequireAuth>
+        <AccountBook />
+      </RequireAuth>
+    ),
+    children: [
+      {
+        path: '',
+        element: <div>aaa</div>,
+      },
+      // {
+      //   path: 'income',
+      //   element: <Income />,
+      // },
+      {
+        path: 'savingAccount',
+        element: <SavingAccount />,
+      },
+    ],
+  },
 ];
 
 export default routes;

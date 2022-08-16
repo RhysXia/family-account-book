@@ -121,18 +121,20 @@ export class SavingAccountResolver {
   }
 
   @Query()
-  async getAuthSavingAccounts(
+  async getAuthSavingAccountsByAccountBookId(
     @CurrentUser({ required: true }) user: UserEntity,
+    @Args('accountBookId') accountBookId: number,
     @Args('pagination') pagination?: Pagination,
   ) {
-    return this.savingAccountService.findAllByUserIdAndPagination(
+    return this.savingAccountService.findAllByAccountBookIdAndUserIdAndPagination(
+      accountBookId,
       user.id,
       pagination,
     );
   }
 
   @Query()
-  async getAuthSavingAccount(
+  async getAuthSavingAccountById(
     @CurrentUser({ required: true }) user: UserEntity,
     @Args('id') id: number,
   ) {

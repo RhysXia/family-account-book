@@ -1,7 +1,6 @@
 import { Menu } from 'antd';
 import { ItemType } from 'antd/lib/menu/hooks/useItems';
 import { useAtom } from 'jotai';
-import { activeAccountBook as activeAccountBookStore } from '../../store/accountBook';
 import {
   AppstoreOutlined,
   ShopOutlined,
@@ -11,6 +10,7 @@ import {
 } from '@ant-design/icons';
 import { useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { activeAccountBookAtom } from '../../store';
 
 const items: Array<ItemType> = [
   {
@@ -40,7 +40,7 @@ const items: Array<ItemType> = [
   },
   {
     label: '储蓄',
-    key: 'savings',
+    key: 'savingAccount',
     icon: <CreditCardOutlined />,
   },
   {
@@ -51,7 +51,7 @@ const items: Array<ItemType> = [
 ];
 
 const Aside = () => {
-  const [activeAccountBook1] = useAtom(activeAccountBookStore);
+  const [activeAccountBook] = useAtom(activeAccountBookAtom);
 
   const { pathname } = useLocation();
 
@@ -69,9 +69,9 @@ const Aside = () => {
   return (
     <div className="min-h-full w-60 bg-white border-r border-gray-100 flex flex-col">
       <div className="px-6 py-2">
-        <h1 className="font-bold text-xl">{activeAccountBook1?.name}</h1>
+        <h1 className="font-bold text-xl">{activeAccountBook?.name}</h1>
         <div className="text-sm text-gray-500 text-ellipsis">
-          {activeAccountBook1?.desc}
+          {activeAccountBook?.desc}
         </div>
       </div>
       <Menu

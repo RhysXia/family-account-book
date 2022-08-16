@@ -19,3 +19,12 @@ export type AccountBook = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type SavingAccount = {
+  id: number;
+  name: string;
+  desc?: string;
+  createdAt: string;
+  updatedAt: string;
+  amount: number;
+};
