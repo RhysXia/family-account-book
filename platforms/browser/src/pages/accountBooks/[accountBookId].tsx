@@ -4,6 +4,7 @@ import { useAtom } from 'jotai';
 import { Suspense, useEffect } from 'react';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
 import Aside from '../../components/Aside';
+import Header from '../../components/Header';
 import RequireAuth from '../../components/RequireAuth';
 import { activeAccountBookAtom } from '../../store';
 import { AccountBook } from '../../types';
@@ -21,7 +22,7 @@ const GET_ACCOUNT_BOOK_BY_ID = gql`
 `;
 
 const AccountBookPage = () => {
-  const { id } = useParams();
+  const { accountBookId } = useParams();
 
   const [, setActiveAccountBook] = useAtom(activeAccountBookAtom);
 
@@ -31,7 +32,7 @@ const AccountBookPage = () => {
     GET_ACCOUNT_BOOK_BY_ID,
     {
       variables: {
-        id: +id!,
+        id: +accountBookId!,
       },
     },
   );
@@ -50,11 +51,14 @@ const AccountBookPage = () => {
 
   return (
     <RequireAuth>
-      <div className="flex flex-row min-h-screen">
-        <Aside />
-        <div className="flex-1 min-h-full">
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <div className="flex flex-1 flex-row">
+          <Aside />
           <Suspense fallback={<Loading />}>
-            <Outlet />
+            <div className="bg-gray-100 flex flex-1 p-4">
+              <Outlet />
+            </div>
           </Suspense>
         </div>
       </div>

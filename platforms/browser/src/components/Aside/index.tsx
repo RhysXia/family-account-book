@@ -67,16 +67,18 @@ const Aside = () => {
   const selectKey = pathname.replace(/\/accountBook\/\d+\/?/, '');
 
   return (
-    <div className="min-h-full w-60 bg-white border-r border-gray-100 flex flex-col">
-      <div className="px-6 py-2">
-        <h1 className="font-bold text-xl">{activeAccountBook?.name}</h1>
-        <div className="text-sm text-gray-500 text-ellipsis">
-          {activeAccountBook?.desc}
+    <div className="min-h-full w-60 bg-white text-white flex flex-col">
+      <div className="px-6 py-2 flex flex-col">
+        <h1 className="text-black font-bold text-xl leading-none">
+          <span>{activeAccountBook?.name}</span>
+        </h1>
+        <div className="text-gray-600 text-sm text-ellipsis">
+          {activeAccountBook?.desc || ' '}
         </div>
       </div>
       <Menu
         onSelect={handleSelect}
-        className="flex-1 w-full bg-inherit border-r-0"
+        className="flex-1 w-full border-r-0"
         defaultSelectedKeys={[selectKey]}
         mode="inline"
         items={items}

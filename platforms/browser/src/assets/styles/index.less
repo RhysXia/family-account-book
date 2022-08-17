@@ -5,13 +5,13 @@
 @tailwind components;
 @tailwind utilities;
 
-@border-radius-base: 0.375rem;
-@border-radius-sm: 0.25rem;
-@border-color-base: #F3F4F6; // colors.gray.100
-@border-color-split: @border-color-base;
+// @border-radius-base: 0.375rem;
+// @border-radius-sm: 0.25rem;
+// @border-color-base: #F3F4F6; // colors.gray.100
+// @border-color-split: @border-color-base;
 
-@input-bg: theme('colors.gray.100');
-@select-background: @input-bg;
+// @input-bg: theme('colors.gray.100');
+// @select-background: @input-bg;
 @height-base: 36px;
 // @border-width-base: 0;
 
@@ -57,7 +57,11 @@ html {
   --ant-info-color: #1890ff;
   --ant-info-color-deprecated-bg: #e6f7ff;
   --ant-info-color-deprecated-border: #91d5ff;
+
 }
+
+@layout-header-background: theme("colors.gray.800");
+@menu-dark-inline-submenu-bg: theme("colors.gray.700");
 
 .ant-menu-item {
   @apply flex flex-row items-center;

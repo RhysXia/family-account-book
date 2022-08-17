@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Brackets, DataSource, In } from 'typeorm';
+import { DataSource, In } from 'typeorm';
 import { FlowRecordEntity } from '../entity/FlowRecordEntity';
 import { SavingAccountEntity } from '../entity/SavingAccountEntity';
 import { TagEntity, TagType } from '../entity/TagEntity';
@@ -25,19 +25,17 @@ export class FlowRecordService {
 
   async delete(id: number, currentUser: UserEntity) {
     return this.dataSource.transaction(async (manager) => {
-      const record = await manager.findOne(FlowRecordEntity, {
-        where: {
-          id,
-          accountBook: [
-            {
-              admins: { id: currentUser.id },
-            },
-            {
-              members: { id: currentUser.id },
-            },
-          ],
-        },
-      });
+      const record = await manager
+        .createQueryBuilder(FlowRecordEntity, 'flowRecord')
+        .leftJoin('flowRecord.accountBook', 'accountBook')
+        .leftJoin('accountBook.admins', 'admin')
+        .leftJoin('accountBook.members', 'member')
+        .where('flowRecord.id = :id', { id })
+        .andWhere('admin.id = :adminId OR member.id = :memberId', {
+          adminId: currentUser.id,
+          memberId: currentUser.id,
+        })
+        .getOne();
 
       if (!record) {
         throw new ResourceNotFoundException('流水不存在');
@@ -64,14 +62,10 @@ export class FlowRecordService {
         .leftJoin('accountBook.admins', 'admin')
         .leftJoin('accountBook.members', 'member')
         .where('flowRecord.id = :id', { id })
-        .andWhere(
-          new Brackets((qb) => {
-            qb.where('admin.id = :adminId', { adminId: user.id }).orWhere(
-              'member.id = :memberId',
-              { memberId: user.id },
-            );
-          }),
-        )
+        .andWhere('admin.id = :adminId OR member.id = :memberId', {
+          adminId: user.id,
+          memberId: user.id,
+        })
         .getOne();
 
       if (!flowRecord) {
@@ -153,14 +147,10 @@ export class FlowRecordService {
         .leftJoin('accountBook.admins', 'admin')
         .leftJoin('accountBook.members', 'member')
         .where('savingAccount.id = :id', { id: savingAccountId })
-        .andWhere(
-          new Brackets((qb) => {
-            qb.where('admin.id = :adminId', { adminId: user.id }).orWhere(
-              'member.id = :memberId',
-              { memberId: user.id },
-            );
-          }),
-        )
+        .andWhere('admin.id = :adminId OR member.id = :memberId', {
+          adminId: user.id,
+          memberId: user.id,
+        })
         .getOne();
 
       if (!savingAccount) {

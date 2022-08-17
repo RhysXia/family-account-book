@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Brackets, DataSource, In } from 'typeorm';
+import { DataSource, In } from 'typeorm';
 import { AccountBookEntity } from '../entity/AccountBookEntity';
 import { FlowRecordEntity } from '../entity/FlowRecordEntity';
 import { SavingAccountEntity } from '../entity/SavingAccountEntity';
@@ -95,8 +95,10 @@ export class AccountBookService {
       .createQueryBuilder(AccountBookEntity, 'accountBook')
       .leftJoin('accountBook.admins', 'admin')
       .leftJoin('accountBook.members', 'member')
-      .where('admin.id = :adminId', { adminId: userId })
-      .orWhere('member.id = :memberId', { memberId: userId });
+      .where('admin.id = :adminId OR member.id = :memberId', {
+        adminId: userId,
+        memberId: userId,
+      });
 
     const result = await applyPagination(
       qb,
@@ -274,14 +276,10 @@ export class AccountBookService {
       .leftJoin('accountBook.admins', 'admin')
       .leftJoin('accountBook.members', 'member')
       .where('accountBook.id = :accountBookId', { accountBookId: id })
-      .andWhere(
-        new Brackets((qb) => {
-          qb.where('admin.id = :adminId', { adminId: userId }).orWhere(
-            'member.id = :memberId',
-            { memberId: userId },
-          );
-        }),
-      )
+      .andWhere('admin.id = :adminId OR member.id = :memberId', {
+        adminId: userId,
+        memberId: userId,
+      })
       .getOne();
 
     if (!accountBook) {

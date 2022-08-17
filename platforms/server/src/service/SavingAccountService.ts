@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import {
-  Brackets,
   DataSource,
   FindOneOptions,
   In,
@@ -26,19 +25,17 @@ export class SavingAccountService {
 
   async delete(id: number, currentUser: UserEntity) {
     return await this.dataSource.transaction(async (manager) => {
-      const savingAccount = await manager.findOne(SavingAccountEntity, {
-        where: {
-          id,
-          accountBook: [
-            {
-              admins: [{ id: currentUser.id }],
-            },
-            {
-              members: [{ id: currentUser.id }],
-            },
-          ],
-        },
-      });
+      const savingAccount = await manager
+        .createQueryBuilder(SavingAccountEntity, 'savingAccount')
+        .leftJoin('savingAccount.accountBook', 'accountBook')
+        .leftJoin('accountBook.admins', 'admin')
+        .leftJoin('accountBook.members', 'member')
+        .where('savingAccount.id = :id', { id })
+        .andWhere('admin.id = :adminId OR member.id = :memberId', {
+          adminId: currentUser.id,
+          memberId: currentUser.id,
+        })
+        .getOne();
 
       if (!savingAccount) {
         throw new ResourceNotFoundException('储蓄账户不存在');
@@ -101,14 +98,10 @@ export class SavingAccountService {
       .leftJoin('accountBook.admins', 'admin')
       .leftJoin('accountBook.members', 'member')
       .where('savingAccount.id = :id', { id })
-      .andWhere(
-        new Brackets((qb) => {
-          qb.where('admin.id = :adminId', { adminId: userId }).orWhere(
-            'member.id = :memberId',
-            { memberId: userId },
-          );
-        }),
-      )
+      .andWhere('admin.id = :adminId OR member.id = :memberId', {
+        adminId: userId,
+        memberId: userId,
+      })
       .getOne();
 
     if (!savingAccount) {
@@ -131,14 +124,10 @@ export class SavingAccountService {
       .where('savingAccount.accountBookId = :accountBookId', {
         accountBookId,
       })
-      .andWhere(
-        new Brackets((qb) => {
-          qb.where('admin.id = :adminId', { adminId: userId }).orWhere(
-            'member.id = :memberId',
-            { memberId: userId },
-          );
-        }),
-      );
+      .andWhere('admin.id = :adminId OR member.id = :memberId', {
+        adminId: userId,
+        memberId: userId,
+      });
 
     const data = await applyPagination(
       qb,
@@ -183,14 +172,10 @@ export class SavingAccountService {
         .where('accountBook.id = :id', {
           id: accountBookId,
         })
-        .andWhere(
-          new Brackets((qb) => {
-            qb.where('admin.id = :adminId', { adminId: user.id }).orWhere(
-              'member.id = :memberId',
-              { memberId: user.id },
-            );
-          }),
-        )
+        .andWhere('admin.id = :adminId OR member.id = :memberId', {
+          adminId: user.id,
+          memberId: user.id,
+        })
         .getOne();
 
       if (!accountBook) {
