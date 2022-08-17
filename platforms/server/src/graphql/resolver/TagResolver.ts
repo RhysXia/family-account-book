@@ -1,5 +1,4 @@
 import {
-  Query,
   Args,
   Parent,
   ResolveField,
@@ -71,26 +70,26 @@ export class TagResolver {
     return flowRecord;
   }
 
-  @Query()
-  getAuthTagsByAccountBookId(
-    @CurrentUser({ required: true }) currentUser: UserEntity,
-    @Args('accountBookId') accountBookId: number,
-    @Args('pagination') pagination?: Pagination,
-  ) {
-    return this.tagService.findAllByAccountBookIdAndUserIdAndPagination(
-      accountBookId,
-      currentUser.id,
-      pagination,
-    );
-  }
+  // @Query()
+  // getAuthTagsByAccountBookId(
+  //   @CurrentUser({ required: true }) currentUser: UserEntity,
+  //   @Args('accountBookId') accountBookId: number,
+  //   @Args('pagination') pagination?: Pagination,
+  // ) {
+  //   return this.tagService.findAllByAccountBookIdAndUserIdAndPagination(
+  //     accountBookId,
+  //     currentUser.id,
+  //     pagination,
+  //   );
+  // }
 
-  @Query()
-  getAuthTagById(
-    @CurrentUser({ required: true }) currentUser: UserEntity,
-    @Args('id') id: number,
-  ) {
-    return this.tagService.findOneByIdAndUserId(id, currentUser.id);
-  }
+  // @Query()
+  // getAuthTagById(
+  //   @CurrentUser({ required: true }) currentUser: UserEntity,
+  //   @Args('id') id: number,
+  // ) {
+  //   return this.tagService.findOneByIdAndUserId(id, currentUser.id);
+  // }
 
   @Mutation()
   createTag(

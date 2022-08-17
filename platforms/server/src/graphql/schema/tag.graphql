@@ -56,10 +56,10 @@ type Mutation {
   deleteTag(id: Int!): Boolean!
 }
 
-type Query {
-  getAuthTagsByAccountBookId(
-    accountBookId: Int!
-    pagination: Pagination
-  ): TagListWithPagintion!
-  getAuthTagById(id: Int!): Tag!
-}
+# type Query {
+#   getAuthTagsByAccountBookId(
+#     accountBookId: Int!
+#     pagination: Pagination
+#   ): TagListWithPagintion!
+#   getAuthTagById(id: Int!): Tag!
+# }

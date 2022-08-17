@@ -55,11 +55,11 @@ input UpdateSavingAccountInput {
   amount: Float
 }
 
-type Query {
-  getAuthSavingAccountsByAccountBookId(accountBookId: Int!, pagination: Pagination): SavingAccountListWithPagintion!
+# type Query {
+#   getAuthSavingAccountsByAccountBookId(accountBookId: Int!, pagination: Pagination): SavingAccountListWithPagintion!
 
-  getAuthSavingAccountById(id: Int!): SavingAccount!
-}
+#   getAuthSavingAccountById(id: Int!): SavingAccount!
+# }
 
 type Mutation {
   createSavingAccount(savingAccount: CreateSavingAccountInput!): SavingAccount!

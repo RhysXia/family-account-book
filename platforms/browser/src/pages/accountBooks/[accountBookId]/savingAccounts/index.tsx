@@ -9,17 +9,18 @@ import { PaginationResult, SavingAccount } from '../../../../types';
 
 const GET_SAVING_ACCOUNTS = gql`
   query ($accountBookId: Int!) {
-    getAuthSavingAccountsByAccountBookId(
-      accountBookId: $accountBookId
-      pagination: { orderBy: { field: "updatedAt", direction: DESC } }
-    ) {
-      data {
-        id
-        name
-        desc
-        amount
-        createdAt
-        updatedAt
+    getAuthAccountBookById(id: $accountBookId) {
+      id
+      savingAccounts {
+        total
+        data {
+          id
+          name
+          desc
+          createdAt
+          updatedAt
+          amount
+        }
       }
     }
   }
@@ -66,7 +67,10 @@ const SavingAccountPage = () => {
   const navigate = useNavigate();
 
   const { data, refetch } = useQuery<{
-    getAuthSavingAccountsByAccountBookId: PaginationResult<SavingAccount>;
+    getAuthAccountBookById: {
+      id: number;
+      savingAccounts: PaginationResult<SavingAccount>;
+    };
   }>(GET_SAVING_ACCOUNTS, {
     variables: {
       accountBookId: activeAccountBook?.id,
@@ -185,7 +189,7 @@ const SavingAccountPage = () => {
       <Table
         pagination={false}
         columns={columns}
-        dataSource={data?.getAuthSavingAccountsByAccountBookId.data.map(
+        dataSource={data?.getAuthAccountBookById.savingAccounts.data.map(
           (it) => ({
             ...it,
             key: it.id,

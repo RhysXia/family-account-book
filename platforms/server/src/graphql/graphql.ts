@@ -8,6 +8,11 @@
 /* tslint:disable */
 /* eslint-disable */
 
+export enum CacheControlScope {
+    PUBLIC = "PUBLIC",
+    PRIVATE = "PRIVATE"
+}
+
 export enum Direction {
     DESC = "DESC",
     ASC = "ASC"
@@ -171,10 +176,6 @@ export interface IMutation {
 export interface IQuery {
     getAuthAccountBookById(id: number): AccountBook | Promise<AccountBook>;
     getAuthAccountBooks(pagination?: Nullable<Pagination>): AccountBookListWithPagintion | Promise<AccountBookListWithPagintion>;
-    getAuthSavingAccountsByAccountBookId(accountBookId: number, pagination?: Nullable<Pagination>): SavingAccountListWithPagintion | Promise<SavingAccountListWithPagintion>;
-    getAuthSavingAccountById(id: number): SavingAccount | Promise<SavingAccount>;
-    getAuthTagsByAccountBookId(accountBookId: number, pagination?: Nullable<Pagination>): TagListWithPagintion | Promise<TagListWithPagintion>;
-    getAuthTagById(id: number): Tag | Promise<Tag>;
     getCurrentUser(): User | Promise<User>;
     findUserListByUsernameLike(username: string, limit?: Nullable<number>, includeSelf?: Nullable<boolean>): SimpleUser[] | Promise<SimpleUser[]>;
 }
