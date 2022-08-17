@@ -19,7 +19,7 @@ export default defineConfig({
         plugins: [jotaiDebugLabel, jotaiReactRefresh],
       },
     }),
-    Pages(),
+    Pages({}),
   ],
   server: {
     proxy: {

@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 
 const SavingAccountDetailPage = () => {
   const { savingAccountId } = useParams();
-  console.log(savingAccountId)
+  console.log(savingAccountId);
 
   return <div>SavingAccountDetailPage</div>;
 };

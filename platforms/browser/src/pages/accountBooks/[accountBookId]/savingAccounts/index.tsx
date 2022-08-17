@@ -175,7 +175,7 @@ const SavingAccountPage = () => {
   const title = <h1 className="font-bold text-xl mb-2">新建储蓄账户</h1>;
 
   return (
-    <div className="w-full ">
+    <div className="w-full">
       <div className="bg-white flex flex-row items-center justify-between p-4 mb-4">
         <div></div>
         <div className="">
