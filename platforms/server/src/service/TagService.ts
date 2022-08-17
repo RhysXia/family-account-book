@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Brackets, DataSource, In } from 'typeorm';
+import { DataSource, In } from 'typeorm';
 import { AccountBookEntity } from '../entity/AccountBookEntity';
 import { TagEntity } from '../entity/TagEntity';
 import { UserEntity } from '../entity/UserEntity';
@@ -10,6 +10,29 @@ import { applyPagination } from '../utils/applyPagination';
 @Injectable()
 export class TagService {
   constructor(private readonly dataSource: DataSource) {}
+
+  async delete(id: number, currentUser: UserEntity) {
+    return await this.dataSource.transaction(async (manager) => {
+      const tag = await manager
+        .createQueryBuilder(TagEntity, 'tagEntity')
+        .leftJoin('tagEntity.accountBook', 'accountBook')
+        .leftJoin('accountBook.admins', 'admin')
+        .leftJoin('accountBook.members', 'member')
+        .where('tagEntity.id = :id', { id })
+        .andWhere('admin.id = :adminId OR member.id = :memberId', {
+          adminId: currentUser.id,
+          memberId: currentUser.id,
+        })
+        .getOne();
+
+      if (!tag) {
+        throw new ResourceNotFoundException('储蓄账户不存在');
+      }
+
+      // 软删除
+      await manager.softRemove(tag);
+    });
+  }
 
   update(tag: UpdateTagInput, user: UserEntity) {
     return this.dataSource.manager.transaction(async (manager) => {
@@ -30,14 +53,10 @@ export class TagService {
         .where('accountBook.id = :accountBookId', {
           accountBookId: tagEntity.accountBookId,
         })
-        .andWhere(
-          new Brackets((qb) => {
-            qb.where('admin.id = :adminId', { adminId: user.id }).orWhere(
-              'member.id = :memberId',
-              { memberId: user.id },
-            );
-          }),
-        )
+        .andWhere('admin.id = :adminId OR member.id = :memberId', {
+          adminId: user.id,
+          memberId: user.id,
+        })
         .getOne();
 
       if (!accountBook) {
@@ -60,14 +79,10 @@ export class TagService {
         .leftJoin('accountBook.admins', 'admin')
         .leftJoin('accountBook.members', 'member')
         .where('accountBook.id = :accountBookId', { accountBookId })
-        .andWhere(
-          new Brackets((qb) => {
-            qb.where('admin.id = :adminId', { adminId: user.id }).orWhere(
-              'member.id = :memberId',
-              { memberId: user.id },
-            );
-          }),
-        )
+        .andWhere('admin.id = :adminId OR member.id = :memberId', {
+          adminId: user.id,
+          memberId: user.id,
+        })
         .getOne();
 
       if (!accountBook) {
@@ -115,31 +130,30 @@ export class TagService {
     };
   }
 
-  async findAllByAccountBookIdAndUserId(accountBookId: number, userId: number) {
-    const accountBook = await this.dataSource
-      .createQueryBuilder(AccountBookEntity, 'accountBook')
+  async findAllByAccountBookIdAndUserIdAndPagination(
+    accountBookId: number,
+    userId: number,
+    pagination: Pagination,
+  ) {
+    const qb = this.dataSource.manager
+      .createQueryBuilder(TagEntity, 'tag')
+      .leftJoin('tag.accountBook', 'accountBook')
       .leftJoin('accountBook.admins', 'admin')
       .leftJoin('accountBook.members', 'member')
-      .where('accountBook.id = :accountBookId', { accountBookId })
-      .andWhere(
-        new Brackets((qb) => {
-          qb.where('admin.id = :adminId', { adminId: userId }).orWhere(
-            'member.id = :memberId',
-            { memberId: userId },
-          );
-        }),
-      )
-      .getOne();
+      .where('tag.accountBookId = :accountBookId', {
+        accountBookId,
+      })
+      .andWhere('admin.id = :adminId OR member.id = :memberId', {
+        adminId: userId,
+        memberId: userId,
+      });
 
-    if (!accountBook) {
-      throw new ResourceNotFoundException('标签不存在');
-    }
+    const data = await applyPagination(qb, 'tag', pagination).getManyAndCount();
 
-    const tags = await this.dataSource.manager.find(TagEntity, {
-      where: { accountBookId },
-    });
-
-    return tags;
+    return {
+      total: data[1],
+      data: data[0],
+    };
   }
 
   async findOneByIdAndUserId(id: number, userId: number) {
@@ -158,14 +172,10 @@ export class TagService {
       .where('accountBook.id = :accountBookId', {
         accountBookId: tag.accountBookId,
       })
-      .andWhere(
-        new Brackets((qb) => {
-          qb.where('admin.id = :adminId', { adminId: userId }).orWhere(
-            'member.id = :memberId',
-            { memberId: userId },
-          );
-        }),
-      )
+      .andWhere('admin.id = :adminId OR member.id = :memberId', {
+        adminId: userId,
+        memberId: userId,
+      })
       .getOne();
 
     if (!accountBook) {

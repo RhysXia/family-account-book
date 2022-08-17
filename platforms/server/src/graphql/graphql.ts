@@ -163,6 +163,7 @@ export interface IMutation {
     deleteSavingAccountTransferRecord(id: number): boolean | Promise<boolean>;
     createTag(tag: CreateTagInput): Tag | Promise<Tag>;
     updateTag(tag: UpdateTagInput): Tag | Promise<Tag>;
+    deleteTag(id: number): boolean | Promise<boolean>;
     signIn(user: SignInUserInput): User | Promise<User>;
     signUp(user: SignUpUserInput): User | Promise<User>;
 }
@@ -172,7 +173,7 @@ export interface IQuery {
     getAuthAccountBooks(pagination?: Nullable<Pagination>): AccountBookListWithPagintion | Promise<AccountBookListWithPagintion>;
     getAuthSavingAccountsByAccountBookId(accountBookId: number, pagination?: Nullable<Pagination>): SavingAccountListWithPagintion | Promise<SavingAccountListWithPagintion>;
     getAuthSavingAccountById(id: number): SavingAccount | Promise<SavingAccount>;
-    getAuthTagsByAccountBookId(accountBookId: number): Tag[] | Promise<Tag[]>;
+    getAuthTagsByAccountBookId(accountBookId: number, pagination?: Nullable<Pagination>): TagListWithPagintion | Promise<TagListWithPagintion>;
     getAuthTagById(id: number): Tag | Promise<Tag>;
     getCurrentUser(): User | Promise<User>;
     findUserListByUsernameLike(username: string, limit?: Nullable<number>, includeSelf?: Nullable<boolean>): SimpleUser[] | Promise<SimpleUser[]>;

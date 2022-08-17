@@ -7,6 +7,8 @@ import {
   CreditCardOutlined,
   TagsOutlined,
   DollarCircleOutlined,
+  LineChartOutlined,
+  EditOutlined,
 } from '@ant-design/icons';
 import { useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -19,34 +21,84 @@ const items: Array<ItemType> = [
     icon: <AppstoreOutlined />,
   },
   {
+    label: '流水记录',
+    key: 'flowRecords',
+    icon: <EditOutlined />,
+  },
+  {
     label: '支出',
-    key: 'expend',
+    key: 'expenditure-group',
     icon: <ShopOutlined />,
     children: [
       {
-        label: '支出详情',
-        key: 'expand-detail',
+        label: '列表',
+        key: 'expenditures',
       },
       {
-        label: '预算',
-        key: 'expend-budget',
+        label: '统计',
+        key: 'expenditures/statistics',
       },
     ],
   },
   {
+    label: '预算',
+    key: 'budget-group',
+    icon: <LineChartOutlined />,
+    children: [
+      {
+        label: '列表',
+        key: 'budgets',
+      },
+      // {
+      //   label: '支出详情',
+      //   key: 'expand-detail',
+      // },
+    ],
+  },
+  {
     label: '收入',
-    key: 'income',
+    key: 'income-group',
     icon: <DollarCircleOutlined />,
+    children: [
+      {
+        label: '列表',
+        key: 'incomes',
+      },
+      {
+        label: '统计',
+        key: 'incomes/statistics',
+      },
+    ],
   },
   {
     label: '储蓄',
-    key: 'savingAccounts',
+    key: 'savingAccount-group',
     icon: <CreditCardOutlined />,
+    children: [
+      {
+        label: '列表',
+        key: 'savingAccounts',
+      },
+      {
+        label: '统计',
+        key: 'savingAccounts/statistics',
+      },
+    ],
   },
   {
     label: '标签',
-    key: 'tags',
+    key: 'tag-group',
     icon: <TagsOutlined />,
+    children: [
+      {
+        label: '列表',
+        key: 'tags',
+      },
+      {
+        label: '统计',
+        key: 'tags/statistics',
+      },
+    ],
   },
 ];
 

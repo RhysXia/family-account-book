@@ -53,9 +53,13 @@ input UpdateTagInput {
 type Mutation {
   createTag(tag: CreateTagInput!): Tag!
   updateTag(tag: UpdateTagInput!): Tag!
+  deleteTag(id: Int!): Boolean!
 }
 
 type Query {
-  getAuthTagsByAccountBookId(accountBookId: Int!): [Tag!]!
+  getAuthTagsByAccountBookId(
+    accountBookId: Int!
+    pagination: Pagination
+  ): TagListWithPagintion!
   getAuthTagById(id: Int!): Tag!
 }

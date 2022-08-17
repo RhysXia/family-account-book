@@ -28,3 +28,18 @@ export type SavingAccount = {
   updatedAt: string;
   amount: number;
 };
+
+export enum TagType {
+  INCOME = 'INCOME',
+  EXPENDITURE = 'EXPENDITURE',
+  INVESTMENT = 'INVESTMENT',
+  LOAD = 'LOAD',
+}
+
+export type Tag = {
+  id: number;
+  name: string;
+  type: TagType;
+  createdAt: string;
+  updatedAt: string;
+};

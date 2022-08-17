@@ -75,10 +75,12 @@ export class TagResolver {
   getAuthTagsByAccountBookId(
     @CurrentUser({ required: true }) currentUser: UserEntity,
     @Args('accountBookId') accountBookId: number,
+    @Args('pagination') pagination?: Pagination,
   ) {
-    return this.tagService.findAllByAccountBookIdAndUserId(
+    return this.tagService.findAllByAccountBookIdAndUserIdAndPagination(
       accountBookId,
       currentUser.id,
+      pagination,
     );
   }
 
@@ -104,5 +106,14 @@ export class TagResolver {
     @Args('tag') tag: UpdateTagInput,
   ) {
     return this.tagService.update(tag, currentUser);
+  }
+
+  @Mutation()
+  async deleteTag(
+    @CurrentUser({ required: true }) currentUser: UserEntity,
+    @Args('id') id: number,
+  ) {
+    await this.tagService.delete(id, currentUser);
+    return true;
   }
 }
