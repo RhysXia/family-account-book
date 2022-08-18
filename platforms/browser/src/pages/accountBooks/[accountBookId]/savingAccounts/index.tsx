@@ -5,7 +5,8 @@ import { useAtom } from 'jotai';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { activeAccountBookAtom } from '../../../../store';
-import { PaginationResult, SavingAccount } from '../../../../types';
+import { PaginationResult, SavingAccount, User } from '../../../../types';
+import { fromTime } from '../../../../utils/dayjs';
 
 const GET_SAVING_ACCOUNTS = gql`
   query ($accountBookId: Int!) {
@@ -20,6 +21,11 @@ const GET_SAVING_ACCOUNTS = gql`
         amount
         createdAt
         updatedAt
+        creator {
+          id
+          username
+          nickname
+        }
       }
     }
   }
@@ -66,7 +72,11 @@ const SavingAccountPage = () => {
   const navigate = useNavigate();
 
   const { data, refetch } = useQuery<{
-    getAuthSavingAccountsByAccountBookId: PaginationResult<SavingAccount>;
+    getAuthSavingAccountsByAccountBookId: PaginationResult<
+      SavingAccount & {
+        creator: User;
+      }
+    >;
   }>(GET_SAVING_ACCOUNTS, {
     variables: {
       accountBookId: activeAccountBook?.id,
@@ -132,6 +142,23 @@ const SavingAccountPage = () => {
       key: 'amount',
       render(amount: number) {
         return `￥${amount.toLocaleString()}`;
+      },
+    },
+    {
+      title: '创建人',
+      dataIndex: 'creator',
+      key: 'creator',
+      render(creator: User) {
+        console.log(creator);
+        return creator.nickname;
+      },
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      render(createdAt: string) {
+        return fromTime(createdAt);
       },
     },
     {

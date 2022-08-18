@@ -10,6 +10,7 @@ const CURRENT_USER = gql`
     getCurrentUser {
       id
       username
+      nickname
       email
       avatar
       createdAt

@@ -22,6 +22,7 @@ const SIGN_IN = gql`
       }
     ) {
       id
+      nickname
       username
       email
       createdAt

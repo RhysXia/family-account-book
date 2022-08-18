@@ -1,0 +1,12 @@
+union Node =
+    SimpleUser
+  | AccountBook
+  | SavingAccount
+  | Tag
+  | FlowRecord
+  | SavingAccountTransfer
+
+type Query {
+  node(id: ID!): Node
+  nodes(ids: [ID!]!): [Node!]!
+}

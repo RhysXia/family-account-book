@@ -5,6 +5,7 @@ export type PaginationResult<T> = {
 
 export type User = {
   id: number;
+  nickname: string;
   username: string;
   email?: string;
   avatar?: string;
@@ -40,7 +41,17 @@ export type Tag = {
   id: number;
   name: string;
   type: TagType;
-  updater: User;
   createdAt: string;
   updatedAt: string;
+};
+
+export type FlowRecord = {
+  id: number;
+  desc?: string;
+  createdAt: string;
+  updatedAt: string;
+  dealAt: Date;
+  creator: User;
+  updater: User;
+  amount: number;
 };

@@ -1,11 +1,25 @@
 import { gql, useMutation, useQuery } from '@apollo/client';
-import { Button, Form, Input, Modal, Select, Table, Tag } from 'antd';
-import { ColumnsType } from 'antd/lib/table';
+import {
+  Button,
+  Form,
+  Input,
+  Modal,
+  Select,
+  Table,
+  Tag,
+  TableColumnsType,
+} from 'antd';
 import { useAtom } from 'jotai';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { activeAccountBookAtom } from '../../../../store';
-import { PaginationResult, Tag as ITag, TagType } from '../../../../types';
+import {
+  PaginationResult,
+  Tag as ITag,
+  TagType,
+  User,
+} from '../../../../types';
+import { fromTime } from '../../../../utils/dayjs';
 
 const GET_TAGS = gql`
   query ($accountBookId: Int!) {
@@ -19,9 +33,10 @@ const GET_TAGS = gql`
         type
         createdAt
         updatedAt
-        updater {
+        creator {
           id
           username
+          nickname
         }
       }
     }
@@ -58,7 +73,11 @@ const TagPage = () => {
   const navigate = useNavigate();
 
   const { data, refetch } = useQuery<{
-    getAuthTagsByAccountBookId: PaginationResult<ITag>;
+    getAuthTagsByAccountBookId: PaginationResult<
+      ITag & {
+        creator: User;
+      }
+    >;
   }>(GET_TAGS, {
     variables: {
       accountBookId: activeAccountBook?.id,
@@ -126,7 +145,7 @@ const TagPage = () => {
     },
   };
 
-  const columns: ColumnsType<any> = [
+  const columns: TableColumnsType<any> = [
     {
       title: '名称',
       dataIndex: 'name',
@@ -139,6 +158,23 @@ const TagPage = () => {
       render(type: TagType) {
         const { name, color } = TagNameColorMap[type];
         return <Tag color={color}>{name}</Tag>;
+      },
+    },
+    {
+      title: '创建人',
+      dataIndex: 'creator',
+      key: 'creator',
+      render(creator: User) {
+        console.log(creator);
+        return creator.nickname;
+      },
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      render(createdAt: string) {
+        return fromTime(createdAt);
       },
     },
     {

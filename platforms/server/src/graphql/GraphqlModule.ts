@@ -30,6 +30,7 @@ import {
   ParameterException,
   ResourceNotFoundException,
 } from '../exception/ServiceException';
+import { NodeResolver } from './resolver/NodeResolver';
 
 @Module({
   imports: [
@@ -110,6 +111,7 @@ import {
     TagResolver,
     FlowRecordResolver,
     SavingAccountTransferRecordResolver,
+    NodeResolver,
   ],
 })
 export class GraphqlModule {}
