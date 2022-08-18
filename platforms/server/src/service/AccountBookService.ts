@@ -19,6 +19,28 @@ import { applyPagination } from '../utils/applyPagination';
 export class AccountBookService {
   constructor(private readonly dataSource: DataSource) {}
 
+  async findByIdAndCurrentUser(
+    id: number,
+    currentUser: UserEntity,
+  ): Promise<AccountBookEntity> {
+    const accountBook = await this.dataSource.manager
+      .createQueryBuilder(AccountBookEntity, 'accountBook')
+      .leftJoin('accountBook.admins', 'admin')
+      .leftJoin('accountBook.members', 'member')
+      .where('accountBook.id = :accountBookId', { accountBookId: id })
+      .andWhere('admin.id = :adminId OR member.id = :memberId', {
+        adminId: currentUser.id,
+        memberId: currentUser.id,
+      })
+      .getOne();
+
+    if (!accountBook) {
+      throw new ResourceNotFoundException('账本不存在');
+    }
+
+    return accountBook;
+  }
+
   async delete(id: number, user: UserEntity) {
     return this.dataSource.transaction(async (manager) => {
       const accountBook = await manager.findOne(AccountBookEntity, {
@@ -268,24 +290,5 @@ export class AccountBookService {
 
       return accountBook;
     });
-  }
-
-  async findOneByIdAndUserId(id: number, userId: number) {
-    const accountBook = await this.dataSource.manager
-      .createQueryBuilder(AccountBookEntity, 'accountBook')
-      .leftJoin('accountBook.admins', 'admin')
-      .leftJoin('accountBook.members', 'member')
-      .where('accountBook.id = :accountBookId', { accountBookId: id })
-      .andWhere('admin.id = :adminId OR member.id = :memberId', {
-        adminId: userId,
-        memberId: userId,
-      })
-      .getOne();
-
-    if (!accountBook) {
-      throw new ResourceNotFoundException('账本不存在');
-    }
-
-    return accountBook;
   }
 }

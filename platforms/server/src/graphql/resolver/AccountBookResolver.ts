@@ -171,7 +171,7 @@ export class AccountBookResolver {
     @CurrentUser({ required: true }) user: UserEntity,
     @Args('id') id: number,
   ) {
-    return this.accountBookService.findOneByIdAndUserId(id, user.id);
+    return this.accountBookService.findByIdAndCurrentUser(id, user);
   }
 
   @Query()
