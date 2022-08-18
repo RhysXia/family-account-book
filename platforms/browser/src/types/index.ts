@@ -40,6 +40,7 @@ export type Tag = {
   id: number;
   name: string;
   type: TagType;
+  updater: User;
   createdAt: string;
   updatedAt: string;
 };

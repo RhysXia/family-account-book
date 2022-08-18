@@ -23,6 +23,56 @@ export class FlowRecordService {
     private readonly savingAccountMoneyRecordManager: SavingAccountHistoryManager,
   ) {}
 
+  async findOneByIdAndUserId(id: number, userId: number) {
+    const flowRecord = await this.dataSource.manager
+      .createQueryBuilder(SavingAccountEntity, 'savingAccount')
+      .leftJoin('savingAccount.accountBook', 'accountBook')
+      .leftJoin('accountBook.admins', 'admin')
+      .leftJoin('accountBook.members', 'member')
+      .where('savingAccount.id = :id', { id })
+      .andWhere('admin.id = :adminId OR member.id = :memberId', {
+        adminId: userId,
+        memberId: userId,
+      })
+      .getOne();
+
+    if (!flowRecord) {
+      throw new ResourceNotFoundException('流水记录不存在');
+    }
+
+    return flowRecord;
+  }
+
+  async findAllByAccountBookIdAndUserIdAndPagination(
+    accountBookId: number,
+    userId: number,
+    pagination: Pagination,
+  ) {
+    const qb = this.dataSource.manager
+      .createQueryBuilder(FlowRecordEntity, 'flowRecord')
+      .leftJoin('flowRecord.accountBook', 'accountBook')
+      .leftJoin('accountBook.admins', 'admin')
+      .leftJoin('accountBook.members', 'member')
+      .where('flowRecord.accountBookId = :accountBookId', {
+        accountBookId,
+      })
+      .andWhere('admin.id = :adminId OR member.id = :memberId', {
+        adminId: userId,
+        memberId: userId,
+      });
+
+    const data = await applyPagination(
+      qb,
+      'savingAccount',
+      pagination,
+    ).getManyAndCount();
+
+    return {
+      total: data[1],
+      data: data[0],
+    };
+  }
+
   async delete(id: number, currentUser: UserEntity) {
     return this.dataSource.transaction(async (manager) => {
       const record = await manager

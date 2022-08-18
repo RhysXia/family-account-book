@@ -113,6 +113,7 @@ export interface UpdateTagInput {
 }
 
 export interface SignUpUserInput {
+    nickname: string;
     username: string;
     password: string;
     email?: Nullable<string>;
@@ -176,8 +177,14 @@ export interface IMutation {
 export interface IQuery {
     getAuthAccountBookById(id: number): AccountBook | Promise<AccountBook>;
     getAuthAccountBooks(pagination?: Nullable<Pagination>): AccountBookListWithPagintion | Promise<AccountBookListWithPagintion>;
+    getAuthFlowRecordsByAccountBookId(accountBookId: number, pagination?: Nullable<Pagination>): Nullable<FlowRecordListWithPagintion> | Promise<Nullable<FlowRecordListWithPagintion>>;
+    getAuthFlowRecordById(id: number): Nullable<FlowRecord> | Promise<Nullable<FlowRecord>>;
+    getAuthSavingAccountsByAccountBookId(accountBookId: number, pagination?: Nullable<Pagination>): SavingAccountListWithPagintion | Promise<SavingAccountListWithPagintion>;
+    getAuthSavingAccountById(id: number): SavingAccount | Promise<SavingAccount>;
+    getAuthTagsByAccountBookId(accountBookId: number, pagination?: Nullable<Pagination>): TagListWithPagintion | Promise<TagListWithPagintion>;
+    getAuthTagById(id: number): Tag | Promise<Tag>;
     getCurrentUser(): User | Promise<User>;
-    findUserListByUsernameLike(username: string, limit?: Nullable<number>, includeSelf?: Nullable<boolean>): SimpleUser[] | Promise<SimpleUser[]>;
+    findUserListByNameLike(name: string, limit?: Nullable<number>, includeSelf?: Nullable<boolean>): SimpleUser[] | Promise<SimpleUser[]>;
 }
 
 export interface FlowRecordListWithPagintion {
@@ -261,6 +268,7 @@ export interface Tag extends EntityDateTime {
 export interface User extends EntityDateTime {
     id: number;
     username: string;
+    nickname: string;
     email?: Nullable<string>;
     avatar?: Nullable<string>;
     createdAt: DateTime;
@@ -271,6 +279,7 @@ export interface User extends EntityDateTime {
 
 export interface SimpleUser {
     id: number;
+    nickname: string;
     username: string;
     email?: Nullable<string>;
     avatar?: Nullable<string>;

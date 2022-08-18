@@ -2,6 +2,7 @@ import {
   Args,
   Mutation,
   Parent,
+  Query,
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
@@ -12,7 +13,11 @@ import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
 import { TagDataLoader } from '../dataloader/TagDataLoader';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
-import { CreateFlowRecordInput, UpdateFlowRecordInput } from '../graphql';
+import {
+  CreateFlowRecordInput,
+  Pagination,
+  UpdateFlowRecordInput,
+} from '../graphql';
 
 @Resolver('FlowRecord')
 export class FlowRecordResolver {
@@ -53,6 +58,27 @@ export class FlowRecordResolver {
       return parent.tag;
     }
     return this.tagDataLoader.load(parent.tagId);
+  }
+
+  @Query()
+  async getAuthFlowRecordsByAccountBookId(
+    @CurrentUser({ required: true }) user: UserEntity,
+    @Args('accountBookId') accountBookId: number,
+    @Args('pagination') pagination?: Pagination,
+  ) {
+    return this.flowRecordService.findAllByAccountBookIdAndUserIdAndPagination(
+      accountBookId,
+      user.id,
+      pagination,
+    );
+  }
+
+  @Query()
+  async getAuthFlowRecordById(
+    @CurrentUser({ required: true }) user: UserEntity,
+    @Args('id') id: number,
+  ) {
+    return this.flowRecordService.findOneByIdAndUserId(id, user.id);
   }
 
   @Mutation()

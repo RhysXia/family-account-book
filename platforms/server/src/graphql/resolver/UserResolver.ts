@@ -44,13 +44,13 @@ export class UserResolver {
   }
 
   @Query()
-  async findUserListByUsernameLike(
+  async findUserListByNameLike(
     @CurrentUser({ required: false }) currentUser: UserEntity | null,
-    @Args('username') username: string,
+    @Args('name') name: string,
     @Args('limit') limit: number,
     @Args('includeSelf') includeSelf: boolean,
   ) {
-    return this.userService.findAllByUsernameLike(username, {
+    return this.userService.findAllByNameLike(name, {
       limit,
       includeSelf,
       currentUser,

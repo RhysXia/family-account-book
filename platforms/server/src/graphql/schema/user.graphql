@@ -1,6 +1,7 @@
 type User implements EntityDateTime {
   id: Int!
   username: String!
+  nickname: String!
   email: String
   avatar: String
   createdAt: DateTime!
@@ -19,6 +20,7 @@ type User implements EntityDateTime {
 
 type SimpleUser {
   id: Int!
+  nickname: String!
   username: String!
   email: String
   avatar: String
@@ -32,16 +34,17 @@ type Query {
   """
   getCurrentUser: User!
   """
-  根据模糊搜索用户列表
+  模糊搜索用户列表，根据username和nickname
   """
-  findUserListByUsernameLike(
-    username: String!
+  findUserListByNameLike(
+    name: String!
     limit: Int = 10
     includeSelf: Boolean = false
   ): [SimpleUser!]!
 }
 
 input SignUpUserInput {
+  nickname: String!
   username: String!
   password: String!
   email: String

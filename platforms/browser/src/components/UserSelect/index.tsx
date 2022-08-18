@@ -1,4 +1,4 @@
-import { gql, useLazyQuery, useQuery } from '@apollo/client';
+import { gql, useLazyQuery } from '@apollo/client';
 import { Select } from 'antd';
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { User } from '../../types';
@@ -16,9 +16,10 @@ export type UserSelectProps = {
 };
 
 const GET_USER_LIST = gql`
-  query ($username: String!, $limit: Int!) {
-    findUserListByUsernameLike(username: $username, limit: $limit) {
+  query ($name: String!, $limit: Int!) {
+    findUserListByNameLike(name: $name, limit: $limit) {
       id
+      nickname
       username
       email
       avatar
@@ -32,25 +33,25 @@ const UserSelect: FC<UserSelectProps> = ({ limit = 10, value, onChange }) => {
   const [options, setOptions] = useState<Array<ValueType>>([]);
 
   const [searchUsers] = useLazyQuery<{
-    findUserListByUsernameLike: Array<User>;
+    findUserListByNameLike: Array<User>;
   }>(GET_USER_LIST);
 
   const fetchRef = useRef(0);
 
   const handleSearch = useCallback(
-    async (username: string) => {
+    async (name: string) => {
       fetchRef.current++;
       const fetchId = fetchRef.current;
       setOptions([]);
       const { data } = await searchUsers({
         variables: {
-          username,
+          name,
           limit,
         },
       });
       if (fetchRef.current === fetchId) {
         const users =
-          data?.findUserListByUsernameLike?.map((it) => ({
+          data?.findUserListByNameLike?.map((it) => ({
             key: it.id + '',
             label: it.username,
             value: it.id,

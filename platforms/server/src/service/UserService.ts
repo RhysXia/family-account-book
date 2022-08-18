@@ -29,8 +29,8 @@ export class UserService {
    * @param username
    * @param limit
    */
-  findAllByUsernameLike(
-    username: string,
+  findAllByNameLike(
+    name: string,
     {
       limit,
       includeSelf,
@@ -41,22 +41,21 @@ export class UserService {
       currentUser: UserEntity | null;
     },
   ): Promise<Array<Omit<UserEntity, 'password'>>> {
-    const where: FindManyOptions<UserEntity>['where'] = {
-      username: Like(`%${username}%`),
-    };
+    const qb = this.dataSource.manager
+      .createQueryBuilder(UserEntity, 'user')
+      .where('(user.username like :name OR user.nickname like :name)', {
+        name: `%${name}%`,
+      });
 
     if (includeSelf) {
       if (!currentUser) {
         throw new ParameterException('当前用户不存在');
       }
-    } else {
-      where.id = Not(currentUser.id);
+    } else if (currentUser) {
+      qb.andWhere('user.id != :id', { id: currentUser.id });
     }
 
-    return this.dataSource.manager.find(UserEntity, {
-      where: where,
-      take: limit,
-    });
+    return qb.limit(limit).getMany();
   }
 
   async signIn(signInUser: SignInUserInput): Promise<UserEntity> {
@@ -90,6 +89,7 @@ export class UserService {
       user.username = signUpUser.username;
       user.password = this.passwordUtil.encode(signUpUser.password);
       user.email = signUpUser.email;
+      user.nickname = signUpUser.nickname;
 
       const savedUser = await manager.save(user);
 

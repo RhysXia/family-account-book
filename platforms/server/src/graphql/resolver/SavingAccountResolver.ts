@@ -2,6 +2,7 @@ import {
   Args,
   Mutation,
   Parent,
+  Query,
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
@@ -119,26 +120,26 @@ export class SavingAccountResolver {
     return this.savingAccountService.update(savingsInput, user);
   }
 
-  // @Query()
-  // async getAuthSavingAccountsByAccountBookId(
-  //   @CurrentUser({ required: true }) user: UserEntity,
-  //   @Args('accountBookId') accountBookId: number,
-  //   @Args('pagination') pagination?: Pagination,
-  // ) {
-  //   return this.savingAccountService.findAllByAccountBookIdAndUserIdAndPagination(
-  //     accountBookId,
-  //     user.id,
-  //     pagination,
-  //   );
-  // }
+  @Query()
+  async getAuthSavingAccountsByAccountBookId(
+    @CurrentUser({ required: true }) user: UserEntity,
+    @Args('accountBookId') accountBookId: number,
+    @Args('pagination') pagination?: Pagination,
+  ) {
+    return this.savingAccountService.findAllByAccountBookIdAndUserIdAndPagination(
+      accountBookId,
+      user.id,
+      pagination,
+    );
+  }
 
-  // @Query()
-  // async getAuthSavingAccountById(
-  //   @CurrentUser({ required: true }) user: UserEntity,
-  //   @Args('id') id: number,
-  // ) {
-  //   return this.savingAccountService.findOneByIdAndUserId(id, user.id);
-  // }
+  @Query()
+  async getAuthSavingAccountById(
+    @CurrentUser({ required: true }) user: UserEntity,
+    @Args('id') id: number,
+  ) {
+    return this.savingAccountService.findOneByIdAndUserId(id, user.id);
+  }
 
   @Mutation()
   async deleteSavingAccount(

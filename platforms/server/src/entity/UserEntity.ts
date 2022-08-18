@@ -12,6 +12,9 @@ export class UserEntity extends AbstractTimestampEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ nullable: false })
+  nickname: string;
+
   @Index({ unique: true })
   @Column({ unique: true, nullable: false })
   username: string;

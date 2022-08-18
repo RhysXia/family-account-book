@@ -9,15 +9,19 @@ import { PaginationResult, Tag as ITag, TagType } from '../../../../types';
 
 const GET_TAGS = gql`
   query ($accountBookId: Int!) {
-    getAuthAccountBookById(id: $accountBookId) {
-      id
-      tags {
-        total
-        data {
+    getAuthTagsByAccountBookId(
+      accountBookId: $accountBookId
+      pagination: { orderBy: { field: "updatedAt", direction: DESC } }
+    ) {
+      data {
+        id
+        name
+        type
+        createdAt
+        updatedAt
+        updater {
           id
-          name
-          type
-          createdAt
+          username
         }
       }
     }
@@ -54,10 +58,7 @@ const TagPage = () => {
   const navigate = useNavigate();
 
   const { data, refetch } = useQuery<{
-    getAuthAccountBookById: {
-      id: number;
-      tags: PaginationResult<ITag>;
-    };
+    getAuthTagsByAccountBookId: PaginationResult<ITag>;
   }>(GET_TAGS, {
     variables: {
       accountBookId: activeAccountBook?.id,
@@ -191,7 +192,7 @@ const TagPage = () => {
       <Table
         pagination={false}
         columns={columns}
-        dataSource={data?.getAuthAccountBookById.tags.data.map((it) => ({
+        dataSource={data?.getAuthTagsByAccountBookId.data.map((it) => ({
           ...it,
           key: it.id,
         }))}
