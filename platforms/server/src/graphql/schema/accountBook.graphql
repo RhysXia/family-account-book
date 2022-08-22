@@ -75,14 +75,3 @@ type Mutation {
   """
   deleteAccountBook(id: ID!): Boolean!
 }
-
-# type Query {
-#   """
-#   获取有权限的指定账本，自己需要为账本管理员或者普通成员
-#   """
-#   getAuthAccountBookById(id: ID!): AccountBook!
-#   """
-#   获取有权限的账本
-#   """
-#   getAuthAccountBooks(pagination: Pagination): AccountBookListWithPagintion!
-# }

@@ -1,9 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, FindManyOptions, In, Not } from 'typeorm';
+import { DataSource, In } from 'typeorm';
 import { PasswordUtil } from '../common/PasswordUtil';
 import { UserEntity } from '../entity/UserEntity';
-import { SignUpUserInput, SignInUserInput } from '../graphql/graphql';
-import { Like } from 'typeorm';
 import {
   AuthentizationException,
   ParameterException,
@@ -58,7 +56,10 @@ export class UserService {
     return qb.limit(limit).getMany();
   }
 
-  async signIn(signInUser: SignInUserInput): Promise<UserEntity> {
+  async signIn(signInUser: {
+    username: string;
+    password: string;
+  }): Promise<UserEntity> {
     const user = await this.dataSource.manager.findOne(UserEntity, {
       where: {
         username: signInUser.username,
@@ -75,7 +76,13 @@ export class UserService {
     return user;
   }
 
-  async signUp(signUpUser: SignUpUserInput): Promise<UserEntity> {
+  async signUp(signUpUser: {
+    username: string;
+    password: string;
+    email?: string;
+    nickname: string;
+    avatar?: string;
+  }): Promise<UserEntity> {
     return this.dataSource.transaction(async (manager) => {
       const oldUser = await manager.findOne(UserEntity, {
         where: { username: signUpUser.username },

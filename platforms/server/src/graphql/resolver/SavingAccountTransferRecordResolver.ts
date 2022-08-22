@@ -48,7 +48,17 @@ export class SavingAccountTransferRecordResolver {
     @Args('record') record: CreateSavingAccountTransferRecord,
   ) {
     const entity = await this.savingAccountTransferRecordService.create(
-      record,
+      {
+        ...record,
+        toSavingAccountId: decodeId(
+          EntityName.SAVING_ACCOUNT,
+          record.toSavingAccountId,
+        ),
+        fromSavingAccountId: decodeId(
+          EntityName.SAVING_ACCOUNT,
+          record.fromSavingAccountId,
+        ),
+      },
       currentUser,
     );
 
@@ -65,7 +75,21 @@ export class SavingAccountTransferRecordResolver {
   ) {
     const entity = await this.savingAccountTransferRecordService.update(
       decodeId(EntityName.SAVING_ACCOUNT_TRANSFER_RECORD, record.id),
-      record,
+      {
+        ...record,
+        ...(record.toSavingAccountId && {
+          toSavingAccountId: decodeId(
+            EntityName.SAVING_ACCOUNT,
+            record.toSavingAccountId,
+          ),
+        }),
+        ...(record.fromSavingAccountId && {
+          fromSavingAccountId: decodeId(
+            EntityName.SAVING_ACCOUNT,
+            record.fromSavingAccountId,
+          ),
+        }),
+      },
       currentUser,
     );
 

@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, In } from 'typeorm';
 import { AccountBookEntity } from '../entity/AccountBookEntity';
-import { TagEntity } from '../entity/TagEntity';
+import { TagEntity, TagType } from '../entity/TagEntity';
 import { UserEntity } from '../entity/UserEntity';
 import { ResourceNotFoundException } from '../exception/ServiceException';
-import { CreateTagInput, Pagination, UpdateTagInput } from '../graphql/graphql';
+import { Pagination } from '../graphql/graphql';
 import { applyPagination } from '../utils/applyPagination';
 
 @Injectable()
@@ -34,9 +34,15 @@ export class TagService {
     });
   }
 
-  update(tag: UpdateTagInput, user: UserEntity) {
+  update(
+    id: number,
+    tag: {
+      name?: string;
+    },
+    user: UserEntity,
+  ) {
     return this.dataSource.manager.transaction(async (manager) => {
-      const { id, name } = tag;
+      const { name } = tag;
 
       const tagEntity = await manager.findOne(TagEntity, {
         where: { id },
@@ -70,7 +76,14 @@ export class TagService {
     });
   }
 
-  async create(tagInput: CreateTagInput, user: UserEntity) {
+  async create(
+    tagInput: {
+      name: string;
+      accountBookId: number;
+      type: TagType;
+    },
+    user: UserEntity,
+  ) {
     return this.dataSource.manager.transaction(async (manager) => {
       const { accountBookId, name, type } = tagInput;
 
@@ -130,58 +143,18 @@ export class TagService {
     };
   }
 
-  async findAllByAccountBookIdAndUserIdAndPagination(
-    accountBookId: number,
-    userId: number,
-    pagination: Pagination,
-  ) {
-    const qb = this.dataSource.manager
+  async findByIdsAndUserId(ids: Array<number>, userId: number) {
+    const tags = await this.dataSource
       .createQueryBuilder(TagEntity, 'tag')
       .leftJoin('tag.accountBook', 'accountBook')
       .leftJoin('accountBook.admins', 'admin')
       .leftJoin('accountBook.members', 'member')
-      .where('tag.accountBookId = :accountBookId', {
-        accountBookId,
-      })
-      .andWhere('admin.id = :adminId OR member.id = :memberId', {
-        adminId: userId,
-        memberId: userId,
-      });
-
-    const data = await applyPagination(qb, 'tag', pagination).getManyAndCount();
-
-    return {
-      total: data[1],
-      data: data[0],
-    };
-  }
-
-  async findOneByIdAndUserId(id: number, userId: number) {
-    const tag = await this.dataSource.manager.findOne(TagEntity, {
-      where: { id },
-    });
-
-    if (!tag) {
-      throw new ResourceNotFoundException('标签不存在');
-    }
-
-    const accountBook = await this.dataSource
-      .createQueryBuilder(AccountBookEntity, 'accountBook')
-      .leftJoin('accountBook.admins', 'admin')
-      .leftJoin('accountBook.members', 'member')
-      .where('accountBook.id = :accountBookId', {
-        accountBookId: tag.accountBookId,
-      })
+      .where('tag.id IN (:...ids)', { ids })
       .andWhere('admin.id = :adminId OR member.id = :memberId', {
         adminId: userId,
         memberId: userId,
       })
-      .getOne();
-
-    if (!accountBook) {
-      throw new ResourceNotFoundException('账本不存在');
-    }
-
-    return tag;
+      .getMany();
+    return tags;
   }
 }

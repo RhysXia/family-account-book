@@ -14,6 +14,8 @@ import { SESSION_CURRENT_USER } from '../../utils/constants';
 import CurrentUser from '../decorator/CurrentUser';
 import Session from '../decorator/Session';
 import { SignUpUserInput, SignInUserInput, User, Pagination } from '../graphql';
+import { GraphqlEntity } from '../types';
+import { decodeId, encodeId, EntityName } from '../utils';
 
 @Resolver('User')
 export class UserResolver {
@@ -24,23 +26,48 @@ export class UserResolver {
 
   @ResolveField()
   async accountBooks(
-    @Parent() parent: User,
+    @Parent() parent: GraphqlEntity<User>,
     @Args('pagination') pagination?: Pagination,
   ) {
-    return this.accountBookService.findAllByUserIdAndPagination(
-      parent.id,
-      pagination,
-    );
+    const { total, data } =
+      await this.accountBookService.findAllByUserIdAndPagination(
+        decodeId(EntityName.USER, parent.id),
+        pagination,
+      );
+
+    return {
+      total,
+      data: data.map((it) => ({
+        ...it,
+        id: encodeId(EntityName.ACCOUNT_BOOK, it.id),
+      })),
+    };
   }
 
   @ResolveField()
-  async accountBook(@Parent() parent: User, @Args('id') id: number) {
-    return this.accountBookService.findOneByIdAndUserId(id, parent.id);
+  async accountBook(
+    @Parent() parent: GraphqlEntity<User>,
+    @Args('id') id: string,
+  ) {
+    const accountBooks = await this.accountBookService.findByIdsAndUserId(
+      [decodeId(EntityName.ACCOUNT_BOOK, id)],
+      decodeId(EntityName.USER, parent.id),
+    );
+
+    const accountBook = accountBooks[0];
+
+    if (accountBook) {
+      return {
+        ...accountBook,
+        id: encodeId(EntityName.ACCOUNT_BOOK, accountBook.id),
+      };
+    }
+    return null;
   }
 
   @Query()
   async getCurrentUser(@CurrentUser({ required: true }) user: UserEntity) {
-    return user;
+    return { ...user, id: encodeId(EntityName.USER, user.id) };
   }
 
   @Query()
@@ -50,11 +77,13 @@ export class UserResolver {
     @Args('limit') limit: number,
     @Args('includeSelf') includeSelf: boolean,
   ) {
-    return this.userService.findAllByNameLike(name, {
+    const users = await this.userService.findAllByNameLike(name, {
       limit,
       includeSelf,
       currentUser,
     });
+
+    return users.map((it) => ({ ...it, id: encodeId(EntityName.USER, it.id) }));
   }
 
   @Mutation()
@@ -70,11 +99,13 @@ export class UserResolver {
       session.cookie.maxAge = 1000 * 60 * 60 * 24 * 7;
     }
 
-    return currentUser;
+    return { ...currentUser, id: encodeId(EntityName.USER, currentUser.id) };
   }
 
   @Mutation()
   async signUp(@Args('user') signUpUser: SignUpUserInput) {
-    return this.userService.signUp(signUpUser);
+    const user = await this.userService.signUp(signUpUser);
+
+    return { ...user, id: encodeId(EntityName.USER, user.id) };
   }
 }

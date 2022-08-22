@@ -8,11 +8,7 @@ import {
   ParameterException,
   ResourceNotFoundException,
 } from '../exception/ServiceException';
-import {
-  CreateFlowRecordInput,
-  Pagination,
-  UpdateFlowRecordInput,
-} from '../graphql/graphql';
+import { Pagination } from '../graphql/graphql';
 import { SavingAccountHistoryManager } from '../manager/SavingAccountHistoryManager';
 import { applyPagination } from '../utils/applyPagination';
 
@@ -23,54 +19,20 @@ export class FlowRecordService {
     private readonly savingAccountMoneyRecordManager: SavingAccountHistoryManager,
   ) {}
 
-  async findOneByIdAndUserId(id: number, userId: number) {
-    const flowRecord = await this.dataSource.manager
+  async findByIdsAndUserId(ids: Array<number>, userId: number) {
+    const flowRecords = await this.dataSource.manager
       .createQueryBuilder(SavingAccountEntity, 'savingAccount')
       .leftJoin('savingAccount.accountBook', 'accountBook')
       .leftJoin('accountBook.admins', 'admin')
       .leftJoin('accountBook.members', 'member')
-      .where('savingAccount.id = :id', { id })
+      .where('savingAccount.id IN (:...ids)', { ids })
       .andWhere('admin.id = :adminId OR member.id = :memberId', {
         adminId: userId,
         memberId: userId,
       })
-      .getOne();
+      .getMany();
 
-    if (!flowRecord) {
-      throw new ResourceNotFoundException('流水记录不存在');
-    }
-
-    return flowRecord;
-  }
-
-  async findAllByAccountBookIdAndUserIdAndPagination(
-    accountBookId: number,
-    userId: number,
-    pagination: Pagination,
-  ) {
-    const qb = this.dataSource.manager
-      .createQueryBuilder(FlowRecordEntity, 'flowRecord')
-      .leftJoin('flowRecord.accountBook', 'accountBook')
-      .leftJoin('accountBook.admins', 'admin')
-      .leftJoin('accountBook.members', 'member')
-      .where('flowRecord.accountBookId = :accountBookId', {
-        accountBookId,
-      })
-      .andWhere('admin.id = :adminId OR member.id = :memberId', {
-        adminId: userId,
-        memberId: userId,
-      });
-
-    const data = await applyPagination(
-      qb,
-      'savingAccount',
-      pagination,
-    ).getManyAndCount();
-
-    return {
-      total: data[1],
-      data: data[0],
-    };
+    return flowRecords;
   }
 
   async delete(id: number, currentUser: UserEntity) {
@@ -103,7 +65,13 @@ export class FlowRecordService {
 
   async update(
     id: number,
-    flowRecordInput: Omit<UpdateFlowRecordInput, 'id'>,
+    flowRecordInput: {
+      desc?: string;
+      dealAt?: Date;
+      amount?: number;
+      savingAccountId?: number;
+      tagId?: number;
+    },
     user: UserEntity,
   ) {
     return this.dataSource.transaction(async (manager) => {
@@ -190,7 +158,16 @@ export class FlowRecordService {
     });
   }
 
-  async create(flowRecordInput: CreateFlowRecordInput, user: UserEntity) {
+  async create(
+    flowRecordInput: {
+      desc?: string;
+      dealAt: Date;
+      amount: number;
+      savingAccountId: number;
+      tagId: number;
+    },
+    user: UserEntity,
+  ) {
     return this.dataSource.transaction(async (manager) => {
       const { desc, amount, dealAt, savingAccountId, tagId } = flowRecordInput;
 

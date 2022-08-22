@@ -10,11 +10,7 @@ import { AccountBookEntity } from '../entity/AccountBookEntity';
 import { SavingAccountHistoryEntity } from '../entity/SavingAccountHistoryEntity';
 import { SavingAccountEntity } from '../entity/SavingAccountEntity';
 import { UserEntity } from '../entity/UserEntity';
-import {
-  CreateSavingAccountInput,
-  Pagination,
-  UpdateSavingAccountInput,
-} from '../graphql/graphql';
+import { Pagination } from '../graphql/graphql';
 import { SavingAccountAmountView } from '../entity/SavingAccountAmountView';
 import { applyPagination } from '../utils/applyPagination';
 import { ResourceNotFoundException } from '../exception/ServiceException';
@@ -46,43 +42,6 @@ export class SavingAccountService {
     });
   }
 
-  /**
-   * 获取最新余额
-   * @param savingAccountIds
-   * @returns
-   */
-  async findNewestAmountsBySavingAccountIds(savingAccountIds: Array<number>) {
-    return await this.dataSource.manager.find(SavingAccountAmountView, {
-      where: {
-        savingAccountId: In(savingAccountIds),
-      },
-    });
-  }
-
-  async findHistoriesBySavingAccountIdAndDealAtBetween(
-    savingAccountId: number,
-    startDate: Date,
-    endDate: Date,
-  ) {
-    const where: FindOneOptions<SavingAccountHistoryEntity>['where'] = {
-      savingAccountId,
-    };
-
-    if (startDate) {
-      where.dealAt = MoreThanOrEqual(startDate);
-    }
-    if (endDate) {
-      where.dealAt = LessThanOrEqual(endDate);
-    }
-
-    return this.dataSource.manager.find(SavingAccountHistoryEntity, {
-      where,
-      order: {
-        dealAt: 'ASC',
-      },
-    });
-  }
-
   findAllByIds(ids: number[]) {
     return this.dataSource.manager.find(SavingAccountEntity, {
       where: {
@@ -91,54 +50,20 @@ export class SavingAccountService {
     });
   }
 
-  async findOneByIdAndUserId(id: number, userId: number) {
-    const savingAccount = await this.dataSource.manager
+  async findByIdsAndUserId(ids: Array<number>, userId: number) {
+    const savingAccounts = await this.dataSource.manager
       .createQueryBuilder(SavingAccountEntity, 'savingAccount')
       .leftJoin('savingAccount.accountBook', 'accountBook')
       .leftJoin('accountBook.admins', 'admin')
       .leftJoin('accountBook.members', 'member')
-      .where('savingAccount.id = :id', { id })
+      .where('savingAccount.id IN (:...ids)', { ids })
       .andWhere('admin.id = :adminId OR member.id = :memberId', {
         adminId: userId,
         memberId: userId,
       })
-      .getOne();
+      .getMany();
 
-    if (!savingAccount) {
-      throw new ResourceNotFoundException('储蓄账户不存在');
-    }
-
-    return savingAccount;
-  }
-
-  async findAllByAccountBookIdAndUserIdAndPagination(
-    accountBookId: number,
-    userId: number,
-    pagination: Pagination,
-  ): Promise<{ total: number; data: Array<SavingAccountEntity> }> {
-    const qb = this.dataSource.manager
-      .createQueryBuilder(SavingAccountEntity, 'savingAccount')
-      .leftJoin('savingAccount.accountBook', 'accountBook')
-      .leftJoin('accountBook.admins', 'admin')
-      .leftJoin('accountBook.members', 'member')
-      .where('savingAccount.accountBookId = :accountBookId', {
-        accountBookId,
-      })
-      .andWhere('admin.id = :adminId OR member.id = :memberId', {
-        adminId: userId,
-        memberId: userId,
-      });
-
-    const data = await applyPagination(
-      qb,
-      'savingAccount',
-      pagination,
-    ).getManyAndCount();
-
-    return {
-      total: data[1],
-      data: data[0],
-    };
+    return savingAccounts;
   }
 
   async findAllByAccountBookIdAndPagination(
@@ -161,7 +86,15 @@ export class SavingAccountService {
     };
   }
 
-  async create(savingsInput: CreateSavingAccountInput, user: UserEntity) {
+  async create(
+    savingsInput: {
+      accountBookId: number;
+      name: string;
+      desc?: string;
+      amount: number;
+    },
+    user: UserEntity,
+  ) {
     return this.dataSource.transaction(async (manager) => {
       const { accountBookId, name, desc, amount } = savingsInput;
 
@@ -198,7 +131,12 @@ export class SavingAccountService {
 
   update(
     id: number,
-    savingsInput: Omit<UpdateSavingAccountInput, 'id'>,
+    savingsInput: {
+      accountBookId?: number;
+      name?: string;
+      desc?: string;
+      amount?: number;
+    },
     user: UserEntity,
   ) {
     return this.dataSource.transaction(async (manager) => {

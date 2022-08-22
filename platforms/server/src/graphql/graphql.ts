@@ -205,12 +205,6 @@ export interface SavingAccountListWithPagintion {
     data: SavingAccount[];
 }
 
-export interface AmountHistory {
-    id: string;
-    amount: number;
-    dealAt: Date;
-}
-
 export interface SavingAccount extends EntityDateTime {
     id: string;
     name: string;
@@ -221,9 +215,17 @@ export interface SavingAccount extends EntityDateTime {
     creator: SimpleUser;
     updater: SimpleUser;
     accountBook: AccountBook;
-    getHistoriesByDate: AmountHistory[];
+    getHistoriesByDate: SavingAccountHistory[];
     flowRecords: FlowRecordListWithPagintion;
     flowRecord: FlowRecord;
+}
+
+export interface SavingAccountHistory {
+    id: string;
+    amount: number;
+    dealAt: Date;
+    savingAccount: SavingAccount;
+    accountBook: AccountBook;
 }
 
 export interface SavingAccountTransferRecord extends EntityDateTime {
@@ -281,6 +283,6 @@ export interface SimpleUser {
     updatedAt: DateTime;
 }
 
-export type DateTime = any;
-export type Node = SimpleUser | AccountBook | SavingAccount | Tag | FlowRecord | SavingAccountTransferRecord;
+export type DateTime = Date;
+export type Node = AccountBook | SavingAccount | Tag | FlowRecord | SavingAccountTransferRecord | SavingAccountHistory;
 type Nullable<T> = T | null;

@@ -50,17 +50,6 @@ input UpdateFlowRecordInput {
   tagId: ID
 }
 
-# type Query {
-#   """
-#   获取有权限的记录
-#   """
-#   getAuthFlowRecordsByAccountBookId(
-#     accountBookId: ID!
-#     pagination: Pagination
-#   ): FlowRecordListWithPagintion
-#   getAuthFlowRecordById(id: ID!): FlowRecord
-# }
-
 type Mutation {
   createFlowRecord(flowRecord: CreateFlowRecordInput!): FlowRecord!
   updateFlowRecord(flowRecord: UpdateFlowRecordInput!): FlowRecord!

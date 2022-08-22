@@ -31,6 +31,7 @@ import {
   ResourceNotFoundException,
 } from '../exception/ServiceException';
 import { NodeResolver } from './resolver/NodeResolver';
+import { SavingAccountHistoryResolver } from './resolver/SavingAccountHistoryResolver';
 
 @Module({
   imports: [
@@ -111,6 +112,7 @@ import { NodeResolver } from './resolver/NodeResolver';
     TagResolver,
     FlowRecordResolver,
     SavingAccountTransferRecordResolver,
+    SavingAccountHistoryResolver,
     NodeResolver,
   ],
 })

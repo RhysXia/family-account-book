@@ -226,7 +226,21 @@ export class AccountBookResolver {
     @CurrentUser({ required: true }) user: UserEntity,
     @Args('accountBook') accountBookInput: CreateAccountBookInput,
   ) {
-    const entity = await this.accountBookService.create(accountBookInput, user);
+    const { adminIds, memberIds, ...others } = accountBookInput;
+
+    const entity = await this.accountBookService.create(
+      {
+        ...others,
+        ...(adminIds && {
+          adminIds: adminIds.map((it) => decodeId(EntityName.USER, it)),
+        }),
+        ...(memberIds && {
+          memberIds: memberIds.map((it) => decodeId(EntityName.USER, it)),
+        }),
+      },
+      user,
+    );
+
     return {
       ...entity,
       id: encodeId(EntityName.ACCOUNT_BOOK, entity.id),
@@ -238,9 +252,19 @@ export class AccountBookResolver {
     @CurrentUser({ required: true }) user: UserEntity,
     @Args('accountBook') accountBookInput: UpdateAccountBookInput,
   ) {
+    const { id, adminIds, memberIds, ...others } = accountBookInput;
+
     const entity = await this.accountBookService.update(
-      decodeId(EntityName.ACCOUNT_BOOK, accountBookInput.id),
-      accountBookInput,
+      decodeId(EntityName.ACCOUNT_BOOK, id),
+      {
+        ...others,
+        ...(adminIds && {
+          adminIds: adminIds.map((it) => decodeId(EntityName.USER, it)),
+        }),
+        ...(memberIds && {
+          memberIds: memberIds.map((it) => decodeId(EntityName.USER, it)),
+        }),
+      },
       user,
     );
 
@@ -261,23 +285,4 @@ export class AccountBookResolver {
     );
     return true;
   }
-
-  // @Query()
-  // async getAuthAccountBookById(
-  //   @CurrentUser({ required: true }) user: UserEntity,
-  //   @Args('id') id: number,
-  // ) {
-  //   return this.accountBookService.findByIdAndCurrentUser(id, user);
-  // }
-
-  // @Query()
-  // async getAuthAccountBooks(
-  //   @CurrentUser({ required: true }) user: UserEntity,
-  //   @Args('pagination') pagination?: Pagination,
-  // ) {
-  //   return this.accountBookService.findAllByUserIdAndPagination(
-  //     user.id,
-  //     pagination,
-  //   );
-  // }
 }

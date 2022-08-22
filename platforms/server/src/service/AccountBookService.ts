@@ -8,37 +8,29 @@ import { SavingAccountTransferRecordEntity } from '../entity/SavingAccountTransf
 import { TagEntity } from '../entity/TagEntity';
 import { UserEntity } from '../entity/UserEntity';
 import { ResourceNotFoundException } from '../exception/ServiceException';
-import {
-  CreateAccountBookInput,
-  Pagination,
-  UpdateAccountBookInput,
-} from '../graphql/graphql';
+import { Pagination } from '../graphql/graphql';
 import { applyPagination } from '../utils/applyPagination';
 
 @Injectable()
 export class AccountBookService {
   constructor(private readonly dataSource: DataSource) {}
 
-  async findByIdAndCurrentUser(
-    id: number,
-    currentUser: UserEntity,
-  ): Promise<AccountBookEntity> {
-    const accountBook = await this.dataSource.manager
+  async findByIdsAndUserId(
+    ids: Array<number>,
+    userId: number,
+  ): Promise<Array<AccountBookEntity>> {
+    const accountBooks = await this.dataSource.manager
       .createQueryBuilder(AccountBookEntity, 'accountBook')
       .leftJoin('accountBook.admins', 'admin')
       .leftJoin('accountBook.members', 'member')
-      .where('accountBook.id = :accountBookId', { accountBookId: id })
+      .where('accountBook.id IN (:...accountBookIds)', { accountBookIds: ids })
       .andWhere('admin.id = :adminId OR member.id = :memberId', {
-        adminId: currentUser.id,
-        memberId: currentUser.id,
+        adminId: userId,
+        memberId: userId,
       })
-      .getOne();
+      .getMany();
 
-    if (!accountBook) {
-      throw new ResourceNotFoundException('账本不存在');
-    }
-
-    return accountBook;
+    return accountBooks;
   }
 
   async delete(id: number, user: UserEntity) {
@@ -187,7 +179,12 @@ export class AccountBookService {
   }
 
   create(
-    accountBookInput: CreateAccountBookInput,
+    accountBookInput: {
+      adminIds?: Array<number>;
+      memberIds?: Array<number>;
+      name: string;
+      desc?: string;
+    },
     author: UserEntity,
   ): Promise<AccountBookEntity> {
     return this.dataSource.transaction(async (manager) => {
@@ -230,7 +227,12 @@ export class AccountBookService {
 
   async update(
     id: number,
-    accountBookInput: Omit<UpdateAccountBookInput, 'id'>,
+    accountBookInput: {
+      adminIds?: Array<number>;
+      memberIds?: Array<number>;
+      name?: string;
+      desc?: string;
+    },
     user: UserEntity,
   ): Promise<AccountBookEntity> {
     const { name, desc, adminIds, memberIds } = accountBookInput;

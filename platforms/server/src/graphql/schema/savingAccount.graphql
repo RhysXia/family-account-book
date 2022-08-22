@@ -3,12 +3,6 @@ type SavingAccountListWithPagintion {
   data: [SavingAccount!]!
 }
 
-type AmountHistory {
-  id: ID!
-  amount: Float!
-  dealAt: Date!
-}
-
 type SavingAccount implements EntityDateTime {
   id: ID!
   name: String!
@@ -29,7 +23,7 @@ type SavingAccount implements EntityDateTime {
   getHistoriesByDate(
     startDate: DateTime
     endDate: DateTime
-  ): [AmountHistory!]!
+  ): [SavingAccountHistory!]!
 
   flowRecords(pagination: Pagination): FlowRecordListWithPagintion!
   flowRecord(id: ID!): FlowRecord!
@@ -54,12 +48,6 @@ input UpdateSavingAccountInput {
   """
   amount: Float
 }
-
-# type Query {
-#   getAuthSavingAccountsByAccountBookId(accountBookId: ID!, pagination: Pagination): SavingAccountListWithPagintion!
-
-#   getAuthSavingAccountById(id: ID!): SavingAccount!
-# }
 
 type Mutation {
   createSavingAccount(savingAccount: CreateSavingAccountInput!): SavingAccount!

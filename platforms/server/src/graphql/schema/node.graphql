@@ -1,10 +1,10 @@
 union Node =
-    SimpleUser
-  | AccountBook
+    AccountBook
   | SavingAccount
   | Tag
   | FlowRecord
   | SavingAccountTransferRecord
+  | SavingAccountHistory
 
 type Query {
   node(id: ID!): Node

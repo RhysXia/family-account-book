@@ -9,7 +9,6 @@ import { FlowRecordEntity } from '../../entity/FlowRecordEntity';
 import { UserEntity } from '../../entity/UserEntity';
 import { FlowRecordService } from '../../service/FlowRecordService';
 import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
-import { TagDataLoader } from '../dataloader/TagDataLoader';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
 import { CreateFlowRecordInput, UpdateFlowRecordInput } from '../graphql';
@@ -21,7 +20,6 @@ export class FlowRecordResolver {
   constructor(
     private readonly userDataLoader: UserDataLoader,
     private readonly accountBookDataLoader: AccountBookDataLoader,
-    private readonly tagDataLoader: TagDataLoader,
     private readonly flowRecordService: FlowRecordService,
   ) {}
 
@@ -60,6 +58,20 @@ export class FlowRecordResolver {
   }
 
   @ResolveField()
+  async savingAccount(@Parent() parent: GraphqlEntity<FlowRecordEntity>) {
+    const savingAccountId = encodeId(
+      EntityName.ACCOUNT_BOOK,
+      parent.savingAccountId,
+    );
+
+    const savingAccount =
+      parent.savingAccount ||
+      (await this.accountBookDataLoader.load(savingAccountId));
+
+    return savingAccount ? { ...savingAccount, id: savingAccountId } : null;
+  }
+
+  @ResolveField()
   async tag(@Parent() parent: GraphqlEntity<FlowRecordEntity>) {
     const tagId = encodeId(EntityName.TAG, parent.tagId);
 
@@ -68,33 +80,21 @@ export class FlowRecordResolver {
     return tag ? { ...tag, id: tagId } : null;
   }
 
-  // @Query()
-  // async getAuthFlowRecordsByAccountBookId(
-  //   @CurrentUser({ required: true }) user: UserEntity,
-  //   @Args('accountBookId') accountBookId: number,
-  //   @Args('pagination') pagination?: Pagination,
-  // ) {
-  //   return this.flowRecordService.findAllByAccountBookIdAndUserIdAndPagination(
-  //     accountBookId,
-  //     user.id,
-  //     pagination,
-  //   );
-  // }
-
-  // @Query()
-  // async getAuthFlowRecordById(
-  //   @CurrentUser({ required: true }) user: UserEntity,
-  //   @Args('id') id: number,
-  // ) {
-  //   return this.flowRecordService.findOneByIdAndUserId(id, user.id);
-  // }
-
   @Mutation()
   async createFlowRecord(
     @CurrentUser({ required: true }) currentUser: UserEntity,
     @Args('flowRecord') flowRecord: CreateFlowRecordInput,
   ) {
-    const entity = await this.flowRecordService.create(flowRecord, currentUser);
+    const { savingAccountId, tagId, ...others } = flowRecord;
+
+    const entity = await this.flowRecordService.create(
+      {
+        ...others,
+        savingAccountId: decodeId(EntityName.SAVING_ACCOUNT, savingAccountId),
+        tagId: decodeId(EntityName.TAG, tagId),
+      },
+      currentUser,
+    );
 
     return {
       ...entity,
@@ -107,9 +107,19 @@ export class FlowRecordResolver {
     @CurrentUser({ required: true }) currentUser: UserEntity,
     @Args('flowRecord') flowRecord: UpdateFlowRecordInput,
   ) {
+    const { id, savingAccountId, tagId, ...others } = flowRecord;
+
     const entity = await this.flowRecordService.update(
-      decodeId(EntityName.FLOW_RECORD, flowRecord.id),
-      flowRecord,
+      decodeId(EntityName.FLOW_RECORD, id),
+      {
+        ...others,
+        ...(savingAccountId && {
+          savingAccountId: decodeId(EntityName.SAVING_ACCOUNT, savingAccountId),
+        }),
+        ...(tagId && {
+          tagId: decodeId(EntityName.TAG, tagId),
+        }),
+      },
       currentUser,
     );
     return {

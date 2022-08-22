@@ -5,10 +5,13 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
+import { SavingAccountAmountView } from '../../entity/SavingAccountAmountView';
 import { SavingAccountEntity } from '../../entity/SavingAccountEntity';
 import { UserEntity } from '../../entity/UserEntity';
 import { ResourceNotFoundException } from '../../exception/ServiceException';
 import { FlowRecordService } from '../../service/FlowRecordService';
+import { SavingAccountAmountService } from '../../service/SavingAccountAmountService';
+import { SavingAccountHistoryService } from '../../service/SavingAccountHistoryService';
 import { SavingAccountService } from '../../service/SavingAccountService';
 import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
 import { FlowRecordDataLoader } from '../dataloader/FlowRecordDataLoader';
@@ -27,6 +30,7 @@ import { decodeId, encodeId, EntityName } from '../utils';
 export class SavingAccountResolver {
   constructor(
     private readonly savingAccountService: SavingAccountService,
+    private readonly savingAccountHistoryService: SavingAccountHistoryService,
     private readonly savingAccountMoneyDataLoader: SavingAccountAmountDataLoader,
     private readonly userDataLoader: UserDataLoader,
     private readonly accountBookDataLoader: AccountBookDataLoader,
@@ -86,7 +90,7 @@ export class SavingAccountResolver {
     @Args('endDate') endDate: Date,
   ) {
     const histories =
-      await this.savingAccountService.findHistoriesBySavingAccountIdAndDealAtBetween(
+      await this.savingAccountHistoryService.findBySavingAccountIdAndDealAtBetween(
         decodeId(EntityName.SAVING_ACCOUNT, parent.id),
         startDate,
         endDate,
@@ -94,7 +98,7 @@ export class SavingAccountResolver {
 
     return histories.map((it) => ({
       ...it,
-      id: encodeId(EntityName.SAVING_ACCOUNT_AMOUNT, it.id),
+      id: encodeId(EntityName.SAVING_ACCOUNT_HISTORY, it.id),
     }));
   }
 
@@ -146,7 +150,15 @@ export class SavingAccountResolver {
     @CurrentUser({ required: true }) user: UserEntity,
     @Args('savingAccount') savingsInput: CreateSavingAccountInput,
   ) {
-    const entity = await this.savingAccountService.create(savingsInput, user);
+    const { accountBookId, ...others } = savingsInput;
+
+    const entity = await this.savingAccountService.create(
+      {
+        ...others,
+        accountBookId: decodeId(EntityName.ACCOUNT_BOOK, accountBookId),
+      },
+      user,
+    );
 
     return {
       ...entity,
@@ -159,33 +171,17 @@ export class SavingAccountResolver {
     @CurrentUser({ required: true }) user: UserEntity,
     @Args('savingAccount') savingsInput: UpdateSavingAccountInput,
   ) {
-    return this.savingAccountService.update(
+    const entity = await this.savingAccountService.update(
       decodeId(EntityName.SAVING_ACCOUNT, savingsInput.id),
       savingsInput,
       user,
     );
+
+    return {
+      ...entity,
+      id: savingsInput.id,
+    };
   }
-
-  // @Query()
-  // async getAuthSavingAccountsByAccountBookId(
-  //   @CurrentUser({ required: true }) user: UserEntity,
-  //   @Args('accountBookId') accountBookId: number,
-  //   @Args('pagination') pagination?: Pagination,
-  // ) {
-  //   return this.savingAccountService.findAllByAccountBookIdAndUserIdAndPagination(
-  //     accountBookId,
-  //     user.id,
-  //     pagination,
-  //   );
-  // }
-
-  // @Query()
-  // async getAuthSavingAccountById(
-  //   @CurrentUser({ required: true }) user: UserEntity,
-  //   @Args('id') id: number,
-  // ) {
-  //   return this.savingAccountService.findOneByIdAndUserId(id, user.id);
-  // }
 
   @Mutation()
   async deleteSavingAccount(

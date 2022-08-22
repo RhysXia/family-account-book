@@ -55,11 +55,3 @@ type Mutation {
   updateTag(tag: UpdateTagInput!): Tag!
   deleteTag(id: ID!): Boolean!
 }
-
-# type Query {
-#   getAuthTagsByAccountBookId(
-#     accountBookId: ID!
-#     pagination: Pagination
-#   ): TagListWithPagintion!
-#   getAuthTagById(id: ID!): Tag!
-# }

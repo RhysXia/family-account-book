@@ -1,8 +1,7 @@
 import { Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import { SavingAccountAmountView } from '../../entity/SavingAccountAmountView';
-import { SavingAccountService } from '../../service/SavingAccountService';
-import { GraphqlEntity } from '../types';
+import { SavingAccountAmountService } from '../../service/SavingAccountAmountService';
 import { decodeId, EntityName } from '../utils';
 
 /**
@@ -11,25 +10,17 @@ import { decodeId, EntityName } from '../utils';
 @Injectable({ scope: Scope.REQUEST })
 export class SavingAccountAmountDataLoader extends DataLoader<
   string,
-  GraphqlEntity<SavingAccountAmountView>
+  SavingAccountAmountView
 > {
-  constructor(savingAccountService: SavingAccountService) {
+  constructor(savingAccountAmountService: SavingAccountAmountService) {
     super(async (ids) => {
-      const idValues = ids.map((it) =>
-        decodeId(EntityName.SAVING_ACCOUNT_AMOUNT, it),
+      const idValues = ids.map((it) => decodeId(EntityName.SAVING_ACCOUNT, it));
+
+      const list = await savingAccountAmountService.findBySavingAccountIds(
+        idValues,
       );
 
-      const list =
-        await savingAccountService.findNewestAmountsBySavingAccountIds(
-          idValues,
-        );
-
-      return idValues.map((id, index) => {
-        const entity = list.find((it) => it.id === id);
-        if (entity) {
-          return { ...entity, id: ids[index] };
-        }
-      });
+      return list;
     });
   }
 }

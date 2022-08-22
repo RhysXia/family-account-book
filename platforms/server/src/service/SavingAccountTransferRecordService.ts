@@ -7,10 +7,7 @@ import {
   ParameterException,
   ResourceNotFoundException,
 } from '../exception/ServiceException';
-import {
-  CreateSavingAccountTransferRecord,
-  UpdateSavingAccountTransferRecord,
-} from '../graphql/graphql';
+
 import { SavingAccountHistoryManager } from '../manager/SavingAccountHistoryManager';
 
 @Injectable()
@@ -65,7 +62,14 @@ export class SavingAccountTransferRecordService {
   }
 
   async create(
-    record: CreateSavingAccountTransferRecord,
+    record: {
+      name: string;
+      desc?: string;
+      amount: number;
+      dealAt: Date;
+      fromSavingAccountId: number;
+      toSavingAccountId: number;
+    },
     currentUser: UserEntity,
   ) {
     const {
@@ -153,7 +157,14 @@ export class SavingAccountTransferRecordService {
 
   async update(
     id: number,
-    record: Omit<UpdateSavingAccountTransferRecord, 'id'>,
+    record: {
+      name?: string;
+      desc?: string;
+      amount?: number;
+      dealAt?: Date;
+      fromSavingAccountId?: number;
+      toSavingAccountId?: number;
+    },
     currentUser: UserEntity,
   ) {
     const {

@@ -5,6 +5,8 @@ import { ManagerModule } from '../manager/ManagerModule';
 import { RepositoryModule } from '../repository/RepositoryModule';
 import { AccountBookService } from './AccountBookService';
 import { FlowRecordService } from './FlowRecordService';
+import { SavingAccountAmountService } from './SavingAccountAmountService';
+import { SavingAccountHistoryService } from './SavingAccountHistoryService';
 import { SavingAccountService } from './SavingAccountService';
 import { SavingAccountTransferRecordService } from './SavingAccountTransferRecordService';
 import { TagService } from './TagService';
@@ -17,6 +19,8 @@ const services = [
   SavingAccountService,
   FlowRecordService,
   SavingAccountTransferRecordService,
+  SavingAccountHistoryService,
+  SavingAccountAmountService,
 ];
 
 @Module({
