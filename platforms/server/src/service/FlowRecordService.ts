@@ -101,10 +101,13 @@ export class FlowRecordService {
     });
   }
 
-  async update(flowRecordInput: UpdateFlowRecordInput, user: UserEntity) {
+  async update(
+    id: number,
+    flowRecordInput: Omit<UpdateFlowRecordInput, 'id'>,
+    user: UserEntity,
+  ) {
     return this.dataSource.transaction(async (manager) => {
-      const { id, desc, dealAt, amount, savingAccountId, tagId } =
-        flowRecordInput;
+      const { desc, dealAt, amount, savingAccountId, tagId } = flowRecordInput;
 
       const flowRecord = await manager
         .createQueryBuilder(FlowRecordEntity, 'flowRecord')

@@ -1,5 +1,4 @@
 import {
-  Query,
   Args,
   Mutation,
   Parent,
@@ -19,11 +18,12 @@ import { TagDataLoader } from '../dataloader/TagDataLoader';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
 import {
-  AccountBook,
   CreateAccountBookInput,
   Pagination,
   UpdateAccountBookInput,
 } from '../graphql';
+import { GraphqlEntity } from '../types';
+import { decodeId, encodeId, EntityName } from '../utils';
 
 @Resolver('AccountBook')
 export class AccountBookResolver {
@@ -39,106 +39,186 @@ export class AccountBookResolver {
   ) {}
 
   @ResolveField()
-  async admins(@Parent() parent: AccountBook) {
-    if (parent.admins) {
-      return parent.admins;
-    }
-    return this.accountBookService.findAdminsByAccountBookId(parent.id);
+  async admins(@Parent() parent: GraphqlEntity<AccountBookEntity>) {
+    const admins =
+      parent.admins ||
+      (await this.accountBookService.findAdminsByAccountBookId(
+        decodeId(EntityName.ACCOUNT_BOOK, parent.id),
+      ));
+
+    return admins.map((it) => ({
+      ...it,
+      id: encodeId(EntityName.USER, it.id),
+    }));
   }
 
   @ResolveField()
-  async members(@Parent() parent: AccountBookEntity) {
-    if (parent.members) {
-      return parent.members;
-    }
+  async members(@Parent() parent: GraphqlEntity<AccountBookEntity>) {
+    const members =
+      parent.members ||
+      (await this.accountBookService.findMembersByAccountBookId(
+        decodeId(EntityName.ACCOUNT_BOOK, parent.id),
+      ));
 
-    return this.accountBookService.findMembersByAccountBookId(parent.id);
+    return members.map((it) => ({
+      ...it,
+      id: encodeId(EntityName.USER, it.id),
+    }));
   }
 
   @ResolveField()
-  async creator(@Parent() parent: AccountBookEntity) {
-    if (parent.creator) {
-      return parent.creator;
-    }
-    return this.userDataLoader.load(parent.creatorId);
+  async creator(@Parent() parent: GraphqlEntity<AccountBookEntity>) {
+    const creatorId = encodeId(EntityName.USER, parent.creatorId);
+
+    const creator =
+      parent.creator || (await this.userDataLoader.load(creatorId));
+
+    return creator ? { ...creator, id: creatorId } : null;
   }
 
   @ResolveField()
-  async updater(@Parent() parent: AccountBookEntity) {
-    if (parent.updater) {
-      return parent.updater;
-    }
-    return this.userDataLoader.load(parent.updaterId);
+  async updater(@Parent() parent: GraphqlEntity<AccountBookEntity>) {
+    const updaterId = encodeId(EntityName.USER, parent.updaterId);
+
+    const updater =
+      parent.updater || (await this.userDataLoader.load(updaterId));
+
+    return updater ? { ...updater, id: updaterId } : null;
   }
 
   @ResolveField()
   async savingAccounts(
-    @Parent() parent: AccountBookEntity,
+    @Parent() parent: GraphqlEntity<AccountBookEntity>,
     @Args('pagination') pagination?: Pagination,
   ) {
-    return this.savingAccountService.findAllByAccountBookIdAndPagination(
-      parent.id,
-      pagination,
-    );
+    const parentId = decodeId(EntityName.ACCOUNT_BOOK, parent.id);
+
+    const { total, data } =
+      await this.savingAccountService.findAllByAccountBookIdAndPagination(
+        parentId,
+        pagination,
+      );
+
+    return {
+      total,
+      data: data.map((it) => ({
+        ...it,
+        id: encodeId(EntityName.SAVING_ACCOUNT, it.id),
+      })),
+    };
   }
 
   @ResolveField()
   async savingAccount(
-    @Parent() parent: AccountBookEntity,
-    @Args('id') id: number,
+    @Parent() parent: GraphqlEntity<AccountBookEntity>,
+    @Args('id') id: string,
   ) {
     const savingAccount = await this.savingAccountDataLoader.load(id);
 
-    if (!savingAccount || savingAccount.accountBookId !== parent.id) {
+    if (!savingAccount) {
+      throw new ResourceNotFoundException('储蓄账户不存在');
+    }
+
+    const encodedAccountBookId = encodeId(
+      EntityName.ACCOUNT_BOOK,
+      savingAccount.accountBookId,
+    );
+
+    if (encodedAccountBookId !== parent.id) {
       // 不暴露其他数据信息，一律提示资源不存在
       throw new ResourceNotFoundException('储蓄账户不存在');
     }
-    return savingAccount;
+    return { ...savingAccount, id };
   }
 
   @ResolveField()
   async tags(
-    @Parent() parent: AccountBookEntity,
+    @Parent() parent: GraphqlEntity<AccountBookEntity>,
     @Args('pagination') pagination?: Pagination,
   ) {
-    return this.tagService.findAllByAccountBookIdAndPagination(
-      parent.id,
-      pagination,
-    );
+    const parentId = decodeId(EntityName.ACCOUNT_BOOK, parent.id);
+
+    const { total, data } =
+      await this.tagService.findAllByAccountBookIdAndPagination(
+        parentId,
+        pagination,
+      );
+
+    return {
+      total,
+      data: data.map((it) => ({
+        ...it,
+        id: encodeId(EntityName.TAG, it.id),
+      })),
+    };
   }
 
   @ResolveField()
-  async tag(@Parent() parent: AccountBookEntity, @Args('id') id: number) {
+  async tag(
+    @Parent() parent: GraphqlEntity<AccountBookEntity>,
+    @Args('id') id: string,
+  ) {
     const tag = await this.tagDataLoader.load(id);
-    if (!tag || tag.accountBookId !== parent.id) {
+
+    if (!tag) {
+      throw new ResourceNotFoundException('标签不存在');
+    }
+
+    const encodedAccountBookId = encodeId(
+      EntityName.ACCOUNT_BOOK,
+      tag.accountBookId,
+    );
+
+    if (encodedAccountBookId !== parent.id) {
       // 不暴露其他数据信息，一律提示资源不存在
       throw new ResourceNotFoundException('标签不存在');
     }
-    return tag;
+    return { ...tag, id };
   }
 
   @ResolveField()
   async flowRecords(
-    @Parent() parent: AccountBookEntity,
+    @Parent() parent: GraphqlEntity<AccountBookEntity>,
     @Args('pagination') pagination?: Pagination,
   ) {
-    return this.flowRecordService.findAllByAccountBookIdAndPagination(
-      parent.id,
-      pagination,
-    );
+    const parentId = decodeId(EntityName.ACCOUNT_BOOK, parent.id);
+
+    const { total, data } =
+      await this.flowRecordService.findAllByAccountBookIdAndPagination(
+        parentId,
+        pagination,
+      );
+
+    return {
+      total,
+      data: data.map((it) => ({
+        ...it,
+        id: encodeId(EntityName.FLOW_RECORD, it.id),
+      })),
+    };
   }
 
   @ResolveField()
   async flowRecord(
-    @Parent() parent: AccountBookEntity,
-    @Args('id') id: number,
+    @Parent() parent: GraphqlEntity<AccountBookEntity>,
+    @Args('id') id: string,
   ) {
     const flowRecord = await this.flowRecordDataLoader.load(id);
-    if (!flowRecord || flowRecord.accountBookId !== parent.id) {
+
+    if (!flowRecord) {
+      throw new ResourceNotFoundException('流水不存在');
+    }
+
+    const encodedAccountBookId = encodeId(
+      EntityName.ACCOUNT_BOOK,
+      flowRecord.accountBookId,
+    );
+
+    if (encodedAccountBookId !== parent.id) {
       // 不暴露其他数据信息，一律提示资源不存在
       throw new ResourceNotFoundException('流水不存在');
     }
-    return flowRecord;
+    return { ...flowRecord, id };
   }
 
   @Mutation()
@@ -146,7 +226,11 @@ export class AccountBookResolver {
     @CurrentUser({ required: true }) user: UserEntity,
     @Args('accountBook') accountBookInput: CreateAccountBookInput,
   ) {
-    return this.accountBookService.create(accountBookInput, user);
+    const entity = await this.accountBookService.create(accountBookInput, user);
+    return {
+      ...entity,
+      id: encodeId(EntityName.ACCOUNT_BOOK, entity.id),
+    };
   }
 
   @Mutation()
@@ -154,34 +238,46 @@ export class AccountBookResolver {
     @CurrentUser({ required: true }) user: UserEntity,
     @Args('accountBook') accountBookInput: UpdateAccountBookInput,
   ) {
-    return this.accountBookService.update(accountBookInput, user);
+    const entity = await this.accountBookService.update(
+      decodeId(EntityName.ACCOUNT_BOOK, accountBookInput.id),
+      accountBookInput,
+      user,
+    );
+
+    return {
+      ...entity,
+      id: accountBookInput.id,
+    };
   }
 
   @Mutation()
   async deleteAccountBook(
     @CurrentUser({ required: true }) user: UserEntity,
-    @Args('id') id: number,
+    @Args('id') id: string,
   ) {
-    await this.accountBookService.delete(id, user);
+    await this.accountBookService.delete(
+      decodeId(EntityName.ACCOUNT_BOOK, id),
+      user,
+    );
     return true;
   }
 
-  @Query()
-  async getAuthAccountBookById(
-    @CurrentUser({ required: true }) user: UserEntity,
-    @Args('id') id: number,
-  ) {
-    return this.accountBookService.findByIdAndCurrentUser(id, user);
-  }
+  // @Query()
+  // async getAuthAccountBookById(
+  //   @CurrentUser({ required: true }) user: UserEntity,
+  //   @Args('id') id: number,
+  // ) {
+  //   return this.accountBookService.findByIdAndCurrentUser(id, user);
+  // }
 
-  @Query()
-  async getAuthAccountBooks(
-    @CurrentUser({ required: true }) user: UserEntity,
-    @Args('pagination') pagination?: Pagination,
-  ) {
-    return this.accountBookService.findAllByUserIdAndPagination(
-      user.id,
-      pagination,
-    );
-  }
+  // @Query()
+  // async getAuthAccountBooks(
+  //   @CurrentUser({ required: true }) user: UserEntity,
+  //   @Args('pagination') pagination?: Pagination,
+  // ) {
+  //   return this.accountBookService.findAllByUserIdAndPagination(
+  //     user.id,
+  //     pagination,
+  //   );
+  // }
 }

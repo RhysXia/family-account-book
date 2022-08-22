@@ -2,17 +2,26 @@ import { Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import { AccountBookEntity } from '../../entity/AccountBookEntity';
 import { AccountBookService } from '../../service/AccountBookService';
+import { GraphqlEntity } from '../types';
+import { decodeId, EntityName } from '../utils';
 
 @Injectable({ scope: Scope.REQUEST })
 export class AccountBookDataLoader extends DataLoader<
-  number,
-  AccountBookEntity
+  string,
+  GraphqlEntity<AccountBookEntity>
 > {
   constructor(accountBookService: AccountBookService) {
     super(async (ids) => {
-      const list = await accountBookService.findAllByIds([...ids]);
+      const idValues = ids.map((it) => decodeId(EntityName.ACCOUNT_BOOK, it));
 
-      return ids.map((id) => list.find((it) => it.id === id));
+      const list = await accountBookService.findAllByIds(idValues);
+
+      return idValues.map((id, index) => {
+        const entity = list.find((it) => it.id === id);
+        if (entity) {
+          return { ...entity, id: ids[index] };
+        }
+      });
     });
   }
 }

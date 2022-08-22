@@ -229,10 +229,11 @@ export class AccountBookService {
   }
 
   async update(
-    accountBookInput: UpdateAccountBookInput,
+    id: number,
+    accountBookInput: Omit<UpdateAccountBookInput, 'id'>,
     user: UserEntity,
   ): Promise<AccountBookEntity> {
-    const { id, name, desc, adminIds, memberIds } = accountBookInput;
+    const { name, desc, adminIds, memberIds } = accountBookInput;
 
     return this.dataSource.transaction(async (manager) => {
       // 只有管理员能更新

@@ -2,7 +2,6 @@ import {
   Args,
   Mutation,
   Parent,
-  Query,
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
@@ -21,6 +20,8 @@ import {
   Pagination,
   UpdateSavingAccountInput,
 } from '../graphql';
+import { GraphqlEntity } from '../types';
+import { decodeId, encodeId, EntityName } from '../utils';
 
 @Resolver('SavingAccount')
 export class SavingAccountResolver {
@@ -34,7 +35,7 @@ export class SavingAccountResolver {
   ) {}
 
   @ResolveField()
-  async amount(@Parent() parent: SavingAccountEntity) {
+  async amount(@Parent() parent: GraphqlEntity<SavingAccountEntity>) {
     const money = await this.savingAccountMoneyDataLoader.load(parent.id);
 
     if (money) {
@@ -45,63 +46,99 @@ export class SavingAccountResolver {
   }
 
   @ResolveField()
-  async accountBook(@Parent() parent: SavingAccountEntity) {
-    if (parent.accountBook) {
-      return parent.accountBook;
-    }
-    return this.accountBookDataLoader.load(parent.accountBookId);
+  async accountBook(@Parent() parent: GraphqlEntity<SavingAccountEntity>) {
+    const accountBookId = encodeId(
+      EntityName.ACCOUNT_BOOK,
+      parent.accountBookId,
+    );
+
+    const accountBook =
+      parent.accountBook ||
+      (await this.accountBookDataLoader.load(accountBookId));
+
+    return accountBook ? { ...accountBook, id: accountBookId } : null;
   }
 
   @ResolveField()
-  async creator(@Parent() parent: SavingAccountEntity) {
-    if (parent.creator) {
-      return parent.creator;
-    }
-    return this.userDataLoader.load(parent.creatorId);
+  async creator(@Parent() parent: GraphqlEntity<SavingAccountEntity>) {
+    const creatorId = encodeId(EntityName.USER, parent.creatorId);
+
+    const creator =
+      parent.creator || (await this.userDataLoader.load(creatorId));
+
+    return creator ? { ...creator, id: creatorId } : null;
   }
 
   @ResolveField()
-  async updater(@Parent() parent: SavingAccountEntity) {
-    if (parent.updater) {
-      return parent.updater;
-    }
-    return this.userDataLoader.load(parent.updaterId);
+  async updater(@Parent() parent: GraphqlEntity<SavingAccountEntity>) {
+    const updaterId = encodeId(EntityName.USER, parent.updaterId);
+
+    const updater =
+      parent.updater || (await this.userDataLoader.load(updaterId));
+
+    return updater ? { ...updater, id: updaterId } : null;
   }
 
   @ResolveField()
   async getHistoriesByDate(
-    @Parent() parent: SavingAccountEntity,
+    @Parent() parent: GraphqlEntity<SavingAccountEntity>,
     @Args('startDate') startDate: Date,
     @Args('endDate') endDate: Date,
   ) {
-    return this.savingAccountService.findHistoriesBySavingAccountIdAndDealAtBetween(
-      parent.id,
-      startDate,
-      endDate,
-    );
+    const histories =
+      await this.savingAccountService.findHistoriesBySavingAccountIdAndDealAtBetween(
+        decodeId(EntityName.SAVING_ACCOUNT, parent.id),
+        startDate,
+        endDate,
+      );
+
+    return histories.map((it) => ({
+      ...it,
+      id: encodeId(EntityName.SAVING_ACCOUNT_AMOUNT, it.id),
+    }));
   }
 
   @ResolveField()
   async flowRecords(
-    @Parent() parent: SavingAccountEntity,
+    @Parent() parent: GraphqlEntity<SavingAccountEntity>,
     @Args('pagination') pagination?: Pagination,
   ) {
-    return this.flowRecordService.findAllBySavingAccountIdAndPagination(
-      parent.id,
-      pagination,
-    );
+    const { total, data } =
+      await this.flowRecordService.findAllBySavingAccountIdAndPagination(
+        decodeId(EntityName.SAVING_ACCOUNT, parent.id),
+        pagination,
+      );
+
+    return {
+      total,
+      data: data.map((it) => ({
+        ...it,
+        id: encodeId(EntityName.FLOW_RECORD, it.id),
+      })),
+    };
   }
 
   @ResolveField()
   async flowRecord(
-    @Parent() parent: SavingAccountEntity,
-    @Args('id') id: number,
+    @Parent() parent: GraphqlEntity<SavingAccountEntity>,
+    @Args('id') id: string,
   ) {
     const flowRecord = await this.flowRecordDataLoader.load(id);
-    if (!flowRecord || flowRecord.savingAccountId !== parent.id) {
+
+    if (!flowRecord) {
       throw new ResourceNotFoundException('流水不存在');
     }
-    return flowRecord;
+
+    const encodedSavingAccountId = encodeId(
+      EntityName.SAVING_ACCOUNT,
+      flowRecord.savingAccountId,
+    );
+
+    if (encodedSavingAccountId !== parent.id) {
+      // 不暴露其他数据信息，一律提示资源不存在
+      throw new ResourceNotFoundException('流水不存在');
+    }
+    return { ...flowRecord, id };
   }
 
   @Mutation()
@@ -109,7 +146,12 @@ export class SavingAccountResolver {
     @CurrentUser({ required: true }) user: UserEntity,
     @Args('savingAccount') savingsInput: CreateSavingAccountInput,
   ) {
-    return this.savingAccountService.create(savingsInput, user);
+    const entity = await this.savingAccountService.create(savingsInput, user);
+
+    return {
+      ...entity,
+      id: encodeId(EntityName.SAVING_ACCOUNT, entity.id),
+    };
   }
 
   @Mutation()
@@ -117,36 +159,43 @@ export class SavingAccountResolver {
     @CurrentUser({ required: true }) user: UserEntity,
     @Args('savingAccount') savingsInput: UpdateSavingAccountInput,
   ) {
-    return this.savingAccountService.update(savingsInput, user);
-  }
-
-  @Query()
-  async getAuthSavingAccountsByAccountBookId(
-    @CurrentUser({ required: true }) user: UserEntity,
-    @Args('accountBookId') accountBookId: number,
-    @Args('pagination') pagination?: Pagination,
-  ) {
-    return this.savingAccountService.findAllByAccountBookIdAndUserIdAndPagination(
-      accountBookId,
-      user.id,
-      pagination,
+    return this.savingAccountService.update(
+      decodeId(EntityName.SAVING_ACCOUNT, savingsInput.id),
+      savingsInput,
+      user,
     );
   }
 
-  @Query()
-  async getAuthSavingAccountById(
-    @CurrentUser({ required: true }) user: UserEntity,
-    @Args('id') id: number,
-  ) {
-    return this.savingAccountService.findOneByIdAndUserId(id, user.id);
-  }
+  // @Query()
+  // async getAuthSavingAccountsByAccountBookId(
+  //   @CurrentUser({ required: true }) user: UserEntity,
+  //   @Args('accountBookId') accountBookId: number,
+  //   @Args('pagination') pagination?: Pagination,
+  // ) {
+  //   return this.savingAccountService.findAllByAccountBookIdAndUserIdAndPagination(
+  //     accountBookId,
+  //     user.id,
+  //     pagination,
+  //   );
+  // }
+
+  // @Query()
+  // async getAuthSavingAccountById(
+  //   @CurrentUser({ required: true }) user: UserEntity,
+  //   @Args('id') id: number,
+  // ) {
+  //   return this.savingAccountService.findOneByIdAndUserId(id, user.id);
+  // }
 
   @Mutation()
   async deleteSavingAccount(
     @CurrentUser({ required: true }) currentUser: UserEntity,
-    @Args('id') id: number,
+    @Args('id') id: string,
   ) {
-    await this.savingAccountService.delete(id, currentUser);
+    await this.savingAccountService.delete(
+      decodeId(EntityName.SAVING_ACCOUNT, id),
+      currentUser,
+    );
     return true;
   }
 }

@@ -152,11 +152,11 @@ export class SavingAccountTransferRecordService {
   }
 
   async update(
-    record: UpdateSavingAccountTransferRecord,
+    id: number,
+    record: Omit<UpdateSavingAccountTransferRecord, 'id'>,
     currentUser: UserEntity,
   ) {
     const {
-      id,
       name,
       desc,
       amount,

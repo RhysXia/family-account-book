@@ -28,16 +28,16 @@ export enum TagType {
 export interface CreateAccountBookInput {
     name: string;
     desc?: Nullable<string>;
-    adminIds?: Nullable<number[]>;
-    memberIds?: Nullable<number[]>;
+    adminIds?: Nullable<string[]>;
+    memberIds?: Nullable<string[]>;
 }
 
 export interface UpdateAccountBookInput {
-    id: number;
+    id: string;
     name?: Nullable<string>;
     desc?: Nullable<string>;
-    adminIds?: Nullable<number[]>;
-    memberIds?: Nullable<number[]>;
+    adminIds?: Nullable<string[]>;
+    memberIds?: Nullable<string[]>;
 }
 
 export interface OrderBy {
@@ -55,28 +55,28 @@ export interface CreateFlowRecordInput {
     desc?: Nullable<string>;
     dealAt: Date;
     amount: number;
-    savingAccountId: number;
-    tagId: number;
+    savingAccountId: string;
+    tagId: string;
 }
 
 export interface UpdateFlowRecordInput {
-    id: number;
+    id: string;
     desc?: Nullable<string>;
     dealAt?: Nullable<Date>;
     amount?: Nullable<number>;
-    savingAccountId?: Nullable<number>;
-    tagId?: Nullable<number>;
+    savingAccountId?: Nullable<string>;
+    tagId?: Nullable<string>;
 }
 
 export interface CreateSavingAccountInput {
     name: string;
     desc?: Nullable<string>;
     amount: number;
-    accountBookId: number;
+    accountBookId: string;
 }
 
 export interface UpdateSavingAccountInput {
-    id: number;
+    id: string;
     name?: Nullable<string>;
     desc?: Nullable<string>;
     amount?: Nullable<number>;
@@ -86,29 +86,29 @@ export interface CreateSavingAccountTransferRecord {
     name: string;
     desc?: Nullable<string>;
     amount: number;
-    fromSavingAccountId: number;
-    toSavingAccountId: number;
+    fromSavingAccountId: string;
+    toSavingAccountId: string;
     dealAt: Date;
 }
 
 export interface UpdateSavingAccountTransferRecord {
-    id: number;
+    id: string;
     name?: Nullable<string>;
     desc?: Nullable<string>;
     amount?: Nullable<number>;
-    fromSavingAccountId?: Nullable<number>;
-    toSavingAccountId?: Nullable<number>;
+    fromSavingAccountId?: Nullable<string>;
+    toSavingAccountId?: Nullable<string>;
     dealAt?: Nullable<Date>;
 }
 
 export interface CreateTagInput {
     name: string;
     type: TagType;
-    accountBookId: number;
+    accountBookId: string;
 }
 
 export interface UpdateTagInput {
-    id: number;
+    id: string;
     name: string;
 }
 
@@ -137,7 +137,7 @@ export interface AccountBookListWithPagintion {
 }
 
 export interface AccountBook extends EntityDateTime {
-    id: number;
+    id: string;
     name: string;
     desc?: Nullable<string>;
     admins: SimpleUser[];
@@ -157,34 +157,21 @@ export interface AccountBook extends EntityDateTime {
 export interface IMutation {
     createAccountBook(accountBook: CreateAccountBookInput): AccountBook | Promise<AccountBook>;
     updateAccountBook(accountBook: UpdateAccountBookInput): AccountBook | Promise<AccountBook>;
-    deleteAccountBook(id: number): boolean | Promise<boolean>;
+    deleteAccountBook(id: string): boolean | Promise<boolean>;
     createFlowRecord(flowRecord: CreateFlowRecordInput): FlowRecord | Promise<FlowRecord>;
     updateFlowRecord(flowRecord: UpdateFlowRecordInput): FlowRecord | Promise<FlowRecord>;
-    deleteFlowRecord(id: number): boolean | Promise<boolean>;
+    deleteFlowRecord(id: string): boolean | Promise<boolean>;
     createSavingAccount(savingAccount: CreateSavingAccountInput): SavingAccount | Promise<SavingAccount>;
     updateSavingAccount(savingAccount: UpdateSavingAccountInput): SavingAccount | Promise<SavingAccount>;
-    deleteSavingAccount(id: number): boolean | Promise<boolean>;
+    deleteSavingAccount(id: string): boolean | Promise<boolean>;
     createSavingAccountTransferRecord(record: CreateSavingAccountTransferRecord): SavingAccountTransferRecord | Promise<SavingAccountTransferRecord>;
     updateSavingAccountTransferRecord(record: UpdateSavingAccountTransferRecord): SavingAccountTransferRecord | Promise<SavingAccountTransferRecord>;
-    deleteSavingAccountTransferRecord(id: number): boolean | Promise<boolean>;
+    deleteSavingAccountTransferRecord(id: string): boolean | Promise<boolean>;
     createTag(tag: CreateTagInput): Tag | Promise<Tag>;
     updateTag(tag: UpdateTagInput): Tag | Promise<Tag>;
-    deleteTag(id: number): boolean | Promise<boolean>;
+    deleteTag(id: string): boolean | Promise<boolean>;
     signIn(user: SignInUserInput): User | Promise<User>;
     signUp(user: SignUpUserInput): User | Promise<User>;
-}
-
-export interface IQuery {
-    getAuthAccountBookById(id: number): AccountBook | Promise<AccountBook>;
-    getAuthAccountBooks(pagination?: Nullable<Pagination>): AccountBookListWithPagintion | Promise<AccountBookListWithPagintion>;
-    getAuthFlowRecordsByAccountBookId(accountBookId: number, pagination?: Nullable<Pagination>): Nullable<FlowRecordListWithPagintion> | Promise<Nullable<FlowRecordListWithPagintion>>;
-    getAuthFlowRecordById(id: number): Nullable<FlowRecord> | Promise<Nullable<FlowRecord>>;
-    getAuthSavingAccountsByAccountBookId(accountBookId: number, pagination?: Nullable<Pagination>): SavingAccountListWithPagintion | Promise<SavingAccountListWithPagintion>;
-    getAuthSavingAccountById(id: number): SavingAccount | Promise<SavingAccount>;
-    getAuthTagsByAccountBookId(accountBookId: number, pagination?: Nullable<Pagination>): TagListWithPagintion | Promise<TagListWithPagintion>;
-    getAuthTagById(id: number): Tag | Promise<Tag>;
-    getCurrentUser(): User | Promise<User>;
-    findUserListByNameLike(name: string, limit?: Nullable<number>, includeSelf?: Nullable<boolean>): SimpleUser[] | Promise<SimpleUser[]>;
 }
 
 export interface FlowRecordListWithPagintion {
@@ -193,7 +180,7 @@ export interface FlowRecordListWithPagintion {
 }
 
 export interface FlowRecord extends EntityDateTime {
-    id: number;
+    id: string;
     desc?: Nullable<string>;
     createdAt: DateTime;
     updatedAt: DateTime;
@@ -206,19 +193,26 @@ export interface FlowRecord extends EntityDateTime {
     tag: Tag;
 }
 
+export interface IQuery {
+    node(id: string): Nullable<Node> | Promise<Nullable<Node>>;
+    nodes(ids: string[]): Node[] | Promise<Node[]>;
+    getCurrentUser(): User | Promise<User>;
+    findUserListByNameLike(name: string, limit?: Nullable<number>, includeSelf?: Nullable<boolean>): SimpleUser[] | Promise<SimpleUser[]>;
+}
+
 export interface SavingAccountListWithPagintion {
     total: number;
     data: SavingAccount[];
 }
 
 export interface AmountHistory {
-    id: number;
+    id: string;
     amount: number;
     dealAt: Date;
 }
 
 export interface SavingAccount extends EntityDateTime {
-    id: number;
+    id: string;
     name: string;
     desc?: Nullable<string>;
     createdAt: DateTime;
@@ -233,7 +227,7 @@ export interface SavingAccount extends EntityDateTime {
 }
 
 export interface SavingAccountTransferRecord extends EntityDateTime {
-    id: number;
+    id: string;
     name: string;
     desc?: Nullable<string>;
     amount: number;
@@ -253,7 +247,7 @@ export interface TagListWithPagintion {
 }
 
 export interface Tag extends EntityDateTime {
-    id: number;
+    id: string;
     name: string;
     type: TagType;
     createdAt: DateTime;
@@ -266,7 +260,7 @@ export interface Tag extends EntityDateTime {
 }
 
 export interface User extends EntityDateTime {
-    id: number;
+    id: string;
     username: string;
     nickname: string;
     email?: Nullable<string>;
@@ -278,7 +272,7 @@ export interface User extends EntityDateTime {
 }
 
 export interface SimpleUser {
-    id: number;
+    id: string;
     nickname: string;
     username: string;
     email?: Nullable<string>;
@@ -287,5 +281,6 @@ export interface SimpleUser {
     updatedAt: DateTime;
 }
 
-export type DateTime = Date;
+export type DateTime = any;
+export type Node = SimpleUser | AccountBook | SavingAccount | Tag | FlowRecord | SavingAccountTransferRecord;
 type Nullable<T> = T | null;

@@ -31,7 +31,6 @@ import {
   ResourceNotFoundException,
 } from '../exception/ServiceException';
 import { NodeResolver } from './resolver/NodeResolver';
-import { GraphqlIdUtil } from './GraphqlIdUtil';
 
 @Module({
   imports: [
@@ -97,7 +96,6 @@ import { GraphqlIdUtil } from './GraphqlIdUtil';
     ServiceModule,
   ],
   providers: [
-    GraphqlIdUtil,
     DateTimeScalar,
     DateScalar,
     TagDataLoader,

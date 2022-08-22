@@ -196,9 +196,13 @@ export class SavingAccountService {
     });
   }
 
-  update(savingsInput: UpdateSavingAccountInput, user: UserEntity) {
+  update(
+    id: number,
+    savingsInput: Omit<UpdateSavingAccountInput, 'id'>,
+    user: UserEntity,
+  ) {
     return this.dataSource.transaction(async (manager) => {
-      const { id, name, desc, amount } = savingsInput;
+      const { name, desc, amount } = savingsInput;
 
       const savingAccount = await manager.findOne(SavingAccountEntity, {
         where: { id },
