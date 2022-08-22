@@ -23,7 +23,7 @@ enum TagType {
 }
 
 type Tag implements EntityDateTime {
-  id: Int!
+  id: ID!
   name: String!
   type: TagType!
 
@@ -36,30 +36,30 @@ type Tag implements EntityDateTime {
   accountBook: AccountBook!
 
   flowRecords(pagination: Pagination): FlowRecordListWithPagintion!
-  flowRecord(id: Int!): FlowRecord!
+  flowRecord(id: ID!): FlowRecord!
 }
 
 input CreateTagInput {
   name: String!
   type: TagType!
-  accountBookId: Int!
+  accountBookId: ID!
 }
 
 input UpdateTagInput {
-  id: Int!
+  id: ID!
   name: String!
 }
 
 type Mutation {
   createTag(tag: CreateTagInput!): Tag!
   updateTag(tag: UpdateTagInput!): Tag!
-  deleteTag(id: Int!): Boolean!
+  deleteTag(id: ID!): Boolean!
 }
 
-type Query {
-  getAuthTagsByAccountBookId(
-    accountBookId: Int!
-    pagination: Pagination
-  ): TagListWithPagintion!
-  getAuthTagById(id: Int!): Tag!
-}
+# type Query {
+#   getAuthTagsByAccountBookId(
+#     accountBookId: ID!
+#     pagination: Pagination
+#   ): TagListWithPagintion!
+#   getAuthTagById(id: ID!): Tag!
+# }

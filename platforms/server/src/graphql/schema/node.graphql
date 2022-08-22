@@ -4,7 +4,7 @@ union Node =
   | SavingAccount
   | Tag
   | FlowRecord
-  | SavingAccountTransfer
+  | SavingAccountTransferRecord
 
 type Query {
   node(id: ID!): Node

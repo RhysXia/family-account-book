@@ -4,7 +4,7 @@ type AccountBookListWithPagintion {
 }
 
 type AccountBook implements EntityDateTime {
-  id: Int!
+  id: ID!
   name: String!
   desc: String
   """
@@ -24,13 +24,13 @@ type AccountBook implements EntityDateTime {
   updatedAt: DateTime!
 
   savingAccounts(pagination: Pagination): SavingAccountListWithPagintion!
-  savingAccount(id: Int!): SavingAccount!
+  savingAccount(id: ID!): SavingAccount!
 
   tags(pagination: Pagination): TagListWithPagintion
-  tag(id: Int!): Tag!
+  tag(id: ID!): Tag!
 
   flowRecords(pagination: Pagination): FlowRecordListWithPagintion!
-  flowRecord(id: Int!): FlowRecord!
+  flowRecord(id: ID!): FlowRecord!
 }
 
 input CreateAccountBookInput {
@@ -39,25 +39,25 @@ input CreateAccountBookInput {
   """
   管理员id，自己可以不传，默认自己作为管理员
   """
-  adminIds: [Int!]
+  adminIds: [ID!]
   """
   成员id，会过滤在管理员中的用户
   """
-  memberIds: [Int!]
+  memberIds: [ID!]
 }
 
 input UpdateAccountBookInput {
-  id: Int!
+  id: ID!
   name: String
   desc: String
   """
   管理员id，需要传全量id，自己可以不传
   """
-  adminIds: [Int!]
+  adminIds: [ID!]
   """
   成员id，会过滤在管理员中的用户
   """
-  memberIds: [Int!]
+  memberIds: [ID!]
 }
 
 type Mutation {
@@ -73,16 +73,16 @@ type Mutation {
   """
   删除账本
   """
-  deleteAccountBook(id: Int!): Boolean!
+  deleteAccountBook(id: ID!): Boolean!
 }
 
-type Query {
-  """
-  获取有权限的指定账本，自己需要为账本管理员或者普通成员
-  """
-  getAuthAccountBookById(id: Int!): AccountBook!
-  """
-  获取有权限的账本
-  """
-  getAuthAccountBooks(pagination: Pagination): AccountBookListWithPagintion!
-}
+# type Query {
+#   """
+#   获取有权限的指定账本，自己需要为账本管理员或者普通成员
+#   """
+#   getAuthAccountBookById(id: ID!): AccountBook!
+#   """
+#   获取有权限的账本
+#   """
+#   getAuthAccountBooks(pagination: Pagination): AccountBookListWithPagintion!
+# }

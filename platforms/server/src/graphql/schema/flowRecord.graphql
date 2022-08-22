@@ -4,7 +4,7 @@ type FlowRecordListWithPagintion {
 }
 
 type FlowRecord implements EntityDateTime {
-  id: Int!
+  id: ID!
   desc: String
 
   createdAt: DateTime!
@@ -37,32 +37,32 @@ input CreateFlowRecordInput {
   desc: String
   dealAt: Date!
   amount: Float!
-  savingAccountId: Int!
-  tagId: Int!
+  savingAccountId: ID!
+  tagId: ID!
 }
 
 input UpdateFlowRecordInput {
-  id: Int!
+  id: ID!
   desc: String
   dealAt: Date
   amount: Float
-  savingAccountId: Int
-  tagId: Int
+  savingAccountId: ID
+  tagId: ID
 }
 
-type Query {
-  """
-  获取有权限的记录
-  """
-  getAuthFlowRecordsByAccountBookId(
-    accountBookId: Int!
-    pagination: Pagination
-  ): FlowRecordListWithPagintion
-  getAuthFlowRecordById(id: Int!): FlowRecord
-}
+# type Query {
+#   """
+#   获取有权限的记录
+#   """
+#   getAuthFlowRecordsByAccountBookId(
+#     accountBookId: ID!
+#     pagination: Pagination
+#   ): FlowRecordListWithPagintion
+#   getAuthFlowRecordById(id: ID!): FlowRecord
+# }
 
 type Mutation {
   createFlowRecord(flowRecord: CreateFlowRecordInput!): FlowRecord!
   updateFlowRecord(flowRecord: UpdateFlowRecordInput!): FlowRecord!
-  deleteFlowRecord(id: Int!): Boolean!
+  deleteFlowRecord(id: ID!): Boolean!
 }

@@ -1,5 +1,5 @@
 type User implements EntityDateTime {
-  id: Int!
+  id: ID!
   username: String!
   nickname: String!
   email: String
@@ -15,11 +15,11 @@ type User implements EntityDateTime {
   """
   获取该用户有权限的指定id的账本
   """
-  accountBook(id: Int!): AccountBook!
+  accountBook(id: ID!): AccountBook!
 }
 
 type SimpleUser {
-  id: Int!
+  id: ID!
   nickname: String!
   username: String!
   email: String

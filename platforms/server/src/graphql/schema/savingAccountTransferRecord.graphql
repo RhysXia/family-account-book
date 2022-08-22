@@ -1,5 +1,5 @@
 type SavingAccountTransferRecord implements EntityDateTime {
-  id: Int!
+  id: ID!
   name: String!
   desc: String
 
@@ -28,18 +28,18 @@ input CreateSavingAccountTransferRecord {
   name: String!
   desc: String
   amount: Float!
-  fromSavingAccountId: Int!
-  toSavingAccountId: Int!
+  fromSavingAccountId: ID!
+  toSavingAccountId: ID!
   dealAt: Date!
 }
 
 input UpdateSavingAccountTransferRecord {
-  id: Int!
+  id: ID!
   name: String
   desc: String
   amount: Float
-  fromSavingAccountId: Int
-  toSavingAccountId: Int
+  fromSavingAccountId: ID
+  toSavingAccountId: ID
   dealAt: Date
 }
 
@@ -52,5 +52,5 @@ type Mutation {
     record: UpdateSavingAccountTransferRecord!
   ): SavingAccountTransferRecord!
 
-  deleteSavingAccountTransferRecord(id: Int!): Boolean!
+  deleteSavingAccountTransferRecord(id: ID!): Boolean!
 }
