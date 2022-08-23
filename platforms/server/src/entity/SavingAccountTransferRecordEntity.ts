@@ -33,6 +33,14 @@ export class SavingAccountTransferRecordEntity extends AbstractTimestampEntity {
   amount: number;
 
   /**
+   * 交易者
+   */
+  @ManyToOne(() => UserEntity, { nullable: false })
+  trader: UserEntity;
+  @Column()
+  traderId: number;
+
+  /**
    * 创建人
    */
   @ManyToOne(() => UserEntity, { nullable: false })

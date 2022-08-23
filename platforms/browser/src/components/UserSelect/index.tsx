@@ -16,7 +16,7 @@ export type UserSelectProps = {
 };
 
 const GET_USER_LIST = gql`
-  query ($name: String!, $limit: Int!) {
+  query findUserListByNameLike($name: String!, $limit: Int!) {
     findUserListByNameLike(name: $name, limit: $limit) {
       id
       nickname

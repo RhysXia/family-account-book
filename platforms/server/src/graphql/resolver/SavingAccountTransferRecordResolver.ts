@@ -10,6 +10,7 @@ import { UserEntity } from '../../entity/UserEntity';
 import { SavingAccountTransferRecordService } from '../../service/SavingAccountTransferRecordService';
 import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
 import { SavingAccountTransferRecordDataLoader } from '../dataloader/SavingAccountTransferRecordDataLoader';
+import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
 import {
   CreateSavingAccountTransferRecord,
@@ -24,6 +25,7 @@ export class SavingAccountTransferRecordResolver {
     private readonly savingAccountTransferRecordService: SavingAccountTransferRecordService,
     private readonly accountBookDataLoader: AccountBookDataLoader,
     private readonly savingAccountTransferRecordDataLoader: SavingAccountTransferRecordDataLoader,
+    private readonly userDataLoader: UserDataLoader,
   ) {}
 
   @ResolveField()
@@ -42,21 +44,61 @@ export class SavingAccountTransferRecordResolver {
       : null;
   }
 
+  @ResolveField()
+  async trader(
+    @Parent() parent: GraphqlEntity<SavingAccountTransferRecordEntity>,
+  ) {
+    const trader =
+      parent.trader || (await this.userDataLoader.load(parent.traderId));
+
+    return trader
+      ? { ...trader, id: encodeId(EntityName.SIMPLE_USER, parent.traderId) }
+      : null;
+  }
+
+  @ResolveField()
+  async creator(
+    @Parent() parent: GraphqlEntity<SavingAccountTransferRecordEntity>,
+  ) {
+    const creator =
+      parent.creator || (await this.userDataLoader.load(parent.creatorId));
+
+    return creator
+      ? { ...creator, id: encodeId(EntityName.SIMPLE_USER, parent.creatorId) }
+      : null;
+  }
+
+  @ResolveField()
+  async updater(
+    @Parent() parent: GraphqlEntity<SavingAccountTransferRecordEntity>,
+  ) {
+    const updater =
+      parent.updater || (await this.userDataLoader.load(parent.updaterId));
+
+    return updater
+      ? { ...updater, id: encodeId(EntityName.SIMPLE_USER, parent.updaterId) }
+      : null;
+  }
+
   @Mutation()
   async createSavingAccountTransferRecord(
     @CurrentUser({ required: true }) currentUser: UserEntity,
     @Args('record') record: CreateSavingAccountTransferRecord,
   ) {
+    const { toSavingAccountId, fromSavingAccountId, traderId, ...others } =
+      record;
+
     const entity = await this.savingAccountTransferRecordService.create(
       {
-        ...record,
+        ...others,
+        traderId: decodeId(EntityName.SIMPLE_USER, traderId),
         toSavingAccountId: decodeId(
           EntityName.SAVING_ACCOUNT,
-          record.toSavingAccountId,
+          toSavingAccountId,
         ),
         fromSavingAccountId: decodeId(
           EntityName.SAVING_ACCOUNT,
-          record.fromSavingAccountId,
+          fromSavingAccountId,
         ),
       },
       currentUser,
@@ -73,21 +115,27 @@ export class SavingAccountTransferRecordResolver {
     @CurrentUser({ required: true }) currentUser: UserEntity,
     @Args('record') record: UpdateSavingAccountTransferRecord,
   ) {
+    const { toSavingAccountId, fromSavingAccountId, traderId, ...others } =
+      record;
+
     const entity = await this.savingAccountTransferRecordService.update(
       decodeId(EntityName.SAVING_ACCOUNT_TRANSFER_RECORD, record.id),
       {
-        ...record,
-        ...(record.toSavingAccountId && {
+        ...others,
+        ...(toSavingAccountId && {
           toSavingAccountId: decodeId(
             EntityName.SAVING_ACCOUNT,
-            record.toSavingAccountId,
+            toSavingAccountId,
           ),
         }),
-        ...(record.fromSavingAccountId && {
+        ...(fromSavingAccountId && {
           fromSavingAccountId: decodeId(
             EntityName.SAVING_ACCOUNT,
-            record.fromSavingAccountId,
+            fromSavingAccountId,
           ),
+        }),
+        ...(traderId && {
+          traderId: decodeId(EntityName.SIMPLE_USER, traderId),
         }),
       },
       currentUser,

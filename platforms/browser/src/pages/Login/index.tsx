@@ -46,7 +46,9 @@ const LoginPage = () => {
         const { data } = await signIn({
           variables: value,
         });
-        setCurrentUser(data!.signIn);
+        if (data) {
+          setCurrentUser(data.signIn);
+        }
       } catch (err) {
         message.error((err as Error).message);
       }

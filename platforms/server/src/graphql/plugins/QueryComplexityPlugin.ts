@@ -3,7 +3,7 @@ import {
   GraphQLRequestContext,
   GraphQLRequestListener,
 } from 'apollo-server-plugin-base';
-import { GraphQLError, separateOperations } from 'graphql';
+import { GraphQLError } from 'graphql';
 import {
   getComplexity,
   fieldExtensionsEstimator,

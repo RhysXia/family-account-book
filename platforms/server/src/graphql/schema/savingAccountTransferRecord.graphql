@@ -8,6 +8,8 @@ type SavingAccountTransferRecord implements EntityDateTime {
   """
   amount: Float!
 
+  trader: SimpleUser!
+
   creator: SimpleUser!
 
   updater: SimpleUser!
@@ -31,6 +33,7 @@ input CreateSavingAccountTransferRecord {
   fromSavingAccountId: ID!
   toSavingAccountId: ID!
   dealAt: Date!
+  traderId: ID!
 }
 
 input UpdateSavingAccountTransferRecord {
@@ -41,6 +44,7 @@ input UpdateSavingAccountTransferRecord {
   fromSavingAccountId: ID
   toSavingAccountId: ID
   dealAt: Date
+  traderId: ID
 }
 
 type Mutation {

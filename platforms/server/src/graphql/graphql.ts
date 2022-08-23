@@ -1,4 +1,3 @@
-
 /*
  * -------------------------------------------------------
  * THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
@@ -57,6 +56,7 @@ export interface CreateFlowRecordInput {
     amount: number;
     savingAccountId: string;
     tagId: string;
+    traderId: string;
 }
 
 export interface UpdateFlowRecordInput {
@@ -66,6 +66,7 @@ export interface UpdateFlowRecordInput {
     amount?: Nullable<number>;
     savingAccountId?: Nullable<string>;
     tagId?: Nullable<string>;
+    traderId?: Nullable<string>;
 }
 
 export interface CreateSavingAccountInput {
@@ -89,6 +90,7 @@ export interface CreateSavingAccountTransferRecord {
     fromSavingAccountId: string;
     toSavingAccountId: string;
     dealAt: Date;
+    traderId: string;
 }
 
 export interface UpdateSavingAccountTransferRecord {
@@ -99,6 +101,7 @@ export interface UpdateSavingAccountTransferRecord {
     fromSavingAccountId?: Nullable<string>;
     toSavingAccountId?: Nullable<string>;
     dealAt?: Nullable<Date>;
+    traderId?: Nullable<string>;
 }
 
 export interface CreateTagInput {
@@ -185,6 +188,7 @@ export interface FlowRecord extends EntityDateTime {
     createdAt: DateTime;
     updatedAt: DateTime;
     dealAt: Date;
+    trader: SimpleUser;
     creator: SimpleUser;
     updater: SimpleUser;
     amount: number;
@@ -233,6 +237,7 @@ export interface SavingAccountTransferRecord extends EntityDateTime {
     name: string;
     desc?: Nullable<string>;
     amount: number;
+    trader: SimpleUser;
     creator: SimpleUser;
     updater: SimpleUser;
     from: SavingAccount;

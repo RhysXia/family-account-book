@@ -85,6 +85,7 @@ export class SavingAccountTransferRecordService {
       dealAt: Date;
       fromSavingAccountId: number;
       toSavingAccountId: number;
+      traderId: number;
     },
     currentUser: UserEntity,
   ) {
@@ -95,6 +96,7 @@ export class SavingAccountTransferRecordService {
       fromSavingAccountId,
       toSavingAccountId,
       dealAt,
+      traderId,
     } = record;
 
     if (amount <= 0) {
@@ -158,6 +160,17 @@ export class SavingAccountTransferRecordService {
 
       const record = new SavingAccountTransferRecordEntity();
 
+      const trader = await manager.findOne(UserEntity, {
+        where: {
+          id: traderId,
+        },
+      });
+      if (!trader) {
+        throw new ParameterException('交易人员不存在');
+      }
+
+      record.trader = trader;
+
       record.name = name;
       record.desc = desc;
       record.amount = amount;
@@ -180,6 +193,7 @@ export class SavingAccountTransferRecordService {
       dealAt?: Date;
       fromSavingAccountId?: number;
       toSavingAccountId?: number;
+      traderId?: number;
     },
     currentUser: UserEntity,
   ) {
@@ -190,6 +204,7 @@ export class SavingAccountTransferRecordService {
       fromSavingAccountId,
       toSavingAccountId,
       dealAt,
+      traderId,
     } = record;
 
     if (amount <= 0) {
@@ -209,6 +224,18 @@ export class SavingAccountTransferRecordService {
 
       if (!record) {
         throw new ResourceNotFoundException('转账记录不存在');
+      }
+
+      if (traderId) {
+        const trader = await manager.findOne(UserEntity, {
+          where: {
+            id: traderId,
+          },
+        });
+        if (!trader) {
+          throw new ParameterException('交易人员不存在');
+        }
+        record.trader = trader;
       }
 
       await this.savingAccountHistoryManager.reset(manager, {

@@ -24,6 +24,16 @@ export class FlowRecordResolver {
   ) {}
 
   @ResolveField()
+  async trader(@Parent() parent: GraphqlEntity<FlowRecordEntity>) {
+    const trader =
+      parent.trader || (await this.userDataLoader.load(parent.traderId));
+
+    return trader
+      ? { ...trader, id: encodeId(EntityName.SIMPLE_USER, parent.traderId) }
+      : null;
+  }
+
+  @ResolveField()
   async creator(@Parent() parent: GraphqlEntity<FlowRecordEntity>) {
     const creator =
       parent.creator || (await this.userDataLoader.load(parent.creatorId));
@@ -84,11 +94,12 @@ export class FlowRecordResolver {
     @CurrentUser({ required: true }) currentUser: UserEntity,
     @Args('flowRecord') flowRecord: CreateFlowRecordInput,
   ) {
-    const { savingAccountId, tagId, ...others } = flowRecord;
+    const { savingAccountId, tagId, traderId, ...others } = flowRecord;
 
     const entity = await this.flowRecordService.create(
       {
         ...others,
+        traderId: decodeId(EntityName.SIMPLE_USER, traderId),
         savingAccountId: decodeId(EntityName.SAVING_ACCOUNT, savingAccountId),
         tagId: decodeId(EntityName.TAG, tagId),
       },
@@ -106,7 +117,7 @@ export class FlowRecordResolver {
     @CurrentUser({ required: true }) currentUser: UserEntity,
     @Args('flowRecord') flowRecord: UpdateFlowRecordInput,
   ) {
-    const { id, savingAccountId, tagId, ...others } = flowRecord;
+    const { id, savingAccountId, tagId, traderId, ...others } = flowRecord;
 
     const entity = await this.flowRecordService.update(
       decodeId(EntityName.FLOW_RECORD, id),
@@ -117,6 +128,9 @@ export class FlowRecordResolver {
         }),
         ...(tagId && {
           tagId: decodeId(EntityName.TAG, tagId),
+        }),
+        ...(traderId && {
+          traderId: decodeId(EntityName.SIMPLE_USER, traderId),
         }),
       },
       currentUser,

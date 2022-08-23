@@ -71,11 +71,13 @@ export class FlowRecordService {
       amount?: number;
       savingAccountId?: number;
       tagId?: number;
+      traderId?: number;
     },
     user: UserEntity,
   ) {
     return this.dataSource.transaction(async (manager) => {
-      const { desc, dealAt, amount, savingAccountId, tagId } = flowRecordInput;
+      const { desc, dealAt, amount, savingAccountId, tagId, traderId } =
+        flowRecordInput;
 
       const flowRecord = await manager
         .createQueryBuilder(FlowRecordEntity, 'flowRecord')
@@ -141,6 +143,18 @@ export class FlowRecordService {
         }
       }
 
+      if (traderId) {
+        const trader = await manager.findOne(UserEntity, {
+          where: {
+            id: traderId,
+          },
+        });
+        if (!trader) {
+          throw new ParameterException('交易人员不存在');
+        }
+        flowRecord.trader = trader;
+      }
+
       await this.savingAccountMoneyRecordManager.update(manager, {
         oldAmount: flowRecord.amount,
         oldDealAt: flowRecord.dealAt,
@@ -165,11 +179,13 @@ export class FlowRecordService {
       amount: number;
       savingAccountId: number;
       tagId: number;
+      traderId: number;
     },
     user: UserEntity,
   ) {
     return this.dataSource.transaction(async (manager) => {
-      const { desc, amount, dealAt, savingAccountId, tagId } = flowRecordInput;
+      const { desc, amount, dealAt, savingAccountId, tagId, traderId } =
+        flowRecordInput;
 
       const savingAccount = await manager
         .createQueryBuilder(SavingAccountEntity, 'savingAccount')
@@ -215,6 +231,16 @@ export class FlowRecordService {
         }
       }
 
+      const trader = await manager.findOne(UserEntity, {
+        where: {
+          id: traderId,
+        },
+      });
+
+      if (!trader) {
+        throw new ParameterException('交易人员不存在');
+      }
+
       await this.savingAccountMoneyRecordManager.create(manager, {
         amount,
         dealAt,
@@ -229,6 +255,8 @@ export class FlowRecordService {
       flowRecordEntity.accountBookId = accountBookId;
       flowRecordEntity.savingAccount = savingAccount;
       flowRecordEntity.tag = tag;
+      // 这里不检查trader不属于账本的情况
+      flowRecordEntity.trader = trader;
       flowRecordEntity.creator = user;
       flowRecordEntity.updater = user;
 

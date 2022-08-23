@@ -12,7 +12,6 @@ const useConstantFn = <Fn extends (...args: any) => any>(fn: Fn) => {
   const constantFnRef = useRef<Fn>();
 
   if (!constantFnRef.current) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument
     constantFnRef.current = ((...args: any) => fnRef.current(...args)) as Fn;
   }
 
