@@ -8,6 +8,6 @@ union Node =
   | SavingAccountHistory
 
 type Query {
-  node(id: ID!): Node
+  node(id: ID!): Node!
   nodes(ids: [ID!]!): [Node!]!
 }

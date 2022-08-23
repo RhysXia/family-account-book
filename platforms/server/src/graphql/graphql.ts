@@ -194,7 +194,7 @@ export interface FlowRecord extends EntityDateTime {
 }
 
 export interface IQuery {
-    node(id: string): Nullable<Node> | Promise<Nullable<Node>>;
+    node(id: string): Node | Promise<Node>;
     nodes(ids: string[]): Node[] | Promise<Node[]>;
     getCurrentUser(): User | Promise<User>;
     findUserListByNameLike(name: string, limit?: Nullable<number>, includeSelf?: Nullable<boolean>): SimpleUser[] | Promise<SimpleUser[]>;
