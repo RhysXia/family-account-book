@@ -1,14 +1,7 @@
 import { gql, useLazyQuery, useMutation, useQuery } from '@apollo/client';
-import { Button, Modal, Table, TableColumnsType } from 'antd';
+import { Button } from 'antd';
 import { useAtom } from 'jotai';
-import { useCallback, useState } from 'react';
-import {
-  EditableProTable,
-  ProCard,
-  ProFormField,
-  ProFormRadio,
-  ProColumns,
-} from '@ant-design/pro-components';
+
 import { activeAccountBookAtom } from '../../../../store';
 import {
   FlowRecord,
@@ -17,11 +10,21 @@ import {
   User,
   Tag as Itag,
 } from '../../../../types';
+import { TagColorMap } from '../../../../utils/constants';
 
 const CREATE_FLOW_RECORD = gql`
   mutation ($flowRecord: CreateFlowRecordInput!) {
     createFlowRecord(flowRecord: $flowRecord) {
       id
+    }
+  }
+`;
+
+const GET_USER_LIST = gql`
+  query findUserListByNameLike($name: String!, $limit: Int!) {
+    findUserListByNameLike(name: $name, limit: $limit) {
+      value: id
+      label: nickname
     }
   }
 `;
@@ -75,7 +78,11 @@ const FlowRecordsPage = () => {
 
   const [createFlowRecord] = useMutation(CREATE_FLOW_RECORD);
 
-  const [fetch] = useLazyQuery<{
+  const [searchUsers] = useLazyQuery<{
+    findUserListByNameLike: Array<{ label: string; value: string }>;
+  }>(GET_USER_LIST);
+
+  const { data, refetch } = useQuery<{
     node: {
       flowRecords: PaginationResult<
         FlowRecord & {
@@ -95,39 +102,6 @@ const FlowRecordsPage = () => {
     },
   });
 
-  const [editableKeys, setEditableRowKeys] = useState<Array<React.Key>>([]);
-
-  const columns: Array<ProColumns<any>> = [
-    {
-      title: '名称',
-      dataIndex: 'name',
-      key: 'name',
-    },
-    {
-      title: '操作',
-      valueType: 'option',
-      width: 200,
-      render: (text, record, _, action) => [
-        <a
-          key="editable"
-          onClick={() => {
-            action?.startEditable?.(record.id);
-          }}
-        >
-          编辑
-        </a>,
-        <a
-          key="delete"
-          onClick={() => {
-            // setDataSource(dataSource.filter((item) => item.id !== record.id));
-          }}
-        >
-          删除
-        </a>,
-      ],
-    },
-  ];
-
   return (
     <div className="w-full">
       <div className="bg-white flex flex-row items-center justify-between p-4 mb-4">
@@ -136,29 +110,36 @@ const FlowRecordsPage = () => {
           <Button type="primary">新建</Button>
         </div>
       </div>
-      <EditableProTable
-        rowKey="id"
-        columns={columns}
-        recordCreatorProps={{
-          position: 'top',
-          record: () => ({ id: (Math.random() * 1000000).toFixed(0) }),
-        }}
-        request={async () => {
-          const { data } = await fetch();
-          const flowRecords = data!.node.flowRecords;
-          return {
-            total: flowRecords.total,
-            data: flowRecords.data,
-            success: true,
-          };
-        }}
-        editable={{
-          type: 'single',
-          editableKeys,
-          onChange: setEditableRowKeys,
-          onSave: async () => {},
-        }}
-      />
+      <table className="table-auto border-collapse w-full text-sm bg-white">
+        <thead className="bg-slate-100">
+          <tr className="border-b text-slate-400 font-medium">
+            <th className="p-4">描述</th>
+            <th className="p-4">金额</th>
+            <th className="p-4">标签</th>
+            <th className="p-4">账户</th>
+            <th className="p-4">使用人</th>
+            <th className="p-4">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          {data?.node.flowRecords.data.map((it) => {
+            return (
+              <tr key={it.id}>
+                <td>{it.desc}</td>
+                <td>{it.amount}</td>
+                <td>{it.tag.name}</td>
+                <td>{it.trader.nickname}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 };

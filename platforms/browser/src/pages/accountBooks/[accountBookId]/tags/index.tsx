@@ -19,6 +19,7 @@ import {
   TagType,
   User,
 } from '../../../../types';
+import { TagColorMap } from '../../../../utils/constants';
 import { fromTime } from '../../../../utils/dayjs';
 
 const GET_TAGS = gql`
@@ -131,25 +132,6 @@ const TagPage = () => {
     [deleteTag, refetch],
   );
 
-  const TagNameColorMap = {
-    [TagType.INCOME]: {
-      name: '收入',
-      color: 'green',
-    },
-    [TagType.EXPENDITURE]: {
-      name: '支出',
-      color: 'red',
-    },
-    [TagType.LOAD]: {
-      name: '借贷',
-      color: 'blue',
-    },
-    [TagType.INVESTMENT]: {
-      name: '投资',
-      color: 'purple',
-    },
-  };
-
   const columns: TableColumnsType<any> = [
     {
       title: '名称',
@@ -161,8 +143,8 @@ const TagPage = () => {
       dataIndex: 'type',
       key: 'type',
       render(type: TagType) {
-        const { name, color } = TagNameColorMap[type];
-        return <Tag color={color}>{name}</Tag>;
+        const { text, color } = TagColorMap[type];
+        return <Tag color={color}>{text}</Tag>;
       },
     },
     {

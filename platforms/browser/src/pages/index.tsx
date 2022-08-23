@@ -17,6 +17,8 @@ const GET_ACCOUNT_LIST = gql`
           id
           name
           desc
+          createdAt
+          updatedAt
         }
       }
     }
