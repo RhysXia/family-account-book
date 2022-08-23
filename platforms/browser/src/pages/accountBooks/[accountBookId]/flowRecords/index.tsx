@@ -1,6 +1,14 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { gql, useLazyQuery, useMutation, useQuery } from '@apollo/client';
 import { Button, Modal, Table, TableColumnsType } from 'antd';
 import { useAtom } from 'jotai';
+import { useCallback, useState } from 'react';
+import {
+  EditableProTable,
+  ProCard,
+  ProFormField,
+  ProFormRadio,
+  ProColumns,
+} from '@ant-design/pro-components';
 import { activeAccountBookAtom } from '../../../../store';
 import {
   FlowRecord,
@@ -34,7 +42,12 @@ const GET_FLOW_RECORDS_BY_ACCOUNT_BOOK_ID = gql`
             createdAt
             updatedAt
             dealAt
-            creator {
+            trader {
+              id
+              nickname
+              username
+            }
+            updater {
               id
               nickname
               username
@@ -62,11 +75,12 @@ const FlowRecordsPage = () => {
 
   const [createFlowRecord] = useMutation(CREATE_FLOW_RECORD);
 
-  const { data, loading, error } = useQuery<{
+  const [fetch] = useLazyQuery<{
     node: {
       flowRecords: PaginationResult<
         FlowRecord & {
-          creator: User;
+          trader: User;
+          updater: User;
           savingAccount: SavingAccount;
           tag: Itag;
         }
@@ -74,45 +88,43 @@ const FlowRecordsPage = () => {
     };
   }>(GET_FLOW_RECORDS_BY_ACCOUNT_BOOK_ID, {
     variables: {
-      accountBookId: activeAccountBook!.id,
+      accountBookId: activeAccountBook?.id,
       pagination: {
         limit: 10,
       },
     },
   });
 
-  const columns: TableColumnsType<any> = [
+  const [editableKeys, setEditableRowKeys] = useState<Array<React.Key>>([]);
+
+  const columns: Array<ProColumns<any>> = [
     {
       title: '名称',
       dataIndex: 'name',
       key: 'name',
     },
-
     {
       title: '操作',
-      render(record: FlowRecord) {
-        return (
-          <div className="space-x-4">
-            <Button size="small" type="primary" onClick={() => {}}>
-              详情
-            </Button>
-            <Button
-              size="small"
-              type="primary"
-              danger
-              onClick={() => {
-                Modal.confirm({
-                  title: '确认删除',
-                  content: '确认删除该流水记录吗？',
-                  onOk: async () => {},
-                });
-              }}
-            >
-              删除
-            </Button>
-          </div>
-        );
-      },
+      valueType: 'option',
+      width: 200,
+      render: (text, record, _, action) => [
+        <a
+          key="editable"
+          onClick={() => {
+            action?.startEditable?.(record.id);
+          }}
+        >
+          编辑
+        </a>,
+        <a
+          key="delete"
+          onClick={() => {
+            // setDataSource(dataSource.filter((item) => item.id !== record.id));
+          }}
+        >
+          删除
+        </a>,
+      ],
     },
   ];
 
@@ -124,13 +136,28 @@ const FlowRecordsPage = () => {
           <Button type="primary">新建</Button>
         </div>
       </div>
-      <Table
-        pagination={false}
+      <EditableProTable
+        rowKey="id"
         columns={columns}
-        dataSource={data?.node.flowRecords.data.map((it) => ({
-          ...it,
-          key: it.id,
-        }))}
+        recordCreatorProps={{
+          position: 'top',
+          record: () => ({ id: (Math.random() * 1000000).toFixed(0) }),
+        }}
+        request={async () => {
+          const { data } = await fetch();
+          const flowRecords = data!.node.flowRecords;
+          return {
+            total: flowRecords.total,
+            data: flowRecords.data,
+            success: true,
+          };
+        }}
+        editable={{
+          type: 'single',
+          editableKeys,
+          onChange: setEditableRowKeys,
+          onSave: async () => {},
+        }}
       />
     </div>
   );
