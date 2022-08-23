@@ -9,22 +9,27 @@ import { PaginationResult, SavingAccount, User } from '../../../../types';
 import { fromTime } from '../../../../utils/dayjs';
 
 const GET_SAVING_ACCOUNTS = gql`
-  query ($accountBookId: Int!) {
-    getAuthSavingAccountsByAccountBookId(
-      accountBookId: $accountBookId
-      pagination: { orderBy: { field: "updatedAt", direction: DESC } }
-    ) {
-      data {
+  query getSavingAccountsByAccountBookId($accountBookId: ID!) {
+    node(id: $accountBookId) {
+      ... on AccountBook {
         id
-        name
-        desc
-        amount
-        createdAt
-        updatedAt
-        creator {
-          id
-          username
-          nickname
+        savingAccounts(
+          pagination: { orderBy: { field: "updatedAt", direction: DESC } }
+        ) {
+          total
+          data {
+            id
+            name
+            desc
+            amount
+            createdAt
+            updatedAt
+            creator {
+              id
+              username
+              nickname
+            }
+          }
         }
       }
     }
@@ -36,7 +41,7 @@ const CREATE_SAVING_ACCOUNT = gql`
     $name: String!
     $desc: String
     $amount: Float!
-    $accountBookId: Int!
+    $accountBookId: ID!
   ) {
     createSavingAccount(
       savingAccount: {
@@ -57,7 +62,7 @@ const CREATE_SAVING_ACCOUNT = gql`
 `;
 
 const DELETE_SAVING_ACCOUNT = gql`
-  mutation Mutation($savingAccountId: Int!) {
+  mutation Mutation($savingAccountId: ID!) {
     deleteSavingAccount(id: $savingAccountId)
   }
 `;
@@ -72,11 +77,13 @@ const SavingAccountPage = () => {
   const navigate = useNavigate();
 
   const { data, refetch } = useQuery<{
-    getAuthSavingAccountsByAccountBookId: PaginationResult<
-      SavingAccount & {
-        creator: User;
-      }
-    >;
+    node: {
+      savingAccounts: PaginationResult<
+        SavingAccount & {
+          creator: User;
+        }
+      >;
+    };
   }>(GET_SAVING_ACCOUNTS, {
     variables: {
       accountBookId: activeAccountBook?.id,
@@ -114,7 +121,7 @@ const SavingAccountPage = () => {
   }, []);
 
   const handleDeleteSavingAccount = useCallback(
-    async (id: number) => {
+    async (id: string) => {
       await deleteSavingAccount({
         variables: {
           savingAccountId: id,
@@ -149,7 +156,6 @@ const SavingAccountPage = () => {
       dataIndex: 'creator',
       key: 'creator',
       render(creator: User) {
-        console.log(creator);
         return creator.nickname;
       },
     },
@@ -212,12 +218,10 @@ const SavingAccountPage = () => {
       <Table
         pagination={false}
         columns={columns}
-        dataSource={data?.getAuthSavingAccountsByAccountBookId.data.map(
-          (it) => ({
-            ...it,
-            key: it.id,
-          }),
-        )}
+        dataSource={data?.node.savingAccounts.data.map((it) => ({
+          ...it,
+          key: it.id,
+        }))}
       />
       <Modal
         visible={createModalVisible}

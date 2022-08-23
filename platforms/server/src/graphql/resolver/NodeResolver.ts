@@ -24,7 +24,7 @@ export class NodeResolver {
 
   @ResolveField()
   __resolveType(value) {
-    return getIdInfo(value.id).name;
+    return value.__type;
   }
 
   @Query()
@@ -107,6 +107,7 @@ export class NodeResolver {
           p.then((entities) =>
             entities.map((it) => ({
               ...it,
+              __type: key,
               id: encodeId(key, it.id),
             })),
           ),

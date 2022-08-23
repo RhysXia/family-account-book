@@ -6,7 +6,7 @@ import { currentUserAtom } from '../../store';
 import { User } from '../../types';
 
 const CURRENT_USER = gql`
-  query {
+  query getCurrentUser {
     getCurrentUser {
       id
       username

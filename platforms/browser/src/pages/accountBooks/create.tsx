@@ -1,7 +1,7 @@
 import { gql, useMutation } from '@apollo/client';
 import { Button, Form, Input, message, Modal } from 'antd';
 import { useCallback } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import RequireAuth from '../../components/RequireAuth';
 import UserSelect from '../../components/UserSelect';
 import { AccountBook } from '../../types';
@@ -17,8 +17,8 @@ const CREATE_ACCOUNT_BOOK = gql`
   mutation CreateAccountBook(
     $name: String!
     $desc: String
-    $adminIds: [Int!]
-    $memberIds: [Int!]
+    $adminIds: [ID!]
+    $memberIds: [ID!]
   ) {
     createAccountBook(
       accountBook: {

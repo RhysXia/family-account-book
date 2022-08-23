@@ -9,7 +9,6 @@ import {
   User,
   Tag as Itag,
 } from '../../../../types';
-import { fromTime } from '../../../../utils/dayjs';
 
 const CREATE_FLOW_RECORD = gql`
   mutation ($flowRecord: CreateFlowRecordInput!) {
@@ -20,32 +19,37 @@ const CREATE_FLOW_RECORD = gql`
 `;
 
 const GET_FLOW_RECORDS_BY_ACCOUNT_BOOK_ID = gql`
-  query ($accountBookId: Int!, $pagination: Pagination) {
-    getAuthAccountBookById(id: $accountBookId) {
-      id
-      flowRecords(pagination: $pagination) {
-        total
-        data {
-          id
-          desc
-          createdAt
-          updatedAt
-          dealAt
-          creator {
+  query getFlowRecordsByAccountBookId(
+    $accountBookId: ID!
+    $pagination: Pagination
+  ) {
+    node(id: $accountBookId) {
+      ... on AccountBook {
+        id
+        flowRecords(pagination: $pagination) {
+          total
+          data {
             id
-            nickname
-            username
-          }
-          amount
-          savingAccount {
-            id
-            name
             desc
-          }
-          tag {
-            id
-            name
-            type
+            createdAt
+            updatedAt
+            dealAt
+            creator {
+              id
+              nickname
+              username
+            }
+            amount
+            savingAccount {
+              id
+              name
+              desc
+            }
+            tag {
+              id
+              name
+              type
+            }
           }
         }
       }
@@ -59,7 +63,7 @@ const FlowRecordsPage = () => {
   const [createFlowRecord] = useMutation(CREATE_FLOW_RECORD);
 
   const { data, loading, error } = useQuery<{
-    getAuthAccountBookById: {
+    node: {
       flowRecords: PaginationResult<
         FlowRecord & {
           creator: User;
@@ -123,7 +127,7 @@ const FlowRecordsPage = () => {
       <Table
         pagination={false}
         columns={columns}
-        dataSource={data?.getAuthAccountBookById.flowRecords.data.map((it) => ({
+        dataSource={data?.node.flowRecords.data.map((it) => ({
           ...it,
           key: it.id,
         }))}

@@ -22,21 +22,24 @@ import {
 import { fromTime } from '../../../../utils/dayjs';
 
 const GET_TAGS = gql`
-  query ($accountBookId: Int!) {
-    getAuthTagsByAccountBookId(
-      accountBookId: $accountBookId
-      pagination: { orderBy: { field: "updatedAt", direction: DESC } }
-    ) {
-      data {
+  query getTagsByAccountBookId($accountBookId: ID!) {
+    node(id: $accountBookId) {
+      ... on AccountBook {
         id
-        name
-        type
-        createdAt
-        updatedAt
-        creator {
-          id
-          username
-          nickname
+        tags(pagination: { orderBy: { field: "updatedAt", direction: DESC } }) {
+          total
+          data {
+            id
+            name
+            type
+            createdAt
+            updatedAt
+            creator {
+              id
+              username
+              nickname
+            }
+          }
         }
       }
     }
@@ -44,7 +47,7 @@ const GET_TAGS = gql`
 `;
 
 const CREATE_TAG = gql`
-  mutation ($name: String!, $type: TagType!, $accountBookId: Int!) {
+  mutation ($name: String!, $type: TagType!, $accountBookId: ID!) {
     createTag(
       tag: { name: $name, type: $type, accountBookId: $accountBookId }
     ) {
@@ -58,7 +61,7 @@ const CREATE_TAG = gql`
 `;
 
 const DELETE_TAG = gql`
-  mutation Mutation($tagId: Int!) {
+  mutation Mutation($tagId: ID!) {
     deleteTag(id: $tagId)
   }
 `;
@@ -73,11 +76,13 @@ const TagPage = () => {
   const navigate = useNavigate();
 
   const { data, refetch } = useQuery<{
-    getAuthTagsByAccountBookId: PaginationResult<
-      ITag & {
-        creator: User;
-      }
-    >;
+    node: {
+      tags: PaginationResult<
+        ITag & {
+          creator: User;
+        }
+      >;
+    };
   }>(GET_TAGS, {
     variables: {
       accountBookId: activeAccountBook?.id,
@@ -115,7 +120,7 @@ const TagPage = () => {
   }, []);
 
   const handleDeleteTag = useCallback(
-    async (id: number) => {
+    async (id: string) => {
       await deleteTag({
         variables: {
           tagId: id,
@@ -165,7 +170,6 @@ const TagPage = () => {
       dataIndex: 'creator',
       key: 'creator',
       render(creator: User) {
-        console.log(creator);
         return creator.nickname;
       },
     },
@@ -228,7 +232,7 @@ const TagPage = () => {
       <Table
         pagination={false}
         columns={columns}
-        dataSource={data?.getAuthTagsByAccountBookId.data.map((it) => ({
+        dataSource={data?.node.tags.data.map((it) => ({
           ...it,
           key: it.id,
         }))}

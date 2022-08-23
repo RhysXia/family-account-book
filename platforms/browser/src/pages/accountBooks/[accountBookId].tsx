@@ -10,13 +10,15 @@ import { activeAccountBookAtom } from '../../store';
 import { AccountBook } from '../../types';
 
 const GET_ACCOUNT_BOOK_BY_ID = gql`
-  query ($id: Int!) {
-    getAuthAccountBookById(id: $id) {
-      id
-      name
-      desc
-      createdAt
-      updatedAt
+  query getAccountBookById($id: ID!) {
+    node(id: $id) {
+      ... on AccountBook {
+        id
+        name
+        desc
+        createdAt
+        updatedAt
+      }
     }
   }
 `;
@@ -28,24 +30,24 @@ const AccountBookPage = () => {
 
   const navigate = useNavigate();
 
-  const { data, error } = useQuery<{ getAuthAccountBookById: AccountBook }>(
+  const { data, error } = useQuery<{ node: AccountBook }>(
     GET_ACCOUNT_BOOK_BY_ID,
     {
       variables: {
-        id: +accountBookId!,
+        id: accountBookId,
       },
     },
   );
 
   useEffect(() => {
     if (data) {
-      setActiveAccountBook(data.getAuthAccountBookById);
+      setActiveAccountBook(data.node);
     } else if (error) {
       navigate('/notfound');
     }
   }, [data, error, setActiveAccountBook, navigate]);
 
-  if (!data?.getAuthAccountBookById) {
+  if (!data?.node) {
     return null;
   }
 

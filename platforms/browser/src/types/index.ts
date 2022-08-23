@@ -4,7 +4,7 @@ export type PaginationResult<T> = {
 };
 
 export type User = {
-  id: number;
+  id: string;
   nickname: string;
   username: string;
   email?: string;
@@ -14,7 +14,7 @@ export type User = {
 };
 
 export type AccountBook = {
-  id: number;
+  id: string;
   name: string;
   desc?: string;
   createdAt: string;
@@ -22,7 +22,7 @@ export type AccountBook = {
 };
 
 export type SavingAccount = {
-  id: number;
+  id: string;
   name: string;
   desc?: string;
   createdAt: string;
@@ -38,7 +38,7 @@ export enum TagType {
 }
 
 export type Tag = {
-  id: number;
+  id: string;
   name: string;
   type: TagType;
   createdAt: string;
@@ -46,7 +46,7 @@ export type Tag = {
 };
 
 export type FlowRecord = {
-  id: number;
+  id: string;
   desc?: string;
   createdAt: string;
   updatedAt: string;

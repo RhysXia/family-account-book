@@ -8,14 +8,16 @@ import { gql, useQuery } from '@apollo/client';
 import RequireAuth from '../components/RequireAuth';
 
 const GET_ACCOUNT_LIST = gql`
-  query {
-    getAuthAccountBooks {
-      data {
-        id
-        name
-        desc
-        createdAt
-        updatedAt
+  query accountBooks {
+    getCurrentUser {
+      id
+      accountBooks {
+        total
+        data {
+          id
+          name
+          desc
+        }
       }
     }
   }
@@ -23,7 +25,9 @@ const GET_ACCOUNT_LIST = gql`
 
 const HomePage = () => {
   const { data, loading } = useQuery<{
-    getAuthAccountBooks: PaginationResult<AccountBook>;
+    getCurrentUser: {
+      accountBooks: PaginationResult<AccountBook>;
+    };
   }>(GET_ACCOUNT_LIST);
 
   const navigate = useNavigate();
@@ -66,7 +70,7 @@ const HomePage = () => {
               <div className="text-sm text-gray-500 ">创建一个新的账本</div>
             </div>
           </div>
-          {data?.getAuthAccountBooks?.data.map((it, index) => {
+          {data?.getCurrentUser.accountBooks.data.map((it, index) => {
             return (
               <div
                 onClick={() => navigate(`/accountBooks/${it.id}`)}
