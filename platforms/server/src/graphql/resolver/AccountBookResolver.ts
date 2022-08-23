@@ -48,7 +48,7 @@ export class AccountBookResolver {
 
     return admins.map((it) => ({
       ...it,
-      id: encodeId(EntityName.USER, it.id),
+      id: encodeId(EntityName.SIMPLE_USER, it.id),
     }));
   }
 
@@ -62,28 +62,28 @@ export class AccountBookResolver {
 
     return members.map((it) => ({
       ...it,
-      id: encodeId(EntityName.USER, it.id),
+      id: encodeId(EntityName.SIMPLE_USER, it.id),
     }));
   }
 
   @ResolveField()
   async creator(@Parent() parent: GraphqlEntity<AccountBookEntity>) {
-    const creatorId = encodeId(EntityName.USER, parent.creatorId);
-
     const creator =
-      parent.creator || (await this.userDataLoader.load(creatorId));
+      parent.creator || (await this.userDataLoader.load(parent.creatorId));
 
-    return creator ? { ...creator, id: creatorId } : null;
+    return creator
+      ? { ...creator, id: encodeId(EntityName.SIMPLE_USER, parent.creatorId) }
+      : null;
   }
 
   @ResolveField()
   async updater(@Parent() parent: GraphqlEntity<AccountBookEntity>) {
-    const updaterId = encodeId(EntityName.USER, parent.updaterId);
-
     const updater =
-      parent.updater || (await this.userDataLoader.load(updaterId));
+      parent.updater || (await this.userDataLoader.load(parent.updaterId));
 
-    return updater ? { ...updater, id: updaterId } : null;
+    return updater
+      ? { ...updater, id: encodeId(EntityName.SIMPLE_USER, parent.updaterId) }
+      : null;
   }
 
   @ResolveField()
@@ -113,7 +113,9 @@ export class AccountBookResolver {
     @Parent() parent: GraphqlEntity<AccountBookEntity>,
     @Args('id') id: string,
   ) {
-    const savingAccount = await this.savingAccountDataLoader.load(id);
+    const savingAccount = await this.savingAccountDataLoader.load(
+      decodeId(EntityName.SAVING_ACCOUNT, id),
+    );
 
     if (!savingAccount) {
       throw new ResourceNotFoundException('储蓄账户不存在');
@@ -158,7 +160,7 @@ export class AccountBookResolver {
     @Parent() parent: GraphqlEntity<AccountBookEntity>,
     @Args('id') id: string,
   ) {
-    const tag = await this.tagDataLoader.load(id);
+    const tag = await this.tagDataLoader.load(decodeId(EntityName.TAG, id));
 
     if (!tag) {
       throw new ResourceNotFoundException('标签不存在');
@@ -203,7 +205,9 @@ export class AccountBookResolver {
     @Parent() parent: GraphqlEntity<AccountBookEntity>,
     @Args('id') id: string,
   ) {
-    const flowRecord = await this.flowRecordDataLoader.load(id);
+    const flowRecord = await this.flowRecordDataLoader.load(
+      decodeId(EntityName.FLOW_RECORD, id),
+    );
 
     if (!flowRecord) {
       throw new ResourceNotFoundException('流水不存在');
@@ -232,10 +236,12 @@ export class AccountBookResolver {
       {
         ...others,
         ...(adminIds && {
-          adminIds: adminIds.map((it) => decodeId(EntityName.USER, it)),
+          adminIds: adminIds.map((it) => decodeId(EntityName.SIMPLE_USER, it)),
         }),
         ...(memberIds && {
-          memberIds: memberIds.map((it) => decodeId(EntityName.USER, it)),
+          memberIds: memberIds.map((it) =>
+            decodeId(EntityName.SIMPLE_USER, it),
+          ),
         }),
       },
       user,
@@ -259,10 +265,12 @@ export class AccountBookResolver {
       {
         ...others,
         ...(adminIds && {
-          adminIds: adminIds.map((it) => decodeId(EntityName.USER, it)),
+          adminIds: adminIds.map((it) => decodeId(EntityName.SIMPLE_USER, it)),
         }),
         ...(memberIds && {
-          memberIds: memberIds.map((it) => decodeId(EntityName.USER, it)),
+          memberIds: memberIds.map((it) =>
+            decodeId(EntityName.SIMPLE_USER, it),
+          ),
         }),
       },
       user,

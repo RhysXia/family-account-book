@@ -30,36 +30,36 @@ export class TagResolver {
 
   @ResolveField()
   async creator(@Parent() parent: GraphqlEntity<TagEntity>) {
-    const creatorId = encodeId(EntityName.USER, parent.creatorId);
-
     const creator =
-      parent.creator || (await this.userDataLoader.load(creatorId));
+      parent.creator || (await this.userDataLoader.load(parent.creatorId));
 
-    return creator ? { ...creator, id: creatorId } : null;
+    return creator
+      ? { ...creator, id: encodeId(EntityName.SIMPLE_USER, parent.creatorId) }
+      : null;
   }
 
   @ResolveField()
   async updater(@Parent() parent: GraphqlEntity<TagEntity>) {
-    const updaterId = encodeId(EntityName.USER, parent.updaterId);
-
     const updater =
-      parent.updater || (await this.userDataLoader.load(updaterId));
+      parent.updater || (await this.userDataLoader.load(parent.updaterId));
 
-    return updater ? { ...updater, id: updaterId } : null;
+    return updater
+      ? { ...updater, id: encodeId(EntityName.SIMPLE_USER, parent.updaterId) }
+      : null;
   }
 
   @ResolveField()
   async accountBook(@Parent() parent: GraphqlEntity<TagEntity>) {
-    const accountBookId = encodeId(
-      EntityName.ACCOUNT_BOOK,
-      parent.accountBookId,
-    );
-
     const accountBook =
       parent.accountBook ||
-      (await this.accountBookDataLoader.load(accountBookId));
+      (await this.accountBookDataLoader.load(parent.accountBookId));
 
-    return accountBook ? { ...accountBook, id: accountBookId } : null;
+    return accountBook
+      ? {
+          ...accountBook,
+          id: encodeId(EntityName.ACCOUNT_BOOK, parent.accountBookId),
+        }
+      : null;
   }
 
   @ResolveField()
@@ -87,7 +87,9 @@ export class TagResolver {
     @Parent() parent: GraphqlEntity<TagEntity>,
     @Args('id') id: string,
   ) {
-    const flowRecord = await this.flowRecordDataLoader.load(id);
+    const flowRecord = await this.flowRecordDataLoader.load(
+      decodeId(EntityName.FLOW_RECORD, id),
+    );
 
     if (!flowRecord) {
       throw new ResourceNotFoundException('流水不存在');

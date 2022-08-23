@@ -2,6 +2,7 @@ import { ParameterException } from '../../exception/ServiceException';
 
 export enum EntityName {
   USER = 'User',
+  SIMPLE_USER = 'SimpleUser',
   ACCOUNT_BOOK = 'AccountBook',
   SAVING_ACCOUNT = 'SavingAccount',
   SAVING_ACCOUNT_HISTORY = 'SavingAccountHistory',

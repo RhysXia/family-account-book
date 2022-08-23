@@ -17,6 +17,22 @@ export class SavingAccountTransferRecordService {
     private readonly savingAccountHistoryManager: SavingAccountHistoryManager,
   ) {}
 
+  async findByIdsAndUserId(ids: Array<number>, userId: number) {
+    const transferRecords = await this.dataSource.manager
+      .createQueryBuilder(SavingAccountTransferRecordEntity, 'transferRecord')
+      .leftJoin('transferRecord.accountBook', 'accountBook')
+      .leftJoin('accountBook.admins', 'admin')
+      .leftJoin('accountBook.members', 'member')
+      .where('transferRecord.id IN (:...ids)', { ids })
+      .andWhere('admin.id = :adminId OR member.id = :memberId', {
+        adminId: userId,
+        memberId: userId,
+      })
+      .getMany();
+
+    return transferRecords;
+  }
+
   async delete(id: number, currentUser: UserEntity) {
     return this.dataSource.transaction(async (manager) => {
       const record = await manager.findOne(SavingAccountTransferRecordEntity, {

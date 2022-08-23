@@ -83,7 +83,10 @@ export class UserResolver {
       currentUser,
     });
 
-    return users.map((it) => ({ ...it, id: encodeId(EntityName.USER, it.id) }));
+    return users.map((it) => ({
+      ...it,
+      id: encodeId(EntityName.SIMPLE_USER, it.id),
+    }));
   }
 
   @Mutation()

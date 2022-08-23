@@ -4,7 +4,9 @@ import { AccountBookService } from '../../service/AccountBookService';
 import { FlowRecordService } from '../../service/FlowRecordService';
 import { SavingAccountHistoryService } from '../../service/SavingAccountHistoryService';
 import { SavingAccountService } from '../../service/SavingAccountService';
+import { SavingAccountTransferRecordService } from '../../service/SavingAccountTransferRecordService';
 import { TagService } from '../../service/TagService';
+import { UserService } from '../../service/UserService';
 import CurrentUser from '../decorator/CurrentUser';
 import { encodeId, EntityName, getIdInfo } from '../utils';
 
@@ -16,6 +18,8 @@ export class NodeResolver {
     private readonly flowRecordService: FlowRecordService,
     private readonly tagService: TagService,
     private readonly savingAccountHistoryService: SavingAccountHistoryService,
+    private readonly userService: UserService,
+    private readonly savingAccountTransferRecordService: SavingAccountTransferRecordService,
   ) {}
 
   @ResolveField()
@@ -61,35 +65,37 @@ export class NodeResolver {
 
     for (const [key, value] of map) {
       let p: Promise<Array<Entity>>;
+
+      const ids = Array.from(value);
+
       switch (key) {
         case EntityName.ACCOUNT_BOOK: {
-          p = this.accountBookService.findByIdsAndUserId(
-            Array.from(value),
-            user.id,
-          );
+          p = this.accountBookService.findByIdsAndUserId(ids, user.id);
           break;
         }
         case EntityName.SAVING_ACCOUNT: {
-          p = this.savingAccountService.findByIdsAndUserId(
-            Array.from(value),
-            user.id,
-          );
+          p = this.savingAccountService.findByIdsAndUserId(ids, user.id);
           break;
         }
         case EntityName.FLOW_RECORD: {
-          p = this.flowRecordService.findByIdsAndUserId(
-            Array.from(value),
-            user.id,
-          );
+          p = this.flowRecordService.findByIdsAndUserId(ids, user.id);
           break;
         }
         case EntityName.TAG: {
-          p = this.tagService.findByIdsAndUserId(Array.from(value), user.id);
+          p = this.tagService.findByIdsAndUserId(ids, user.id);
           break;
         }
         case EntityName.SAVING_ACCOUNT_HISTORY: {
-          p = this.savingAccountHistoryService.findByIdsAndUserId(
-            Array.from(value),
+          p = this.savingAccountHistoryService.findByIdsAndUserId(ids, user.id);
+          break;
+        }
+        case EntityName.SIMPLE_USER: {
+          p = this.userService.findAllByIds(ids);
+          break;
+        }
+        case EntityName.SAVING_ACCOUNT_TRANSFER_RECORD: {
+          p = this.savingAccountTransferRecordService.findByIdsAndUserId(
+            ids,
             user.id,
           );
           break;

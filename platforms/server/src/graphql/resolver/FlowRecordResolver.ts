@@ -25,59 +25,58 @@ export class FlowRecordResolver {
 
   @ResolveField()
   async creator(@Parent() parent: GraphqlEntity<FlowRecordEntity>) {
-    const creatorId = encodeId(EntityName.USER, parent.creatorId);
-
     const creator =
-      parent.creator || (await this.userDataLoader.load(creatorId));
+      parent.creator || (await this.userDataLoader.load(parent.creatorId));
 
-    return creator ? { ...creator, id: creatorId } : null;
+    return creator
+      ? { ...creator, id: encodeId(EntityName.SIMPLE_USER, parent.creatorId) }
+      : null;
   }
 
   @ResolveField()
   async updater(@Parent() parent: GraphqlEntity<FlowRecordEntity>) {
-    const updaterId = encodeId(EntityName.USER, parent.updaterId);
-
     const updater =
-      parent.updater || (await this.userDataLoader.load(updaterId));
+      parent.updater || (await this.userDataLoader.load(parent.updaterId));
 
-    return updater ? { ...updater, id: updaterId } : null;
+    return updater
+      ? { ...updater, id: encodeId(EntityName.SIMPLE_USER, parent.updaterId) }
+      : null;
   }
 
   @ResolveField()
   async accountBook(@Parent() parent: GraphqlEntity<FlowRecordEntity>) {
-    const accountBookId = encodeId(
-      EntityName.ACCOUNT_BOOK,
-      parent.accountBookId,
-    );
-
     const accountBook =
       parent.accountBook ||
-      (await this.accountBookDataLoader.load(accountBookId));
+      (await this.accountBookDataLoader.load(parent.accountBookId));
 
-    return accountBook ? { ...accountBook, id: accountBookId } : null;
+    return accountBook
+      ? {
+          ...accountBook,
+          id: encodeId(EntityName.ACCOUNT_BOOK, parent.accountBookId),
+        }
+      : null;
   }
 
   @ResolveField()
   async savingAccount(@Parent() parent: GraphqlEntity<FlowRecordEntity>) {
-    const savingAccountId = encodeId(
-      EntityName.ACCOUNT_BOOK,
-      parent.savingAccountId,
-    );
-
     const savingAccount =
       parent.savingAccount ||
-      (await this.accountBookDataLoader.load(savingAccountId));
+      (await this.accountBookDataLoader.load(parent.savingAccountId));
 
-    return savingAccount ? { ...savingAccount, id: savingAccountId } : null;
+    return savingAccount
+      ? {
+          ...savingAccount,
+          id: encodeId(EntityName.ACCOUNT_BOOK, parent.savingAccountId),
+        }
+      : null;
   }
 
   @ResolveField()
   async tag(@Parent() parent: GraphqlEntity<FlowRecordEntity>) {
-    const tagId = encodeId(EntityName.TAG, parent.tagId);
+    const tag =
+      parent.tag || (await this.accountBookDataLoader.load(parent.tagId));
 
-    const tag = parent.tag || (await this.accountBookDataLoader.load(tagId));
-
-    return tag ? { ...tag, id: tagId } : null;
+    return tag ? { ...tag, id: encodeId(EntityName.TAG, parent.tagId) } : null;
   }
 
   @Mutation()

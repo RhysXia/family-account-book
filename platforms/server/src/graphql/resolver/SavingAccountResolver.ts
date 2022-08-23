@@ -5,12 +5,10 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { SavingAccountAmountView } from '../../entity/SavingAccountAmountView';
 import { SavingAccountEntity } from '../../entity/SavingAccountEntity';
 import { UserEntity } from '../../entity/UserEntity';
 import { ResourceNotFoundException } from '../../exception/ServiceException';
 import { FlowRecordService } from '../../service/FlowRecordService';
-import { SavingAccountAmountService } from '../../service/SavingAccountAmountService';
 import { SavingAccountHistoryService } from '../../service/SavingAccountHistoryService';
 import { SavingAccountService } from '../../service/SavingAccountService';
 import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
@@ -40,7 +38,9 @@ export class SavingAccountResolver {
 
   @ResolveField()
   async amount(@Parent() parent: GraphqlEntity<SavingAccountEntity>) {
-    const money = await this.savingAccountMoneyDataLoader.load(parent.id);
+    const money = await this.savingAccountMoneyDataLoader.load(
+      decodeId(EntityName.SAVING_ACCOUNT, parent.id),
+    );
 
     if (money) {
       return money.amount;
@@ -51,36 +51,36 @@ export class SavingAccountResolver {
 
   @ResolveField()
   async accountBook(@Parent() parent: GraphqlEntity<SavingAccountEntity>) {
-    const accountBookId = encodeId(
-      EntityName.ACCOUNT_BOOK,
-      parent.accountBookId,
-    );
-
     const accountBook =
       parent.accountBook ||
-      (await this.accountBookDataLoader.load(accountBookId));
+      (await this.accountBookDataLoader.load(parent.accountBookId));
 
-    return accountBook ? { ...accountBook, id: accountBookId } : null;
+    return accountBook
+      ? {
+          ...accountBook,
+          id: encodeId(EntityName.ACCOUNT_BOOK, parent.accountBookId),
+        }
+      : null;
   }
 
   @ResolveField()
   async creator(@Parent() parent: GraphqlEntity<SavingAccountEntity>) {
-    const creatorId = encodeId(EntityName.USER, parent.creatorId);
-
     const creator =
-      parent.creator || (await this.userDataLoader.load(creatorId));
+      parent.creator || (await this.userDataLoader.load(parent.creatorId));
 
-    return creator ? { ...creator, id: creatorId } : null;
+    return creator
+      ? { ...creator, id: encodeId(EntityName.SIMPLE_USER, parent.creatorId) }
+      : null;
   }
 
   @ResolveField()
   async updater(@Parent() parent: GraphqlEntity<SavingAccountEntity>) {
-    const updaterId = encodeId(EntityName.USER, parent.updaterId);
-
     const updater =
-      parent.updater || (await this.userDataLoader.load(updaterId));
+      parent.updater || (await this.userDataLoader.load(parent.updaterId));
 
-    return updater ? { ...updater, id: updaterId } : null;
+    return updater
+      ? { ...updater, id: encodeId(EntityName.SIMPLE_USER, parent.updaterId) }
+      : null;
   }
 
   @ResolveField()
@@ -127,7 +127,9 @@ export class SavingAccountResolver {
     @Parent() parent: GraphqlEntity<SavingAccountEntity>,
     @Args('id') id: string,
   ) {
-    const flowRecord = await this.flowRecordDataLoader.load(id);
+    const flowRecord = await this.flowRecordDataLoader.load(
+      decodeId(EntityName.FLOW_RECORD, id),
+    );
 
     if (!flowRecord) {
       throw new ResourceNotFoundException('流水不存在');

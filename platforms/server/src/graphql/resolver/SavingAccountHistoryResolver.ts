@@ -12,31 +12,31 @@ export class SavingAccountHistoryResolver {
   async accountBook(
     @Parent() parent: GraphqlEntity<SavingAccountHistoryEntity>,
   ) {
-    const accountBookId = encodeId(
-      EntityName.ACCOUNT_BOOK,
-      parent.accountBookId,
-    );
-
     const accountBook =
       parent.accountBook ||
-      (await this.accountBookDataLoader.load(accountBookId));
+      (await this.accountBookDataLoader.load(parent.accountBookId));
 
-    return accountBook ? { ...accountBook, id: accountBookId } : null;
+    return accountBook
+      ? {
+          ...accountBook,
+          id: encodeId(EntityName.ACCOUNT_BOOK, parent.accountBookId),
+        }
+      : null;
   }
 
   @ResolveField()
   async savingAccount(
     @Parent() parent: GraphqlEntity<SavingAccountHistoryEntity>,
   ) {
-    const savingAccountId = encodeId(
-      EntityName.ACCOUNT_BOOK,
-      parent.savingAccountId,
-    );
-
     const savingAccount =
       parent.savingAccount ||
-      (await this.accountBookDataLoader.load(savingAccountId));
+      (await this.accountBookDataLoader.load(parent.savingAccountId));
 
-    return savingAccount ? { ...savingAccount, id: savingAccountId } : null;
+    return savingAccount
+      ? {
+          ...savingAccount,
+          id: encodeId(EntityName.ACCOUNT_BOOK, parent.savingAccountId),
+        }
+      : null;
   }
 }

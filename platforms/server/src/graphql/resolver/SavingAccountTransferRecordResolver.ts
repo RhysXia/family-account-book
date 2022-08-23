@@ -30,16 +30,16 @@ export class SavingAccountTransferRecordResolver {
   async accountBook(
     @Parent() parent: GraphqlEntity<SavingAccountTransferRecordEntity>,
   ) {
-    const accountBookId = encodeId(
-      EntityName.ACCOUNT_BOOK,
-      parent.accountBookId,
-    );
-
     const accountBook =
       parent.accountBook ||
-      (await this.accountBookDataLoader.load(accountBookId));
+      (await this.accountBookDataLoader.load(parent.accountBookId));
 
-    return accountBook ? { ...accountBook, id: accountBookId } : null;
+    return accountBook
+      ? {
+          ...accountBook,
+          id: encodeId(EntityName.ACCOUNT_BOOK, parent.accountBookId),
+        }
+      : null;
   }
 
   @Mutation()

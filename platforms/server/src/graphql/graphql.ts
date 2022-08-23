@@ -284,5 +284,5 @@ export interface SimpleUser {
 }
 
 export type DateTime = Date;
-export type Node = AccountBook | SavingAccount | Tag | FlowRecord | SavingAccountTransferRecord | SavingAccountHistory;
+export type Node = SimpleUser | AccountBook | SavingAccount | Tag | FlowRecord | SavingAccountTransferRecord | SavingAccountHistory;
 type Nullable<T> = T | null;
