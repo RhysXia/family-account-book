@@ -1,6 +1,8 @@
-import { gql, useLazyQuery, useMutation, useQuery } from '@apollo/client';
-import { Button } from 'antd';
+import { gql, useMutation, useQuery } from '@apollo/client';
+import { Button, Modal, Table, TableColumnsType } from 'antd';
 import { useAtom } from 'jotai';
+import { useCallback, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { activeAccountBookAtom } from '../../../../store';
 import {
@@ -10,24 +12,7 @@ import {
   User,
   Tag as Itag,
 } from '../../../../types';
-import { TagColorMap } from '../../../../utils/constants';
-
-const CREATE_FLOW_RECORD = gql`
-  mutation ($flowRecord: CreateFlowRecordInput!) {
-    createFlowRecord(flowRecord: $flowRecord) {
-      id
-    }
-  }
-`;
-
-const GET_USER_LIST = gql`
-  query findUserListByNameLike($name: String!, $limit: Int!) {
-    findUserListByNameLike(name: $name, limit: $limit) {
-      value: id
-      label: nickname
-    }
-  }
-`;
+import { fromTime } from '../../../../utils/dayjs';
 
 const GET_FLOW_RECORDS_BY_ACCOUNT_BOOK_ID = gql`
   query getFlowRecordsByAccountBookId(
@@ -73,14 +58,13 @@ const GET_FLOW_RECORDS_BY_ACCOUNT_BOOK_ID = gql`
   }
 `;
 
+const DELETE_FLOW_RECORD = gql``;
+
 const FlowRecordsPage = () => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
+  const navigate = useNavigate();
 
-  const [createFlowRecord] = useMutation(CREATE_FLOW_RECORD);
-
-  const [searchUsers] = useLazyQuery<{
-    findUserListByNameLike: Array<{ label: string; value: string }>;
-  }>(GET_USER_LIST);
+  const [createModalVisible, setCreateModalVisible] = useState(false);
 
   const { data, refetch } = useQuery<{
     node: {
@@ -102,44 +86,100 @@ const FlowRecordsPage = () => {
     },
   });
 
+  const [deleteFlowRecord] = useMutation<{ tagId: number }>(DELETE_FLOW_RECORD);
+
+  const handleCreateButton = useCallback(() => {
+    setCreateModalVisible(true);
+  }, []);
+
+  const handleDeleteTag = useCallback(
+    async (id: string) => {
+      await deleteFlowRecord({
+        variables: {
+          tagId: id,
+        },
+      });
+      await refetch();
+    },
+    [deleteFlowRecord, refetch],
+  );
+
+  const columns: TableColumnsType<any> = [
+    {
+      title: '名称',
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: '创建人',
+      dataIndex: 'creator',
+      key: 'creator',
+      render(creator: User) {
+        return creator.nickname;
+      },
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      render(createdAt: string) {
+        return fromTime(createdAt);
+      },
+    },
+    {
+      title: '操作',
+      render(record: FlowRecord) {
+        return (
+          <div className="space-x-4">
+            <Button
+              size="small"
+              type="primary"
+              onClick={() => {
+                navigate(`${record.id}`);
+              }}
+            >
+              详情
+            </Button>
+            <Button
+              size="small"
+              type="primary"
+              danger
+              onClick={() => {
+                Modal.confirm({
+                  title: '确认删除',
+                  content: '确认删除该流水吗？',
+                  onOk: async () => {
+                    await handleDeleteTag(record.id);
+                  },
+                });
+              }}
+            >
+              删除
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
+
   return (
     <div className="w-full">
       <div className="bg-white flex flex-row items-center justify-between p-4 mb-4">
         <div></div>
         <div className="">
-          <Button type="primary">新建</Button>
+          <Button type="primary" onClick={handleCreateButton}>
+            新建
+          </Button>
         </div>
       </div>
-      <table className="table-auto border-collapse w-full text-sm bg-white">
-        <thead className="bg-slate-100">
-          <tr className="border-b text-slate-400 font-medium">
-            <th className="p-4">描述</th>
-            <th className="p-4">金额</th>
-            <th className="p-4">标签</th>
-            <th className="p-4">账户</th>
-            <th className="p-4">使用人</th>
-            <th className="p-4">操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
-          {data?.node.flowRecords.data.map((it) => {
-            return (
-              <tr key={it.id}>
-                <td>{it.desc}</td>
-                <td>{it.amount}</td>
-                <td>{it.tag.name}</td>
-                <td>{it.trader.nickname}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <Table
+        pagination={false}
+        columns={columns}
+        dataSource={data?.node.flowRecords.data.map((it) => ({
+          ...it,
+          key: it.id,
+        }))}
+      />
     </div>
   );
 };
