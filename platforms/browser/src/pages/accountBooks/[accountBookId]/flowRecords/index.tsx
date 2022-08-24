@@ -58,7 +58,12 @@ const GET_FLOW_RECORDS_BY_ACCOUNT_BOOK_ID = gql`
   }
 `;
 
-const DELETE_FLOW_RECORD = gql``;
+const DELETE_FLOW_RECORD = gql`
+  mutation deleteFlowRecord($id: ID!) {
+    deleteFlowRecord(id: $id)
+    Boolean
+  }
+`;
 
 const FlowRecordsPage = () => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
