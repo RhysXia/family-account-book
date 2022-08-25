@@ -53,6 +53,7 @@ export interface Pagination {
 
 export interface FlowRecordFilter {
     traderId?: Nullable<string>;
+    creatorId?: Nullable<string>;
 }
 
 export interface CreateFlowRecordInput {

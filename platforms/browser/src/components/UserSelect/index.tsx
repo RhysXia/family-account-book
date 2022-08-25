@@ -13,6 +13,7 @@ export type UserSelectProps = {
   limit?: number;
   value?: Array<ValueType>;
   onChange?: (value: Array<ValueType>) => void;
+  className?: string;
 };
 
 const GET_USER_LIST = gql`
@@ -29,7 +30,12 @@ const GET_USER_LIST = gql`
   }
 `;
 
-const UserSelect: FC<UserSelectProps> = ({ limit = 10, value, onChange }) => {
+const UserSelect: FC<UserSelectProps> = ({
+  limit = 10,
+  value,
+  onChange,
+  ...others
+}) => {
   const [options, setOptions] = useState<Array<ValueType>>([]);
 
   const [searchUsers] = useLazyQuery<{
@@ -53,7 +59,7 @@ const UserSelect: FC<UserSelectProps> = ({ limit = 10, value, onChange }) => {
         const users =
           data?.findUserListByNameLike?.map((it) => ({
             key: it.id + '',
-            label: it.username,
+            label: it.nickname,
             value: it.id,
           })) || [];
         setOptions(users);
@@ -68,6 +74,7 @@ const UserSelect: FC<UserSelectProps> = ({ limit = 10, value, onChange }) => {
 
   return (
     <Select
+      {...others}
       mode="multiple"
       value={value}
       onChange={onChange}

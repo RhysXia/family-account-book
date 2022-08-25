@@ -114,7 +114,7 @@ export class SavingAccountResolver {
   ) {
     const parentId = decodeId(EntityName.SAVING_ACCOUNT, parent.id);
 
-    const { traderId } = filter || {};
+    const { traderId, creatorId } = filter || {};
 
     let traderIdValue;
 
@@ -130,11 +130,28 @@ export class SavingAccountResolver {
       traderIdValue = info.id;
     }
 
+    let creatorIdValue;
+
+    if (creatorId) {
+      const info = getIdInfo(creatorId);
+
+      if (
+        info.name !== EntityName.USER &&
+        info.name !== EntityName.SIMPLE_USER
+      ) {
+        throw new ParameterException('traderId不存在');
+      }
+      creatorIdValue = info.id;
+    }
+
     const { total, data } =
       await this.flowRecordService.findAllByConditionAndPagination(
         {
           ...(traderIdValue && {
             traderId: traderIdValue,
+          }),
+          ...(creatorIdValue && {
+            creatorId: creatorIdValue,
           }),
           savingAccountId: parentId,
         },

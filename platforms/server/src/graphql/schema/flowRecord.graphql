@@ -4,6 +4,7 @@ input FlowRecordFilter {
   过滤交易人的流水
   """
   traderId: ID
+  creatorId: ID
 }
 
 type FlowRecordListWithPagintion {
