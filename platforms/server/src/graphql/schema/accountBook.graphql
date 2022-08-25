@@ -29,7 +29,10 @@ type AccountBook implements EntityDateTime {
   tags(pagination: Pagination): TagListWithPagintion
   tag(id: ID!): Tag!
 
-  flowRecords(pagination: Pagination): FlowRecordListWithPagintion!
+  flowRecords(
+    filter: FlowRecordFilter
+    pagination: Pagination
+  ): FlowRecordListWithPagintion!
   flowRecord(id: ID!): FlowRecord!
 }
 

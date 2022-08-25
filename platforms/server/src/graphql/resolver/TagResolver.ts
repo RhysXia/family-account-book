@@ -7,16 +7,24 @@ import {
 } from '@nestjs/graphql';
 import { TagEntity } from '../../entity/TagEntity';
 import { UserEntity } from '../../entity/UserEntity';
-import { ResourceNotFoundException } from '../../exception/ServiceException';
+import {
+  ParameterException,
+  ResourceNotFoundException,
+} from '../../exception/ServiceException';
 import { FlowRecordService } from '../../service/FlowRecordService';
 import { TagService } from '../../service/TagService';
 import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
 import { FlowRecordDataLoader } from '../dataloader/FlowRecordDataLoader';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
-import { CreateTagInput, Pagination, UpdateTagInput } from '../graphql';
+import {
+  CreateTagInput,
+  FlowRecordFilter,
+  Pagination,
+  UpdateTagInput,
+} from '../graphql';
 import { GraphqlEntity } from '../types';
-import { decodeId, encodeId, EntityName } from '../utils';
+import { decodeId, encodeId, EntityName, getIdInfo } from '../utils';
 
 @Resolver('Tag')
 export class TagResolver {
@@ -65,11 +73,35 @@ export class TagResolver {
   @ResolveField()
   async flowRecords(
     @Parent() parent: GraphqlEntity<TagEntity>,
+    @Args('filter') filter?: FlowRecordFilter,
     @Args('pagination') pagination?: Pagination,
   ) {
+    const parentId = decodeId(EntityName.TAG, parent.id);
+
+    const { traderId } = filter || {};
+
+    let traderIdValue;
+
+    if (traderId) {
+      const info = getIdInfo(traderId);
+
+      if (
+        info.name !== EntityName.USER &&
+        info.name !== EntityName.SIMPLE_USER
+      ) {
+        throw new ParameterException('traderId不存在');
+      }
+      traderIdValue = info.id;
+    }
+
     const { total, data } =
-      await this.flowRecordService.findAllByTagIdAndPagination(
-        decodeId(EntityName.TAG, parent.id),
+      await this.flowRecordService.findAllByConditionAndPagination(
+        {
+          ...(traderIdValue && {
+            traderId: traderIdValue,
+          }),
+          tagId: parentId,
+        },
         pagination,
       );
 

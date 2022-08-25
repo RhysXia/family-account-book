@@ -270,55 +270,46 @@ export class FlowRecordService {
     });
   }
 
-  async findAllByAccountBookIdAndPagination(
-    accountBookId: number,
+  async findAllByConditionAndPagination(
+    {
+      accountBookId,
+      traderId,
+      savingAccountId,
+      tagId,
+    }: {
+      accountBookId?: number;
+      traderId?: number;
+      savingAccountId?: number;
+      tagId?: number;
+    },
     pagination?: Pagination,
   ): Promise<{ total: number; data: Array<FlowRecordEntity> }> {
-    const qb = this.dataSource
-      .createQueryBuilder(FlowRecordEntity, 'flowRecord')
-      .where('flowRecord.accountBookId = :accountBookId', { accountBookId });
-
-    const result = await applyPagination(
-      qb,
+    const qb = this.dataSource.createQueryBuilder(
+      FlowRecordEntity,
       'flowRecord',
-      pagination,
-    ).getManyAndCount();
+    );
 
-    return {
-      total: result[1],
-      data: result[0],
-    };
-  }
+    if (accountBookId) {
+      qb.andWhere('flowRecord.accountBookId = :accountBookId', {
+        accountBookId,
+      });
+    }
 
-  async findAllByTagIdAndPagination(
-    tagId: number,
-    pagination: Pagination,
-  ): Promise<{ total: number; data: Array<FlowRecordEntity> }> {
-    const qb = this.dataSource
-      .createQueryBuilder(FlowRecordEntity, 'flowRecord')
-      .where('flowRecord.tagId = :tagId', { tagId });
+    if (traderId) {
+      qb.andWhere('flowRecord.traderId = :traderId', { traderId });
+    }
 
-    const result = await applyPagination(
-      qb,
-      'flowRecord',
-      pagination,
-    ).getManyAndCount();
-
-    return {
-      total: result[1],
-      data: result[0],
-    };
-  }
-
-  async findAllBySavingAccountIdAndPagination(
-    savingAccountId: number,
-    pagination: Pagination,
-  ): Promise<{ total: number; data: Array<FlowRecordEntity> }> {
-    const qb = this.dataSource
-      .createQueryBuilder(FlowRecordEntity, 'flowRecord')
-      .where('flowRecord.savingAccountId = :savingAccountId', {
+    if (savingAccountId) {
+      qb.andWhere('flowRecord.savingAccountId = :savingAccountId', {
         savingAccountId,
       });
+    }
+
+    if (tagId) {
+      qb.andWhere('flowRecord.tagId = :tagId', {
+        tagId,
+      });
+    }
 
     const result = await applyPagination(
       qb,

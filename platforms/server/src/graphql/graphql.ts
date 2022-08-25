@@ -51,6 +51,10 @@ export interface Pagination {
     orderBy?: Nullable<OrderBy[]>;
 }
 
+export interface FlowRecordFilter {
+    traderId?: Nullable<string>;
+}
+
 export interface CreateFlowRecordInput {
     desc?: Nullable<string>;
     dealAt: Date;

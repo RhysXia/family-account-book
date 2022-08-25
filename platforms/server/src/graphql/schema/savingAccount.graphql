@@ -25,7 +25,10 @@ type SavingAccount implements EntityDateTime {
     endDate: DateTime
   ): [SavingAccountHistory!]!
 
-  flowRecords(pagination: Pagination): FlowRecordListWithPagintion!
+  flowRecords(
+    filter: FlowRecordFilter
+    pagination: Pagination
+  ): FlowRecordListWithPagintion!
   flowRecord(id: ID!): FlowRecord!
 }
 

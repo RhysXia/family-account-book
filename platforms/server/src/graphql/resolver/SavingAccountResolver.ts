@@ -7,7 +7,10 @@ import {
 } from '@nestjs/graphql';
 import { SavingAccountEntity } from '../../entity/SavingAccountEntity';
 import { UserEntity } from '../../entity/UserEntity';
-import { ResourceNotFoundException } from '../../exception/ServiceException';
+import {
+  ParameterException,
+  ResourceNotFoundException,
+} from '../../exception/ServiceException';
 import { FlowRecordService } from '../../service/FlowRecordService';
 import { SavingAccountHistoryService } from '../../service/SavingAccountHistoryService';
 import { SavingAccountService } from '../../service/SavingAccountService';
@@ -18,11 +21,12 @@ import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
 import {
   CreateSavingAccountInput,
+  FlowRecordFilter,
   Pagination,
   UpdateSavingAccountInput,
 } from '../graphql';
 import { GraphqlEntity } from '../types';
-import { decodeId, encodeId, EntityName } from '../utils';
+import { decodeId, encodeId, EntityName, getIdInfo } from '../utils';
 
 @Resolver('SavingAccount')
 export class SavingAccountResolver {
@@ -105,11 +109,35 @@ export class SavingAccountResolver {
   @ResolveField()
   async flowRecords(
     @Parent() parent: GraphqlEntity<SavingAccountEntity>,
+    @Args('filter') filter?: FlowRecordFilter,
     @Args('pagination') pagination?: Pagination,
   ) {
+    const parentId = decodeId(EntityName.SAVING_ACCOUNT, parent.id);
+
+    const { traderId } = filter || {};
+
+    let traderIdValue;
+
+    if (traderId) {
+      const info = getIdInfo(traderId);
+
+      if (
+        info.name !== EntityName.USER &&
+        info.name !== EntityName.SIMPLE_USER
+      ) {
+        throw new ParameterException('traderId不存在');
+      }
+      traderIdValue = info.id;
+    }
+
     const { total, data } =
-      await this.flowRecordService.findAllBySavingAccountIdAndPagination(
-        decodeId(EntityName.SAVING_ACCOUNT, parent.id),
+      await this.flowRecordService.findAllByConditionAndPagination(
+        {
+          ...(traderIdValue && {
+            traderId: traderIdValue,
+          }),
+          savingAccountId: parentId,
+        },
         pagination,
       );
 

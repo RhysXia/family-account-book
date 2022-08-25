@@ -7,7 +7,10 @@ import {
 } from '@nestjs/graphql';
 import { AccountBookEntity } from '../../entity/AccountBookEntity';
 import { UserEntity } from '../../entity/UserEntity';
-import { ResourceNotFoundException } from '../../exception/ServiceException';
+import {
+  ParameterException,
+  ResourceNotFoundException,
+} from '../../exception/ServiceException';
 import { AccountBookService } from '../../service/AccountBookService';
 import { FlowRecordService } from '../../service/FlowRecordService';
 import { SavingAccountService } from '../../service/SavingAccountService';
@@ -19,11 +22,12 @@ import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
 import {
   CreateAccountBookInput,
+  FlowRecordFilter,
   Pagination,
   UpdateAccountBookInput,
 } from '../graphql';
 import { GraphqlEntity } from '../types';
-import { decodeId, encodeId, EntityName } from '../utils';
+import { decodeId, encodeId, EntityName, getIdInfo } from '../utils';
 
 @Resolver('AccountBook')
 export class AccountBookResolver {
@@ -181,13 +185,35 @@ export class AccountBookResolver {
   @ResolveField()
   async flowRecords(
     @Parent() parent: GraphqlEntity<AccountBookEntity>,
+    @Args('filter') filter?: FlowRecordFilter,
     @Args('pagination') pagination?: Pagination,
   ) {
     const parentId = decodeId(EntityName.ACCOUNT_BOOK, parent.id);
 
+    const { traderId } = filter || {};
+
+    let traderIdValue;
+
+    if (traderId) {
+      const info = getIdInfo(traderId);
+
+      if (
+        info.name !== EntityName.USER &&
+        info.name !== EntityName.SIMPLE_USER
+      ) {
+        throw new ParameterException('traderId不存在');
+      }
+      traderIdValue = info.id;
+    }
+
     const { total, data } =
-      await this.flowRecordService.findAllByAccountBookIdAndPagination(
-        parentId,
+      await this.flowRecordService.findAllByConditionAndPagination(
+        {
+          ...(traderIdValue && {
+            traderId: traderIdValue,
+          }),
+          accountBookId: parentId,
+        },
         pagination,
       );
 
