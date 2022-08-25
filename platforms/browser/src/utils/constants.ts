@@ -3,18 +3,18 @@ import { TagType } from '../types';
 export const TagColorMap = {
   [TagType.INCOME]: {
     text: '收入',
-    color: 'green',
+    color: '#6EE7B7',
   },
   [TagType.EXPENDITURE]: {
     text: '支出',
-    color: 'red',
+    color: '#FCA5A5',
   },
   [TagType.LOAD]: {
     text: '借贷',
-    color: 'blue',
+    color: '#F9A8D4',
   },
   [TagType.INVESTMENT]: {
     text: '投资',
-    color: 'purple',
+    color: '#93C5FD',
   },
 };

@@ -14,6 +14,7 @@ export type UserSelectProps = {
   value?: Array<ValueType>;
   onChange?: (value: Array<ValueType>) => void;
   className?: string;
+  multiple?: boolean;
 };
 
 const GET_USER_LIST = gql`
@@ -34,6 +35,7 @@ const UserSelect: FC<UserSelectProps> = ({
   limit = 10,
   value,
   onChange,
+  multiple,
   ...others
 }) => {
   const [options, setOptions] = useState<Array<ValueType>>([]);
@@ -75,7 +77,7 @@ const UserSelect: FC<UserSelectProps> = ({
   return (
     <Select
       {...others}
-      mode="multiple"
+      mode={multiple ? 'multiple' : undefined}
       value={value}
       onChange={onChange}
       labelInValue

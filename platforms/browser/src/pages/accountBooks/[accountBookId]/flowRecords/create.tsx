@@ -9,7 +9,7 @@ import {
 } from '@/types';
 import { TagColorMap } from '@/utils/constants';
 import { gql, useQuery } from '@apollo/client';
-import { DatePicker, Input, InputNumber, Select } from 'antd';
+import { Button, DatePicker, Input, InputNumber, Select } from 'antd';
 import { useAtom } from 'jotai';
 
 const GET_SELF_FLOW_RECORDS = gql`
@@ -52,7 +52,7 @@ const GET_SELF_FLOW_RECORDS = gql`
   }
 `;
 
-const GET_SAVING_ACCOUNTS_ACCOUNT_BOOK_ID = gql`
+const GET_SAVING_ACCOUNTS_BY_ACCOUNT_BOOK_ID = gql`
   query GetSavingAccountsByAccountBookId($accountBookId: ID!) {
     node(id: $accountBookId) {
       ... on AccountBook {
@@ -71,6 +71,24 @@ const GET_SAVING_ACCOUNTS_ACCOUNT_BOOK_ID = gql`
   }
 `;
 
+const GET_TAGS_BY_ACCOUNT_BOOK_ID = gql`
+  query GetTagsByAccountBookId($accountBookId: ID!) {
+    node(id: $accountBookId) {
+      ... on AccountBook {
+        id
+        tags {
+          total
+          data {
+            id
+            name
+            type
+          }
+        }
+      }
+    }
+  }
+`;
+
 const Create = () => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
 
@@ -80,7 +98,17 @@ const Create = () => {
     node: {
       savingAccounts: PaginationResult<SavingAccount>;
     };
-  }>(GET_SAVING_ACCOUNTS_ACCOUNT_BOOK_ID, {
+  }>(GET_SAVING_ACCOUNTS_BY_ACCOUNT_BOOK_ID, {
+    variables: {
+      accountBookId: activeAccountBook!.id,
+    },
+  });
+
+  const { data: accountBookWithTags } = useQuery<{
+    node: {
+      tags: PaginationResult<Itag>;
+    };
+  }>(GET_TAGS_BY_ACCOUNT_BOOK_ID, {
     variables: {
       accountBookId: activeAccountBook!.id,
     },
@@ -88,6 +116,8 @@ const Create = () => {
 
   const savingAccounts =
     accountBookWithSavingAccounts?.node.savingAccounts.data || [];
+
+  const tags = accountBookWithTags?.node.tags.data || [];
 
   const { data, refetch } = useQuery<{
     node: {
@@ -109,15 +139,26 @@ const Create = () => {
   });
 
   return (
-    <div className="w-1/2 mx-auto bg-white p-6 rounded">
+    <div className="mx-auto w-full bg-white p-6 rounded">
       <div className="table w-full rounded overflow-hidden border-collapse">
         <div className="table-header-group bg-slate-200 font-bold">
-          <div className="table-cell p-2 w-1/6">金额</div>
+          <div className="table-cell p-2" style={{ width: 120 }}>
+            金额
+          </div>
           <div className="table-cell p-2">描述</div>
-          <div className="table-cell">日期</div>
-          <div className="table-cell">标签</div>
-          <div className="table-cell">账户</div>
-          <div className="table-cell">交易员</div>
+          <div className="table-cell p-2">日期</div>
+          <div className="table-cell p-2" style={{ minWidth: 150 }}>
+            标签
+          </div>
+          <div className="table-cell p-2" style={{ minWidth: 150 }}>
+            账户
+          </div>
+          <div className="table-cell p-2" style={{ minWidth: 120 }}>
+            交易员
+          </div>
+          <div className="table-cell p-2" style={{ minWidth: 100 }}>
+            操作
+          </div>
         </div>
         <div className="table-row-group">
           <div className="table-row">
@@ -132,10 +173,26 @@ const Create = () => {
             </div>
             <div className="table-cell p-2">
               <Select className="w-full">
-                {Object.keys(TagColorMap).map((key) => {
+                {tags.map((tag) => {
                   return (
-                    <Select.Option value={key}>
-                      {TagColorMap[key].text}
+                    <Select.Option
+                      value={tag.id}
+                      label={
+                        <span className="flex items-center">
+                          <span
+                            className="inline-block w-2 h-2 rounded-full mr-2"
+                            style={{ background: TagColorMap[tag.type].color }}
+                          ></span>
+                          <span>{tag.name}</span>
+                        </span>
+                      }
+                    >
+                      <span
+                        className="inline-block leading-4 rounded px-2 py-1 text-white"
+                        style={{ background: TagColorMap[tag.type].color }}
+                      >
+                        {tag.name}
+                      </span>
                     </Select.Option>
                   );
                 })}
@@ -155,6 +212,9 @@ const Create = () => {
                   { label: currentUser!.nickname, value: currentUser!.id },
                 ]}
               />
+            </div>
+            <div className="table-cell p-2">
+              <Button type="primary">保存</Button>
             </div>
           </div>
 

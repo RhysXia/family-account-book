@@ -100,10 +100,10 @@ const AccountBookCreate = () => {
             <Input.TextArea autoSize={{ minRows: 4 }} />
           </Form.Item>
           <Form.Item name="admins" label="管理员">
-            <UserSelect />
+            <UserSelect multiple />
           </Form.Item>
           <Form.Item name="members" label="普通成员">
-            <UserSelect />
+            <UserSelect multiple />
           </Form.Item>
           <Form.Item>
             <Button block type="primary" htmlType="submit">
