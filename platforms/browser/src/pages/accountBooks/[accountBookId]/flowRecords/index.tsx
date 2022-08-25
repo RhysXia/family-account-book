@@ -4,15 +4,15 @@ import { useAtom } from 'jotai';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { activeAccountBookAtom } from '../../../../store';
 import {
   FlowRecord,
   PaginationResult,
   SavingAccount,
   User,
   Tag as Itag,
-} from '../../../../types';
-import { fromTime } from '../../../../utils/dayjs';
+} from '@/types';
+import { fromTime } from '@/utils/dayjs';
+import { activeAccountBookAtom } from '@/store';
 
 const GET_FLOW_RECORDS_BY_ACCOUNT_BOOK_ID = gql`
   query getFlowRecordsByAccountBookId(

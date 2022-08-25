@@ -2,9 +2,9 @@ import { gql, useMutation } from '@apollo/client';
 import { Button, Form, Input, message, Modal } from 'antd';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import RequireAuth from '../../components/RequireAuth';
-import UserSelect from '../../components/UserSelect';
-import { AccountBook } from '../../types';
+import RequireAuth from '@/components/RequireAuth';
+import UserSelect from '@/components/UserSelect';
+import { AccountBook } from '@/types';
 
 type FormType = {
   name: string;

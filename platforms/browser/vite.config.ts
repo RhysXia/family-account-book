@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import jotaiDebugLabel from 'jotai/babel/plugin-debug-label';
 import jotaiReactRefresh from 'jotai/babel/plugin-react-refresh';
 import Pages from 'vite-plugin-pages';
+import { resolve } from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -11,6 +12,11 @@ export default defineConfig({
       less: {
         javascriptEnabled: true,
       },
+    },
+  },
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'src'),
     },
   },
   plugins: [

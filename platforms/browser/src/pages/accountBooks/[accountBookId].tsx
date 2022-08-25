@@ -3,11 +3,11 @@ import { Spin } from 'antd';
 import { useAtom } from 'jotai';
 import { Suspense, useEffect } from 'react';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
-import Aside from '../../components/Aside';
-import Header from '../../components/Header';
-import RequireAuth from '../../components/RequireAuth';
-import { activeAccountBookAtom } from '../../store';
-import { AccountBook } from '../../types';
+import Aside from '@/components/Aside';
+import Header from '@/components/Header';
+import RequireAuth from '@/components/RequireAuth';
+import { activeAccountBookAtom } from '@/store';
+import { AccountBook } from '@/types';
 
 const GET_ACCOUNT_BOOK_BY_ID = gql`
   query getAccountBookById($id: ID!) {

@@ -3,8 +3,8 @@ import { Form, Input, Checkbox, Button, message } from 'antd';
 import { useAtom } from 'jotai';
 import { useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { currentUserAtom } from '../../store';
-import { User } from '../../types';
+import { currentUserAtom } from '@/store';
+import { User } from '@/types';
 
 type FormType = {
   username: string;

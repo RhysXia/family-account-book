@@ -12,15 +12,10 @@ import {
 import { useAtom } from 'jotai';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { activeAccountBookAtom } from '../../../../store';
-import {
-  PaginationResult,
-  Tag as ITag,
-  TagType,
-  User,
-} from '../../../../types';
-import { TagColorMap } from '../../../../utils/constants';
-import { fromTime } from '../../../../utils/dayjs';
+import { activeAccountBookAtom } from '@/store';
+import { PaginationResult, Tag as ITag, TagType, User } from '@/types';
+import { TagColorMap } from '@/utils/constants';
+import { fromTime } from '@/utils/dayjs';
 
 const GET_TAGS = gql`
   query getTagsByAccountBookId($accountBookId: ID!) {

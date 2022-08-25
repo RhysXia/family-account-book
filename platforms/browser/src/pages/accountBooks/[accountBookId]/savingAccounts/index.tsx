@@ -4,9 +4,9 @@ import { ColumnsType } from 'antd/lib/table';
 import { useAtom } from 'jotai';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { activeAccountBookAtom } from '../../../../store';
-import { PaginationResult, SavingAccount, User } from '../../../../types';
-import { fromTime } from '../../../../utils/dayjs';
+import { activeAccountBookAtom } from '@/store';
+import { PaginationResult, SavingAccount, User } from '@/types';
+import { fromTime } from '@/utils/dayjs';
 
 const GET_SAVING_ACCOUNTS = gql`
   query getSavingAccountsByAccountBookId($accountBookId: ID!) {
