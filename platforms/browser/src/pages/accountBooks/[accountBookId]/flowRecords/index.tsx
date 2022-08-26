@@ -1,7 +1,7 @@
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { Button, Modal, Table, TableColumnsType } from 'antd';
 import { useAtom } from 'jotai';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import {
@@ -69,8 +69,6 @@ const FlowRecordsPage = () => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
   const navigate = useNavigate();
 
-  const [createModalVisible, setCreateModalVisible] = useState(false);
-
   const { data, refetch } = useQuery<{
     node: {
       flowRecords: PaginationResult<
@@ -94,8 +92,8 @@ const FlowRecordsPage = () => {
   const [deleteFlowRecord] = useMutation<{ tagId: number }>(DELETE_FLOW_RECORD);
 
   const handleCreateButton = useCallback(() => {
-    setCreateModalVisible(true);
-  }, []);
+    navigate('create');
+  }, [navigate]);
 
   const handleDeleteTag = useCallback(
     async (id: string) => {

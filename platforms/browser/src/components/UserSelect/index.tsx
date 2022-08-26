@@ -6,20 +6,29 @@ import { User } from '../../types';
 export type ValueType = {
   key?: string;
   label: React.ReactNode;
-  value: string | number;
+  value: any;
 };
 
 export type UserSelectProps = {
   limit?: number;
-  value?: Array<ValueType>;
-  onChange?: (value: Array<ValueType>) => void;
+  value?: ValueType | Array<ValueType>;
+  onChange?: (value: ValueType | Array<ValueType>) => void;
   className?: string;
   multiple?: boolean;
+  includeSelf?: boolean;
 };
 
 const GET_USER_LIST = gql`
-  query findUserListByNameLike($name: String!, $limit: Int!) {
-    findUserListByNameLike(name: $name, limit: $limit) {
+  query findUserListByNameLike(
+    $name: String!
+    $limit: Int!
+    $includeSelf: Boolean!
+  ) {
+    findUserListByNameLike(
+      name: $name
+      limit: $limit
+      includeSelf: $includeSelf
+    ) {
       id
       nickname
       username
@@ -36,6 +45,7 @@ const UserSelect: FC<UserSelectProps> = ({
   value,
   onChange,
   multiple,
+  includeSelf,
   ...others
 }) => {
   const [options, setOptions] = useState<Array<ValueType>>([]);
@@ -55,6 +65,7 @@ const UserSelect: FC<UserSelectProps> = ({
         variables: {
           name,
           limit,
+          includeSelf,
         },
       });
       if (fetchRef.current === fetchId) {
@@ -67,7 +78,7 @@ const UserSelect: FC<UserSelectProps> = ({
         setOptions(users);
       }
     },
-    [limit, searchUsers],
+    [limit, searchUsers, includeSelf],
   );
 
   useEffect(() => {

@@ -1,4 +1,5 @@
-import UserSelect from '@/components/UserSelect';
+import DatePicker from '@/components/DatePicker';
+import UserSelect, { ValueType } from '@/components/UserSelect';
 import { activeAccountBookAtom, currentUserAtom } from '@/store';
 import {
   FlowRecord,
@@ -8,9 +9,12 @@ import {
   Tag as Itag,
 } from '@/types';
 import { TagColorMap } from '@/utils/constants';
-import { gql, useQuery } from '@apollo/client';
-import { Button, DatePicker, Input, InputNumber, Select } from 'antd';
+import { CreditCardOutlined } from '@ant-design/icons';
+import { gql, useMutation, useQuery } from '@apollo/client';
+import { Button, Input, InputNumber, Select, Tooltip } from 'antd';
+import dayjs, { Dayjs } from 'dayjs';
 import { useAtom } from 'jotai';
+import { useCallback, useState } from 'react';
 
 const GET_SELF_FLOW_RECORDS = gql`
   query getSelfFlowRecordsByAccountBookId(
@@ -89,10 +93,31 @@ const GET_TAGS_BY_ACCOUNT_BOOK_ID = gql`
   }
 `;
 
+const CREATE_FLOW_RECORD = gql`
+  mutation CreateFlowRecord($flowRecord: FlowRecordInput) {
+    createFlowRecord(flowRecord: $flowRecord): Boolean
+  }
+`;
+
 const Create = () => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
 
   const [currentUser] = useAtom(currentUserAtom);
+
+  const [flowRecord, setFlowRecord] = useState<{
+    amount?: number;
+    desc?: string;
+    dealAt?: Dayjs | null;
+    tagId?: string;
+    savingAccountId?: string;
+    trader?: {
+      id: string;
+      nickname: string;
+    };
+  }>({
+    trader: currentUser!,
+    dealAt: dayjs(),
+  });
 
   const { data: accountBookWithSavingAccounts } = useQuery<{
     node: {
@@ -114,11 +139,6 @@ const Create = () => {
     },
   });
 
-  const savingAccounts =
-    accountBookWithSavingAccounts?.node.savingAccounts.data || [];
-
-  const tags = accountBookWithTags?.node.tags.data || [];
-
   const { data, refetch } = useQuery<{
     node: {
       flowRecords: PaginationResult<
@@ -137,6 +157,23 @@ const Create = () => {
       },
     },
   });
+
+  const [createFlowRecord] = useMutation(CREATE_FLOW_RECORD);
+
+  const savingAccounts =
+    accountBookWithSavingAccounts?.node.savingAccounts.data || [];
+
+  const tags = accountBookWithTags?.node.tags.data || [];
+
+  const handleFlowRecord = useCallback(async () => {
+    await createFlowRecord({
+      variables: {
+        tagId: flowRecord.tagId,
+      },
+    });
+  }, [createFlowRecord, flowRecord]);
+
+  const selectedTag = tags.find((it) => it.id === flowRecord.tagId);
 
   return (
     <div className="mx-auto w-full bg-white p-6 rounded">
@@ -163,30 +200,51 @@ const Create = () => {
         <div className="table-row-group">
           <div className="table-row">
             <div className="table-cell p-2">
-              <InputNumber className="w-full" />
+              <InputNumber
+                formatter={(value) => `¥ ${value}`}
+                precision={2}
+                className="w-full"
+                min={0}
+                value={flowRecord.amount}
+                style={{
+                  ...(selectedTag && {
+                    borderColor: TagColorMap[selectedTag.type].color,
+                  }),
+                }}
+                onChange={(value) =>
+                  setFlowRecord((prev) => ({ ...prev, amount: value }))
+                }
+              />
             </div>
             <div className="table-cell p-2">
-              <Input className="w-full" />
+              <Input
+                className="w-full"
+                value={flowRecord.desc}
+                onChange={(e) =>
+                  setFlowRecord((prev) => ({ ...prev, desc: e.target.value }))
+                }
+              />
             </div>
             <div className="table-cell p-2">
-              <DatePicker className="w-full" />
+              <DatePicker
+                className="w-full"
+                value={flowRecord.dealAt}
+                onChange={(value) =>
+                  setFlowRecord((prev) => ({ ...prev, dealAt: value }))
+                }
+              />
             </div>
             <div className="table-cell p-2">
-              <Select className="w-full">
+              <Select
+                className="w-full"
+                value={flowRecord.tagId}
+                onChange={(value) =>
+                  setFlowRecord((prev) => ({ ...prev, tagId: value }))
+                }
+              >
                 {tags.map((tag) => {
                   return (
-                    <Select.Option
-                      value={tag.id}
-                      label={
-                        <span className="flex items-center">
-                          <span
-                            className="inline-block w-2 h-2 rounded-full mr-2"
-                            style={{ background: TagColorMap[tag.type].color }}
-                          ></span>
-                          <span>{tag.name}</span>
-                        </span>
-                      }
-                    >
+                    <Select.Option value={tag.id} key={tag.id}>
                       <span
                         className="inline-block leading-4 rounded px-2 py-1 text-white"
                         style={{ background: TagColorMap[tag.type].color }}
@@ -199,22 +257,47 @@ const Create = () => {
               </Select>
             </div>
             <div className="table-cell p-2">
-              <Select className="w-full">
+              <Select
+                className="w-full"
+                value={flowRecord.savingAccountId}
+                onChange={(value) =>
+                  setFlowRecord((prev) => ({ ...prev, savingAccountId: value }))
+                }
+              >
                 {savingAccounts.map((it) => {
-                  return <Select.Option value={it.id}>{it.name}</Select.Option>;
+                  return (
+                    <Select.Option value={it.id} key={it.id}>
+                      <span className="flex items-center">
+                        <CreditCardOutlined />
+                        <span className="pl-2">
+                          {it.name}(¥{it.amount})
+                        </span>
+                      </span>
+                    </Select.Option>
+                  );
                 })}
               </Select>
             </div>
             <div className="table-cell p-2">
               <UserSelect
                 className="w-full"
-                value={[
-                  { label: currentUser!.nickname, value: currentUser!.id },
-                ]}
+                includeSelf={true}
+                value={{
+                  label: flowRecord.trader!.nickname,
+                  value: flowRecord.trader,
+                }}
+                onChange={(value) =>
+                  setFlowRecord((prev) => ({
+                    ...prev,
+                    trader: (value as ValueType).value,
+                  }))
+                }
               />
             </div>
             <div className="table-cell p-2">
-              <Button type="primary">保存</Button>
+              <Button type="primary" onClick={handleFlowRecord}>
+                保存
+              </Button>
             </div>
           </div>
 
