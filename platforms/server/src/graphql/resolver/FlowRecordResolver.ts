@@ -9,6 +9,7 @@ import { FlowRecordEntity } from '../../entity/FlowRecordEntity';
 import { UserEntity } from '../../entity/UserEntity';
 import { FlowRecordService } from '../../service/FlowRecordService';
 import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
+import { TagDataLoader } from '../dataloader/TagDataLoader';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
 import { CreateFlowRecordInput, UpdateFlowRecordInput } from '../graphql';
@@ -21,6 +22,7 @@ export class FlowRecordResolver {
     private readonly userDataLoader: UserDataLoader,
     private readonly accountBookDataLoader: AccountBookDataLoader,
     private readonly flowRecordService: FlowRecordService,
+    private readonly tagDataLoader: TagDataLoader,
   ) {}
 
   @ResolveField()
@@ -83,8 +85,7 @@ export class FlowRecordResolver {
 
   @ResolveField()
   async tag(@Parent() parent: GraphqlEntity<FlowRecordEntity>) {
-    const tag =
-      parent.tag || (await this.accountBookDataLoader.load(parent.tagId));
+    const tag = parent.tag || (await this.tagDataLoader.load(parent.tagId));
 
     return tag ? { ...tag, id: encodeId(EntityName.TAG, parent.tagId) } : null;
   }
