@@ -9,6 +9,7 @@ import { FlowRecordEntity } from '../../entity/FlowRecordEntity';
 import { UserEntity } from '../../entity/UserEntity';
 import { FlowRecordService } from '../../service/FlowRecordService';
 import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
+import { SavingAccountDataLoader } from '../dataloader/SavingAccountDataLoader';
 import { TagDataLoader } from '../dataloader/TagDataLoader';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
@@ -21,6 +22,7 @@ export class FlowRecordResolver {
   constructor(
     private readonly userDataLoader: UserDataLoader,
     private readonly accountBookDataLoader: AccountBookDataLoader,
+    private readonly savingAccountDataLoader: SavingAccountDataLoader,
     private readonly flowRecordService: FlowRecordService,
     private readonly tagDataLoader: TagDataLoader,
   ) {}
@@ -73,12 +75,12 @@ export class FlowRecordResolver {
   async savingAccount(@Parent() parent: GraphqlEntity<FlowRecordEntity>) {
     const savingAccount =
       parent.savingAccount ||
-      (await this.accountBookDataLoader.load(parent.savingAccountId));
+      (await this.savingAccountDataLoader.load(parent.savingAccountId));
 
     return savingAccount
       ? {
           ...savingAccount,
-          id: encodeId(EntityName.ACCOUNT_BOOK, parent.savingAccountId),
+          id: encodeId(EntityName.SAVING_ACCOUNT, parent.savingAccountId),
         }
       : null;
   }

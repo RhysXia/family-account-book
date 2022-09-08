@@ -62,7 +62,7 @@ const Table: FC<TableProps> = ({ columns, data, editable, onEditSubmit }) => {
           return (
             <div className="table-row" key={index}>
               {columns.map((column, subIndex) => {
-                const { width, dataIndex, key } = column;
+                const { dataIndex, key } = column;
                 const value = dataIndex === undefined ? it : it[dataIndex];
                 return (
                   <EditRow
@@ -126,23 +126,29 @@ const EditRow: FC<{
     }
   });
 
-  const handleReset = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+  const handleReset = useConstantFn((e: KeyboardEvent) => {
+    switch (e.key) {
+      case 'Escape': {
         setValue(initialValue);
         setEdit(false);
+        break;
       }
-    },
-    [initialValue],
-  );
+      case 'Enter': {
+        setEdit(false);
+        onSubmit?.(value);
+        break;
+      }
+    }
+  });
 
   const handleClickOutside = useConstantFn(() => {
     if (isSelfClick.current) {
       return;
     }
     if (isEdit) {
+      setValue(initialValue);
       setEdit(false);
-      onSubmit?.(value);
+      // onSubmit?.(value);
     }
   });
 

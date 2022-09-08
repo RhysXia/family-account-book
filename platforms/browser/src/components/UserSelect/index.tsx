@@ -1,5 +1,5 @@
 import { gql, useLazyQuery } from '@apollo/client';
-import { Select } from 'antd';
+import { Select, SelectProps } from 'antd';
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { User } from '../../types';
 
@@ -9,7 +9,7 @@ export type ValueType = {
   value: any;
 };
 
-export type UserSelectProps = {
+export type UserSelectProps = SelectProps & {
   limit?: number;
   value?: ValueType | Array<ValueType>;
   onChange?: (value: ValueType | Array<ValueType>) => void;
