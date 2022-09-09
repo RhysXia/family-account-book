@@ -6,6 +6,7 @@ export type ContentProps = {
   breadcrumbs: Array<{ name: string; path?: string }>;
   children: ReactNode;
   action?: ReactNode;
+  pagination?: ReactNode;
 };
 
 const Content: FC<ContentProps> = ({
@@ -13,6 +14,7 @@ const Content: FC<ContentProps> = ({
   breadcrumbs,
   children,
   action,
+  pagination,
 }) => {
   return (
     <div className="w-full space-y-4">
@@ -28,6 +30,7 @@ const Content: FC<ContentProps> = ({
         {action && <div>{action}</div>}
       </div>
       <div className="bg-white p-2 rounded">{children}</div>
+      <div className="bg-white p-2 rounded text-right">{pagination}</div>
     </div>
   );
 };

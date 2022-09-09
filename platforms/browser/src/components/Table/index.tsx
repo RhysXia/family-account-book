@@ -30,6 +30,7 @@ const Table: FC<TableProps> = ({
         {data.map((it, index) => {
           return (
             <Row
+              key={index}
               columns={columns}
               data={it}
               index={index}

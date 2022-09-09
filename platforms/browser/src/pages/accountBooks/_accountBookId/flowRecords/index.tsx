@@ -3,6 +3,7 @@ import DatePicker from '@/components/DatePicker';
 import Table from '@/components/Table';
 import { Column, RenderProps } from '@/components/Table/Cell';
 import UserSelect from '@/components/UserSelect';
+import usePagination from '@/hooks/usePage';
 import { activeAccountBookAtom } from '@/store';
 import {
   FlowRecord,
@@ -108,6 +109,12 @@ const UPDATE_FLOW_RECORD = gql`
   }
 `;
 
+const DELETE_FLOW_RECORD = gql`
+  mutation DeleteFlowRecord($id: ID!) {
+    deleteFlowRecord(id: $id)
+  }
+`;
+
 type FlowRecordDetail = FlowRecord & {
   trader: User;
   savingAccount: SavingAccount;
@@ -138,6 +145,13 @@ const Index = () => {
     }
   >(UPDATE_FLOW_RECORD);
 
+  const [deleteFlowRecord] = useMutation<
+    any,
+    {
+      id: string;
+    }
+  >(DELETE_FLOW_RECORD);
+
   const { data: accountBookWithSavingAccounts } = useQuery<{
     node: {
       savingAccounts: PaginationResult<SavingAccount>;
@@ -158,6 +172,8 @@ const Index = () => {
     },
   });
 
+  const { getPagination, limit, offset } = usePagination();
+
   const { data, refetch } = useQuery<{
     node: {
       flowRecords: PaginationResult<FlowRecordDetail>;
@@ -166,7 +182,8 @@ const Index = () => {
     variables: {
       accountBookId: activeAccountBook?.id,
       pagination: {
-        limit: 10,
+        limit,
+        offset,
         orderBy: [
           {
             field: 'dealAt',
@@ -189,6 +206,18 @@ const Index = () => {
   const tags = useMemo(
     () => accountBookWithTags?.node.tags.data || [],
     [accountBookWithTags],
+  );
+
+  const handleDelete = useCallback(
+    async (id: string) => {
+      await deleteFlowRecord({
+        variables: {
+          id,
+        },
+      });
+      await refetch();
+    },
+    [deleteFlowRecord, refetch],
   );
 
   const columns: Array<Column> = useMemo(
@@ -322,7 +351,7 @@ const Index = () => {
       {
         title: '交易人员',
         dataIndex: 'trader',
-        width: 120,
+        width: 150,
         render({ value, isEdit, onChange }: RenderProps<User>) {
           if (isEdit) {
             return (
@@ -364,14 +393,18 @@ const Index = () => {
         width: 100,
         render({ value }: RenderProps<FlowRecord>) {
           return (
-            <Button danger={true} size="small">
+            <Button
+              danger={true}
+              size="small"
+              onClick={() => handleDelete(value.id)}
+            >
               删除
             </Button>
           );
         },
       },
     ],
-    [tags, savingAccounts],
+    [tags, savingAccounts, handleDelete],
   );
 
   const handleCreate = useCallback(() => {
@@ -379,7 +412,7 @@ const Index = () => {
   }, []);
 
   const handleCreated = useCallback(async () => {
-    refetch();
+    await refetch();
     setModalVisible(false);
   }, [refetch]);
 
@@ -430,6 +463,8 @@ const Index = () => {
     },
   ];
 
+  const pagination = data && getPagination(data.node.flowRecords.total);
+
   return (
     <Content
       title="流水记录"
@@ -439,6 +474,7 @@ const Index = () => {
           新建
         </Button>
       }
+      pagination={pagination}
     >
       <Table
         data={data?.node.flowRecords.data || []}
