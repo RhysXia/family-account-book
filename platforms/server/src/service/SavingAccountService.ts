@@ -36,7 +36,7 @@ export class SavingAccountService {
     });
   }
 
-  findAllByIds(ids: number[]) {
+  findAllByIds(ids: Array<number>) {
     return this.dataSource.manager.find(SavingAccountEntity, {
       where: {
         id: In(ids),

@@ -50,7 +50,7 @@ export type FlowRecord = {
   desc?: string;
   createdAt: string;
   updatedAt: string;
-  dealAt: Date;
+  dealAt: string;
   creator: User;
   updater: User;
   amount: number;

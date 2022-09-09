@@ -12,12 +12,14 @@ export class SavingAccountAmountDataLoader extends DataLoader<
   SavingAccountAmountView
 > {
   constructor(savingAccountAmountService: SavingAccountAmountService) {
-    super(async (ids) => {
+    super(async (savingAccountIds) => {
       const list = await savingAccountAmountService.findBySavingAccountIds(
-        ids as Array<number>,
+        savingAccountIds as Array<number>,
       );
 
-      return ids.map((id) => list.find((it) => it.id === id));
+      return savingAccountIds.map((savingAccountId) =>
+        list.find((it) => it.savingAccountId === savingAccountId),
+      );
     });
   }
 }

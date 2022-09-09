@@ -158,7 +158,7 @@ export class SavingAccountTransferRecordService {
         savingAccountId: toSavingAccountId,
       });
 
-      const record = new SavingAccountTransferRecordEntity();
+      const newRecord = new SavingAccountTransferRecordEntity();
 
       const trader = await manager.findOne(UserEntity, {
         where: {
@@ -169,18 +169,18 @@ export class SavingAccountTransferRecordService {
         throw new ParameterException('交易人员不存在');
       }
 
-      record.trader = trader;
+      newRecord.trader = trader;
 
-      record.name = name;
-      record.desc = desc;
-      record.amount = amount;
-      record.creator = currentUser;
-      record.updater = currentUser;
-      record.from = fromSavingAccount;
-      record.to = toSavingAccount;
-      record.dealAt = dealAt;
+      newRecord.name = name;
+      newRecord.desc = desc;
+      newRecord.amount = amount;
+      newRecord.creator = currentUser;
+      newRecord.updater = currentUser;
+      newRecord.from = fromSavingAccount;
+      newRecord.to = toSavingAccount;
+      newRecord.dealAt = dealAt;
 
-      return manager.save(record);
+      return manager.save(newRecord);
     });
   }
 
@@ -212,17 +212,20 @@ export class SavingAccountTransferRecordService {
     }
 
     return this.dataSource.transaction(async (manager) => {
-      const record = await manager.findOne(SavingAccountTransferRecordEntity, {
-        where: {
-          id,
+      const oldRecord = await manager.findOne(
+        SavingAccountTransferRecordEntity,
+        {
+          where: {
+            id,
+          },
+          relations: {
+            from: true,
+            to: true,
+          },
         },
-        relations: {
-          from: true,
-          to: true,
-        },
-      });
+      );
 
-      if (!record) {
+      if (!oldRecord) {
         throw new ResourceNotFoundException('转账记录不存在');
       }
 
@@ -235,37 +238,37 @@ export class SavingAccountTransferRecordService {
         if (!trader) {
           throw new ParameterException('交易人员不存在');
         }
-        record.trader = trader;
+        oldRecord.trader = trader;
       }
 
       await this.savingAccountHistoryManager.reset(manager, {
-        amount: -record.amount,
-        dealAt: record.dealAt,
-        savingAccountId: record.fromId,
+        amount: -oldRecord.amount,
+        dealAt: oldRecord.dealAt,
+        savingAccountId: oldRecord.fromId,
       });
 
       await this.savingAccountHistoryManager.reset(manager, {
-        amount: record.amount,
-        dealAt: record.dealAt,
-        savingAccountId: record.toId,
+        amount: oldRecord.amount,
+        dealAt: oldRecord.dealAt,
+        savingAccountId: oldRecord.toId,
       });
 
-      record.updater = currentUser;
+      oldRecord.updater = currentUser;
 
       if (name) {
-        record.name = name;
+        oldRecord.name = name;
       }
 
       if (desc) {
-        record.desc = desc;
+        oldRecord.desc = desc;
       }
 
       if (amount) {
-        record.amount = amount;
+        oldRecord.amount = amount;
       }
 
       if (dealAt) {
-        record.dealAt = dealAt;
+        oldRecord.dealAt = dealAt;
       }
 
       if (fromSavingAccountId) {
@@ -286,11 +289,11 @@ export class SavingAccountTransferRecordService {
           throw new ResourceNotFoundException('转出账户不存在');
         }
 
-        if (fromSavingAccount.accountBookId !== record.from.accountBookId) {
+        if (fromSavingAccount.accountBookId !== oldRecord.from.accountBookId) {
           throw new ParameterException('不能跨账本修改转账记录');
         }
 
-        record.from = fromSavingAccount;
+        oldRecord.from = fromSavingAccount;
       }
 
       if (toSavingAccountId) {
@@ -311,30 +314,30 @@ export class SavingAccountTransferRecordService {
           throw new ResourceNotFoundException('转入账户不存在');
         }
 
-        if (toSavingAccount.accountBookId !== record.to.accountBookId) {
+        if (toSavingAccount.accountBookId !== oldRecord.to.accountBookId) {
           throw new ParameterException('不能跨账本修改转账记录');
         }
 
-        record.to = toSavingAccount;
+        oldRecord.to = toSavingAccount;
       }
 
-      if (record.to.accountBookId !== record.from.accountBookId) {
+      if (oldRecord.to.accountBookId !== oldRecord.from.accountBookId) {
         throw new ParameterException('转出账户和转入账户不在同一个账本');
       }
 
       await this.savingAccountHistoryManager.create(manager, {
-        amount: -record.amount,
-        dealAt: record.dealAt,
-        savingAccountId: record.from.id,
+        amount: -oldRecord.amount,
+        dealAt: oldRecord.dealAt,
+        savingAccountId: oldRecord.from.id,
       });
 
       await this.savingAccountHistoryManager.create(manager, {
-        amount: record.amount,
-        dealAt: record.dealAt,
-        savingAccountId: record.to.id,
+        amount: oldRecord.amount,
+        dealAt: oldRecord.dealAt,
+        savingAccountId: oldRecord.to.id,
       });
 
-      return manager.save(record);
+      return manager.save(oldRecord);
     });
   }
 }

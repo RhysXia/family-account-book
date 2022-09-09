@@ -46,14 +46,14 @@ const AccountBookCreate = () => {
   const navigate = useNavigate();
 
   const handleFinish = useCallback(
-    async (value: FormType) => {
+    async (formValue: FormType) => {
       try {
         const { data } = await createAccountBook({
           variables: {
-            name: value.name,
-            desc: value.desc,
-            adminIds: value.admins?.map(({ value }) => value),
-            memberIds: value.members?.map(({ value }) => value),
+            name: formValue.name,
+            desc: formValue.desc,
+            adminIds: formValue.admins?.map(({ value }) => value),
+            memberIds: formValue.members?.map(({ value }) => value),
           },
         });
 
@@ -100,13 +100,13 @@ const AccountBookCreate = () => {
             <Input.TextArea autoSize={{ minRows: 4 }} />
           </Form.Item>
           <Form.Item name="admins" label="管理员">
-            <UserSelect multiple />
+            <UserSelect multiple={true} />
           </Form.Item>
           <Form.Item name="members" label="普通成员">
-            <UserSelect multiple />
+            <UserSelect multiple={true} />
           </Form.Item>
           <Form.Item>
-            <Button block type="primary" htmlType="submit">
+            <Button block={true} type="primary" htmlType="submit">
               提交
             </Button>
             <div className="text-right">

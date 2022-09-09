@@ -103,7 +103,7 @@ export class AccountBookService {
     pagination?: Pagination,
   ): Promise<{
     total: number;
-    data: AccountBookEntity[];
+    data: Array<AccountBookEntity>;
   }> {
     const qb = this.dataSource.manager
       .createQueryBuilder(AccountBookEntity, 'accountBook')

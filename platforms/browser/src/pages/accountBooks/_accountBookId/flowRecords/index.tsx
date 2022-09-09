@@ -1,22 +1,26 @@
 import Content from '@/components/Content';
 import DatePicker from '@/components/DatePicker';
-import Table, { Column, RenderProps } from '@/components/Table';
+import Table from '@/components/Table';
+import { Column, RenderProps } from '@/components/Table/Cell';
 import UserSelect from '@/components/UserSelect';
-import { activeAccountBookAtom, currentUserAtom } from '@/store';
+import { activeAccountBookAtom } from '@/store';
 import {
   FlowRecord,
   PaginationResult,
   SavingAccount,
   User,
   Tag as Itag,
+  TagType,
+  AccountBook,
 } from '@/types';
 import { TagColorMap } from '@/utils/constants';
 import { CreditCardOutlined } from '@ant-design/icons';
 import { gql, useMutation, useQuery } from '@apollo/client';
-import { Button, Form, Input, InputNumber, Modal, Select } from 'antd';
+import { Button, Input, InputNumber, Select } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import { useAtom } from 'jotai';
 import { useCallback, useMemo, useState } from 'react';
+import CreateModel from './commons/CreateModel';
 
 const GET_SELF_FLOW_RECORDS = gql`
   query getSelfFlowRecordsByAccountBookId(
@@ -96,37 +100,43 @@ const GET_TAGS_BY_ACCOUNT_BOOK_ID = gql`
   }
 `;
 
-const CREATE_FLOW_RECORD = gql`
-  mutation CreateFlowRecord($flowRecord: FlowRecordInput) {
-    createFlowRecord(flowRecord: $flowRecord) {
+const UPDATE_FLOW_RECORD = gql`
+  mutation UpdateFlowRecord($flowRecord: UpdateFlowRecordInput!) {
+    updateFlowRecord(flowRecord: $flowRecord) {
       id
     }
   }
 `;
 
-const Create = () => {
-  const [activeAccountBook] = useAtom(activeAccountBookAtom);
+type FlowRecordDetail = FlowRecord & {
+  trader: User;
+  savingAccount: SavingAccount;
+  tag: Itag;
+};
 
-  const [currentUser] = useAtom(currentUserAtom);
+type UpdateFlowRecordInput = {
+  id: string;
+  desc?: string;
+  dealAt?: string;
+  amount?: number;
+  savingAccountId?: string;
+  tagId?: string;
+  traderId?: string;
+};
+
+const Index = () => {
+  const [_activeAccountBook] = useAtom(activeAccountBookAtom);
+
+  const activeAccountBook = _activeAccountBook as AccountBook;
 
   const [modalVisible, setModalVisible] = useState(false);
 
-  const [form] = Form.useForm({});
-
-  const [flowRecord, setFlowRecord] = useState<{
-    amount?: number;
-    desc?: string;
-    dealAt?: Dayjs | null;
-    tagId?: string;
-    savingAccountId?: string;
-    trader?: {
-      id: string;
-      nickname: string;
-    };
-  }>({
-    trader: currentUser!,
-    dealAt: dayjs(),
-  });
+  const [uploadFlowRecord] = useMutation<
+    any,
+    {
+      flowRecord: UpdateFlowRecordInput;
+    }
+  >(UPDATE_FLOW_RECORD);
 
   const { data: accountBookWithSavingAccounts } = useQuery<{
     node: {
@@ -134,7 +144,7 @@ const Create = () => {
     };
   }>(GET_SAVING_ACCOUNTS_BY_ACCOUNT_BOOK_ID, {
     variables: {
-      accountBookId: activeAccountBook!.id,
+      accountBookId: activeAccountBook.id,
     },
   });
 
@@ -144,30 +154,32 @@ const Create = () => {
     };
   }>(GET_TAGS_BY_ACCOUNT_BOOK_ID, {
     variables: {
-      accountBookId: activeAccountBook!.id,
+      accountBookId: activeAccountBook.id,
     },
   });
 
   const { data, refetch } = useQuery<{
     node: {
-      flowRecords: PaginationResult<
-        FlowRecord & {
-          trader: User;
-          savingAccount: SavingAccount;
-          tag: Itag;
-        }
-      >;
+      flowRecords: PaginationResult<FlowRecordDetail>;
     };
   }>(GET_SELF_FLOW_RECORDS, {
     variables: {
       accountBookId: activeAccountBook?.id,
       pagination: {
         limit: 10,
+        orderBy: [
+          {
+            field: 'dealAt',
+            direction: 'DESC',
+          },
+          {
+            field: 'updatedAt',
+            direction: 'DESC',
+          },
+        ],
       },
     },
   });
-
-  const [createFlowRecord] = useMutation(CREATE_FLOW_RECORD);
 
   const savingAccounts = useMemo(
     () => accountBookWithSavingAccounts?.node.savingAccounts.data || [],
@@ -182,27 +194,6 @@ const Create = () => {
   const columns: Array<Column> = useMemo(
     () => [
       {
-        title: '金额',
-        dataIndex: 'amount',
-        width: 120,
-        render({ value, isEdit, onChange }: RenderProps<number>) {
-          if (isEdit) {
-            return (
-              <InputNumber
-                size="small"
-                formatter={(value) => `¥ ${value}`}
-                precision={2}
-                className="w-full"
-                min={0}
-                value={value}
-                onChange={onChange}
-              />
-            );
-          }
-          return <span className="p-2">¥{value.toFixed(2)}</span>;
-        },
-      },
-      {
         title: '标签',
         dataIndex: 'tag',
         width: 120,
@@ -213,8 +204,8 @@ const Create = () => {
                 size="small"
                 className="w-full"
                 value={value.id}
-                onChange={(value) =>
-                  onChange(tags.find((it) => it.id === value) as Itag)
+                onChange={(v) =>
+                  onChange(tags.find((it) => it.id === v) as Itag)
                 }
               >
                 {tags.map((tag) => {
@@ -240,6 +231,36 @@ const Create = () => {
               {value.name}
             </span>
           );
+        },
+      },
+      {
+        title: '金额',
+        width: 120,
+        render({
+          value,
+          isEdit,
+          onChange,
+        }: RenderProps<
+          FlowRecord & {
+            tag: Itag;
+          }
+        >) {
+          const tagType = value.tag.type;
+          if (isEdit) {
+            return (
+              <InputNumber
+                size="small"
+                formatter={(v) => `¥ ${v}`}
+                precision={2}
+                className="w-full"
+                value={value.amount}
+                min={tagType === TagType.INCOME ? 0.01 : undefined}
+                max={tagType === TagType.EXPENDITURE ? -0.01 : undefined}
+                onChange={(v) => onChange({ ...value, amount: v })}
+              />
+            );
+          }
+          return <span className="p-2">¥{value.amount.toFixed(2)}</span>;
         },
       },
       {
@@ -274,14 +295,9 @@ const Create = () => {
               </Select>
             );
           }
-          return (
-            <span className="p-2">
-              {value.name}(￥{value.amount})
-            </span>
-          );
+          return <span className="p-2">{value.name}</span>;
         },
       },
-
       {
         title: '交易日期',
         dataIndex: 'dealAt',
@@ -294,7 +310,7 @@ const Create = () => {
                 size="small"
                 className="w-full"
                 value={dayjs(value)}
-                onChange={(v) => onChange(v!.toString())}
+                onChange={(v) => onChange((v as Dayjs).toString())}
               />
             );
           }
@@ -316,7 +332,7 @@ const Create = () => {
                 includeSelf={true}
                 value={{
                   key: value.id,
-                  label: value!.nickname,
+                  label: value.nickname,
                   value: value,
                 }}
                 onChange={onChange as any}
@@ -348,7 +364,7 @@ const Create = () => {
         width: 100,
         render({ value }: RenderProps<FlowRecord>) {
           return (
-            <Button danger size="small">
+            <Button danger={true} size="small">
               删除
             </Button>
           );
@@ -362,10 +378,52 @@ const Create = () => {
     setModalVisible(true);
   }, []);
 
+  const handleCreated = useCallback(async () => {
+    refetch();
+    setModalVisible(false);
+  }, [refetch]);
+
+  const handleCancelled = useCallback(async () => {
+    setModalVisible(false);
+  }, []);
+
+  const handleEditSubmit = useCallback(
+    async ({
+      id,
+      amount,
+      desc,
+      dealAt,
+      savingAccount,
+      tag,
+      trader,
+    }: FlowRecordDetail) => {
+      if (tag.type === TagType.EXPENDITURE && amount >= 0) {
+        throw new Error('标签类型为支出的时候，金额需要为负数');
+      } else if (tag.type === TagType.INCOME && amount <= 0) {
+        throw new Error('标签类型为收入的时候，金额需要为正数');
+      }
+
+      await uploadFlowRecord({
+        variables: {
+          flowRecord: {
+            id,
+            amount,
+            desc,
+            dealAt,
+            savingAccountId: savingAccount.id,
+            tagId: tag.id,
+            traderId: trader.id,
+          },
+        },
+      });
+    },
+    [uploadFlowRecord],
+  );
+
   const breadcrumbs = [
     {
-      name: activeAccountBook!.name,
-      path: `/accountBooks/${activeAccountBook?.id}`,
+      name: activeAccountBook.name,
+      path: `/accountBooks/${activeAccountBook.id}`,
     },
     {
       name: '流水记录',
@@ -386,72 +444,17 @@ const Create = () => {
         data={data?.node.flowRecords.data || []}
         columns={columns}
         editable={true}
+        onEditSubmit={handleEditSubmit}
       />
-      <Modal visible={modalVisible} title="添加流水">
-        <Form
-          labelCol={{
-            span: 4,
-          }}
-          form={form}
-        >
-          <Form.Item label="金额" name="amount" required>
-            <InputNumber className="w-full" placeholder="请输入金额" />
-          </Form.Item>
-          <Form.Item label="标签" name="tagId" required>
-            <Select>
-              {tags.map((tag) => {
-                return (
-                  <Select.Option value={tag.id} key={tag.id}>
-                    <span
-                      className="inline-block leading-4 rounded px-2 py-1 text-white"
-                      style={{ background: TagColorMap[tag.type].color }}
-                    >
-                      {tag.name}
-                    </span>
-                  </Select.Option>
-                );
-              })}
-            </Select>
-          </Form.Item>
-          <Form.Item label="账户" name="savingAccountId" required>
-            <Select>
-              {savingAccounts.map((it) => {
-                return (
-                  <Select.Option value={it.id} key={it.id}>
-                    <span className="flex items-center">
-                      <CreditCardOutlined />
-                      <span className="pl-2">
-                        {it.name}(¥{it.amount})
-                      </span>
-                    </span>
-                  </Select.Option>
-                );
-              })}
-            </Select>
-          </Form.Item>
-          <Form.Item label="交易时间" name="dealAt" required>
-            <DatePicker className="w-full" clearIcon={false} />
-          </Form.Item>
-          <Form.Item label="交易人员" name="trader" required>
-            <UserSelect
-              includeSelf={true}
-              defaultValue={{
-                key: currentUser?.id,
-                label: currentUser?.nickname,
-                value: currentUser,
-              }}
-            />
-          </Form.Item>
-          <Form.Item label="描述" name="desc">
-            <Input.TextArea
-              autoSize={{ minRows: 3 }}
-              placeholder="请输入描述"
-            />
-          </Form.Item>
-        </Form>
-      </Modal>
+      <CreateModel
+        onCreated={handleCreated}
+        onCancelled={handleCancelled}
+        visible={modalVisible}
+        tags={tags}
+        savingAccounts={savingAccounts}
+      />
     </Content>
   );
 };
 
-export default Create;
+export default Index;

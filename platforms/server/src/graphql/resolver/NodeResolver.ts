@@ -66,36 +66,39 @@ export class NodeResolver {
     for (const [key, value] of map) {
       let p: Promise<Array<Entity>>;
 
-      const ids = Array.from(value);
+      const idArray = Array.from(value);
 
       switch (key) {
         case EntityName.ACCOUNT_BOOK: {
-          p = this.accountBookService.findByIdsAndUserId(ids, user.id);
+          p = this.accountBookService.findByIdsAndUserId(idArray, user.id);
           break;
         }
         case EntityName.SAVING_ACCOUNT: {
-          p = this.savingAccountService.findByIdsAndUserId(ids, user.id);
+          p = this.savingAccountService.findByIdsAndUserId(idArray, user.id);
           break;
         }
         case EntityName.FLOW_RECORD: {
-          p = this.flowRecordService.findByIdsAndUserId(ids, user.id);
+          p = this.flowRecordService.findByIdsAndUserId(idArray, user.id);
           break;
         }
         case EntityName.TAG: {
-          p = this.tagService.findByIdsAndUserId(ids, user.id);
+          p = this.tagService.findByIdsAndUserId(idArray, user.id);
           break;
         }
         case EntityName.SAVING_ACCOUNT_HISTORY: {
-          p = this.savingAccountHistoryService.findByIdsAndUserId(ids, user.id);
+          p = this.savingAccountHistoryService.findByIdsAndUserId(
+            idArray,
+            user.id,
+          );
           break;
         }
         case EntityName.SIMPLE_USER: {
-          p = this.userService.findAllByIds(ids);
+          p = this.userService.findAllByIds(idArray);
           break;
         }
         case EntityName.SAVING_ACCOUNT_TRANSFER_RECORD: {
           p = this.savingAccountTransferRecordService.findByIdsAndUserId(
-            ids,
+            idArray,
             user.id,
           );
           break;

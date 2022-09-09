@@ -1,27 +1,33 @@
 import { gql, useMutation, useQuery } from '@apollo/client';
-import { Button, Form, Input, InputNumber, Modal, Table } from 'antd';
-import { ColumnsType } from 'antd/lib/table';
+import {
+  Button,
+  Form,
+  Input,
+  Modal,
+  Select,
+  Table,
+  Tag,
+  TableColumnsType,
+} from 'antd';
 import { useAtom } from 'jotai';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { activeAccountBookAtom } from '@/store';
-import { PaginationResult, SavingAccount, User } from '@/types';
+import { PaginationResult, Tag as ITag, TagType, User } from '@/types';
+import { TagColorMap } from '@/utils/constants';
 import { fromTime } from '@/utils/dayjs';
 
-const GET_SAVING_ACCOUNTS = gql`
-  query getSavingAccountsByAccountBookId($accountBookId: ID!) {
+const GET_TAGS = gql`
+  query getTagsByAccountBookId($accountBookId: ID!) {
     node(id: $accountBookId) {
       ... on AccountBook {
         id
-        savingAccounts(
-          pagination: { orderBy: { field: "updatedAt", direction: DESC } }
-        ) {
+        tags(pagination: { orderBy: { field: "updatedAt", direction: DESC } }) {
           total
           data {
             id
             name
-            desc
-            amount
+            type
             createdAt
             updatedAt
             creator {
@@ -36,38 +42,27 @@ const GET_SAVING_ACCOUNTS = gql`
   }
 `;
 
-const CREATE_SAVING_ACCOUNT = gql`
-  mutation (
-    $name: String!
-    $desc: String
-    $amount: Float!
-    $accountBookId: ID!
-  ) {
-    createSavingAccount(
-      savingAccount: {
-        name: $name
-        desc: $desc
-        amount: $amount
-        accountBookId: $accountBookId
-      }
+const CREATE_TAG = gql`
+  mutation ($name: String!, $type: TagType!, $accountBookId: ID!) {
+    createTag(
+      tag: { name: $name, type: $type, accountBookId: $accountBookId }
     ) {
       id
       name
-      desc
-      amount
+      type
       createdAt
       updatedAt
     }
   }
 `;
 
-const DELETE_SAVING_ACCOUNT = gql`
-  mutation Mutation($savingAccountId: ID!) {
-    deleteSavingAccount(id: $savingAccountId)
+const DELETE_TAG = gql`
+  mutation Mutation($tagId: ID!) {
+    deleteTag(id: $tagId)
   }
 `;
 
-const SavingAccountPage = () => {
+const TagPage = () => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
 
   const [form] = Form.useForm();
@@ -78,27 +73,27 @@ const SavingAccountPage = () => {
 
   const { data, refetch } = useQuery<{
     node: {
-      savingAccounts: PaginationResult<
-        SavingAccount & {
+      tags: PaginationResult<
+        ITag & {
           creator: User;
         }
       >;
     };
-  }>(GET_SAVING_ACCOUNTS, {
+  }>(GET_TAGS, {
     variables: {
       accountBookId: activeAccountBook?.id,
     },
   });
 
-  const [createSavingAccount] = useMutation<{
-    createSavingAccount: SavingAccount;
-  }>(CREATE_SAVING_ACCOUNT);
+  const [createTag] = useMutation<{
+    createTag: ITag;
+  }>(CREATE_TAG);
 
-  const [deleteSavingAccount] = useMutation(DELETE_SAVING_ACCOUNT);
+  const [deleteTag] = useMutation<{ tagId: number }>(DELETE_TAG);
 
   const handleOk = useCallback(async () => {
     await form.validateFields();
-    await createSavingAccount({
+    await createTag({
       variables: {
         ...form.getFieldsValue(),
         accountBookId: activeAccountBook?.id,
@@ -109,7 +104,7 @@ const SavingAccountPage = () => {
 
     setCreateModalVisible(false);
     form.resetFields();
-  }, [form, refetch, activeAccountBook, createSavingAccount]);
+  }, [form, refetch, activeAccountBook, createTag]);
 
   const handleCancel = useCallback(() => {
     setCreateModalVisible(false);
@@ -120,35 +115,31 @@ const SavingAccountPage = () => {
     setCreateModalVisible(true);
   }, []);
 
-  const handleDeleteSavingAccount = useCallback(
+  const handleDeleteTag = useCallback(
     async (id: string) => {
-      await deleteSavingAccount({
+      await deleteTag({
         variables: {
-          savingAccountId: id,
+          tagId: id,
         },
       });
       await refetch();
     },
-    [deleteSavingAccount, refetch],
+    [deleteTag, refetch],
   );
 
-  const columns: ColumnsType<any> = [
+  const columns: TableColumnsType<any> = [
     {
       title: '名称',
       dataIndex: 'name',
       key: 'name',
     },
     {
-      title: '描述',
-      dataIndex: 'desc',
-      key: 'desc',
-    },
-    {
-      title: '余额',
-      dataIndex: 'amount',
-      key: 'amount',
-      render(amount: number) {
-        return `￥${amount.toLocaleString()}`;
+      title: '类型',
+      dataIndex: 'type',
+      key: 'type',
+      render(type: TagType) {
+        const { text, color } = TagColorMap[type];
+        return <Tag color={color}>{text}</Tag>;
       },
     },
     {
@@ -169,7 +160,7 @@ const SavingAccountPage = () => {
     },
     {
       title: '操作',
-      render(record: SavingAccount) {
+      render(record: ITag) {
         return (
           <div className="space-x-4">
             <Button
@@ -184,13 +175,13 @@ const SavingAccountPage = () => {
             <Button
               size="small"
               type="primary"
-              danger
+              danger={true}
               onClick={() => {
                 Modal.confirm({
                   title: '确认删除',
-                  content: '确认删除该存款账户吗？',
+                  content: '确认删除该标签吗？',
                   onOk: async () => {
-                    await handleDeleteSavingAccount(record.id);
+                    await handleDeleteTag(record.id);
                   },
                 });
               }}
@@ -203,7 +194,7 @@ const SavingAccountPage = () => {
     },
   ];
 
-  const title = <h1 className="font-bold text-xl mb-2">新建储蓄账户</h1>;
+  const title = <h1 className="font-bold text-xl mb-2">新建标签</h1>;
 
   return (
     <div className="w-full">
@@ -218,7 +209,7 @@ const SavingAccountPage = () => {
       <Table
         pagination={false}
         columns={columns}
-        dataSource={data?.node.savingAccounts.data.map((it) => ({
+        dataSource={data?.node.tags.data.map((it) => ({
           ...it,
           key: it.id,
         }))}
@@ -237,15 +228,13 @@ const SavingAccountPage = () => {
           >
             <Input />
           </Form.Item>
-          <Form.Item label="描述" name="desc">
-            <Input.TextArea autoSize={{ minRows: 4 }} />
-          </Form.Item>
-          <Form.Item
-            label="余额"
-            name="amount"
-            rules={[{ required: true, message: '金额不能为空' }]}
-          >
-            <InputNumber addonBefore="￥" precision={2} className="w-full" />
+          <Form.Item label="类型" name="type">
+            <Select>
+              <Select.Option value="INCOME">收入</Select.Option>
+              <Select.Option value="EXPENDITURE">支出</Select.Option>
+              <Select.Option value="INVESTMENT">投资</Select.Option>
+              <Select.Option value="LOAD">借贷</Select.Option>
+            </Select>
           </Form.Item>
         </Form>
       </Modal>
@@ -253,4 +242,4 @@ const SavingAccountPage = () => {
   );
 };
 
-export default SavingAccountPage;
+export default TagPage;

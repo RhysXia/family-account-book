@@ -86,7 +86,7 @@ const LoginPage = () => {
               <Checkbox>记住我</Checkbox>
             </Form.Item>
             <Form.Item>
-              <Button block type="primary" htmlType="submit">
+              <Button block={true} type="primary" htmlType="submit">
                 登录
               </Button>
             </Form.Item>

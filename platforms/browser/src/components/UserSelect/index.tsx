@@ -22,7 +22,7 @@ const GET_USER_LIST = gql`
   query findUserListByNameLike(
     $name: String!
     $limit: Int!
-    $includeSelf: Boolean!
+    $includeSelf: Boolean
   ) {
     findUserListByNameLike(
       name: $name
@@ -91,7 +91,7 @@ const UserSelect: FC<UserSelectProps> = ({
       mode={multiple ? 'multiple' : undefined}
       value={value}
       onChange={onChange}
-      labelInValue
+      labelInValue={true}
       filterOption={false}
       options={options}
       onSearch={handleSearch}

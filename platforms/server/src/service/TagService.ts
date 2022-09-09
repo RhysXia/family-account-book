@@ -115,7 +115,7 @@ export class TagService {
     });
   }
 
-  findByIds(ids: number[]): Promise<Array<TagEntity>> {
+  findByIds(ids: Array<number>): Promise<Array<TagEntity>> {
     return this.dataSource.manager.find(TagEntity, {
       where: {
         id: In(ids),

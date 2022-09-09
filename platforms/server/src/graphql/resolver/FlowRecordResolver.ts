@@ -7,6 +7,7 @@ import {
 } from '@nestjs/graphql';
 import { FlowRecordEntity } from '../../entity/FlowRecordEntity';
 import { UserEntity } from '../../entity/UserEntity';
+import { ParameterException } from '../../exception/ServiceException';
 import { FlowRecordService } from '../../service/FlowRecordService';
 import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
 import { SavingAccountDataLoader } from '../dataloader/SavingAccountDataLoader';
@@ -15,7 +16,7 @@ import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
 import { CreateFlowRecordInput, UpdateFlowRecordInput } from '../graphql';
 import { GraphqlEntity } from '../types';
-import { decodeId, encodeId, EntityName } from '../utils';
+import { decodeId, encodeId, EntityName, getIdInfo } from '../utils';
 
 @Resolver('FlowRecord')
 export class FlowRecordResolver {
@@ -99,10 +100,16 @@ export class FlowRecordResolver {
   ) {
     const { savingAccountId, tagId, traderId, ...others } = flowRecord;
 
+    const { id: traderIdValue, name } = getIdInfo(traderId);
+
+    if (name !== EntityName.SIMPLE_USER && name !== EntityName.USER) {
+      throw new ParameterException('traderId 不正确');
+    }
+
     const entity = await this.flowRecordService.create(
       {
         ...others,
-        traderId: decodeId(EntityName.SIMPLE_USER, traderId),
+        traderId: traderIdValue,
         savingAccountId: decodeId(EntityName.SAVING_ACCOUNT, savingAccountId),
         tagId: decodeId(EntityName.TAG, tagId),
       },
@@ -122,20 +129,31 @@ export class FlowRecordResolver {
   ) {
     const { id, savingAccountId, tagId, traderId, ...others } = flowRecord;
 
+    const updatedFlowRecord: Partial<FlowRecordEntity> = { ...others };
+
+    if (traderId) {
+      const { id: traderIdValue, name } = getIdInfo(traderId);
+
+      if (name !== EntityName.SIMPLE_USER && name !== EntityName.USER) {
+        throw new ParameterException('traderId 不正确');
+      }
+      updatedFlowRecord.traderId = traderIdValue;
+    }
+
+    if (savingAccountId) {
+      updatedFlowRecord.savingAccountId = decodeId(
+        EntityName.SAVING_ACCOUNT,
+        savingAccountId,
+      );
+    }
+
+    if (tagId) {
+      updatedFlowRecord.tagId = decodeId(EntityName.TAG, tagId);
+    }
+
     const entity = await this.flowRecordService.update(
       decodeId(EntityName.FLOW_RECORD, id),
-      {
-        ...others,
-        ...(savingAccountId && {
-          savingAccountId: decodeId(EntityName.SAVING_ACCOUNT, savingAccountId),
-        }),
-        ...(tagId && {
-          tagId: decodeId(EntityName.TAG, tagId),
-        }),
-        ...(traderId && {
-          traderId: decodeId(EntityName.SIMPLE_USER, traderId),
-        }),
-      },
+      updatedFlowRecord,
       currentUser,
     );
     return {

@@ -25,7 +25,10 @@ export default defineConfig({
         plugins: [jotaiDebugLabel, jotaiReactRefresh],
       },
     }),
-    Pages({}),
+    Pages({
+      exclude: ['**/commons/**'],
+      routeStyle: 'nuxt',
+    }),
   ],
   server: {
     proxy: {
