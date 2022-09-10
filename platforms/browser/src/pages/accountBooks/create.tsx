@@ -1,46 +1,19 @@
-import { gql, useMutation } from '@apollo/client';
 import { Button, Form, Input, message, Modal } from 'antd';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import RequireAuth from '@/components/RequireAuth';
 import UserSelect from '@/components/UserSelect';
-import { AccountBook } from '@/types';
+import useCreateAccountBook from '@/graphql/useCreateAccountBook';
 
 type FormType = {
   name: string;
   desc: string;
-  admins: Array<{ value: number }>;
-  members: Array<{ value: number }>;
+  admins: Array<{ value: string }>;
+  members: Array<{ value: string }>;
 };
 
-const CREATE_ACCOUNT_BOOK = gql`
-  mutation CreateAccountBook(
-    $name: String!
-    $desc: String
-    $adminIds: [ID!]
-    $memberIds: [ID!]
-  ) {
-    createAccountBook(
-      accountBook: {
-        name: $name
-        desc: $desc
-        adminIds: $adminIds
-        memberIds: $memberIds
-      }
-    ) {
-      id
-      name
-      desc
-      createdAt
-      updatedAt
-    }
-  }
-`;
-
 const AccountBookCreate = () => {
-  const [createAccountBook] = useMutation<{ createAccountBook: AccountBook }>(
-    CREATE_ACCOUNT_BOOK,
-  );
+  const [createAccountBook] = useCreateAccountBook();
   const [form] = Form.useForm<FormType>();
 
   const navigate = useNavigate();
@@ -52,8 +25,8 @@ const AccountBookCreate = () => {
           variables: {
             name: formValue.name,
             desc: formValue.desc,
-            adminIds: formValue.admins?.map(({ value }) => value),
-            memberIds: formValue.members?.map(({ value }) => value),
+            adminIds: formValue.admins.map(({ value }) => value),
+            memberIds: formValue.members.map(({ value }) => value),
           },
         });
 
@@ -100,10 +73,10 @@ const AccountBookCreate = () => {
             <Input.TextArea autoSize={{ minRows: 4 }} />
           </Form.Item>
           <Form.Item name="admins" label="管理员">
-            <UserSelect multiple={true} />
+            <UserSelect multiple={true} includeSelf={true} />
           </Form.Item>
           <Form.Item name="members" label="普通成员">
-            <UserSelect multiple={true} />
+            <UserSelect multiple={true} includeSelf={true} />
           </Form.Item>
           <Form.Item>
             <Button block={true} type="primary" htmlType="submit">

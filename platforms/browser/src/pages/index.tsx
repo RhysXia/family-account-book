@@ -3,35 +3,11 @@ import { fromTime } from '@/utils/dayjs';
 import { useNavigate } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
 import { Modal } from 'antd';
-import { AccountBook, PaginationResult } from '@/types';
-import { gql, useQuery } from '@apollo/client';
 import RequireAuth from '@/components/RequireAuth';
-
-const GET_ACCOUNT_LIST = gql`
-  query accountBooks {
-    getCurrentUser {
-      id
-      accountBooks {
-        total
-        data {
-          id
-          name
-          desc
-          createdAt
-          updatedAt
-        }
-      }
-    }
-  }
-`;
+import useGetAccountBooks from '@/graphql/useGetAccountBooks';
 
 const HomePage = () => {
-  const { data, loading } = useQuery<{
-    getCurrentUser: {
-      accountBooks: PaginationResult<AccountBook>;
-    };
-  }>(GET_ACCOUNT_LIST);
-
+  const { data, loading } = useGetAccountBooks();
   const navigate = useNavigate();
 
   const handleCreateAccountBook = useCallback(() => {

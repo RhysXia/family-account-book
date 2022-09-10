@@ -1,11 +1,11 @@
 import DatePicker from '@/components/DatePicker';
 import UserSelect from '@/components/UserSelect';
+import useCreateFlowRecord from '@/graphql/useCreateFlowRecord';
 import useConstantFn from '@/hooks/useConstanFn';
 import { currentUserAtom } from '@/store';
 import { SavingAccount, Tag, User, TagType } from '@/types';
 import { TagColorMap } from '@/utils/constants';
 import { CreditCardOutlined } from '@ant-design/icons';
-import { gql, useMutation } from '@apollo/client';
 import {
   Button,
   Form,
@@ -19,14 +19,6 @@ import {
 import dayjs, { Dayjs } from 'dayjs';
 import { useAtom } from 'jotai';
 import { FC, useCallback, useState } from 'react';
-
-const CREATE_FLOW_RECORD = gql`
-  mutation CreateFlowRecord($flowRecord: CreateFlowRecordInput!) {
-    createFlowRecord(flowRecord: $flowRecord) {
-      id
-    }
-  }
-`;
 
 export type CreateModelProps = {
   visible: boolean;
@@ -43,7 +35,7 @@ const CreateModel: FC<CreateModelProps> = ({
   onCreated,
   onCancelled,
 }) => {
-  const [createFlowRecord] = useMutation(CREATE_FLOW_RECORD);
+  const [createFlowRecord] = useCreateFlowRecord();
 
   const [currentUser] = useAtom(currentUserAtom);
 

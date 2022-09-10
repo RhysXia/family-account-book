@@ -1,10 +1,9 @@
-import { gql, useMutation } from '@apollo/client';
 import { Form, Input, Checkbox, Button, message } from 'antd';
 import { useAtom } from 'jotai';
 import { useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { currentUserAtom } from '@/store';
-import { User } from '@/types';
+import useLogin from '@/graphql/useLogin';
 
 type FormType = {
   username: string;
@@ -12,29 +11,9 @@ type FormType = {
   rememberMe?: boolean;
 };
 
-const SIGN_IN = gql`
-  mutation ($username: String!, $password: String!, $rememberMe: Boolean) {
-    signIn(
-      user: {
-        username: $username
-        password: $password
-        rememberMe: $rememberMe
-      }
-    ) {
-      id
-      nickname
-      username
-      email
-      createdAt
-      updatedAt
-      avatar
-    }
-  }
-`;
-
 const LoginPage = () => {
   const [form] = Form.useForm<FormType>();
-  const [signIn] = useMutation<{ signIn: User }>(SIGN_IN);
+  const [login] = useLogin();
 
   const navigate = useNavigate();
 
@@ -43,7 +22,7 @@ const LoginPage = () => {
   const handleFinish = useCallback(
     async (value: FormType) => {
       try {
-        const { data } = await signIn({
+        const { data } = await login({
           variables: value,
         });
         if (data) {
@@ -53,7 +32,7 @@ const LoginPage = () => {
         message.error((err as Error).message);
       }
     },
-    [signIn, setCurrentUser],
+    [login, setCurrentUser],
   );
 
   useEffect(() => {

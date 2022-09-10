@@ -1,6 +1,8 @@
 import Content from '@/components/Content';
 import { activeAccountBookAtom } from '@/store';
+import { TagType } from '@/types';
 import { useAtom } from 'jotai';
+import ExpenditureCard from './commons/ExpenditureCard';
 
 const Overview = () => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
@@ -16,8 +18,10 @@ const Overview = () => {
   ];
 
   return (
-    <Content title="首页" breadcrumbs={breadcrumbs}>
-      overview
+    <Content breadcrumbs={breadcrumbs}>
+      <div className="flex items-center space-x-4">
+        <ExpenditureCard title="总支出" tagType={TagType.EXPENDITURE} />
+      </div>
     </Content>
   );
 };

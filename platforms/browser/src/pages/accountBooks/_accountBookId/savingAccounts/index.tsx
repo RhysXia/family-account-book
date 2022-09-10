@@ -1,71 +1,14 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
 import { Button, Form, Input, InputNumber, Modal, Table } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import { useAtom } from 'jotai';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { activeAccountBookAtom } from '@/store';
-import { PaginationResult, SavingAccount, User } from '@/types';
+import { SavingAccount, User } from '@/types';
 import { fromTime } from '@/utils/dayjs';
-
-const GET_SAVING_ACCOUNTS = gql`
-  query getSavingAccountsByAccountBookId($accountBookId: ID!) {
-    node(id: $accountBookId) {
-      ... on AccountBook {
-        id
-        savingAccounts(
-          pagination: { orderBy: { field: "updatedAt", direction: DESC } }
-        ) {
-          total
-          data {
-            id
-            name
-            desc
-            amount
-            createdAt
-            updatedAt
-            creator {
-              id
-              username
-              nickname
-            }
-          }
-        }
-      }
-    }
-  }
-`;
-
-const CREATE_SAVING_ACCOUNT = gql`
-  mutation (
-    $name: String!
-    $desc: String
-    $amount: Float!
-    $accountBookId: ID!
-  ) {
-    createSavingAccount(
-      savingAccount: {
-        name: $name
-        desc: $desc
-        amount: $amount
-        accountBookId: $accountBookId
-      }
-    ) {
-      id
-      name
-      desc
-      amount
-      createdAt
-      updatedAt
-    }
-  }
-`;
-
-const DELETE_SAVING_ACCOUNT = gql`
-  mutation Mutation($savingAccountId: ID!) {
-    deleteSavingAccount(id: $savingAccountId)
-  }
-`;
+import useGetSavingAccounts from '@/graphql/useGetSavingAccounts';
+import useCreateSavingAccount from '@/graphql/useCreateSavingAccount';
+import useDeleteSavingAccount from '@/graphql/useDeleteSavingAccount';
 
 const SavingAccountPage = () => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
@@ -76,25 +19,13 @@ const SavingAccountPage = () => {
 
   const navigate = useNavigate();
 
-  const { data, refetch } = useQuery<{
-    node: {
-      savingAccounts: PaginationResult<
-        SavingAccount & {
-          creator: User;
-        }
-      >;
-    };
-  }>(GET_SAVING_ACCOUNTS, {
-    variables: {
-      accountBookId: activeAccountBook?.id,
-    },
+  const { data, refetch } = useGetSavingAccounts({
+    accountBookId: activeAccountBook!.id,
   });
 
-  const [createSavingAccount] = useMutation<{
-    createSavingAccount: SavingAccount;
-  }>(CREATE_SAVING_ACCOUNT);
+  const [createSavingAccount] = useCreateSavingAccount();
 
-  const [deleteSavingAccount] = useMutation(DELETE_SAVING_ACCOUNT);
+  const [deleteSavingAccount] = useDeleteSavingAccount();
 
   const handleOk = useCallback(async () => {
     await form.validateFields();
@@ -124,7 +55,7 @@ const SavingAccountPage = () => {
     async (id: string) => {
       await deleteSavingAccount({
         variables: {
-          savingAccountId: id,
+          id,
         },
       });
       await refetch();

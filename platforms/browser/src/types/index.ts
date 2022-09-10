@@ -3,6 +3,17 @@ export type PaginationResult<T> = {
   data: Array<T>;
 };
 
+export type Direction = 'DESC' | 'ASC';
+
+export type Pagination = {
+  limit?: number;
+  offset?: number;
+  orderBy?: Array<{
+    field: string;
+    direction: Direction;
+  }>;
+};
+
 export type User = {
   id: string;
   nickname: string;
@@ -55,3 +66,5 @@ export type FlowRecord = {
   updater: User;
   amount: number;
 };
+
+export type DateGroupBy = 'YEAR' | 'MONTH' | 'DAY';

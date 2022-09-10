@@ -3,11 +3,17 @@ import DatePicker from '@/components/DatePicker';
 import Table from '@/components/Table';
 import { Column, RenderProps } from '@/components/Table/Cell';
 import UserSelect from '@/components/UserSelect';
+import useDeleteFlowRecord from '@/graphql/useDeleteFlowRecord';
+import useGetFlowRecords, {
+  FlowRecordDetail,
+} from '@/graphql/useGetFlowRecords';
+import useGetSavingAccounts from '@/graphql/useGetSavingAccounts';
+import useGetTags from '@/graphql/useGetTags';
+import useUpdateFlowRecord from '@/graphql/useUpdateFlowRecord';
 import usePagination from '@/hooks/usePage';
 import { activeAccountBookAtom } from '@/store';
 import {
   FlowRecord,
-  PaginationResult,
   SavingAccount,
   User,
   Tag as Itag,
@@ -16,120 +22,11 @@ import {
 } from '@/types';
 import { TagColorMap } from '@/utils/constants';
 import { CreditCardOutlined } from '@ant-design/icons';
-import { gql, useMutation, useQuery } from '@apollo/client';
 import { Button, Input, InputNumber, Select } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import { useAtom } from 'jotai';
 import { useCallback, useMemo, useState } from 'react';
 import CreateModel from './commons/CreateModel';
-
-const GET_SELF_FLOW_RECORDS = gql`
-  query getSelfFlowRecordsByAccountBookId(
-    $accountBookId: ID!
-    $pagination: Pagination
-    $filter: FlowRecordFilter
-  ) {
-    node(id: $accountBookId) {
-      ... on AccountBook {
-        id
-        flowRecords(pagination: $pagination, filter: $filter) {
-          total
-          data {
-            id
-            desc
-            createdAt
-            updatedAt
-            dealAt
-            trader {
-              id
-              nickname
-              username
-            }
-            amount
-            savingAccount {
-              id
-              name
-              desc
-              amount
-            }
-            tag {
-              id
-              name
-              type
-            }
-          }
-        }
-      }
-    }
-  }
-`;
-
-const GET_SAVING_ACCOUNTS_BY_ACCOUNT_BOOK_ID = gql`
-  query GetSavingAccountsByAccountBookId($accountBookId: ID!) {
-    node(id: $accountBookId) {
-      ... on AccountBook {
-        id
-        savingAccounts {
-          total
-          data {
-            id
-            name
-            desc
-            amount
-          }
-        }
-      }
-    }
-  }
-`;
-
-const GET_TAGS_BY_ACCOUNT_BOOK_ID = gql`
-  query GetTagsByAccountBookId($accountBookId: ID!) {
-    node(id: $accountBookId) {
-      ... on AccountBook {
-        id
-        tags {
-          total
-          data {
-            id
-            name
-            type
-          }
-        }
-      }
-    }
-  }
-`;
-
-const UPDATE_FLOW_RECORD = gql`
-  mutation UpdateFlowRecord($flowRecord: UpdateFlowRecordInput!) {
-    updateFlowRecord(flowRecord: $flowRecord) {
-      id
-    }
-  }
-`;
-
-const DELETE_FLOW_RECORD = gql`
-  mutation DeleteFlowRecord($id: ID!) {
-    deleteFlowRecord(id: $id)
-  }
-`;
-
-type FlowRecordDetail = FlowRecord & {
-  trader: User;
-  savingAccount: SavingAccount;
-  tag: Itag;
-};
-
-type UpdateFlowRecordInput = {
-  id: string;
-  desc?: string;
-  dealAt?: string;
-  amount?: number;
-  savingAccountId?: string;
-  tagId?: string;
-  traderId?: string;
-};
 
 const Index = () => {
   const [_activeAccountBook] = useAtom(activeAccountBookAtom);
@@ -138,63 +35,35 @@ const Index = () => {
 
   const [modalVisible, setModalVisible] = useState(false);
 
-  const [uploadFlowRecord] = useMutation<
-    any,
-    {
-      flowRecord: UpdateFlowRecordInput;
-    }
-  >(UPDATE_FLOW_RECORD);
+  const [uploadFlowRecord] = useUpdateFlowRecord();
 
-  const [deleteFlowRecord] = useMutation<
-    any,
-    {
-      id: string;
-    }
-  >(DELETE_FLOW_RECORD);
+  const [deleteFlowRecord] = useDeleteFlowRecord();
 
-  const { data: accountBookWithSavingAccounts } = useQuery<{
-    node: {
-      savingAccounts: PaginationResult<SavingAccount>;
-    };
-  }>(GET_SAVING_ACCOUNTS_BY_ACCOUNT_BOOK_ID, {
-    variables: {
-      accountBookId: activeAccountBook.id,
-    },
+  const { data: accountBookWithSavingAccounts } = useGetSavingAccounts({
+    accountBookId: activeAccountBook.id!,
   });
 
-  const { data: accountBookWithTags } = useQuery<{
-    node: {
-      tags: PaginationResult<Itag>;
-    };
-  }>(GET_TAGS_BY_ACCOUNT_BOOK_ID, {
-    variables: {
-      accountBookId: activeAccountBook.id,
-    },
+  const { data: accountBookWithTags } = useGetTags({
+    accountBookId: activeAccountBook.id!,
   });
 
   const { getPagination, limit, offset } = usePagination();
 
-  const { data, refetch } = useQuery<{
-    node: {
-      flowRecords: PaginationResult<FlowRecordDetail>;
-    };
-  }>(GET_SELF_FLOW_RECORDS, {
-    variables: {
-      accountBookId: activeAccountBook?.id,
-      pagination: {
-        limit,
-        offset,
-        orderBy: [
-          {
-            field: 'dealAt',
-            direction: 'DESC',
-          },
-          {
-            field: 'updatedAt',
-            direction: 'DESC',
-          },
-        ],
-      },
+  const { data, refetch } = useGetFlowRecords({
+    accountBookId: activeAccountBook?.id,
+    pagination: {
+      limit,
+      offset,
+      orderBy: [
+        {
+          field: 'dealAt',
+          direction: 'DESC',
+        },
+        {
+          field: 'updatedAt',
+          direction: 'DESC',
+        },
+      ],
     },
   });
 

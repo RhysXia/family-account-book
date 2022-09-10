@@ -2,7 +2,7 @@ import { Breadcrumb } from 'antd';
 import { FC, ReactNode } from 'react';
 
 export type ContentProps = {
-  title: string;
+  title?: string;
   breadcrumbs: Array<{ name: string; path?: string }>;
   children: ReactNode;
   action?: ReactNode;
@@ -25,12 +25,18 @@ const Content: FC<ContentProps> = ({
           </Breadcrumb.Item>
         ))}
       </Breadcrumb>
-      <div className="bg-white p-2 rounded flex flex-row items-center justify-between">
-        <h1 className="leading-none m-0 font-bold text-lg">{title}</h1>
-        {action && <div>{action}</div>}
-      </div>
+      {(title || action) && (
+        <div className="bg-white p-2 rounded flex flex-row items-center justify-between">
+          {title && (
+            <h1 className="leading-none m-0 font-bold text-lg">{title}</h1>
+          )}
+          {action && <div>{action}</div>}
+        </div>
+      )}
       <div className="bg-white p-2 rounded">{children}</div>
-      <div className="bg-white p-2 rounded text-right">{pagination}</div>
+      {pagination && (
+        <div className="bg-white p-2 rounded text-right">{pagination}</div>
+      )}
     </div>
   );
 };

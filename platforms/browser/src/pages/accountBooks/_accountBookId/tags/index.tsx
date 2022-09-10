@@ -1,4 +1,3 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
 import {
   Button,
   Form,
@@ -13,90 +12,36 @@ import { useAtom } from 'jotai';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { activeAccountBookAtom } from '@/store';
-import { PaginationResult, Tag as ITag, TagType, User } from '@/types';
+import { Tag as ITag, TagType, User } from '@/types';
 import { TagColorMap } from '@/utils/constants';
 import { fromTime } from '@/utils/dayjs';
-
-const GET_TAGS = gql`
-  query getTagsByAccountBookId($accountBookId: ID!) {
-    node(id: $accountBookId) {
-      ... on AccountBook {
-        id
-        tags(pagination: { orderBy: { field: "updatedAt", direction: DESC } }) {
-          total
-          data {
-            id
-            name
-            type
-            createdAt
-            updatedAt
-            creator {
-              id
-              username
-              nickname
-            }
-          }
-        }
-      }
-    }
-  }
-`;
-
-const CREATE_TAG = gql`
-  mutation ($name: String!, $type: TagType!, $accountBookId: ID!) {
-    createTag(
-      tag: { name: $name, type: $type, accountBookId: $accountBookId }
-    ) {
-      id
-      name
-      type
-      createdAt
-      updatedAt
-    }
-  }
-`;
-
-const DELETE_TAG = gql`
-  mutation Mutation($tagId: ID!) {
-    deleteTag(id: $tagId)
-  }
-`;
+import useGetTags from '@/graphql/useGetTags';
+import useCreateTag, { CreateTagInput } from '@/graphql/useCreateTag';
+import useDeleteTag from '@/graphql/useDeleteTag';
 
 const TagPage = () => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
 
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<Omit<CreateTagInput, 'accountBookId'>>();
 
   const [createModalVisible, setCreateModalVisible] = useState(false);
 
   const navigate = useNavigate();
 
-  const { data, refetch } = useQuery<{
-    node: {
-      tags: PaginationResult<
-        ITag & {
-          creator: User;
-        }
-      >;
-    };
-  }>(GET_TAGS, {
-    variables: {
-      accountBookId: activeAccountBook?.id,
-    },
+  const { data, refetch } = useGetTags({
+    accountBookId: activeAccountBook!.id,
   });
 
-  const [createTag] = useMutation<{
-    createTag: ITag;
-  }>(CREATE_TAG);
+  const [createTag] = useCreateTag();
 
-  const [deleteTag] = useMutation<{ tagId: number }>(DELETE_TAG);
+  const [deleteTag] = useDeleteTag();
 
   const handleOk = useCallback(async () => {
     await form.validateFields();
     await createTag({
       variables: {
         ...form.getFieldsValue(),
-        accountBookId: activeAccountBook?.id,
+        accountBookId: activeAccountBook!.id,
       },
     });
 
@@ -119,7 +64,7 @@ const TagPage = () => {
     async (id: string) => {
       await deleteTag({
         variables: {
-          tagId: id,
+          id,
         },
       });
       await refetch();

@@ -47,13 +47,13 @@ export class AccountBookService {
 
     const qb = this.dataSource.manager
       .createQueryBuilder(FlowRecordEntity, 'flowRecord')
-      .select(`to_char(flowRecord.dealAt, '${dataFormat}')`, 'dealAt')
+      .select(`to_char(flowRecord.dealAt, '${dataFormat}')`, 'deal_at')
       .addSelect('SUM(flowRecord.amount)', 'amount')
       .leftJoin('flowRecord.tag', 'tag')
-      .groupBy('"dealAt"')
+      .groupBy('deal_at')
       .where('tag.accountBookId = :accountBookId', { accountBookId })
       .andWhere('tag.type = :tagType', { tagType })
-      .orderBy('"dealAt"', 'ASC');
+      .orderBy('deal_at', 'ASC');
 
     if (startDate) {
       qb.andWhere('flowRecord.dealAt >= :startDate', { startDate });
@@ -63,11 +63,11 @@ export class AccountBookService {
       qb.andWhere('flowRecord.dealAt <= :endDate', { endDate });
     }
 
-    const ret: Array<{ dealAt: string; amount: string }> =
+    const ret: Array<{ deal_at: string; amount: string }> =
       await qb.getRawMany();
 
     return ret.map((it) => ({
-      dealAt: it.dealAt,
+      dealAt: it.deal_at,
       amount: +it.amount,
     }));
   }
@@ -102,7 +102,7 @@ export class AccountBookService {
 
     const ret = await qb.getRawOne();
 
-    return (ret.totalAmount as number | null) || 0;
+    return +((ret.totalAmount as number | null) || 0);
   }
 
   async findByIdsAndUserId(
