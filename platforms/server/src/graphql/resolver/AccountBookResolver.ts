@@ -24,7 +24,9 @@ import {
   CreateAccountBookInput,
   FlowRecordFilter,
   Pagination,
+  TagType,
   UpdateAccountBookInput,
+  DateGroupBy,
 } from '../graphql';
 import { GraphqlEntity } from '../types';
 import { decodeId, encodeId, EntityName, getIdInfo } from '../utils';
@@ -41,6 +43,38 @@ export class AccountBookResolver {
     private readonly flowRecordDataLoader: FlowRecordDataLoader,
     private readonly flowRecordService: FlowRecordService,
   ) {}
+
+  @ResolveField()
+  async totalFlowRecordAmount(
+    @Parent() parent: GraphqlEntity<AccountBookEntity>,
+    @Args('tagType') tagType: TagType,
+    @Args('startDate') startDate: Date,
+    @Args('endDate') endDate: Date,
+  ) {
+    const accountBookId = decodeId(EntityName.ACCOUNT_BOOK, parent.id);
+
+    return this.accountBookService.findTotalFlowRecordAmountById(
+      { startDate, endDate, tagType },
+      accountBookId,
+    );
+  }
+
+  @ResolveField()
+  async totalFlowRecordAmounts(
+    @Parent() parent: GraphqlEntity<AccountBookEntity>,
+    @Args('tagType') tagType: TagType,
+    @Args('startDate') startDate: Date,
+    @Args('endDate') endDate: Date,
+    @Args('groupBy') groupBy: DateGroupBy,
+  ) {
+    const accountBookId = decodeId(EntityName.ACCOUNT_BOOK, parent.id);
+
+    return this.accountBookService.findTotalAmountByIdAndGroupBy(
+      { startDate, endDate, tagType },
+      accountBookId,
+      groupBy,
+    );
+  }
 
   @ResolveField()
   async admins(@Parent() parent: GraphqlEntity<AccountBookEntity>) {

@@ -18,6 +18,12 @@ export enum Direction {
     ASC = "ASC"
 }
 
+export enum DateGroupBy {
+    YEAR = "YEAR",
+    MONTH = "MONTH",
+    DAY = "DAY"
+}
+
 export enum TagType {
     INCOME = "INCOME",
     EXPENDITURE = "EXPENDITURE",
@@ -145,6 +151,11 @@ export interface AccountBookListWithPagintion {
     data: AccountBook[];
 }
 
+export interface FlowRecordAmountWithDate {
+    dealAt: string;
+    amount: number;
+}
+
 export interface AccountBook extends EntityDateTime {
     id: string;
     name: string;
@@ -161,6 +172,8 @@ export interface AccountBook extends EntityDateTime {
     tag: Tag;
     flowRecords: FlowRecordListWithPagintion;
     flowRecord: FlowRecord;
+    totalFlowRecordAmount: number;
+    totalFlowRecordAmounts: FlowRecordAmountWithDate[];
 }
 
 export interface IMutation {

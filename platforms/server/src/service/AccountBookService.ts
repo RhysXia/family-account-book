@@ -8,12 +8,102 @@ import { SavingAccountTransferRecordEntity } from '../entity/SavingAccountTransf
 import { TagEntity } from '../entity/TagEntity';
 import { UserEntity } from '../entity/UserEntity';
 import { ResourceNotFoundException } from '../exception/ServiceException';
-import { Pagination } from '../graphql/graphql';
+import { DateGroupBy, Pagination, TagType } from '../graphql/graphql';
 import { applyPagination } from '../utils/applyPagination';
 
 @Injectable()
 export class AccountBookService {
   constructor(private readonly dataSource: DataSource) {}
+
+  async findTotalAmountByIdAndGroupBy(
+    {
+      startDate,
+      endDate,
+      tagType,
+    }: {
+      startDate?: Date;
+      endDate?: Date;
+      tagType: TagType;
+    },
+    accountBookId: number,
+    groupBy: DateGroupBy,
+  ) {
+    let dataFormat: string;
+
+    switch (groupBy) {
+      case DateGroupBy.YEAR: {
+        dataFormat = 'YYYY';
+        break;
+      }
+      case DateGroupBy.MONTH: {
+        dataFormat = 'YYYY-MM';
+        break;
+      }
+      case DateGroupBy.DAY: {
+        dataFormat = 'YYYY-MM-DD';
+        break;
+      }
+    }
+
+    const qb = this.dataSource.manager
+      .createQueryBuilder(FlowRecordEntity, 'flowRecord')
+      .select(`to_char(flowRecord.dealAt, '${dataFormat}')`, 'dealAt')
+      .addSelect('SUM(flowRecord.amount)', 'amount')
+      .leftJoin('flowRecord.tag', 'tag')
+      .groupBy('"dealAt"')
+      .where('tag.accountBookId = :accountBookId', { accountBookId })
+      .andWhere('tag.type = :tagType', { tagType })
+      .orderBy('"dealAt"', 'ASC');
+
+    if (startDate) {
+      qb.andWhere('flowRecord.dealAt >= :startDate', { startDate });
+    }
+
+    if (endDate) {
+      qb.andWhere('flowRecord.dealAt <= :endDate', { endDate });
+    }
+
+    const ret: Array<{ dealAt: string; amount: string }> =
+      await qb.getRawMany();
+
+    return ret.map((it) => ({
+      dealAt: it.dealAt,
+      amount: +it.amount,
+    }));
+  }
+
+  /**
+   * 获取账本下指定时间段特定类型流水的总额
+   * @param arg0
+   * @param accountBookId
+   */
+  async findTotalFlowRecordAmountById(
+    {
+      startDate,
+      endDate,
+      tagType,
+    }: { startDate?: Date; endDate?: Date; tagType: TagType },
+    accountBookId: number,
+  ) {
+    const qb = this.dataSource.manager
+      .createQueryBuilder(FlowRecordEntity, 'flowRecord')
+      .select('SUM(flowRecord.amount)', 'totalAmount')
+      .leftJoin('flowRecord.tag', 'tag')
+      .where('tag.accountBookId = :accountBookId', { accountBookId })
+      .andWhere('tag.type = :tagType', { tagType });
+
+    if (startDate) {
+      qb.andWhere('flowRecord.dealAt >= :startDate', { startDate });
+    }
+
+    if (endDate) {
+      qb.andWhere('flowRecord.dealAt <= :endDate', { endDate });
+    }
+
+    const ret = await qb.getRawOne();
+
+    return (ret.totalAmount as number | null) || 0;
+  }
 
   async findByIdsAndUserId(
     ids: Array<number>,
