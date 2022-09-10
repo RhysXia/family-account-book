@@ -1,27 +1,12 @@
-import { gql, useLazyQuery } from '@apollo/client';
+import useLazyGetCurrentUser from '@/graphql/useLazyGetCurrentUser';
 import { useAtom } from 'jotai';
 import { FC, ReactNode, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { currentUserAtom } from '../../store';
-import { User } from '../../types';
-
-const CURRENT_USER = gql`
-  query getCurrentUser {
-    getCurrentUser {
-      id
-      username
-      nickname
-      email
-      avatar
-      createdAt
-      updatedAt
-    }
-  }
-`;
 
 const RequireAuth: FC<{ children: ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
-  const [getCurrentUser] = useLazyQuery<{ getCurrentUser: User }>(CURRENT_USER);
+  const [getCurrentUser] = useLazyGetCurrentUser();
 
   const navigate = useNavigate();
 

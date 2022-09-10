@@ -151,7 +151,7 @@ export interface AccountBookListWithPagintion {
     data: AccountBook[];
 }
 
-export interface FlowRecordAmountWithDate {
+export interface FlowRecordAmountByDate {
     dealAt: string;
     amount: number;
 }
@@ -172,8 +172,8 @@ export interface AccountBook extends EntityDateTime {
     tag: Tag;
     flowRecords: FlowRecordListWithPagintion;
     flowRecord: FlowRecord;
-    totalFlowRecordAmount: number;
-    totalFlowRecordAmounts: FlowRecordAmountWithDate[];
+    flowRecordAmount: number;
+    flowRecordAmounts: FlowRecordAmountByDate[];
 }
 
 export interface IMutation {

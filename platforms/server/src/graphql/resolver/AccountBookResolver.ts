@@ -45,32 +45,60 @@ export class AccountBookResolver {
   ) {}
 
   @ResolveField()
-  async totalFlowRecordAmount(
+  async flowRecordAmount(
     @Parent() parent: GraphqlEntity<AccountBookEntity>,
     @Args('tagType') tagType: TagType,
-    @Args('startDate') startDate: Date,
-    @Args('endDate') endDate: Date,
+    @Args('traderId') traderId?: string,
+    @Args('startDate') startDate?: Date,
+    @Args('endDate') endDate?: Date,
   ) {
     const accountBookId = decodeId(EntityName.ACCOUNT_BOOK, parent.id);
 
-    return this.accountBookService.findTotalFlowRecordAmountById(
-      { startDate, endDate, tagType },
+    let traderIdValue: number;
+
+    if (traderId) {
+      const info = getIdInfo(traderId);
+      if (
+        info.name !== EntityName.USER &&
+        info.name !== EntityName.SIMPLE_USER
+      ) {
+        throw new ParameterException('userId不正确');
+      }
+      traderIdValue = info.id;
+    }
+
+    return this.accountBookService.findFlowRecordAmountById(
+      { startDate, endDate, tagType, traderId: traderIdValue },
       accountBookId,
     );
   }
 
   @ResolveField()
-  async totalFlowRecordAmounts(
+  async flowRecordAmounts(
     @Parent() parent: GraphqlEntity<AccountBookEntity>,
     @Args('tagType') tagType: TagType,
-    @Args('startDate') startDate: Date,
-    @Args('endDate') endDate: Date,
     @Args('groupBy') groupBy: DateGroupBy,
+    @Args('traderId') traderId?: string,
+    @Args('startDate') startDate?: Date,
+    @Args('endDate') endDate?: Date,
   ) {
     const accountBookId = decodeId(EntityName.ACCOUNT_BOOK, parent.id);
 
-    return this.accountBookService.findTotalAmountByIdAndGroupBy(
-      { startDate, endDate, tagType },
+    let traderIdValue: number;
+
+    if (traderId) {
+      const info = getIdInfo(traderId);
+      if (
+        info.name !== EntityName.USER &&
+        info.name !== EntityName.SIMPLE_USER
+      ) {
+        throw new ParameterException('userId不正确');
+      }
+      traderIdValue = info.id;
+    }
+
+    return this.accountBookService.findFlowRecordAmountByIdAndGroupBy(
+      { startDate, endDate, tagType, traderId: traderIdValue },
       accountBookId,
       groupBy,
     );

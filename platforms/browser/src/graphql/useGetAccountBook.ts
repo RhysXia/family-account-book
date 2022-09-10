@@ -10,13 +10,34 @@ const GET_ACCOUNT_BOOK_BY_ID = gql`
         desc
         createdAt
         updatedAt
+        admins {
+          id
+          nickname
+        }
+        members {
+          id
+          nickname
+        }
       }
     }
   }
 `;
 
+export type AccountBookDetail = AccountBook & {
+  admins: Array<{
+    id: string;
+    nickname: string;
+  }>;
+  members: Array<{
+    id: string;
+    nickname: string;
+  }>;
+};
+
 const useGetAccountBook = (props: { id: string }) => {
-  return useQuery<{ node: AccountBook }>(GET_ACCOUNT_BOOK_BY_ID, {
+  return useQuery<{
+    node: AccountBookDetail;
+  }>(GET_ACCOUNT_BOOK_BY_ID, {
     variables: props,
   });
 };

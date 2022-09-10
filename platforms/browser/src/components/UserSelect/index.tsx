@@ -1,7 +1,6 @@
-import { gql, useLazyQuery } from '@apollo/client';
+import useLazyGetUsersByNameLike from '@/graphql/useLazyGetUsersByNameLike';
 import { Select, SelectProps } from 'antd';
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
-import { User } from '../../types';
 
 export type ValueType = {
   key?: string;
@@ -18,28 +17,6 @@ export type UserSelectProps = SelectProps & {
   includeSelf?: boolean;
 };
 
-const GET_USER_LIST = gql`
-  query findUserListByNameLike(
-    $name: String!
-    $limit: Int!
-    $includeSelf: Boolean
-  ) {
-    findUserListByNameLike(
-      name: $name
-      limit: $limit
-      includeSelf: $includeSelf
-    ) {
-      id
-      nickname
-      username
-      email
-      avatar
-      createdAt
-      updatedAt
-    }
-  }
-`;
-
 const UserSelect: FC<UserSelectProps> = ({
   limit = 10,
   value,
@@ -50,9 +27,7 @@ const UserSelect: FC<UserSelectProps> = ({
 }) => {
   const [options, setOptions] = useState<Array<ValueType>>([]);
 
-  const [searchUsers] = useLazyQuery<{
-    findUserListByNameLike: Array<User>;
-  }>(GET_USER_LIST);
+  const [searchUsers] = useLazyGetUsersByNameLike();
 
   const fetchRef = useRef(0);
 

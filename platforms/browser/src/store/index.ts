@@ -1,6 +1,7 @@
+import { AccountBookDetail } from '@/graphql/useGetAccountBook';
 import { atom } from 'jotai';
-import { AccountBook, User } from '../types';
+import { User } from '../types';
 
 export const currentUserAtom = atom<User | null>(null);
 
-export const activeAccountBookAtom = atom<AccountBook | null>(null);
+export const activeAccountBookAtom = atom<AccountBookDetail | null>(null);

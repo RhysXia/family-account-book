@@ -15,15 +15,17 @@ import { applyPagination } from '../utils/applyPagination';
 export class AccountBookService {
   constructor(private readonly dataSource: DataSource) {}
 
-  async findTotalAmountByIdAndGroupBy(
+  async findFlowRecordAmountByIdAndGroupBy(
     {
       startDate,
       endDate,
       tagType,
+      traderId,
     }: {
       startDate?: Date;
       endDate?: Date;
       tagType: TagType;
+      traderId?: number;
     },
     accountBookId: number,
     groupBy: DateGroupBy,
@@ -48,7 +50,7 @@ export class AccountBookService {
     const qb = this.dataSource.manager
       .createQueryBuilder(FlowRecordEntity, 'flowRecord')
       .select(`to_char(flowRecord.dealAt, '${dataFormat}')`, 'deal_at')
-      .addSelect('SUM(flowRecord.amount)', 'amount')
+      .addSelect('SUM(flowRecord.amount)', 'totalAmount')
       .leftJoin('flowRecord.tag', 'tag')
       .groupBy('deal_at')
       .where('tag.accountBookId = :accountBookId', { accountBookId })
@@ -63,12 +65,16 @@ export class AccountBookService {
       qb.andWhere('flowRecord.dealAt <= :endDate', { endDate });
     }
 
-    const ret: Array<{ deal_at: string; amount: string }> =
+    if (traderId) {
+      qb.andWhere('flowRecord.traderId = :traderId', { traderId });
+    }
+
+    const ret: Array<{ deal_at; totalAmount: string | null }> =
       await qb.getRawMany();
 
     return ret.map((it) => ({
       dealAt: it.deal_at,
-      amount: +it.amount,
+      amount: +(it.totalAmount || 0),
     }));
   }
 
@@ -77,14 +83,20 @@ export class AccountBookService {
    * @param arg0
    * @param accountBookId
    */
-  async findTotalFlowRecordAmountById(
+  async findFlowRecordAmountById(
     {
       startDate,
       endDate,
       tagType,
-    }: { startDate?: Date; endDate?: Date; tagType: TagType },
+      traderId,
+    }: {
+      startDate?: Date;
+      endDate?: Date;
+      tagType: TagType;
+      traderId?: number;
+    },
     accountBookId: number,
-  ) {
+  ): Promise<number> {
     const qb = this.dataSource.manager
       .createQueryBuilder(FlowRecordEntity, 'flowRecord')
       .select('SUM(flowRecord.amount)', 'totalAmount')
@@ -100,9 +112,13 @@ export class AccountBookService {
       qb.andWhere('flowRecord.dealAt <= :endDate', { endDate });
     }
 
-    const ret = await qb.getRawOne();
+    if (traderId) {
+      qb.andWhere('flowRecord.traderId = :traderId', { traderId });
+    }
 
-    return +((ret.totalAmount as number | null) || 0);
+    const ret: { totalAmount: string | null } = await qb.getRawOne();
+
+    return +(ret.totalAmount || 0);
   }
 
   async findByIdsAndUserId(
