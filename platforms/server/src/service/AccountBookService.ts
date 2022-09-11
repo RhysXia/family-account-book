@@ -15,7 +15,7 @@ import { applyPagination } from '../utils/applyPagination';
 export class AccountBookService {
   constructor(private readonly dataSource: DataSource) {}
 
-  async findFlowRecordAmountByIdAndGroupBy(
+  async findFlowRecordTotalAmountByIdAndGroupByDate(
     {
       startDate,
       endDate,
@@ -24,7 +24,7 @@ export class AccountBookService {
     }: {
       startDate?: Date;
       endDate?: Date;
-      tagType: TagType;
+      tagType?: TagType;
       traderId?: number;
     },
     accountBookId: number,
@@ -54,8 +54,11 @@ export class AccountBookService {
       .leftJoin('flowRecord.tag', 'tag')
       .groupBy('deal_at')
       .where('tag.accountBookId = :accountBookId', { accountBookId })
-      .andWhere('tag.type = :tagType', { tagType })
       .orderBy('deal_at', 'ASC');
+
+    if (tagType) {
+      qb.andWhere('tag.type = :tagType', { tagType });
+    }
 
     if (startDate) {
       qb.andWhere('flowRecord.dealAt >= :startDate', { startDate });
