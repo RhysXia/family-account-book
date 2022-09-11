@@ -136,11 +136,13 @@ export class SavingAccountService {
     return this.dataSource.transaction(async (manager) => {
       const { name, desc, amount } = savingsInput;
 
-      const savingAccount = await manager.findOne(SavingAccountEntity, {
-        where: { id },
-      });
+      let savingAccount: SavingAccountEntity;
 
-      if (!savingAccount) {
+      try {
+        savingAccount = await manager.findOneOrFail(SavingAccountEntity, {
+          where: { id },
+        });
+      } catch (err) {
         throw new ResourceNotFoundException('储蓄账户不存在');
       }
 

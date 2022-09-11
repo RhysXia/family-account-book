@@ -35,21 +35,25 @@ export class SavingAccountTransferRecordService {
 
   async delete(id: number, currentUser: UserEntity) {
     return this.dataSource.transaction(async (manager) => {
-      const record = await manager.findOne(SavingAccountTransferRecordEntity, {
-        where: {
-          id,
-          accountBook: [
-            {
-              admins: [{ id: currentUser.id }],
+      let record: SavingAccountTransferRecordEntity;
+      try {
+        record = await manager.findOneOrFail(
+          SavingAccountTransferRecordEntity,
+          {
+            where: {
+              id,
+              accountBook: [
+                {
+                  admins: [{ id: currentUser.id }],
+                },
+                {
+                  members: [{ id: currentUser.id }],
+                },
+              ],
             },
-            {
-              members: [{ id: currentUser.id }],
-            },
-          ],
-        },
-      });
-
-      if (!record) {
+          },
+        );
+      } catch (err) {
         throw new ResourceNotFoundException('记录不存在');
       }
 
@@ -160,16 +164,16 @@ export class SavingAccountTransferRecordService {
 
       const newRecord = new SavingAccountTransferRecordEntity();
 
-      const trader = await manager.findOne(UserEntity, {
-        where: {
-          id: traderId,
-        },
-      });
-      if (!trader) {
+      try {
+        const trader = await manager.findOneOrFail(UserEntity, {
+          where: {
+            id: traderId,
+          },
+        });
+        newRecord.trader = trader;
+      } catch (err) {
         throw new ParameterException('交易人员不存在');
       }
-
-      newRecord.trader = trader;
 
       newRecord.name = name;
       newRecord.desc = desc;
@@ -212,33 +216,35 @@ export class SavingAccountTransferRecordService {
     }
 
     return this.dataSource.transaction(async (manager) => {
-      const oldRecord = await manager.findOne(
-        SavingAccountTransferRecordEntity,
-        {
-          where: {
-            id,
+      let oldRecord: SavingAccountTransferRecordEntity;
+      try {
+        oldRecord = await manager.findOneOrFail(
+          SavingAccountTransferRecordEntity,
+          {
+            where: {
+              id,
+            },
+            relations: {
+              from: true,
+              to: true,
+            },
           },
-          relations: {
-            from: true,
-            to: true,
-          },
-        },
-      );
-
-      if (!oldRecord) {
+        );
+      } catch (err) {
         throw new ResourceNotFoundException('转账记录不存在');
       }
 
       if (traderId) {
-        const trader = await manager.findOne(UserEntity, {
-          where: {
-            id: traderId,
-          },
-        });
-        if (!trader) {
+        try {
+          const trader = await manager.findOneOrFail(UserEntity, {
+            where: {
+              id: traderId,
+            },
+          });
+          oldRecord.trader = trader;
+        } catch (err) {
           throw new ParameterException('交易人员不存在');
         }
-        oldRecord.trader = trader;
       }
 
       await this.savingAccountHistoryManager.reset(manager, {

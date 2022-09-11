@@ -5,6 +5,7 @@ import { SavingAccountEntity } from '../entity/SavingAccountEntity';
 import { TagEntity, TagType } from '../entity/TagEntity';
 import { UserEntity } from '../entity/UserEntity';
 import {
+  InternalException,
   ParameterException,
   ResourceNotFoundException,
 } from '../exception/ServiceException';
@@ -112,9 +113,14 @@ export class FlowRecordService {
           throw new ResourceNotFoundException('标签不存在');
         }
       } else {
-        tag = await manager.findOneOrFail(TagEntity, {
-          where: { id: flowRecord.tagId },
-        });
+        try {
+          // 按道理不可能失败
+          tag = await manager.findOneOrFail(TagEntity, {
+            where: { id: flowRecord.tagId },
+          });
+        } catch (err) {
+          throw new InternalException('标签不存在');
+        }
       }
 
       if (savingAccountId) {
@@ -126,7 +132,6 @@ export class FlowRecordService {
             },
           });
         } catch (err) {
-          console.error(err);
           throw new ResourceNotFoundException('储蓄账户不存在');
         }
       }
@@ -210,11 +215,12 @@ export class FlowRecordService {
 
       const accountBookId = savingAccount.accountBookId;
 
-      const tag = await manager.findOne(TagEntity, {
-        where: { id: tagId, accountBookId },
-      });
-
-      if (!tag) {
+      let tag: TagEntity;
+      try {
+        tag = await manager.findOneOrFail(TagEntity, {
+          where: { id: tagId, accountBookId },
+        });
+      } catch (err) {
         throw new ResourceNotFoundException('标签不存在');
       }
 
@@ -235,14 +241,14 @@ export class FlowRecordService {
           throw new ParameterException('收入不能为负数');
         }
       }
-
-      const trader = await manager.findOne(UserEntity, {
-        where: {
-          id: traderId,
-        },
-      });
-
-      if (!trader) {
+      let trader: UserEntity;
+      try {
+        trader = await manager.findOneOrFail(UserEntity, {
+          where: {
+            id: traderId,
+          },
+        });
+      } catch (err) {
         throw new ParameterException('交易人员不存在');
       }
 

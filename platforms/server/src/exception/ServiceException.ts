@@ -19,3 +19,8 @@ export class ResourceNotFoundException extends BaseServiceException {}
  * 认证异常
  */
 export class AuthentizationException extends BaseServiceException {}
+
+/**
+ * 内部错误异常
+ */
+export class InternalException extends BaseServiceException {}

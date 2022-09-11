@@ -60,12 +60,14 @@ export class UserService {
     username: string;
     password: string;
   }): Promise<UserEntity> {
-    const user = await this.dataSource.manager.findOne(UserEntity, {
-      where: {
-        username: signInUser.username,
-      },
-    });
-    if (!user) {
+    let user: UserEntity;
+    try {
+      user = await this.dataSource.manager.findOneOrFail(UserEntity, {
+        where: {
+          username: signInUser.username,
+        },
+      });
+    } catch (err) {
       throw new AuthentizationException('登录失败');
     }
 
@@ -84,11 +86,11 @@ export class UserService {
     avatar?: string;
   }): Promise<UserEntity> {
     return this.dataSource.transaction(async (manager) => {
-      const oldUser = await manager.findOne(UserEntity, {
-        where: { username: signUpUser.username },
-      });
-
-      if (oldUser) {
+      try {
+        await manager.findOneOrFail(UserEntity, {
+          where: { username: signUpUser.username },
+        });
+      } catch (err) {
         throw new ParameterException('用户已存在');
       }
 

@@ -25,13 +25,14 @@ export class SavingAccountHistoryManager {
     manager: EntityManager,
     { amount, dealAt, savingAccountId }: SavingAccountMoneyRecord,
   ) {
-    const savingAccount = await manager.findOne(SavingAccountEntity, {
-      where: {
-        id: savingAccountId,
-      },
-    });
-
-    if (!savingAccount) {
+    let savingAccount: SavingAccountEntity;
+    try {
+      savingAccount = await manager.findOneOrFail(SavingAccountEntity, {
+        where: {
+          id: savingAccountId,
+        },
+      });
+    } catch (err) {
       throw new ResourceNotFoundException('账户不存在');
     }
 
@@ -51,7 +52,6 @@ export class SavingAccountHistoryManager {
       .execute();
 
     // 最靠近dealAt的后一个记录和前一个记录金额有可能相同，需要处理
-
     const oldRecord = await manager.findOne(SavingAccountHistoryEntity, {
       where: {
         savingAccountId,

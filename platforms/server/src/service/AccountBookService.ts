@@ -144,17 +144,17 @@ export class AccountBookService {
 
   async delete(id: number, user: UserEntity) {
     return this.dataSource.transaction(async (manager) => {
-      const accountBook = await manager.findOne(AccountBookEntity, {
-        where: {
-          id,
-          admins: {
-            id: user.id,
+      let accountBook: AccountBookEntity;
+      try {
+        accountBook = await manager.findOneOrFail(AccountBookEntity, {
+          where: {
+            id,
+            admins: {
+              id: user.id,
+            },
           },
-        },
-      });
-
-      if (!accountBook) {
-        // 不暴露其他数据信息，一律提示资源不存在
+        });
+      } catch (err) {
         throw new ResourceNotFoundException('账本不存在');
       }
 
@@ -246,45 +246,43 @@ export class AccountBookService {
   async findAdminsByAccountBookId(
     accountBookId: number,
   ): Promise<Array<UserEntity>> {
-    const accountBook = await this.dataSource.manager.findOne(
-      AccountBookEntity,
-      {
-        relations: {
-          admins: true,
+    try {
+      const accountBook = await this.dataSource.manager.findOneOrFail(
+        AccountBookEntity,
+        {
+          relations: {
+            admins: true,
+          },
+          where: {
+            id: accountBookId,
+          },
         },
-        where: {
-          id: accountBookId,
-        },
-      },
-    );
-
-    if (!accountBook) {
+      );
+      return accountBook.admins;
+    } catch (err) {
       throw new ResourceNotFoundException('账本不存在');
     }
-
-    return accountBook.admins;
   }
 
   async findMembersByAccountBookId(
     accountBookId: number,
   ): Promise<Array<UserEntity>> {
-    const accountBook = await this.dataSource.manager.findOne(
-      AccountBookEntity,
-      {
-        relations: {
-          members: true,
+    try {
+      const accountBook = await this.dataSource.manager.findOneOrFail(
+        AccountBookEntity,
+        {
+          relations: {
+            members: true,
+          },
+          where: {
+            id: accountBookId,
+          },
         },
-        where: {
-          id: accountBookId,
-        },
-      },
-    );
-
-    if (!accountBook) {
+      );
+      return accountBook.members;
+    } catch (err) {
       throw new ResourceNotFoundException('账本不存在');
     }
-
-    return accountBook.members;
   }
 
   create(
@@ -347,17 +345,18 @@ export class AccountBookService {
     const { name, desc, adminIds, memberIds } = accountBookInput;
 
     return this.dataSource.transaction(async (manager) => {
+      let accountBook: AccountBookEntity;
       // 只有管理员能更新
-      const accountBook = await manager.findOne(AccountBookEntity, {
-        where: {
-          id,
-          admins: {
-            id: user.id,
+      try {
+        accountBook = await manager.findOneOrFail(AccountBookEntity, {
+          where: {
+            id,
+            admins: {
+              id: user.id,
+            },
           },
-        },
-      });
-
-      if (!accountBook) {
+        });
+      } catch (err) {
         throw new ResourceNotFoundException('账本不存在');
       }
 

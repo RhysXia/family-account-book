@@ -44,11 +44,12 @@ export class TagService {
     return this.dataSource.manager.transaction(async (manager) => {
       const { name } = tag;
 
-      const tagEntity = await manager.findOne(TagEntity, {
-        where: { id },
-      });
-
-      if (!tagEntity) {
+      let tagEntity: TagEntity;
+      try {
+        tagEntity = await manager.findOneOrFail(TagEntity, {
+          where: { id },
+        });
+      } catch (err) {
         throw new ResourceNotFoundException('标签不存在');
       }
 
