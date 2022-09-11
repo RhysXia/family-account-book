@@ -197,11 +197,12 @@ export class SavingAccountResolver {
     @CurrentUser({ required: true }) user: UserEntity,
     @Args('savingAccount') savingsInput: CreateSavingAccountInput,
   ) {
-    const { accountBookId, ...others } = savingsInput;
+    const { accountBookId, desc, ...others } = savingsInput;
 
     const entity = await this.savingAccountService.create(
       {
         ...others,
+        ...(desc && { desc }),
         accountBookId: decodeId(EntityName.ACCOUNT_BOOK, accountBookId),
       },
       user,
@@ -218,9 +219,15 @@ export class SavingAccountResolver {
     @CurrentUser({ required: true }) user: UserEntity,
     @Args('savingAccount') savingsInput: UpdateSavingAccountInput,
   ) {
+    const { id, name, desc, amount } = savingsInput;
+
     const entity = await this.savingAccountService.update(
-      decodeId(EntityName.SAVING_ACCOUNT, savingsInput.id),
-      savingsInput,
+      decodeId(EntityName.SAVING_ACCOUNT, id),
+      {
+        ...(name && { name }),
+        ...(desc && { desc }),
+        ...(amount && { amount }),
+      },
       user,
     );
 

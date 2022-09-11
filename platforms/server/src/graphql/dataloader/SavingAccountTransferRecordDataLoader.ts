@@ -1,4 +1,4 @@
-import { Injectable, Scope } from '@nestjs/common';
+import { Injectable, NotFoundException, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import { SavingAccountTransferRecordEntity } from '../../entity/SavingAccountTransferRecordEntity';
 import { SavingAccountTransferRecordService } from '../../service/SavingAccountTransferRecordService';
@@ -16,7 +16,11 @@ export class SavingAccountTransferRecordDataLoader extends DataLoader<
         ids as Array<number>,
       );
 
-      return ids.map((id) => list.find((it) => it.id === id));
+      return ids.map(
+        (id) =>
+          list.find((it) => it.id === id) ||
+          new NotFoundException('转账记录不存在'),
+      );
     });
   }
 }

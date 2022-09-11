@@ -1,4 +1,4 @@
-import { Injectable, Scope } from '@nestjs/common';
+import { Injectable, NotFoundException, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import { UserEntity } from '../../entity/UserEntity';
 import { UserService } from '../../service/UserService';
@@ -9,7 +9,11 @@ export class UserDataLoader extends DataLoader<number, UserEntity> {
     super(async (ids) => {
       const list = await userService.findAllByIds(ids as Array<number>);
 
-      return ids.map((id) => list.find((it) => it.id === id));
+      return ids.map(
+        (id) =>
+          list.find((it) => it.id === id) ||
+          new NotFoundException('用户不存在'),
+      );
     });
   }
 }

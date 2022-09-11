@@ -83,7 +83,7 @@ export class AccountBookService {
    * @param arg0
    * @param accountBookId
    */
-  async findFlowRecordAmountById(
+  async findFlowRecordTotalAmountById(
     {
       startDate,
       endDate,
@@ -92,7 +92,7 @@ export class AccountBookService {
     }: {
       startDate?: Date;
       endDate?: Date;
-      tagType: TagType;
+      tagType?: TagType;
       traderId?: number;
     },
     accountBookId: number,
@@ -101,8 +101,15 @@ export class AccountBookService {
       .createQueryBuilder(FlowRecordEntity, 'flowRecord')
       .select('SUM(flowRecord.amount)', 'totalAmount')
       .leftJoin('flowRecord.tag', 'tag')
-      .where('tag.accountBookId = :accountBookId', { accountBookId })
-      .andWhere('tag.type = :tagType', { tagType });
+      .where('tag.accountBookId = :accountBookId', { accountBookId });
+
+    if (tagType) {
+      qb.andWhere('tag.type = :tagType', { tagType });
+    }
+
+    if (traderId) {
+      qb.andWhere('flowRecord.traderId = :traderId', { traderId });
+    }
 
     if (startDate) {
       qb.andWhere('flowRecord.dealAt >= :startDate', { startDate });
@@ -112,13 +119,9 @@ export class AccountBookService {
       qb.andWhere('flowRecord.dealAt <= :endDate', { endDate });
     }
 
-    if (traderId) {
-      qb.andWhere('flowRecord.traderId = :traderId', { traderId });
-    }
+    const ret = await qb.getRawOne<{ totalAmount: string | null }>();
 
-    const ret: { totalAmount: string | null } = await qb.getRawOne();
-
-    return +(ret.totalAmount || 0);
+    return +(ret?.totalAmount || 0);
   }
 
   async findByIdsAndUserId(
@@ -286,9 +289,9 @@ export class AccountBookService {
 
   create(
     accountBookInput: {
+      name: string;
       adminIds?: Array<number>;
       memberIds?: Array<number>;
-      name: string;
       desc?: string;
     },
     author: UserEntity,

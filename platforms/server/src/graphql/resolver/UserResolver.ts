@@ -17,7 +17,7 @@ import { SignUpUserInput, SignInUserInput, User, Pagination } from '../graphql';
 import { GraphqlEntity } from '../types';
 import { decodeId, encodeId, EntityName } from '../utils';
 
-@Resolver('User')
+@Resolver('DetailUser')
 export class UserResolver {
   constructor(
     private readonly userService: UserService,
@@ -80,7 +80,7 @@ export class UserResolver {
     const users = await this.userService.findAllByNameLike(name, {
       limit,
       includeSelf,
-      currentUser,
+      ...(currentUser && { currentUser }),
     });
 
     return users.map((it) => ({
@@ -110,7 +110,13 @@ export class UserResolver {
 
   @Mutation()
   async signUp(@Args('user') signUpUser: SignUpUserInput) {
-    const user = await this.userService.signUp(signUpUser);
+    const { email, avatar, ...others } = signUpUser;
+
+    const user = await this.userService.signUp({
+      ...(email && { email }),
+      ...(avatar && { avatar }),
+      ...others,
+    });
 
     return { ...user, id: encodeId(EntityName.DETAIL_USER, user.id) };
   }

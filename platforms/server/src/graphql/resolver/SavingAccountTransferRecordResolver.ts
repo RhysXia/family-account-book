@@ -85,12 +85,18 @@ export class SavingAccountTransferRecordResolver {
     @CurrentUser({ required: true }) currentUser: UserEntity,
     @Args('record') record: CreateSavingAccountTransferRecord,
   ) {
-    const { toSavingAccountId, fromSavingAccountId, traderId, ...others } =
-      record;
+    const {
+      toSavingAccountId,
+      fromSavingAccountId,
+      traderId,
+      desc,
+      ...others
+    } = record;
 
     const entity = await this.savingAccountTransferRecordService.create(
       {
         ...others,
+        ...(desc && { desc }),
         traderId: decodeId(EntityName.USER, traderId),
         toSavingAccountId: decodeId(
           EntityName.SAVING_ACCOUNT,
@@ -115,13 +121,25 @@ export class SavingAccountTransferRecordResolver {
     @CurrentUser({ required: true }) currentUser: UserEntity,
     @Args('record') record: UpdateSavingAccountTransferRecord,
   ) {
-    const { toSavingAccountId, fromSavingAccountId, traderId, ...others } =
-      record;
+    const {
+      toSavingAccountId,
+      fromSavingAccountId,
+      traderId,
+      desc,
+      name,
+      amount,
+      dealAt,
+      ...others
+    } = record;
 
     const entity = await this.savingAccountTransferRecordService.update(
       decodeId(EntityName.SAVING_ACCOUNT_TRANSFER_RECORD, record.id),
       {
         ...others,
+        ...(desc && { desc }),
+        ...(name && { name }),
+        ...(amount && { amount }),
+        ...(dealAt && { dealAt }),
         ...(toSavingAccountId && {
           toSavingAccountId: decodeId(
             EntityName.SAVING_ACCOUNT,

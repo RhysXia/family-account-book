@@ -10,7 +10,7 @@
     "allowSyntheticDefaultImports": true,
     "incremental": true,
     "skipLibCheck": true,
-    "strictNullChecks": false,
+    "strictNullChecks": true,
     "sourceMap": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,

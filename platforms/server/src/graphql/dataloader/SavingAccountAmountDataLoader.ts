@@ -1,4 +1,4 @@
-import { Injectable, Scope } from '@nestjs/common';
+import { Injectable, NotFoundException, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import { SavingAccountAmountView } from '../../entity/SavingAccountAmountView';
 import { SavingAccountAmountService } from '../../service/SavingAccountAmountService';
@@ -17,8 +17,10 @@ export class SavingAccountAmountDataLoader extends DataLoader<
         savingAccountIds as Array<number>,
       );
 
-      return savingAccountIds.map((savingAccountId) =>
-        list.find((it) => it.savingAccountId === savingAccountId),
+      return savingAccountIds.map(
+        (savingAccountId) =>
+          list.find((it) => it.savingAccountId === savingAccountId) ||
+          new NotFoundException('账户不存在'),
       );
     });
   }

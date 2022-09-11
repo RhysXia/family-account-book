@@ -207,7 +207,7 @@ export class SavingAccountTransferRecordService {
       traderId,
     } = record;
 
-    if (amount <= 0) {
+    if (amount === undefined || amount <= 0) {
       throw new ParameterException('金额必须大于0');
     }
 

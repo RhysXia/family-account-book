@@ -15,23 +15,23 @@ import { UserEntity } from './UserEntity';
 @Entity('account_book')
 export class AccountBookEntity extends AbstractTimestampEntity {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({ nullable: false })
-  name: string;
+  name!: string;
 
   @Column({ nullable: true })
   desc?: string;
 
   @ManyToOne(() => UserEntity, { nullable: false })
-  creator: UserEntity;
+  creator!: UserEntity;
   @Column()
-  creatorId: number;
+  creatorId!: number;
 
   @ManyToOne(() => UserEntity, { nullable: false })
-  updater: UserEntity;
+  updater!: UserEntity;
   @Column()
-  updaterId: number;
+  updaterId!: number;
 
   // 管理员
   @ManyToMany(() => UserEntity)
@@ -40,7 +40,7 @@ export class AccountBookEntity extends AbstractTimestampEntity {
     joinColumn: { name: 'project_id' },
     inverseJoinColumn: { name: 'admin_id' },
   })
-  admins: Array<UserEntity>;
+  admins!: Array<UserEntity>;
 
   // 账本普通成员
   @ManyToMany(() => UserEntity)
@@ -49,5 +49,5 @@ export class AccountBookEntity extends AbstractTimestampEntity {
     joinColumn: { name: 'project_id' },
     inverseJoinColumn: { name: 'member_id' },
   })
-  members: Array<UserEntity>;
+  members!: Array<UserEntity>;
 }

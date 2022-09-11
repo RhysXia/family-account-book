@@ -29,7 +29,7 @@ import { SavingAccountHistoryEntity } from './SavingAccountHistoryEntity';
 })
 export class SavingAccountAmountView {
   @ViewColumn()
-  id: number;
+  id!: number;
 
   /**
    * 余额
@@ -37,23 +37,23 @@ export class SavingAccountAmountView {
   @ViewColumn({
     transformer: new ColumnNumericTransformer(),
   })
-  amount: number;
+  amount!: number;
 
   /**
    * 交易日期
    */
   @ViewColumn()
-  dealAt: Date;
+  dealAt!: Date;
 
   @ViewColumn()
-  savingAccountId: number;
+  savingAccountId!: number;
 
   @ViewColumn()
-  accountBookId: number;
+  accountBookId!: number;
 
   @ViewColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @ViewColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 }

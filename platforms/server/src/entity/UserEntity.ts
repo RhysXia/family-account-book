@@ -10,17 +10,17 @@ import { AbstractTimestampEntity } from './abstract/AbstractTimestampEntity';
 @Entity('user')
 export class UserEntity extends AbstractTimestampEntity {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({ nullable: false })
-  nickname: string;
+  nickname!: string;
 
   @Index({ unique: true })
   @Column({ unique: true, nullable: false })
-  username: string;
+  username!: string;
 
   @Column({ nullable: false })
-  password: string;
+  password!: string;
 
   @Index({ unique: true })
   @Column({ unique: true, nullable: true })

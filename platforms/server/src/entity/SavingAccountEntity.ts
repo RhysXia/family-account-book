@@ -16,10 +16,10 @@ import { UserEntity } from './UserEntity';
 @Entity('saving_account')
 export class SavingAccountEntity extends AbstractTimestampEntity {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({ nullable: false })
-  name: string;
+  name!: string;
 
   @Column({ nullable: true })
   desc?: string;
@@ -34,31 +34,31 @@ export class SavingAccountEntity extends AbstractTimestampEntity {
     nullable: false,
     transformer: new ColumnNumericTransformer(),
   })
-  initialAmount: number;
+  initialAmount!: number;
 
   /**
    * 创建人
    */
   @ManyToOne(() => UserEntity, { nullable: false })
-  creator: UserEntity;
+  creator!: UserEntity;
   @Column()
-  creatorId: number;
+  creatorId!: number;
 
   /**
    * 修改人
    */
   @ManyToOne(() => UserEntity, { nullable: false })
-  updater: UserEntity;
+  updater!: UserEntity;
   @Column()
-  updaterId: number;
+  updaterId!: number;
 
   /**
    * 所属账本
    */
   @ManyToOne(() => AccountBookEntity, { nullable: false })
-  accountBook: AccountBookEntity;
+  accountBook!: AccountBookEntity;
   @Column()
-  accountBookId: number;
+  accountBookId!: number;
 
   /**
    * 删除时间

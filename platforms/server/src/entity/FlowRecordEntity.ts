@@ -12,7 +12,7 @@ import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 @Entity('flow_record')
 export class FlowRecordEntity extends AbstractTimestampEntity {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({ nullable: true })
   desc?: string;
@@ -28,50 +28,50 @@ export class FlowRecordEntity extends AbstractTimestampEntity {
     nullable: false,
     transformer: new ColumnNumericTransformer(),
   })
-  amount: number;
+  amount!: number;
 
   /**
    * 所属账本
    */
   @ManyToOne(() => AccountBookEntity, { nullable: false })
-  accountBook: AccountBookEntity;
+  accountBook!: AccountBookEntity;
   @Column()
-  accountBookId: number;
+  accountBookId!: number;
 
   /**
    * 交易者
    */
   @ManyToOne(() => UserEntity, { nullable: false })
-  trader: UserEntity;
+  trader!: UserEntity;
   @Column()
-  traderId: number;
+  traderId!: number;
 
   @ManyToOne(() => UserEntity, { nullable: false })
-  creator: UserEntity;
+  creator!: UserEntity;
   @Column()
-  creatorId: number;
+  creatorId!: number;
 
   @ManyToOne(() => UserEntity, { nullable: false })
-  updater: UserEntity;
+  updater!: UserEntity;
   @Column()
-  updaterId: number;
+  updaterId!: number;
 
   @ManyToOne(() => TagEntity, { nullable: false })
-  tag: TagEntity;
+  tag!: TagEntity;
   @Column()
-  tagId: number;
+  tagId!: number;
 
   /**
    * 支付或者收入渠道
    */
   @ManyToOne(() => SavingAccountEntity, { nullable: false })
-  savingAccount: SavingAccountEntity;
+  savingAccount!: SavingAccountEntity;
   @Column()
-  savingAccountId: number;
+  savingAccountId!: number;
 
   /**
    * 交易时间
    */
   @Column({ type: 'timestamptz', nullable: false })
-  dealAt: Date;
+  dealAt!: Date;
 }

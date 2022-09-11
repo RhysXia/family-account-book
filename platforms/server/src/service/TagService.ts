@@ -69,7 +69,9 @@ export class TagService {
         throw new ResourceNotFoundException('账本不存在');
       }
 
-      tagEntity.name = name;
+      if (name) {
+        tagEntity.name = name;
+      }
       tagEntity.updater = user;
 
       return manager.save(tagEntity);

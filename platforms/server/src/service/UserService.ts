@@ -36,7 +36,7 @@ export class UserService {
     }: {
       limit: number;
       includeSelf: boolean;
-      currentUser: UserEntity | null;
+      currentUser?: UserEntity;
     },
   ): Promise<Array<Omit<UserEntity, 'password'>>> {
     const qb = this.dataSource.manager

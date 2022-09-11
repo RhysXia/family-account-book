@@ -1,4 +1,4 @@
-import { Injectable, Scope } from '@nestjs/common';
+import { Injectable, NotFoundException, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import { TagEntity } from '../../entity/TagEntity';
 import { TagService } from '../../service/TagService';
@@ -9,7 +9,11 @@ export class TagDataLoader extends DataLoader<number, TagEntity> {
     super(async (ids) => {
       const list = await tagService.findByIds(ids as Array<number>);
 
-      return ids.map((id) => list.find((it) => it.id === id));
+      return ids.map(
+        (id) =>
+          list.find((it) => it.id === id) ||
+          new NotFoundException('标签不存在'),
+      );
     });
   }
 }

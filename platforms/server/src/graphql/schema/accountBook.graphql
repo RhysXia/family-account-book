@@ -3,7 +3,7 @@ type AccountBookListWithPagintion {
   data: [AccountBook!]!
 }
 
-type FlowRecordAmountByDate {
+type FlowRecordTotalAmountGroupByDate {
   dealAt: String!
   amount: Float!
 }
@@ -41,25 +41,9 @@ type AccountBook implements EntityDateTime {
   flowRecord(id: ID!): FlowRecord!
 
   """
-  获取指定时间段内特定类型流水的总额
+  账本相关统计数据
   """
-  flowRecordAmount(
-    tagType: TagType!
-    traderId: ID
-    startDate: Date
-    endDate: Date
-  ): Float!
-
-  """
-  获取指定时间段内特定类型流水的按照年月日聚合的总额
-  """
-  flowRecordAmounts(
-    tagType: TagType!
-    groupBy: DateGroupBy!
-    traderId: ID
-    startDate: Date
-    endDate: Date
-  ): [FlowRecordAmountByDate!]!
+  statistics: AccountBookStatistics!
 }
 
 input CreateAccountBookInput {

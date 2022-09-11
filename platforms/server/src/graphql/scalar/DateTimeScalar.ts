@@ -9,13 +9,16 @@ export class DateTimeScalar implements CustomScalar<string, Date> {
   }
 
   serialize(value: unknown): string {
-    return value instanceof Date ? value.toISOString() : null;
+    if (value instanceof Date) {
+      return value.toISOString();
+    }
+    throw new Error('日期时间序列化失败');
   }
 
   parseLiteral(ast: ValueNode): Date {
     if (ast.kind === Kind.STRING) {
-      return new Date(ast.value);
+      return this.parseValue(ast.value);
     }
-    return null;
+    throw new Error('日期时间解析失败');
   }
 }

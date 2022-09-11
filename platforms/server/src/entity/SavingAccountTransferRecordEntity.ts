@@ -11,10 +11,10 @@ import { UserEntity } from './UserEntity';
 @Entity('saving_account_transfer_record')
 export class SavingAccountTransferRecordEntity extends AbstractTimestampEntity {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({ nullable: false })
-  name: string;
+  name!: string;
 
   @Column({ nullable: true })
   desc?: string;
@@ -30,59 +30,59 @@ export class SavingAccountTransferRecordEntity extends AbstractTimestampEntity {
     nullable: false,
     transformer: new ColumnNumericTransformer(),
   })
-  amount: number;
+  amount!: number;
 
   /**
    * 交易者
    */
   @ManyToOne(() => UserEntity, { nullable: false })
-  trader: UserEntity;
+  trader!: UserEntity;
   @Column()
-  traderId: number;
+  traderId!: number;
 
   /**
    * 创建人
    */
   @ManyToOne(() => UserEntity, { nullable: false })
-  creator: UserEntity;
+  creator!: UserEntity;
   @Column()
-  creatorId: number;
+  creatorId!: number;
 
   /**
    * 修改人
    */
   @ManyToOne(() => UserEntity, { nullable: false })
-  updater: UserEntity;
+  updater!: UserEntity;
   @Column()
-  updaterId: number;
+  updaterId!: number;
 
   /**
    * 从哪张卡转出
    */
   @ManyToOne(() => SavingAccountEntity, { nullable: false })
-  from: SavingAccountEntity;
+  from!: SavingAccountEntity;
   @Column()
-  fromId: number;
+  fromId!: number;
 
   /**
    * 转入哪张卡
    */
   @ManyToOne(() => SavingAccountEntity, { nullable: false })
-  to: SavingAccountEntity;
+  to!: SavingAccountEntity;
   @Column()
-  toId: number;
+  toId!: number;
 
   /**
    * 交易时间
    */
   @Column({ type: 'timestamptz', nullable: false })
-  dealAt: Date;
+  dealAt!: Date;
 
   /**
    * 所属账本
    */
   @ManyToOne(() => AccountBookEntity, { nullable: false })
-  accountBook: AccountBookEntity;
+  accountBook!: AccountBookEntity;
   @Column()
-  accountBookId: number;
+  accountBookId!: number;
 }

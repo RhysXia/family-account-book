@@ -98,7 +98,7 @@ export class FlowRecordResolver {
     @CurrentUser({ required: true }) currentUser: UserEntity,
     @Args('flowRecord') flowRecord: CreateFlowRecordInput,
   ) {
-    const { savingAccountId, tagId, traderId, ...others } = flowRecord;
+    const { savingAccountId, tagId, traderId, desc, ...others } = flowRecord;
 
     const { id: traderIdValue, name } = getIdInfo(traderId);
 
@@ -109,6 +109,9 @@ export class FlowRecordResolver {
     const entity = await this.flowRecordService.create(
       {
         ...others,
+        ...(desc && {
+          desc,
+        }),
         traderId: traderIdValue,
         savingAccountId: decodeId(EntityName.SAVING_ACCOUNT, savingAccountId),
         tagId: decodeId(EntityName.TAG, tagId),
@@ -127,9 +130,20 @@ export class FlowRecordResolver {
     @CurrentUser({ required: true }) currentUser: UserEntity,
     @Args('flowRecord') flowRecord: UpdateFlowRecordInput,
   ) {
-    const { id, savingAccountId, tagId, traderId, ...others } = flowRecord;
+    const { id, savingAccountId, tagId, traderId, desc, dealAt, amount } =
+      flowRecord;
 
-    const updatedFlowRecord: Partial<FlowRecordEntity> = { ...others };
+    const updatedFlowRecord: Partial<FlowRecordEntity> = {};
+
+    if (desc) {
+      updatedFlowRecord.desc = desc;
+    }
+    if (dealAt) {
+      updatedFlowRecord.dealAt = dealAt;
+    }
+    if (amount) {
+      updatedFlowRecord.amount = amount;
+    }
 
     if (traderId) {
       const { id: traderIdValue, name } = getIdInfo(traderId);

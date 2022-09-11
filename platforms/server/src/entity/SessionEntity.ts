@@ -14,10 +14,10 @@ export class SessionEntity implements ISession {
   public expiredAt = Date.now();
 
   @PrimaryColumn('varchar', { length: 255 })
-  public id = '';
+  public id!: string;
 
   @Column('text')
-  public json = '';
+  public json!: string;
 
   @DeleteDateColumn()
   public destroyedAt?: Date;

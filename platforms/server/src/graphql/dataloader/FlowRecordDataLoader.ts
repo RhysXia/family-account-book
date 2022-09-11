@@ -1,4 +1,4 @@
-import { Injectable, Scope } from '@nestjs/common';
+import { Injectable, NotFoundException, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import { FlowRecordEntity } from '../../entity/FlowRecordEntity';
 import { FlowRecordService } from '../../service/FlowRecordService';
@@ -9,7 +9,11 @@ export class FlowRecordDataLoader extends DataLoader<number, FlowRecordEntity> {
     super(async (ids) => {
       const list = await flowRecordService.findAllByIds(ids as Array<number>);
 
-      return ids.map((id) => list.find((it) => it.id === id));
+      return ids.map(
+        (id) =>
+          list.find((it) => it.id === id) ||
+          new NotFoundException('流水不存在'),
+      );
     });
   }
 }

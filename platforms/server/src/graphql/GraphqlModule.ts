@@ -32,6 +32,7 @@ import {
 } from '../exception/ServiceException';
 import { NodeResolver } from './resolver/NodeResolver';
 import { SavingAccountHistoryResolver } from './resolver/SavingAccountHistoryResolver';
+import { AccountBookStatisticsResolver } from './resolver/AccountBookStatisticsResolver';
 
 @Module({
   imports: [
@@ -60,7 +61,7 @@ import { SavingAccountHistoryResolver } from './resolver/SavingAccountHistoryRes
           cache: 'bounded',
           formatError(err) {
             const { originalError } = err;
-            let code: string;
+            let code: string | undefined;
             if (originalError instanceof ResourceNotFoundException) {
               code = 'RESOURCE_NOT_FOUND';
             } else if (originalError instanceof ParameterException) {
@@ -108,6 +109,7 @@ import { SavingAccountHistoryResolver } from './resolver/SavingAccountHistoryRes
     SavingAccountTransferRecordDataLoader,
     UserResolver,
     AccountBookResolver,
+    AccountBookStatisticsResolver,
     SavingAccountResolver,
     TagResolver,
     FlowRecordResolver,

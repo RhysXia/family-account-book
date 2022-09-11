@@ -32,7 +32,7 @@ type Query {
   """
   获取当前登录用户信息
   """
-  getCurrentUser: User!
+  getCurrentUser: DetailUser!
   """
   模糊搜索用户列表，根据username和nickname
   """

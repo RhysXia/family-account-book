@@ -64,7 +64,7 @@ export class NodeResolver {
     const promises: Array<Promise<Array<{ id: string }>>> = [];
 
     for (const [key, value] of map) {
-      let p: Promise<Array<Entity>>;
+      let p: Promise<Array<Entity>> | undefined;
 
       const idArray = Array.from(value);
 

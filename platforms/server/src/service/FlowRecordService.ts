@@ -102,28 +102,31 @@ export class FlowRecordService {
       let tag: TagEntity;
 
       if (tagId) {
-        tag = await manager.findOne(TagEntity, {
-          where: { id: tagId, accountBookId: flowRecord.accountBookId },
-        });
-        if (!tag) {
+        try {
+          tag = await manager.findOneOrFail(TagEntity, {
+            where: { id: tagId, accountBookId: flowRecord.accountBookId },
+          });
+          flowRecord.tag = tag;
+        } catch (err) {
+          console.error(err);
           throw new ResourceNotFoundException('标签不存在');
         }
-        flowRecord.tag = tag;
       } else {
-        tag = await manager.findOne(TagEntity, {
+        tag = await manager.findOneOrFail(TagEntity, {
           where: { id: flowRecord.tagId },
         });
       }
 
       if (savingAccountId) {
-        const savingAccount = await manager.findOne(SavingAccountEntity, {
-          where: {
-            id: savingAccountId,
-            accountBookId: flowRecord.accountBookId,
-          },
-        });
-
-        if (!savingAccount) {
+        try {
+          await manager.findOneOrFail(SavingAccountEntity, {
+            where: {
+              id: savingAccountId,
+              accountBookId: flowRecord.accountBookId,
+            },
+          });
+        } catch (err) {
+          console.error(err);
           throw new ResourceNotFoundException('储蓄账户不存在');
         }
       }
@@ -144,15 +147,17 @@ export class FlowRecordService {
       }
 
       if (traderId) {
-        const trader = await manager.findOne(UserEntity, {
-          where: {
-            id: traderId,
-          },
-        });
-        if (!trader) {
-          throw new ParameterException('交易人员不存在');
+        try {
+          const trader = await manager.findOneOrFail(UserEntity, {
+            where: {
+              id: traderId,
+            },
+          });
+          flowRecord.trader = trader;
+        } catch (err) {
+          console.error(err);
+          throw new ResourceNotFoundException('交易人员不存在');
         }
-        flowRecord.trader = trader;
       }
 
       await this.savingAccountMoneyRecordManager.update(manager, {

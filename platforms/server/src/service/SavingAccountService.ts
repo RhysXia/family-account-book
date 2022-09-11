@@ -62,7 +62,7 @@ export class SavingAccountService {
 
   async findAllByAccountBookIdAndPagination(
     accountBookId: number,
-    pagination: Pagination,
+    pagination?: Pagination,
   ): Promise<{ total: number; data: Array<SavingAccountEntity> }> {
     const qb = this.dataSource.manager
       .createQueryBuilder(SavingAccountEntity, 'savingAccount')
@@ -84,8 +84,8 @@ export class SavingAccountService {
     savingsInput: {
       accountBookId: number;
       name: string;
-      desc?: string;
       amount: number;
+      desc?: string;
     },
     user: UserEntity,
   ) {

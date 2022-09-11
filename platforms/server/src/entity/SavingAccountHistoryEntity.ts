@@ -10,7 +10,7 @@ import { SavingAccountEntity } from './SavingAccountEntity';
 @Entity('saving_account_history')
 export class SavingAccountHistoryEntity extends AbstractTimestampEntity {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   /**
    * 余额
@@ -22,27 +22,27 @@ export class SavingAccountHistoryEntity extends AbstractTimestampEntity {
     nullable: false,
     transformer: new ColumnNumericTransformer(),
   })
-  amount: number;
+  amount!: number;
 
   /**
    * 交易日期
    */
   @Column({ type: 'timestamptz', nullable: false })
-  dealAt: Date;
+  dealAt!: Date;
 
   /**
    * 所属账户
    */
   @ManyToOne(() => SavingAccountEntity, { nullable: false })
-  savingAccount: SavingAccountEntity;
+  savingAccount!: SavingAccountEntity;
   @Column()
-  savingAccountId: number;
+  savingAccountId!: number;
 
   /**
    * 所属账本
    */
   @ManyToOne(() => AccountBookEntity, { nullable: false })
-  accountBook: AccountBookEntity;
+  accountBook!: AccountBookEntity;
   @Column()
-  accountBookId: number;
+  accountBookId!: number;
 }

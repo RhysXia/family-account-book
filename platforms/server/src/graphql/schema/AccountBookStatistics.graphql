@@ -1,0 +1,30 @@
+input FlowRecordTotalAmountFilter {
+  tagType: TagType
+  traderId: ID
+  startDate: Date
+  endDate: Date
+}
+
+input FlowRecordTotalAmountGroupByDateFilter {
+  tagType: TagType
+  traderId: ID
+  startDate: Date
+  endDate: Date
+}
+
+type AccountBookStatistics {
+  id: ID!
+
+  """
+  获取满足过滤条件的流水总额
+  """
+  flowRecordTotalAmount(filter: FlowRecordTotalAmountFilter): Float!
+
+  """
+  按照日期聚合获取满足过滤条件的流水总额
+  """
+  flowRecordTotalAmountGroupByDate(
+    groupBy: DateGroupBy!
+    filter: FlowRecordTotalAmountGroupByDateFilter
+  ): [FlowRecordTotalAmountGroupByDate!]!
+}

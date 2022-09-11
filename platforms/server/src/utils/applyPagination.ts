@@ -4,7 +4,7 @@ import { Pagination } from '../graphql/graphql';
 export const applyPagination = (
   builder: SelectQueryBuilder<any>,
   tableName: string,
-  pagination?: Pagination,
+  pagination: Pagination | null | undefined,
 ) => {
   if (!pagination) {
     return builder;
@@ -12,11 +12,11 @@ export const applyPagination = (
 
   let sqb = builder;
   if (Number.isInteger(pagination.limit)) {
-    sqb = sqb.limit(pagination.limit);
+    sqb = sqb.limit(pagination.limit as number);
   }
 
   if (Number.isInteger(pagination.offset)) {
-    sqb = sqb.offset(pagination.offset);
+    sqb = sqb.offset(pagination.offset as number);
   }
 
   const orderBy = pagination.orderBy;

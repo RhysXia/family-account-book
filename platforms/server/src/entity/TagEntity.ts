@@ -37,31 +37,31 @@ export enum TagType {
 @Entity('tag')
 export class TagEntity extends AbstractTimestampEntity {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({ nullable: false })
-  name: string;
+  name!: string;
 
   @Column({ nullable: false, type: 'enum', enum: TagType })
-  type: TagType;
+  type!: TagType;
 
   @ManyToOne(() => UserEntity, { nullable: false })
-  creator: UserEntity;
+  creator!: UserEntity;
   @Column()
-  creatorId: number;
+  creatorId!: number;
 
   @ManyToOne(() => UserEntity, { nullable: false })
-  updater: UserEntity;
+  updater!: UserEntity;
   @Column()
-  updaterId: number;
+  updaterId!: number;
 
   /**
    * 所属账本
    */
   @ManyToOne(() => AccountBookEntity, { nullable: false })
-  accountBook: AccountBookEntity;
+  accountBook!: AccountBookEntity;
   @Column()
-  accountBookId: number;
+  accountBookId!: number;
 
   @DeleteDateColumn()
   deletedAt?: Date;

@@ -24,9 +24,7 @@ import {
   CreateAccountBookInput,
   FlowRecordFilter,
   Pagination,
-  TagType,
   UpdateAccountBookInput,
-  DateGroupBy,
 } from '../graphql';
 import { GraphqlEntity } from '../types';
 import { decodeId, encodeId, EntityName, getIdInfo } from '../utils';
@@ -45,63 +43,12 @@ export class AccountBookResolver {
   ) {}
 
   @ResolveField()
-  async flowRecordAmount(
-    @Parent() parent: GraphqlEntity<AccountBookEntity>,
-    @Args('tagType') tagType: TagType,
-    @Args('traderId') traderId?: string,
-    @Args('startDate') startDate?: Date,
-    @Args('endDate') endDate?: Date,
-  ) {
+  async statistics(@Parent() parent: GraphqlEntity<AccountBookEntity>) {
     const accountBookId = decodeId(EntityName.ACCOUNT_BOOK, parent.id);
 
-    let traderIdValue: number;
-
-    if (traderId) {
-      const info = getIdInfo(traderId);
-      if (
-        info.name !== EntityName.DETAIL_USER &&
-        info.name !== EntityName.USER
-      ) {
-        throw new ParameterException('userId不正确');
-      }
-      traderIdValue = info.id;
-    }
-
-    return this.accountBookService.findFlowRecordAmountById(
-      { startDate, endDate, tagType, traderId: traderIdValue },
-      accountBookId,
-    );
-  }
-
-  @ResolveField()
-  async flowRecordAmounts(
-    @Parent() parent: GraphqlEntity<AccountBookEntity>,
-    @Args('tagType') tagType: TagType,
-    @Args('groupBy') groupBy: DateGroupBy,
-    @Args('traderId') traderId?: string,
-    @Args('startDate') startDate?: Date,
-    @Args('endDate') endDate?: Date,
-  ) {
-    const accountBookId = decodeId(EntityName.ACCOUNT_BOOK, parent.id);
-
-    let traderIdValue: number;
-
-    if (traderId) {
-      const info = getIdInfo(traderId);
-      if (
-        info.name !== EntityName.DETAIL_USER &&
-        info.name !== EntityName.USER
-      ) {
-        throw new ParameterException('userId不正确');
-      }
-      traderIdValue = info.id;
-    }
-
-    return this.accountBookService.findFlowRecordAmountByIdAndGroupBy(
-      { startDate, endDate, tagType, traderId: traderIdValue },
-      accountBookId,
-      groupBy,
-    );
+    return {
+      id: encodeId(EntityName.ACCOUNT_BOOK_STATISTICS, accountBookId),
+    };
   }
 
   @ResolveField()
@@ -335,11 +282,14 @@ export class AccountBookResolver {
     @CurrentUser({ required: true }) user: UserEntity,
     @Args('accountBook') accountBookInput: CreateAccountBookInput,
   ) {
-    const { adminIds, memberIds, ...others } = accountBookInput;
+    const { adminIds, memberIds, desc, name } = accountBookInput;
 
     const entity = await this.accountBookService.create(
       {
-        ...others,
+        name,
+        ...(desc && {
+          desc,
+        }),
         ...(adminIds && {
           adminIds: adminIds.map((it) => decodeId(EntityName.USER, it)),
         }),
@@ -361,12 +311,17 @@ export class AccountBookResolver {
     @CurrentUser({ required: true }) user: UserEntity,
     @Args('accountBook') accountBookInput: UpdateAccountBookInput,
   ) {
-    const { id, adminIds, memberIds, ...others } = accountBookInput;
+    const { id, adminIds, memberIds, desc, name } = accountBookInput;
 
     const entity = await this.accountBookService.update(
       decodeId(EntityName.ACCOUNT_BOOK, id),
       {
-        ...others,
+        ...(name && {
+          name,
+        }),
+        ...(desc && {
+          desc,
+        }),
         ...(adminIds && {
           adminIds: adminIds.map((it) => decodeId(EntityName.USER, it)),
         }),
