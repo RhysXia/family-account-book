@@ -21,11 +21,13 @@ export class AccountBookService {
       endDate,
       tagType,
       traderId,
+      savingAccountId,
     }: {
       startDate?: Date;
       endDate?: Date;
       tagType?: TagType;
       traderId?: number;
+      savingAccountId?: number;
     },
     accountBookId: number,
     groupBy: DateGroupBy,
@@ -51,13 +53,20 @@ export class AccountBookService {
       .createQueryBuilder(FlowRecordEntity, 'flowRecord')
       .select(`to_char(flowRecord.dealAt, '${dataFormat}')`, 'deal_at')
       .addSelect('SUM(flowRecord.amount)', 'totalAmount')
-      .leftJoin('flowRecord.tag', 'tag')
       .groupBy('deal_at')
-      .where('tag.accountBookId = :accountBookId', { accountBookId })
+      .where('flowRecord.accountBookId = :accountBookId', { accountBookId })
       .orderBy('deal_at', 'ASC');
 
     if (tagType) {
-      qb.andWhere('tag.type = :tagType', { tagType });
+      qb.leftJoin('flowRecord.tag', 'tag').andWhere('tag.type = :tagType', {
+        tagType,
+      });
+    }
+
+    if (savingAccountId) {
+      qb.andWhere('flowRecord.savingAccountId = :savingAccountId', {
+        savingAccountId,
+      });
     }
 
     if (startDate) {
@@ -92,22 +101,31 @@ export class AccountBookService {
       endDate,
       tagType,
       traderId,
+      savingAccountId,
     }: {
       startDate?: Date;
       endDate?: Date;
       tagType?: TagType;
       traderId?: number;
+      savingAccountId?: number;
     },
     accountBookId: number,
   ): Promise<number> {
     const qb = this.dataSource.manager
       .createQueryBuilder(FlowRecordEntity, 'flowRecord')
       .select('SUM(flowRecord.amount)', 'totalAmount')
-      .leftJoin('flowRecord.tag', 'tag')
-      .where('tag.accountBookId = :accountBookId', { accountBookId });
+      .where('flowRecord.accountBookId = :accountBookId', { accountBookId });
 
     if (tagType) {
-      qb.andWhere('tag.type = :tagType', { tagType });
+      qb.leftJoin('flowRecord.tag', 'tag').andWhere('tag.type = :tagType', {
+        tagType,
+      });
+    }
+
+    if (savingAccountId) {
+      qb.andWhere('flowRecord.savingAccountId = :savingAccountId', {
+        savingAccountId,
+      });
     }
 
     if (traderId) {

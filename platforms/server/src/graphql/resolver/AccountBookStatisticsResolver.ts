@@ -24,7 +24,8 @@ export class AccountBookStatisticsResolver {
       parent.id,
     );
 
-    const { traderId, tagType, startDate, endDate } = filter || {};
+    const { traderId, tagType, startDate, endDate, savingAccountId } =
+      filter || {};
 
     let traderIdValue: number | undefined;
 
@@ -42,6 +43,9 @@ export class AccountBookStatisticsResolver {
     return this.accountBookService.findFlowRecordTotalAmountById(
       {
         ...(tagType && { tagType }),
+        ...(savingAccountId && {
+          savingAccountId: decodeId(EntityName.SAVING_ACCOUNT, savingAccountId),
+        }),
         ...(startDate && { startDate }),
         ...(endDate && {
           endDate,
@@ -63,7 +67,8 @@ export class AccountBookStatisticsResolver {
       parent.id,
     );
 
-    const { traderId, tagType, startDate, endDate } = filter || {};
+    const { traderId, tagType, startDate, endDate, savingAccountId } =
+      filter || {};
 
     let traderIdValue: number | undefined;
 
@@ -81,6 +86,9 @@ export class AccountBookStatisticsResolver {
     return this.accountBookService.findFlowRecordTotalAmountByIdAndGroupByDate(
       {
         ...(tagType && { tagType }),
+        ...(savingAccountId && {
+          savingAccountId: decodeId(EntityName.SAVING_ACCOUNT, savingAccountId),
+        }),
         ...(startDate && { startDate }),
         ...(endDate && {
           endDate,

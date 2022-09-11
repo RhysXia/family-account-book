@@ -49,13 +49,7 @@ export interface UpdateAccountBookInput {
 export interface FlowRecordTotalAmountFilter {
     tagType?: Nullable<TagType>;
     traderId?: Nullable<string>;
-    startDate?: Nullable<Date>;
-    endDate?: Nullable<Date>;
-}
-
-export interface FlowRecordTotalAmountGroupByDateFilter {
-    tagType?: Nullable<TagType>;
-    traderId?: Nullable<string>;
+    savingAccountId?: Nullable<string>;
     startDate?: Nullable<Date>;
     endDate?: Nullable<Date>;
 }

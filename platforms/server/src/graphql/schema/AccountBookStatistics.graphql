@@ -1,6 +1,7 @@
 input FlowRecordTotalAmountFilter {
   tagType: TagType
   traderId: ID
+  savingAccountId: ID
   startDate: Date
   endDate: Date
 }
