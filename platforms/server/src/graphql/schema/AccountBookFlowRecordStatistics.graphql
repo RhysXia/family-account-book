@@ -1,0 +1,22 @@
+"""
+
+"""
+type AccountBookFlowRecordStatistics {
+  id: ID!
+
+  """指定时间段内的流水"""
+  amount(
+    tagType: TagType!
+    traderId: ID
+    startDate: Date
+    endDate: Date
+  ): Float!
+
+   amounts(
+    tagType: TagType!
+    groupBy: DateGroupBy!
+    traderId: ID
+    startDate: Date
+    endDate: Date
+  ): [FlowRecordAmountByDate!]!
+}

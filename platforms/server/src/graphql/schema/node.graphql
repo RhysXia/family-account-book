@@ -1,5 +1,5 @@
 union Node =
-    SimpleUser
+    User
   | AccountBook
   | SavingAccount
   | Tag

@@ -59,8 +59,8 @@ export class AccountBookResolver {
     if (traderId) {
       const info = getIdInfo(traderId);
       if (
-        info.name !== EntityName.USER &&
-        info.name !== EntityName.SIMPLE_USER
+        info.name !== EntityName.DETAIL_USER &&
+        info.name !== EntityName.USER
       ) {
         throw new ParameterException('userId不正确');
       }
@@ -89,8 +89,8 @@ export class AccountBookResolver {
     if (traderId) {
       const info = getIdInfo(traderId);
       if (
-        info.name !== EntityName.USER &&
-        info.name !== EntityName.SIMPLE_USER
+        info.name !== EntityName.DETAIL_USER &&
+        info.name !== EntityName.USER
       ) {
         throw new ParameterException('userId不正确');
       }
@@ -114,7 +114,7 @@ export class AccountBookResolver {
 
     return admins.map((it) => ({
       ...it,
-      id: encodeId(EntityName.SIMPLE_USER, it.id),
+      id: encodeId(EntityName.USER, it.id),
     }));
   }
 
@@ -128,7 +128,7 @@ export class AccountBookResolver {
 
     return members.map((it) => ({
       ...it,
-      id: encodeId(EntityName.SIMPLE_USER, it.id),
+      id: encodeId(EntityName.USER, it.id),
     }));
   }
 
@@ -138,7 +138,7 @@ export class AccountBookResolver {
       parent.creator || (await this.userDataLoader.load(parent.creatorId));
 
     return creator
-      ? { ...creator, id: encodeId(EntityName.SIMPLE_USER, parent.creatorId) }
+      ? { ...creator, id: encodeId(EntityName.USER, parent.creatorId) }
       : null;
   }
 
@@ -148,7 +148,7 @@ export class AccountBookResolver {
       parent.updater || (await this.userDataLoader.load(parent.updaterId));
 
     return updater
-      ? { ...updater, id: encodeId(EntityName.SIMPLE_USER, parent.updaterId) }
+      ? { ...updater, id: encodeId(EntityName.USER, parent.updaterId) }
       : null;
   }
 
@@ -260,8 +260,8 @@ export class AccountBookResolver {
       const info = getIdInfo(traderId);
 
       if (
-        info.name !== EntityName.USER &&
-        info.name !== EntityName.SIMPLE_USER
+        info.name !== EntityName.DETAIL_USER &&
+        info.name !== EntityName.USER
       ) {
         throw new ParameterException('traderId不存在');
       }
@@ -274,8 +274,8 @@ export class AccountBookResolver {
       const info = getIdInfo(creatorId);
 
       if (
-        info.name !== EntityName.USER &&
-        info.name !== EntityName.SIMPLE_USER
+        info.name !== EntityName.DETAIL_USER &&
+        info.name !== EntityName.USER
       ) {
         throw new ParameterException('traderId不存在');
       }
@@ -341,12 +341,10 @@ export class AccountBookResolver {
       {
         ...others,
         ...(adminIds && {
-          adminIds: adminIds.map((it) => decodeId(EntityName.SIMPLE_USER, it)),
+          adminIds: adminIds.map((it) => decodeId(EntityName.USER, it)),
         }),
         ...(memberIds && {
-          memberIds: memberIds.map((it) =>
-            decodeId(EntityName.SIMPLE_USER, it),
-          ),
+          memberIds: memberIds.map((it) => decodeId(EntityName.USER, it)),
         }),
       },
       user,
@@ -370,12 +368,10 @@ export class AccountBookResolver {
       {
         ...others,
         ...(adminIds && {
-          adminIds: adminIds.map((it) => decodeId(EntityName.SIMPLE_USER, it)),
+          adminIds: adminIds.map((it) => decodeId(EntityName.USER, it)),
         }),
         ...(memberIds && {
-          memberIds: memberIds.map((it) =>
-            decodeId(EntityName.SIMPLE_USER, it),
-          ),
+          memberIds: memberIds.map((it) => decodeId(EntityName.USER, it)),
         }),
       },
       user,

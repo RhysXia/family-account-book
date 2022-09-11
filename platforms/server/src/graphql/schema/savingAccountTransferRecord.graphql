@@ -8,11 +8,11 @@ type SavingAccountTransferRecord implements EntityDateTime {
   """
   amount: Float!
 
-  trader: SimpleUser!
+  trader: User!
 
-  creator: SimpleUser!
+  creator: User!
 
-  updater: SimpleUser!
+  updater: User!
 
   from: SavingAccount!
 

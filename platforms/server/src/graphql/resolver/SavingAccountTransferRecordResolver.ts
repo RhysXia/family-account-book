@@ -52,7 +52,7 @@ export class SavingAccountTransferRecordResolver {
       parent.trader || (await this.userDataLoader.load(parent.traderId));
 
     return trader
-      ? { ...trader, id: encodeId(EntityName.SIMPLE_USER, parent.traderId) }
+      ? { ...trader, id: encodeId(EntityName.USER, parent.traderId) }
       : null;
   }
 
@@ -64,7 +64,7 @@ export class SavingAccountTransferRecordResolver {
       parent.creator || (await this.userDataLoader.load(parent.creatorId));
 
     return creator
-      ? { ...creator, id: encodeId(EntityName.SIMPLE_USER, parent.creatorId) }
+      ? { ...creator, id: encodeId(EntityName.USER, parent.creatorId) }
       : null;
   }
 
@@ -76,7 +76,7 @@ export class SavingAccountTransferRecordResolver {
       parent.updater || (await this.userDataLoader.load(parent.updaterId));
 
     return updater
-      ? { ...updater, id: encodeId(EntityName.SIMPLE_USER, parent.updaterId) }
+      ? { ...updater, id: encodeId(EntityName.USER, parent.updaterId) }
       : null;
   }
 
@@ -91,7 +91,7 @@ export class SavingAccountTransferRecordResolver {
     const entity = await this.savingAccountTransferRecordService.create(
       {
         ...others,
-        traderId: decodeId(EntityName.SIMPLE_USER, traderId),
+        traderId: decodeId(EntityName.USER, traderId),
         toSavingAccountId: decodeId(
           EntityName.SAVING_ACCOUNT,
           toSavingAccountId,
@@ -135,7 +135,7 @@ export class SavingAccountTransferRecordResolver {
           ),
         }),
         ...(traderId && {
-          traderId: decodeId(EntityName.SIMPLE_USER, traderId),
+          traderId: decodeId(EntityName.USER, traderId),
         }),
       },
       currentUser,

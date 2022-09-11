@@ -15,15 +15,15 @@ type AccountBook implements EntityDateTime {
   """
   管理员
   """
-  admins: [SimpleUser!]!
+  admins: [User!]!
   """
   普通成员，不包含管理员
   """
-  members: [SimpleUser!]!
+  members: [User!]!
 
-  creator: SimpleUser!
+  creator: User!
 
-  updater: SimpleUser!
+  updater: User!
 
   createdAt: DateTime!
   updatedAt: DateTime!

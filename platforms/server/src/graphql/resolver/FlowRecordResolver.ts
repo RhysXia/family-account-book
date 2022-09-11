@@ -34,7 +34,7 @@ export class FlowRecordResolver {
       parent.trader || (await this.userDataLoader.load(parent.traderId));
 
     return trader
-      ? { ...trader, id: encodeId(EntityName.SIMPLE_USER, parent.traderId) }
+      ? { ...trader, id: encodeId(EntityName.USER, parent.traderId) }
       : null;
   }
 
@@ -44,7 +44,7 @@ export class FlowRecordResolver {
       parent.creator || (await this.userDataLoader.load(parent.creatorId));
 
     return creator
-      ? { ...creator, id: encodeId(EntityName.SIMPLE_USER, parent.creatorId) }
+      ? { ...creator, id: encodeId(EntityName.USER, parent.creatorId) }
       : null;
   }
 
@@ -54,7 +54,7 @@ export class FlowRecordResolver {
       parent.updater || (await this.userDataLoader.load(parent.updaterId));
 
     return updater
-      ? { ...updater, id: encodeId(EntityName.SIMPLE_USER, parent.updaterId) }
+      ? { ...updater, id: encodeId(EntityName.USER, parent.updaterId) }
       : null;
   }
 
@@ -102,7 +102,7 @@ export class FlowRecordResolver {
 
     const { id: traderIdValue, name } = getIdInfo(traderId);
 
-    if (name !== EntityName.SIMPLE_USER && name !== EntityName.USER) {
+    if (name !== EntityName.USER && name !== EntityName.DETAIL_USER) {
       throw new ParameterException('traderId 不正确');
     }
 
@@ -134,7 +134,7 @@ export class FlowRecordResolver {
     if (traderId) {
       const { id: traderIdValue, name } = getIdInfo(traderId);
 
-      if (name !== EntityName.SIMPLE_USER && name !== EntityName.USER) {
+      if (name !== EntityName.USER && name !== EntityName.DETAIL_USER) {
         throw new ParameterException('traderId 不正确');
       }
       updatedFlowRecord.traderId = traderIdValue;

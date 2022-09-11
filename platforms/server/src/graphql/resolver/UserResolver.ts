@@ -31,7 +31,7 @@ export class UserResolver {
   ) {
     const { total, data } =
       await this.accountBookService.findAllByUserIdAndPagination(
-        decodeId(EntityName.USER, parent.id),
+        decodeId(EntityName.DETAIL_USER, parent.id),
         pagination,
       );
 
@@ -51,7 +51,7 @@ export class UserResolver {
   ) {
     const accountBooks = await this.accountBookService.findByIdsAndUserId(
       [decodeId(EntityName.ACCOUNT_BOOK, id)],
-      decodeId(EntityName.USER, parent.id),
+      decodeId(EntityName.DETAIL_USER, parent.id),
     );
 
     const accountBook = accountBooks[0];
@@ -67,7 +67,7 @@ export class UserResolver {
 
   @Query()
   async getCurrentUser(@CurrentUser({ required: true }) user: UserEntity) {
-    return { ...user, id: encodeId(EntityName.USER, user.id) };
+    return { ...user, id: encodeId(EntityName.DETAIL_USER, user.id) };
   }
 
   @Query()
@@ -85,7 +85,7 @@ export class UserResolver {
 
     return users.map((it) => ({
       ...it,
-      id: encodeId(EntityName.SIMPLE_USER, it.id),
+      id: encodeId(EntityName.USER, it.id),
     }));
   }
 
@@ -102,13 +102,16 @@ export class UserResolver {
       session.cookie.maxAge = 1000 * 60 * 60 * 24 * 7;
     }
 
-    return { ...currentUser, id: encodeId(EntityName.USER, currentUser.id) };
+    return {
+      ...currentUser,
+      id: encodeId(EntityName.DETAIL_USER, currentUser.id),
+    };
   }
 
   @Mutation()
   async signUp(@Args('user') signUpUser: SignUpUserInput) {
     const user = await this.userService.signUp(signUpUser);
 
-    return { ...user, id: encodeId(EntityName.USER, user.id) };
+    return { ...user, id: encodeId(EntityName.DETAIL_USER, user.id) };
   }
 }

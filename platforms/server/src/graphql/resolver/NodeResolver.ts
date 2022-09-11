@@ -92,7 +92,7 @@ export class NodeResolver {
           );
           break;
         }
-        case EntityName.SIMPLE_USER: {
+        case EntityName.USER: {
           p = this.userService.findAllByIds(idArray);
           break;
         }

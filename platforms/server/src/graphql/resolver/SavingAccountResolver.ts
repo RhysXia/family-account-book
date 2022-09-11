@@ -73,7 +73,7 @@ export class SavingAccountResolver {
       parent.creator || (await this.userDataLoader.load(parent.creatorId));
 
     return creator
-      ? { ...creator, id: encodeId(EntityName.SIMPLE_USER, parent.creatorId) }
+      ? { ...creator, id: encodeId(EntityName.USER, parent.creatorId) }
       : null;
   }
 
@@ -83,7 +83,7 @@ export class SavingAccountResolver {
       parent.updater || (await this.userDataLoader.load(parent.updaterId));
 
     return updater
-      ? { ...updater, id: encodeId(EntityName.SIMPLE_USER, parent.updaterId) }
+      ? { ...updater, id: encodeId(EntityName.USER, parent.updaterId) }
       : null;
   }
 
@@ -122,8 +122,8 @@ export class SavingAccountResolver {
       const info = getIdInfo(traderId);
 
       if (
-        info.name !== EntityName.USER &&
-        info.name !== EntityName.SIMPLE_USER
+        info.name !== EntityName.DETAIL_USER &&
+        info.name !== EntityName.USER
       ) {
         throw new ParameterException('traderId不存在');
       }
@@ -136,8 +136,8 @@ export class SavingAccountResolver {
       const info = getIdInfo(creatorId);
 
       if (
-        info.name !== EntityName.USER &&
-        info.name !== EntityName.SIMPLE_USER
+        info.name !== EntityName.DETAIL_USER &&
+        info.name !== EntityName.USER
       ) {
         throw new ParameterException('traderId不存在');
       }

@@ -1,4 +1,4 @@
-type User implements EntityDateTime {
+type DetailUser implements EntityDateTime {
   id: ID!
   username: String!
   nickname: String!
@@ -18,7 +18,7 @@ type User implements EntityDateTime {
   accountBook(id: ID!): AccountBook!
 }
 
-type SimpleUser {
+type User {
   id: ID!
   nickname: String!
   username: String!
@@ -40,7 +40,7 @@ type Query {
     name: String!
     limit: Int = 10
     includeSelf: Boolean = false
-  ): [SimpleUser!]!
+  ): [User!]!
 }
 
 input SignUpUserInput {

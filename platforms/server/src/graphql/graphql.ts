@@ -160,10 +160,10 @@ export interface AccountBook extends EntityDateTime {
     id: string;
     name: string;
     desc?: Nullable<string>;
-    admins: SimpleUser[];
-    members: SimpleUser[];
-    creator: SimpleUser;
-    updater: SimpleUser;
+    admins: User[];
+    members: User[];
+    creator: User;
+    updater: User;
     createdAt: DateTime;
     updatedAt: DateTime;
     savingAccounts: SavingAccountListWithPagintion;
@@ -207,9 +207,9 @@ export interface FlowRecord extends EntityDateTime {
     createdAt: DateTime;
     updatedAt: DateTime;
     dealAt: Date;
-    trader: SimpleUser;
-    creator: SimpleUser;
-    updater: SimpleUser;
+    trader: User;
+    creator: User;
+    updater: User;
     amount: number;
     accountBook: AccountBook;
     savingAccount: SavingAccount;
@@ -220,7 +220,7 @@ export interface IQuery {
     node(id: string): Node | Promise<Node>;
     nodes(ids: string[]): Node[] | Promise<Node[]>;
     getCurrentUser(): User | Promise<User>;
-    findUserListByNameLike(name: string, limit?: Nullable<number>, includeSelf?: Nullable<boolean>): SimpleUser[] | Promise<SimpleUser[]>;
+    findUserListByNameLike(name: string, limit?: Nullable<number>, includeSelf?: Nullable<boolean>): User[] | Promise<User[]>;
 }
 
 export interface SavingAccountListWithPagintion {
@@ -235,8 +235,8 @@ export interface SavingAccount extends EntityDateTime {
     createdAt: DateTime;
     updatedAt: DateTime;
     amount: number;
-    creator: SimpleUser;
-    updater: SimpleUser;
+    creator: User;
+    updater: User;
     accountBook: AccountBook;
     getHistoriesByDate: SavingAccountHistory[];
     flowRecords: FlowRecordListWithPagintion;
@@ -256,9 +256,9 @@ export interface SavingAccountTransferRecord extends EntityDateTime {
     name: string;
     desc?: Nullable<string>;
     amount: number;
-    trader: SimpleUser;
-    creator: SimpleUser;
-    updater: SimpleUser;
+    trader: User;
+    creator: User;
+    updater: User;
     from: SavingAccount;
     to: SavingAccount;
     accountBook: AccountBook;
@@ -278,8 +278,8 @@ export interface Tag extends EntityDateTime {
     type: TagType;
     createdAt: DateTime;
     updatedAt: DateTime;
-    creator: SimpleUser;
-    updater: SimpleUser;
+    creator: User;
+    updater: User;
     accountBook: AccountBook;
     flowRecords: FlowRecordListWithPagintion;
     flowRecord: FlowRecord;
@@ -297,7 +297,7 @@ export interface User extends EntityDateTime {
     accountBook: AccountBook;
 }
 
-export interface SimpleUser {
+export interface User {
     id: string;
     nickname: string;
     username: string;
@@ -308,5 +308,5 @@ export interface SimpleUser {
 }
 
 export type DateTime = Date;
-export type Node = SimpleUser | AccountBook | SavingAccount | Tag | FlowRecord | SavingAccountTransferRecord | SavingAccountHistory;
+export type Node = User | AccountBook | SavingAccount | Tag | FlowRecord | SavingAccountTransferRecord | SavingAccountHistory;
 type Nullable<T> = T | null;

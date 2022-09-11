@@ -24,10 +24,10 @@ type FlowRecord implements EntityDateTime {
   """
   dealAt: Date!
 
-  trader: SimpleUser!
+  trader: User!
 
-  creator: SimpleUser!
-  updater: SimpleUser!
+  creator: User!
+  updater: User!
 
   amount: Float!
 

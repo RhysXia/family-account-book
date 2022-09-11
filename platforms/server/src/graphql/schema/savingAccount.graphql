@@ -15,8 +15,8 @@ type SavingAccount implements EntityDateTime {
   """
   amount: Float!
 
-  creator: SimpleUser!
-  updater: SimpleUser!
+  creator: User!
+  updater: User!
 
   accountBook: AccountBook!
 
