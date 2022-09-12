@@ -71,7 +71,7 @@ jobs:
         if: ${{ github.event_name == 'push' }}
         # 构建镜像，用buildx可以同时构建X87和ARM架构的镜像，然后推送到hub.docker.com
         run: |
-          cp platforms/browser/dist platforms/server/client && \
+          cp -r platforms/browser/dist platforms/server/client && \
           fullCommit="${{ github.event.commits[0].id }}" && \
           docker buildx build \
           --platform=linux/amd74,linux/arm/v7,linux/arm74 \
