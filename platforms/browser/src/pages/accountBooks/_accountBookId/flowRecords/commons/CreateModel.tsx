@@ -4,7 +4,7 @@ import useCreateFlowRecord from '@/graphql/useCreateFlowRecord';
 import useConstantFn from '@/hooks/useConstanFn';
 import { currentUserAtom } from '@/store';
 import { SavingAccount, Tag, User, TagType } from '@/types';
-import { TagColorMap } from '@/utils/constants';
+import { TagInfoMap } from '@/utils/constants';
 import { CreditCardOutlined } from '@ant-design/icons';
 import {
   Button,
@@ -158,7 +158,7 @@ const CreateModel: FC<CreateModelProps> = ({
                 <Select.Option value={tag.id} key={tag.id}>
                   <span
                     className="inline-block leading-4 rounded px-2 py-1 text-white"
-                    style={{ background: TagColorMap[tag.type].color }}
+                    style={{ background: TagInfoMap[tag.type].color }}
                   >
                     {tag.name}
                   </span>

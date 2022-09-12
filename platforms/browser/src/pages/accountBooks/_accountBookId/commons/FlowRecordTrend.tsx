@@ -2,21 +2,30 @@ import ReactEcharts, { EchartsOptions } from '@/components/ReactEcharts';
 import useGetFlowRecordTotalAmountPerTraderGroupByDate from '@/graphql/useGetFlowRecordTotalAmountPerTraderGroupByDate';
 import { activeAccountBookAtom } from '@/store';
 import { DateGroupBy, TagType } from '@/types';
+import { Empty } from 'antd';
+import { Dayjs } from 'dayjs';
 import { useAtom } from 'jotai';
 import { FC, useMemo } from 'react';
 
 export type FlowRecordTrendProps = {
   tagType: TagType;
   groupBy: DateGroupBy;
+  dateRange?: [Dayjs | null, Dayjs | null] | null;
 };
 
-const FlowRecordTrend: FC<FlowRecordTrendProps> = ({ tagType, groupBy }) => {
+const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
+  tagType,
+  groupBy,
+  dateRange,
+}) => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
 
   const { data } = useGetFlowRecordTotalAmountPerTraderGroupByDate({
     accountBookId: activeAccountBook!.id,
     groupBy,
     tagType,
+    startDate: dateRange?.[0]?.toISOString(),
+    endDate: dateRange?.[1]?.toISOString(),
   });
 
   const dataset = useMemo(() => {
@@ -33,7 +42,7 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({ tagType, groupBy }) => {
       });
     });
 
-    const dates = Array.from(dateSet).sort((a, b) => (a < b ? 1 : -1));
+    const dates = Array.from(dateSet).sort((a, b) => (a > b ? 1 : -1));
 
     const all: Array<Array<any>> = [];
 
@@ -45,16 +54,9 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({ tagType, groupBy }) => {
           (it) => it.trader.nickname === name,
         )!.amountPerDate;
 
-        const amount =
-          dateAmount.find((it) => it.dealAt === date)?.amount || null;
+        const amount = dateAmount.find((it) => it.dealAt === date)?.amount || 0;
 
-        array.push(
-          tagType === TagType.EXPENDITURE
-            ? amount
-              ? -amount
-              : amount
-            : amount,
-        );
+        array.push(tagType === TagType.EXPENDITURE ? -amount : amount);
       });
       all.push(array);
     });
@@ -65,11 +67,29 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({ tagType, groupBy }) => {
   }, [data, tagType]);
 
   const options = useMemo<EchartsOptions>(() => {
+    const categories = dataset[0].slice(1) as Array<string>;
     return {
-      tooltip: {},
-      legend: {},
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'cross',
+          label: {
+            backgroundColor: '#6a7985',
+          },
+        },
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true,
+      },
+      legend: {
+        right: 0,
+      },
       xAxis: {
         type: 'category',
+        boundaryGap: false,
       },
       yAxis: {
         type: 'value',
@@ -77,17 +97,26 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({ tagType, groupBy }) => {
       dataset: {
         source: dataset,
       },
-      series: dataset[0].slice(1).map((it) => ({
+      series: categories.map((it) => ({
         type: 'line',
-        connectNulls: true,
-        smooth: true,
+        stack: 'Total',
+        areaStyle: {},
+        emphasis: {
+          focus: 'series',
+        },
       })),
     };
   }, [dataset]);
 
+  const isEmpty = dataset.length < 2;
+
   return (
-    <div className="w-full h-52">
-      <ReactEcharts className="w-full h-full" options={options} />
+    <div className="w-full h-60 flex items-center justify-center">
+      {isEmpty ? (
+        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+      ) : (
+        <ReactEcharts className="w-full h-full" options={options} />
+      )}
     </div>
   );
 };

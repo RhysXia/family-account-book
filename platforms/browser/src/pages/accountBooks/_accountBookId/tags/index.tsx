@@ -13,7 +13,7 @@ import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { activeAccountBookAtom } from '@/store';
 import { Tag as ITag, TagType, User } from '@/types';
-import { TagColorMap } from '@/utils/constants';
+import { TagInfoMap } from '@/utils/constants';
 import { fromTime } from '@/utils/dayjs';
 import useGetTags from '@/graphql/useGetTags';
 import useCreateTag, { CreateTagInput } from '@/graphql/useCreateTag';
@@ -83,7 +83,7 @@ const TagPage = () => {
       dataIndex: 'type',
       key: 'type',
       render(type: TagType) {
-        const { text, color } = TagColorMap[type];
+        const { text, color } = TagInfoMap[type];
         return <Tag color={color}>{text}</Tag>;
       },
     },
