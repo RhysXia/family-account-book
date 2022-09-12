@@ -3,9 +3,10 @@ import { useAtom } from 'jotai';
 import { FC, useMemo } from 'react';
 import { TagType } from '@/types';
 import dayjs from 'dayjs';
-import useGetFlowRecordAmount from '@/graphql/useGetFlowRecordAmount';
+import useGetFlowRecordTotalAmount from '@/graphql/useGetFlowRecordTotalAmount';
 import IndicatorCard from '@/components/IndicatorCard';
 import Indicator from '@/components/Indicator';
+import useGetFlowRecordTotalAmountPerTrader from '@/graphql/useGetFlowRecordTotalAmountPerTrader';
 
 export type AmountCardProps = {
   type: TagType;
@@ -25,37 +26,43 @@ const AmountCard: FC<AmountCardProps> = ({ type, title }) => {
     ];
   }, []);
 
-  const { data: currentMonthData } = useGetFlowRecordAmount({
+  const { data: currentMonthData } = useGetFlowRecordTotalAmount({
     accountBookId: activeAccountBook!.id,
     tagType: type,
     startDate: dates[0],
   });
 
-  const { data: lastMonthData } = useGetFlowRecordAmount({
+  const { data: lastMonthData } = useGetFlowRecordTotalAmount({
     accountBookId: activeAccountBook!.id,
     tagType: type,
     startDate: dates[1],
     endDate: dates[2],
   });
 
+  const { data: totalAmountPerTraderData } =
+    useGetFlowRecordTotalAmountPerTrader({
+      accountBookId: activeAccountBook!.id,
+      tagType: type,
+      startDate: dates[0],
+    });
+
   const currentMonthAmount = Math.abs(
-    currentMonthData?.node.flowRecordAmount || 0,
+    currentMonthData?.node.statistics.flowRecordTotalAmount || 0,
   );
 
-  const lastMonthAmount = Math.abs(lastMonthData?.node.flowRecordAmount || 0);
-
-  const users = [...activeAccountBook!.admins, ...activeAccountBook!.members];
+  const lastMonthAmount = Math.abs(
+    lastMonthData?.node.statistics.flowRecordTotalAmount || 0,
+  );
 
   const userDetails = (
-    <div className="flex items-center space-x-2 w-full overflow-auto">
-      {users.map((it) => (
-        <UserFlowRecord
-          key={it.id}
-          user={it}
-          type={type}
-          startDate={dates[0]}
-        />
-      ))}
+    <div className="flex items-center space-x-2 w-full overflow-auto h-6">
+      {totalAmountPerTraderData?.node.statistics.flowRecordTotalAmountPerTrader.map(
+        (it) => (
+          <div key={it.trader.id}>
+            {it.trader.nickname}: ￥ {it.amount.toLocaleString()}
+          </div>
+        ),
+      )}
     </div>
   );
 
@@ -79,32 +86,3 @@ const AmountCard: FC<AmountCardProps> = ({ type, title }) => {
 };
 
 export default AmountCard;
-
-type UserFlowRecordProps = {
-  type: TagType;
-  user: {
-    id: string;
-    nickname: string;
-  };
-  startDate: string;
-};
-
-const UserFlowRecord: FC<UserFlowRecordProps> = ({ user, startDate, type }) => {
-  const [activeAccountBook] = useAtom(activeAccountBookAtom);
-  const { data: currentMonthData } = useGetFlowRecordAmount({
-    accountBookId: activeAccountBook!.id,
-    tagType: type,
-    startDate,
-    traderId: user.id,
-  });
-
-  const currentMonthAmount = Math.abs(
-    currentMonthData?.node.flowRecordAmount || 0,
-  );
-
-  return (
-    <div>
-      {user.nickname}: ￥ {currentMonthAmount.toLocaleString()}
-    </div>
-  );
-};

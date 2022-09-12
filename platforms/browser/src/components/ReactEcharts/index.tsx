@@ -15,12 +15,15 @@ import {
   DatasetComponentOption,
   GridComponent,
   GridComponentOption,
+  LegendComponent,
+  LegendComponentOption,
 } from 'echarts/components';
 
 echarts.use([
   CanvasRenderer,
   LabelLayout,
   UniversalTransition,
+  LegendComponent,
   TooltipComponent,
   DatasetComponent,
   GridComponent,
@@ -31,6 +34,7 @@ echarts.use([
 export type EchartsOptions = echarts.ComposeOption<
   | BarSeriesOption
   | LineSeriesOption
+  | LegendComponentOption
   | TooltipComponentOption
   | DatasetComponentOption
   | GridComponentOption
