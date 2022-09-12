@@ -1,10 +1,14 @@
 import { Args, Parent, ResolveField, Resolver } from '@nestjs/graphql';
-import { AccountBookEntity } from '../../entity/AccountBookEntity';
+
 import { ParameterException } from '../../exception/ServiceException';
 import { AccountBookService } from '../../service/AccountBookService';
-import { TagType, DateGroupBy, FlowRecordTotalAmountFilter } from '../graphql';
+import {
+  DateGroupBy,
+  FlowRecordTotalAmountFilter,
+  FlowRecordTotalAmountPerTraderFilter,
+} from '../graphql';
 import { GraphqlEntity } from '../types';
-import { decodeId, EntityName, getIdInfo } from '../utils';
+import { decodeId, encodeId, EntityName, getIdInfo } from '../utils';
 
 export type AccountBookStatistics = {
   id: string;
@@ -57,8 +61,50 @@ export class AccountBookStatisticsResolver {
   }
 
   @ResolveField()
+  async flowRecordTotalAmountPerTrader(
+    @Parent() parent: GraphqlEntity<AccountBookStatistics>,
+    @Args('filter') filter?: FlowRecordTotalAmountPerTraderFilter,
+  ) {
+    const accountBookId = decodeId(
+      EntityName.ACCOUNT_BOOK_STATISTICS,
+      parent.id,
+    );
+
+    const { tagType, startDate, endDate, savingAccountId } = filter || {};
+
+    const array =
+      await this.accountBookService.findFlowRecordTotalAmountPerTraderById(
+        {
+          ...(tagType && { tagType }),
+          ...(savingAccountId && {
+            savingAccountId: decodeId(
+              EntityName.SAVING_ACCOUNT,
+              savingAccountId,
+            ),
+          }),
+          ...(startDate && { startDate }),
+          ...(endDate && {
+            endDate,
+          }),
+        },
+        accountBookId,
+      );
+
+    return array.map((it) => {
+      const { amount, trader } = it;
+      return {
+        amount,
+        trader: {
+          ...it.trader,
+          id: encodeId(EntityName.USER, trader.id),
+        },
+      };
+    });
+  }
+
+  @ResolveField()
   async flowRecordTotalAmountGroupByDate(
-    @Parent() parent: GraphqlEntity<AccountBookEntity>,
+    @Parent() parent: GraphqlEntity<AccountBookStatistics>,
     @Args('groupBy') groupBy: DateGroupBy,
     @Args('filter') filter?: FlowRecordTotalAmountFilter,
   ) {
@@ -98,5 +144,49 @@ export class AccountBookStatisticsResolver {
       accountBookId,
       groupBy,
     );
+  }
+
+  @ResolveField()
+  async flowRecordTotalAmountPerTraderGroupByDate(
+    @Parent() parent: GraphqlEntity<AccountBookStatistics>,
+    @Args('groupBy') groupBy: DateGroupBy,
+    @Args('filter') filter?: FlowRecordTotalAmountPerTraderFilter,
+  ) {
+    const accountBookId = decodeId(
+      EntityName.ACCOUNT_BOOK_STATISTICS,
+      parent.id,
+    );
+
+    const { tagType, startDate, endDate, savingAccountId } = filter || {};
+
+    const array =
+      await this.accountBookService.findFlowRecordTotalAmountPerTraderByIdAndGroupByDate(
+        {
+          ...(tagType && { tagType }),
+          ...(savingAccountId && {
+            savingAccountId: decodeId(
+              EntityName.SAVING_ACCOUNT,
+              savingAccountId,
+            ),
+          }),
+          ...(startDate && { startDate }),
+          ...(endDate && {
+            endDate,
+          }),
+        },
+        accountBookId,
+        groupBy,
+      );
+
+    return array.map((it) => {
+      const { trader, amountPerDate } = it;
+      return {
+        amountPerDate,
+        trader: {
+          ...trader,
+          id: encodeId(EntityName.USER, trader.id),
+        },
+      };
+    });
   }
 }

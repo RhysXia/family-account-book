@@ -3,11 +3,6 @@ type AccountBookListWithPagintion {
   data: [AccountBook!]!
 }
 
-type FlowRecordTotalAmountGroupByDate {
-  dealAt: String!
-  amount: Float!
-}
-
 type AccountBook implements EntityDateTime {
   id: ID!
   name: String!

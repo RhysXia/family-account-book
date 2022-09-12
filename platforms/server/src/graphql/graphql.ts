@@ -54,6 +54,13 @@ export interface FlowRecordTotalAmountFilter {
     endDate?: Nullable<Date>;
 }
 
+export interface FlowRecordTotalAmountPerTraderFilter {
+    tagType?: Nullable<TagType>;
+    savingAccountId?: Nullable<string>;
+    startDate?: Nullable<Date>;
+    endDate?: Nullable<Date>;
+}
+
 export interface FlowRecordFilter {
     traderId?: Nullable<string>;
     creatorId?: Nullable<string>;
@@ -159,11 +166,6 @@ export interface AccountBookListWithPagintion {
     data: AccountBook[];
 }
 
-export interface FlowRecordTotalAmountGroupByDate {
-    dealAt: string;
-    amount: number;
-}
-
 export interface AccountBook extends EntityDateTime {
     id: string;
     name: string;
@@ -203,10 +205,27 @@ export interface IMutation {
     signUp(user: SignUpUserInput): User | Promise<User>;
 }
 
+export interface FlowRecordTotalAmountPerUser {
+    trader: User;
+    amount: number;
+}
+
+export interface FlowRecordTotalAmountGroupByDate {
+    dealAt: string;
+    amount: number;
+}
+
+export interface FlowRecordTotalAmountPerUserGroupByDate {
+    trader: User;
+    amountPerDate: FlowRecordTotalAmountGroupByDate[];
+}
+
 export interface AccountBookStatistics {
     id: string;
     flowRecordTotalAmount: number;
+    flowRecordTotalAmountPerTrader: FlowRecordTotalAmountPerUser[];
     flowRecordTotalAmountGroupByDate: FlowRecordTotalAmountGroupByDate[];
+    flowRecordTotalAmountPerTraderGroupByDate: FlowRecordTotalAmountPerUserGroupByDate[];
 }
 
 export interface FlowRecordListWithPagintion {
@@ -321,5 +340,5 @@ export interface User {
 }
 
 export type DateTime = Date;
-export type Node = User | AccountBook | SavingAccount | Tag | FlowRecord | SavingAccountTransferRecord | SavingAccountHistory;
+export type Node = User | AccountBook | AccountBookStatistics | SavingAccount | Tag | FlowRecord | SavingAccountTransferRecord | SavingAccountHistory;
 type Nullable<T> = T | null;

@@ -1,5 +1,6 @@
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { UserEntity } from '../../entity/UserEntity';
+import { ResourceNotFoundException } from '../../exception/ServiceException';
 import { AccountBookService } from '../../service/AccountBookService';
 import { FlowRecordService } from '../../service/FlowRecordService';
 import { SavingAccountHistoryService } from '../../service/SavingAccountHistoryService';
@@ -38,7 +39,7 @@ export class NodeResolver {
       return entities[0];
     }
 
-    return null;
+    throw new ResourceNotFoundException('Node不存在');
   }
 
   @Query()
@@ -71,6 +72,12 @@ export class NodeResolver {
       switch (key) {
         case EntityName.ACCOUNT_BOOK: {
           p = this.accountBookService.findByIdsAndUserId(idArray, user.id);
+          break;
+        }
+        case EntityName.ACCOUNT_BOOK_STATISTICS: {
+          p = this.accountBookService
+            .findByIdsAndUserId(idArray, user.id)
+            .then((array) => array.map((it) => ({ id: it.id })));
           break;
         }
         case EntityName.SAVING_ACCOUNT: {
@@ -123,6 +130,13 @@ export class NodeResolver {
       return prev;
     }, []);
 
-    return ids.map((id) => entities.find((it) => it.id === id));
+    return ids.map((id) => {
+      const entity = entities.find((it) => it.id === id);
+
+      if (!entity) {
+        throw new ResourceNotFoundException('Node不存在');
+      }
+      return entity;
+    });
   }
 }

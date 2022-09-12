@@ -6,6 +6,28 @@ input FlowRecordTotalAmountFilter {
   endDate: Date
 }
 
+input FlowRecordTotalAmountPerTraderFilter {
+  tagType: TagType
+  savingAccountId: ID
+  startDate: Date
+  endDate: Date
+}
+
+type FlowRecordTotalAmountPerUser {
+  trader: User!
+  amount: Float!
+}
+
+type FlowRecordTotalAmountGroupByDate {
+  dealAt: String!
+  amount: Float!
+}
+
+type FlowRecordTotalAmountPerUserGroupByDate {
+  trader: User!
+  amountPerDate: [FlowRecordTotalAmountGroupByDate!]!
+}
+
 type AccountBookStatistics {
   id: ID!
 
@@ -15,10 +37,25 @@ type AccountBookStatistics {
   flowRecordTotalAmount(filter: FlowRecordTotalAmountFilter): Float!
 
   """
+  分用户获取满足过滤条件的流水总额
+  """
+  flowRecordTotalAmountPerTrader(
+    filter: FlowRecordTotalAmountPerTraderFilter
+  ): [FlowRecordTotalAmountPerUser!]!
+
+  """
   按照日期聚合获取满足过滤条件的流水总额
   """
   flowRecordTotalAmountGroupByDate(
     groupBy: DateGroupBy!
     filter: FlowRecordTotalAmountFilter
   ): [FlowRecordTotalAmountGroupByDate!]!
+
+  """
+  分用户按照日期聚合获取满足过滤条件的流水总额
+  """
+  flowRecordTotalAmountPerTraderGroupByDate(
+    groupBy: DateGroupBy!
+    filter: FlowRecordTotalAmountPerTraderFilter
+  ): [FlowRecordTotalAmountPerUserGroupByDate!]!
 }
