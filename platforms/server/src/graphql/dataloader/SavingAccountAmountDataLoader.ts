@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, Scope } from '@nestjs/common';
+import { Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import { SavingAccountAmountView } from '../../entity/SavingAccountAmountView';
 import { SavingAccountAmountService } from '../../service/SavingAccountAmountService';
@@ -9,7 +9,7 @@ import { SavingAccountAmountService } from '../../service/SavingAccountAmountSer
 @Injectable({ scope: Scope.REQUEST })
 export class SavingAccountAmountDataLoader extends DataLoader<
   number,
-  SavingAccountAmountView
+  SavingAccountAmountView | undefined
 > {
   constructor(savingAccountAmountService: SavingAccountAmountService) {
     super(async (savingAccountIds) => {
@@ -17,10 +17,8 @@ export class SavingAccountAmountDataLoader extends DataLoader<
         savingAccountIds as Array<number>,
       );
 
-      return savingAccountIds.map(
-        (savingAccountId) =>
-          list.find((it) => it.savingAccountId === savingAccountId) ||
-          new NotFoundException('账户不存在'),
+      return savingAccountIds.map((savingAccountId) =>
+        list.find((it) => it.savingAccountId === savingAccountId),
       );
     });
   }

@@ -202,7 +202,6 @@ export interface IMutation {
     updateTag(tag: UpdateTagInput): Tag | Promise<Tag>;
     deleteTag(id: string): boolean | Promise<boolean>;
     signIn(user: SignInUserInput): User | Promise<User>;
-    signUp(user: SignUpUserInput): User | Promise<User>;
 }
 
 export interface FlowRecordTotalAmountPerUser {
