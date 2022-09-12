@@ -25,8 +25,8 @@ const AccountBookCreate = () => {
           variables: {
             name: formValue.name,
             desc: formValue.desc,
-            adminIds: formValue.admins.map(({ value }) => value),
-            memberIds: formValue.members.map(({ value }) => value),
+            adminIds: formValue?.admins.map(({ value }) => value),
+            memberIds: formValue?.members.map(({ value }) => value),
           },
         });
 
