@@ -86,11 +86,10 @@ export class UserService {
     avatar?: string;
   }): Promise<UserEntity> {
     return this.dataSource.transaction(async (manager) => {
-      try {
-        await manager.findOneOrFail(UserEntity, {
-          where: { username: signUpUser.username },
-        });
-      } catch (err) {
+      const oldUser = await manager.findOne(UserEntity, {
+        where: { username: signUpUser.username },
+      });
+      if (oldUser) {
         throw new ParameterException('用户已存在');
       }
 
