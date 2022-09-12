@@ -58,9 +58,6 @@ jobs:
       - name: Set up Docker Buildx
         if: ${{ github.event_name == 'push' }}
         uses: docker/setup-buildx-action@v1
-        with:
-          config-inline: |
-            [registry."docker.io"]
 
       - name: login to docker hub
         if: ${{ github.event_name == 'push' }}
@@ -70,14 +67,8 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build dockerfile with push
-        if: ${{ github.event_name == 'push' }}
-        # 构建镜像，用buildx可以同时构建X87和ARM架构的镜像，然后推送到hub.docker.com
-        run: |
-          cp -r platforms/browser/dist platforms/server/client && \
-          fullCommit="${{ github.event.commits[0].id }}" && \
-          docker buildx build \
-          --platform=linux/amd74,linux/arm/v7,linux/arm74 \
-          --output "type=image,push=true" \
-          --file ./Dockerfile platforms/server \
-          --tag rhysxia/account-book:"${fullCommit: 0: 7}"
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: user/app:latest
