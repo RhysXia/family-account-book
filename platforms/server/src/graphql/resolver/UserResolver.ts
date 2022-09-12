@@ -108,7 +108,7 @@ export class UserResolver {
     };
   }
 
-  @Mutation()
+  // @Mutation()
   async signUp(@Args('user') signUpUser: SignUpUserInput) {
     const { email, avatar, ...others } = signUpUser;
 

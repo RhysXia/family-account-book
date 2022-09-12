@@ -59,5 +59,6 @@ input SignInUserInput {
 
 type Mutation {
   signIn(user: SignInUserInput!): User!
-  signUp(user: SignUpUserInput!): User!
+  # 关闭注册功能
+  # signUp(user: SignUpUserInput!): User!
 }
