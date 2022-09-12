@@ -1,8 +1,8 @@
 import { gql, useMutation } from '@apollo/client';
 
 const DELETE_SAVING_ACCOUNT = gql`
-  mutation DeleteSavingAccount($savingAccountId: ID!) {
-    deleteSavingAccount(id: $savingAccountId)
+  mutation DeleteSavingAccount($id: ID!) {
+    deleteSavingAccount(id: $id)
   }
 `;
 
