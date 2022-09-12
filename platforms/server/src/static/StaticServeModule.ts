@@ -5,7 +5,7 @@ import { join } from 'path';
 @Module({
   imports: [
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '../../../browser', 'client'),
+      rootPath: join(__dirname, '../../../browser', 'dist'),
     }),
   ],
 })
