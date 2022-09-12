@@ -82,6 +82,7 @@ importers:
       '@nestjs/platform-express': ^8.0.0
       '@nestjs/schedule': ^2.1.0
       '@nestjs/schematics': ^8.0.0
+      '@nestjs/serve-static': ^3.0.0
       '@nestjs/typeorm': ^9.0.0
       '@types/cron': ^2.0.0
       '@types/express': ^4.17.13
@@ -119,6 +120,7 @@ importers:
       '@nestjs/graphql': 10.0.21_z5uy7ljave7vuh2rzmmn7vgk2e
       '@nestjs/platform-express': 8.4.7_7tsmhnugyerf5okgqzer2mfqme
       '@nestjs/schedule': 2.1.0_zysgbzrbqurgi5bpxpfkrj3lie
+      '@nestjs/serve-static': 3.0.0_7tsmhnugyerf5okgqzer2mfqme
       '@nestjs/typeorm': 9.0.0_zhrs42futwpjx7z3p6twpp4g7i
       apollo-server-core: 3.10.0_graphql@16.5.0
       apollo-server-express: 3.10.0_graphql@16.5.0
@@ -2247,6 +2249,17 @@ packages:
     transitivePeerDependencies:
       - chokidar
     dev: true
+
+  /@nestjs/serve-static/3.0.0_7tsmhnugyerf5okgqzer2mfqme:
+    resolution: {integrity: sha512-TpXjgs4136dQqWUjEcONqppqXDsrJhRkmKWzuBMOUAnP4HjHpNmlycvkHnDnWSoG2YD4a7Enh4ViYGWqCfHStA==}
+    peerDependencies:
+      '@nestjs/common': ^9.0.0
+      '@nestjs/core': ^9.0.0
+    dependencies:
+      '@nestjs/common': 8.4.7_allg6cauirbqzgqcmexy2wdnoq
+      '@nestjs/core': 8.4.7_vfcxgjfmqg6zhc6pfncoklq5wm
+      path-to-regexp: 0.2.5
+    dev: false
 
   /@nestjs/typeorm/9.0.0_zhrs42futwpjx7z3p6twpp4g7i:
     resolution: {integrity: sha512-pTH9ZlngObaPlt7//CY2lSb+3ouFczUQJln1ctXIpGwZdY3QBrwsxF3hnJXsCYNa+IPfz27qJUeoAQmp65kGZw==}
@@ -6204,6 +6217,10 @@ packages:
 
   /path-to-regexp/0.1.7:
     resolution: {integrity: sha512-5DFkuoqlv1uYQKxy8omFBeJPQcdoE07Kv2sferDCrAq1ohOU+MSDswDIbnx3YAM60qIOnYa53wBhXW0EbMonrQ==}
+    dev: false
+
+  /path-to-regexp/0.2.5:
+    resolution: {integrity: sha512-l6qtdDPIkmAmzEO6egquYDfqQGPMRNGjYtrU13HAXb3YSRrt7HSb1sJY0pKp6o2bAa86tSB6iwaW2JbthPKr7Q==}
     dev: false
 
   /path-to-regexp/3.2.0:

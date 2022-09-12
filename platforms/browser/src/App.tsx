@@ -9,8 +9,6 @@ import { useAtomsDevtools } from 'jotai/devtools';
 
 import './assets/styles/index.less';
 
-console.log(routes);
-
 const App = () => {
   return (
     <StrictMode>

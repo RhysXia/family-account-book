@@ -4,6 +4,9 @@
   "scripts": {
     "dev:server": "cd platforms/server && npm run dev",
     "dev:browser": "cd platforms/browser && npm run dev",
+    "build:server": "cd platforms/server && npm run build",
+    "build:browser": "cd platforms/browser && npm run build",
+    "build": "npm run build:server && npm run build:browser",
     "lint": "eslint . --report-unused-disable-directives --ext .js,.ts,.jsx,.tsx --max-warnings 0",
     "lint:fix": "eslint . --report-unused-disable-directives --ext .js,.ts,.jsx,.tsx --max-warnings 0 --fix"
   },
