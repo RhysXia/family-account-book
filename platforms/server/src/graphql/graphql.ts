@@ -46,6 +46,7 @@ export interface UpdateAccountBookInput {
 }
 
 export interface FlowRecordTotalAmountFilter {
+    categoryId?: Nullable<string>;
     traderId?: Nullable<string>;
     savingAccountId?: Nullable<string>;
     startDate?: Nullable<Date>;
@@ -53,6 +54,7 @@ export interface FlowRecordTotalAmountFilter {
 }
 
 export interface FlowRecordTotalAmountPerTraderFilter {
+    categoryId?: Nullable<string>;
     savingAccountId?: Nullable<string>;
     startDate?: Nullable<Date>;
     endDate?: Nullable<Date>;
@@ -69,7 +71,6 @@ export interface UpdateCategoryInput {
     id: string;
     name?: Nullable<string>;
     desc?: Nullable<string>;
-    type?: Nullable<CategoryType>;
 }
 
 export interface FlowRecordFilter {
@@ -251,6 +252,8 @@ export interface Category extends EntityDateTime {
     desc?: Nullable<string>;
     type: CategoryType;
     accountBook: AccountBook;
+    tags?: Nullable<TagListWithPagintion>;
+    tag: Tag;
     creator: User;
     updater: User;
     createdAt: DateTime;

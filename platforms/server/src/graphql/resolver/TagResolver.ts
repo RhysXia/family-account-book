@@ -18,7 +18,12 @@ import { CategoryDataLoader } from '../dataloader/CategoryDataLoader';
 import { FlowRecordDataLoader } from '../dataloader/FlowRecordDataLoader';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
-import { FlowRecordFilter, Pagination, UpdateTagInput } from '../graphql';
+import {
+  CreateTagInput,
+  FlowRecordFilter,
+  Pagination,
+  UpdateTagInput,
+} from '../graphql';
 import { GraphqlEntity } from '../types';
 import { decodeId, encodeId, EntityName, getIdInfo } from '../utils';
 
@@ -167,12 +172,15 @@ export class TagResolver {
   @Mutation()
   async createTag(
     @CurrentUser({ required: true }) currentUser: UserEntity,
-    @Args('tag') tag: any,
+    @Args('tag') tag: CreateTagInput,
   ) {
+    const { name, desc, categoryId } = tag;
+
     const entity = await this.tagService.create(
       {
-        ...tag,
-        categoryId: decodeId(EntityName.CATEGORY, tag.categoryId),
+        categoryId: decodeId(EntityName.CATEGORY, categoryId),
+        name,
+        ...(desc && { desc }),
       },
       currentUser,
     );

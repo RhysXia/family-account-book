@@ -7,7 +7,10 @@ import { UserEntity } from '../entity/UserEntity';
 import { Pagination } from '../graphql/graphql';
 import { SavingAccountAmountView } from '../entity/SavingAccountAmountView';
 import { applyPagination } from '../utils/applyPagination';
-import { ResourceNotFoundException } from '../exception/ServiceException';
+import {
+  ParameterException,
+  ResourceNotFoundException,
+} from '../exception/ServiceException';
 
 @Injectable()
 export class SavingAccountService {
@@ -92,6 +95,10 @@ export class SavingAccountService {
     return this.dataSource.transaction(async (manager) => {
       const { accountBookId, name, desc, amount } = savingsInput;
 
+      if (amount < 0) {
+        throw new ParameterException('账户余额不能为负数');
+      }
+
       const accountBook = await manager
         .createQueryBuilder(AccountBookEntity, 'accountBook')
         .leftJoin('accountBook.admins', 'admin')
@@ -157,6 +164,10 @@ export class SavingAccountService {
       }
 
       if (amount) {
+        if (amount < 0) {
+          throw new ParameterException('账户余额不能为负数');
+        }
+
         const moneyEntity = await manager.findOne(SavingAccountAmountView, {
           where: {
             savingAccountId: savingAccount.id,
@@ -169,6 +180,31 @@ export class SavingAccountService {
 
         const diff = amount - defaultAmount;
 
+        savingAccount.initialAmount += diff;
+
+        if (savingAccount.initialAmount < 0) {
+          throw new ParameterException('更新余额会导致存在历史余额小于0');
+        }
+
+        // 获得当前最小的历史记录
+        const minAmountMoneyEntity = await manager.findOne(
+          SavingAccountHistoryEntity,
+          {
+            where: {
+              savingAccountId: savingAccount.id,
+            },
+            order: {
+              amount: 'ASC',
+            },
+          },
+        );
+
+        if (minAmountMoneyEntity) {
+          if (minAmountMoneyEntity.amount + diff < 0) {
+            throw new ParameterException('更新余额会导致存在历史余额小于0');
+          }
+        }
+
         await manager
           .createQueryBuilder()
           .update(SavingAccountHistoryEntity)
@@ -179,8 +215,6 @@ export class SavingAccountService {
             savingAccountId: savingAccount.id,
           })
           .execute();
-
-        savingAccount.initialAmount += diff;
       }
 
       return manager.save(savingAccount);

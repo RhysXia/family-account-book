@@ -43,10 +43,6 @@ input UpdateCategoryInput {
   id: ID!
   name: String
   desc: String
-  type: CategoryType
-
-  tags(pagination: Pagination): TagListWithPagintion
-  tag(id: ID!): Tag!
 }
 
 type Mutation {

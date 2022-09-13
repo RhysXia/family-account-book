@@ -5,14 +5,20 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { AccountBookEntity } from '../../entity/AccountBookEntity';
 import { CategoryEntity } from '../../entity/CategoryEntity';
+import { UserEntity } from '../../entity/UserEntity';
 import { ResourceNotFoundException } from '../../exception/ServiceException';
+import { CategoryService } from '../../service/CategoryService';
 import { TagService } from '../../service/TagService';
 import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
 import { TagDataLoader } from '../dataloader/TagDataLoader';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
-import { Pagination } from '../graphql';
+import CurrentUser from '../decorator/CurrentUser';
+import {
+  CreateCategoryInput,
+  Pagination,
+  UpdateCategoryInput,
+} from '../graphql';
 import { GraphqlEntity } from '../types';
 import { decodeId, encodeId, EntityName } from '../utils';
 
@@ -23,6 +29,7 @@ export class CategoryResolver {
     private readonly userDataLoader: UserDataLoader,
     private readonly tagDataLoader: TagDataLoader,
     private readonly tagService: TagService,
+    private readonly categoryService: CategoryService,
   ) {}
 
   @ResolveField()
@@ -102,5 +109,60 @@ export class CategoryResolver {
   }
 
   @Mutation()
-  async createCategory(@Args('category') categoryInput: any) {}
+  async createCategory(
+    @Args('category') categoryInput: CreateCategoryInput,
+    @CurrentUser({ required: true }) currentUser: UserEntity,
+  ): Promise<GraphqlEntity<CategoryEntity>> {
+    const { name, desc, type, accountBookId } = categoryInput;
+
+    const category = await this.categoryService.create(
+      {
+        name,
+        type,
+        accountBookId: decodeId(EntityName.ACCOUNT_BOOK, accountBookId),
+        ...(desc && { desc }),
+      },
+      currentUser,
+    );
+
+    return {
+      ...category,
+      id: encodeId(EntityName.CATEGORY, category.id),
+    };
+  }
+
+  @Mutation()
+  async updateCategory(
+    @Args('category') categoryInput: UpdateCategoryInput,
+    @CurrentUser({ required: true }) currentUser: UserEntity,
+  ): Promise<GraphqlEntity<CategoryEntity>> {
+    const { id, name, desc } = categoryInput;
+
+    const category = await this.categoryService.update(
+      decodeId(EntityName.CATEGORY, id),
+      {
+        ...(name && { name }),
+        ...(desc && { desc }),
+      },
+      currentUser,
+    );
+
+    return {
+      ...category,
+      id,
+    };
+  }
+
+  @Mutation()
+  async deleteCategory(
+    @Args('id') id: string,
+    @CurrentUser({ required: true }) currentUser: UserEntity,
+  ) {
+    await this.categoryService.delete(
+      decodeId(EntityName.CATEGORY, id),
+      currentUser,
+    );
+
+    return true;
+  }
 }
