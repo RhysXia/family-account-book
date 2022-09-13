@@ -8,13 +8,6 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export enum TagType {
-    INCOME = "INCOME",
-    EXPENDITURE = "EXPENDITURE",
-    INVESTMENT = "INVESTMENT",
-    LOAD = "LOAD"
-}
-
 export enum CacheControlScope {
     PUBLIC = "PUBLIC",
     PRIVATE = "PRIVATE"
@@ -29,6 +22,28 @@ export enum DateGroupBy {
     YEAR = "YEAR",
     MONTH = "MONTH",
     DAY = "DAY"
+}
+
+export enum TagType {
+    INCOME = "INCOME",
+    EXPENDITURE = "EXPENDITURE",
+    INVESTMENT = "INVESTMENT",
+    LOAD = "LOAD"
+}
+
+export interface FlowRecordTotalAmountFilter {
+    tagType?: Nullable<TagType>;
+    traderId?: Nullable<string>;
+    savingAccountId?: Nullable<string>;
+    startDate?: Nullable<Date>;
+    endDate?: Nullable<Date>;
+}
+
+export interface FlowRecordTotalAmountPerTraderFilter {
+    tagType?: Nullable<TagType>;
+    savingAccountId?: Nullable<string>;
+    startDate?: Nullable<Date>;
+    endDate?: Nullable<Date>;
 }
 
 export interface CreateAccountBookInput {
@@ -46,19 +61,15 @@ export interface UpdateAccountBookInput {
     memberIds?: Nullable<string[]>;
 }
 
-export interface FlowRecordTotalAmountFilter {
-    tagType?: Nullable<TagType>;
-    traderId?: Nullable<string>;
-    savingAccountId?: Nullable<string>;
-    startDate?: Nullable<Date>;
-    endDate?: Nullable<Date>;
+export interface OrderBy {
+    field: string;
+    direction: Direction;
 }
 
-export interface FlowRecordTotalAmountPerTraderFilter {
-    tagType?: Nullable<TagType>;
-    savingAccountId?: Nullable<string>;
-    startDate?: Nullable<Date>;
-    endDate?: Nullable<Date>;
+export interface Pagination {
+    limit?: Nullable<number>;
+    offset?: Nullable<number>;
+    orderBy?: Nullable<OrderBy[]>;
 }
 
 export interface FlowRecordFilter {
@@ -145,20 +156,32 @@ export interface SignInUserInput {
     rememberMe?: Nullable<boolean>;
 }
 
-export interface OrderBy {
-    field: string;
-    direction: Direction;
-}
-
-export interface Pagination {
-    limit?: Nullable<number>;
-    offset?: Nullable<number>;
-    orderBy?: Nullable<OrderBy[]>;
-}
-
 export interface EntityDateTime {
     createdAt: DateTime;
     updatedAt: DateTime;
+}
+
+export interface FlowRecordTotalAmountPerUser {
+    trader: User;
+    amount: number;
+}
+
+export interface FlowRecordTotalAmountGroupByDate {
+    dealAt: string;
+    amount: number;
+}
+
+export interface FlowRecordTotalAmountPerUserGroupByDate {
+    trader: User;
+    amountPerDate: FlowRecordTotalAmountGroupByDate[];
+}
+
+export interface AccountBookStatistics {
+    id: string;
+    flowRecordTotalAmount: number;
+    flowRecordTotalAmountPerTrader: FlowRecordTotalAmountPerUser[];
+    flowRecordTotalAmountGroupByDate: FlowRecordTotalAmountGroupByDate[];
+    flowRecordTotalAmountPerTraderGroupByDate: FlowRecordTotalAmountPerUserGroupByDate[];
 }
 
 export interface AccountBookListWithPagintion {
@@ -202,29 +225,7 @@ export interface IMutation {
     updateTag(tag: UpdateTagInput): Tag | Promise<Tag>;
     deleteTag(id: string): boolean | Promise<boolean>;
     signIn(user: SignInUserInput): User | Promise<User>;
-}
-
-export interface FlowRecordTotalAmountPerUser {
-    trader: User;
-    amount: number;
-}
-
-export interface FlowRecordTotalAmountGroupByDate {
-    dealAt: string;
-    amount: number;
-}
-
-export interface FlowRecordTotalAmountPerUserGroupByDate {
-    trader: User;
-    amountPerDate: FlowRecordTotalAmountGroupByDate[];
-}
-
-export interface AccountBookStatistics {
-    id: string;
-    flowRecordTotalAmount: number;
-    flowRecordTotalAmountPerTrader: FlowRecordTotalAmountPerUser[];
-    flowRecordTotalAmountGroupByDate: FlowRecordTotalAmountGroupByDate[];
-    flowRecordTotalAmountPerTraderGroupByDate: FlowRecordTotalAmountPerUserGroupByDate[];
+    signUp(user: SignUpUserInput): User | Promise<User>;
 }
 
 export interface FlowRecordListWithPagintion {

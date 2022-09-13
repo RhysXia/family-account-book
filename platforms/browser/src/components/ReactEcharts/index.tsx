@@ -1,4 +1,10 @@
-import { useEffect, useRef, HTMLAttributes, FC } from 'react';
+import {
+  useEffect,
+  useRef,
+  HTMLAttributes,
+  forwardRef,
+  useImperativeHandle,
+} from 'react';
 import * as echarts from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 import { LabelLayout, UniversalTransition } from 'echarts/features';
@@ -44,40 +50,48 @@ export type EchartsProps = HTMLAttributes<HTMLDivElement> & {
   options: EchartsOptions;
 };
 
-const ReactEcharts: FC<EchartsProps> = ({ options, ...others }) => {
-  const ref = useRef<HTMLDivElement>(null);
+const ReactEcharts = forwardRef<{ echarts?: echarts.ECharts }, EchartsProps>(
+  ({ options, ...others }, ref) => {
+    const domRef = useRef<HTMLDivElement>(null);
 
-  const echartInstance = useRef<echarts.ECharts>();
+    const echartInstance = useRef<echarts.ECharts>();
 
-  useEffect(() => {
-    if (!ref.current) {
-      return;
-    }
-    const instance = echarts.init(ref.current);
+    useImperativeHandle(ref, () => {
+      return {
+        echarts: echartInstance.current,
+      };
+    });
 
-    echartInstance.current = instance;
+    useEffect(() => {
+      if (!domRef.current) {
+        return;
+      }
+      const instance = echarts.init(domRef.current);
 
-    const handleResize = () => {
-      instance.resize();
-    };
+      echartInstance.current = instance;
 
-    window.addEventListener('resize', handleResize);
+      const handleResize = () => {
+        instance.resize();
+      };
 
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      instance.dispose();
-      echartInstance.current = undefined;
-    };
-  }, []);
+      window.addEventListener('resize', handleResize);
 
-  useEffect(() => {
-    const instance = echartInstance.current;
-    if (instance) {
-      instance.setOption(options);
-    }
-  }, [options]);
+      return () => {
+        window.removeEventListener('resize', handleResize);
+        instance.dispose();
+        echartInstance.current = undefined;
+      };
+    }, []);
 
-  return <div className="w-full h-full" {...others} ref={ref}></div>;
-};
+    useEffect(() => {
+      const instance = echartInstance.current;
+      if (instance) {
+        instance.setOption(options);
+      }
+    }, [options]);
+
+    return <div className="w-full h-full" {...others} ref={domRef}></div>;
+  },
+);
 
 export default ReactEcharts;

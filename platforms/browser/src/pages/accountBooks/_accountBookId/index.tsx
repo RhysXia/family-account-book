@@ -48,10 +48,11 @@ const Overview = () => {
             </div>
           ))}
         </div>
-        <div className="bg-white rounded px-2">
+        <div className="bg-white rounded px-4">
           <Tabs
             activeKey={tagType}
             onChange={setTagType as any}
+            destroyInactiveTabPane={true}
             tabBarExtraContent={
               <div className="space-x-4">
                 <Radio.Group value={groupBy} onChange={handleGroupByChange}>
