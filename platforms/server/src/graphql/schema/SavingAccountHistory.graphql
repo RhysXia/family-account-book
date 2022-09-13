@@ -1,9 +1,0 @@
-type SavingAccountHistory {
-  id: ID!
-  amount: Float!
-  dealAt: Date!
-
-  savingAccount: SavingAccount!
-
-  accountBook: AccountBook!
-}
