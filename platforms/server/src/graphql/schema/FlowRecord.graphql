@@ -1,0 +1,70 @@
+
+input FlowRecordFilter {
+  """
+  过滤交易人的流水
+  """
+  traderId: ID
+  creatorId: ID
+}
+
+type FlowRecordListWithPagintion {
+  total: Int!
+  data: [FlowRecord!]!
+}
+
+type FlowRecord implements EntityDateTime {
+  id: ID!
+  desc: String
+
+  createdAt: DateTime!
+  updatedAt: DateTime!
+
+  """
+  交易时间
+  """
+  dealAt: Date!
+
+  trader: User!
+
+  creator: User!
+  updater: User!
+
+  amount: Float!
+
+  accountBook: AccountBook!
+
+  """
+  支付渠道
+  """
+  savingAccount: SavingAccount!
+
+  """
+  所属标签
+  """
+  tag: Tag!
+}
+
+input CreateFlowRecordInput {
+  desc: String
+  dealAt: Date!
+  amount: Float!
+  savingAccountId: ID!
+  tagId: ID!
+  traderId: ID!
+}
+
+input UpdateFlowRecordInput {
+  id: ID!
+  desc: String
+  dealAt: Date
+  amount: Float
+  savingAccountId: ID
+  tagId: ID
+  traderId: ID
+}
+
+type Mutation {
+  createFlowRecord(flowRecord: CreateFlowRecordInput!): FlowRecord!
+  updateFlowRecord(flowRecord: UpdateFlowRecordInput!): FlowRecord!
+  deleteFlowRecord(id: ID!): Boolean!
+}

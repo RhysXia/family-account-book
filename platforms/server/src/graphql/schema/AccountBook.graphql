@@ -1,0 +1,88 @@
+type AccountBookListWithPagintion {
+  total: Int!
+  data: [AccountBook!]!
+}
+
+type AccountBook implements EntityDateTime {
+  id: ID!
+  name: String!
+  desc: String
+  """
+  管理员
+  """
+  admins: [User!]!
+  """
+  普通成员，不包含管理员
+  """
+  members: [User!]!
+
+  creator: User!
+
+  updater: User!
+
+  createdAt: DateTime!
+  updatedAt: DateTime!
+
+  savingAccounts(pagination: Pagination): SavingAccountListWithPagintion!
+  savingAccount(id: ID!): SavingAccount!
+
+  tags(pagination: Pagination): TagListWithPagintion
+  tag(id: ID!): Tag!
+
+  flowRecords(
+    filter: FlowRecordFilter
+    pagination: Pagination
+  ): FlowRecordListWithPagintion!
+  flowRecord(id: ID!): FlowRecord!
+
+  categories(pagination: Pagination): CategoryListWithPagintion!
+  category(id: ID!): Category!
+
+  """
+  账本相关统计数据
+  """
+  statistics: AccountBookStatistics!
+}
+
+input CreateAccountBookInput {
+  name: String!
+  desc: String
+  """
+  管理员id，自己可以不传，默认自己作为管理员
+  """
+  adminIds: [ID!]
+  """
+  成员id，会过滤在管理员中的用户
+  """
+  memberIds: [ID!]
+}
+
+input UpdateAccountBookInput {
+  id: ID!
+  name: String
+  desc: String
+  """
+  管理员id，需要传全量id，自己可以不传
+  """
+  adminIds: [ID!]
+  """
+  成员id，会过滤在管理员中的用户
+  """
+  memberIds: [ID!]
+}
+
+type Mutation {
+  """
+  创建账本
+  """
+  createAccountBook(accountBook: CreateAccountBookInput!): AccountBook!
+  """
+  更新账本，自己需要为管理员
+  """
+  updateAccountBook(accountBook: UpdateAccountBookInput!): AccountBook!
+
+  """
+  删除账本
+  """
+  deleteAccountBook(id: ID!): Boolean!
+}
