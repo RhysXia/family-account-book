@@ -8,7 +8,7 @@ import { SavingAccountTransferRecordEntity } from '../entity/SavingAccountTransf
 import { TagEntity } from '../entity/TagEntity';
 import { UserEntity } from '../entity/UserEntity';
 import { ResourceNotFoundException } from '../exception/ServiceException';
-import { DateGroupBy, Pagination, TagType } from '../graphql/graphql';
+import { DateGroupBy, Pagination } from '../graphql/graphql';
 import { applyPagination } from '../utils/applyPagination';
 
 @Injectable()
@@ -20,12 +20,12 @@ export class AccountBookService {
       endDate,
       startDate,
       savingAccountId,
-      tagType,
+      categoryId,
     }: {
-      endDate?: Date | undefined;
-      startDate?: Date | undefined;
-      savingAccountId?: number | undefined;
-      tagType?: TagType | undefined;
+      endDate?: Date;
+      startDate?: Date;
+      savingAccountId?: number;
+      categoryId?: number;
     },
     accountBookId: number,
     groupBy: DateGroupBy,
@@ -74,9 +74,9 @@ export class AccountBookService {
       .where('flowRecord.accountBookId = :accountBookId', { accountBookId })
       .orderBy('deal_at', 'ASC');
 
-    if (tagType) {
-      qb.leftJoin('flowRecord.tag', 'tag').andWhere('tag.type = :tagType', {
-        tagType,
+    if (categoryId) {
+      qb.andWhere('tag.categoryId = :categoryId', {
+        categoryId,
       });
     }
 
@@ -134,12 +134,12 @@ export class AccountBookService {
       endDate,
       startDate,
       savingAccountId,
-      tagType,
+      categoryId,
     }: {
       endDate?: Date;
       startDate?: Date;
       savingAccountId?: number;
-      tagType?: TagType;
+      categoryId?: number;
     },
     accountBookId: number,
   ): Promise<
@@ -165,9 +165,9 @@ export class AccountBookService {
       .groupBy('trader.id')
       .where('flowRecord.accountBookId = :accountBookId', { accountBookId });
 
-    if (tagType) {
-      qb.leftJoin('flowRecord.tag', 'tag').andWhere('tag.type = :tagType', {
-        tagType,
+    if (categoryId) {
+      qb.andWhere('tag.categoryId = :categoryId', {
+        categoryId,
       });
     }
 
@@ -215,13 +215,13 @@ export class AccountBookService {
     {
       startDate,
       endDate,
-      tagType,
+      categoryId,
       traderId,
       savingAccountId,
     }: {
       startDate?: Date;
       endDate?: Date;
-      tagType?: TagType;
+      categoryId?: number;
       traderId?: number;
       savingAccountId?: number;
     },
@@ -253,9 +253,9 @@ export class AccountBookService {
       .where('flowRecord.accountBookId = :accountBookId', { accountBookId })
       .orderBy('deal_at', 'ASC');
 
-    if (tagType) {
-      qb.leftJoin('flowRecord.tag', 'tag').andWhere('tag.type = :tagType', {
-        tagType,
+    if (categoryId) {
+      qb.andWhere('tag.categoryId = :categoryId', {
+        categoryId,
       });
     }
 
@@ -295,13 +295,13 @@ export class AccountBookService {
     {
       startDate,
       endDate,
-      tagType,
+      categoryId,
       traderId,
       savingAccountId,
     }: {
       startDate?: Date;
       endDate?: Date;
-      tagType?: TagType;
+      categoryId?: number;
       traderId?: number;
       savingAccountId?: number;
     },
@@ -312,9 +312,9 @@ export class AccountBookService {
       .select('SUM(flowRecord.amount)', 'totalAmount')
       .where('flowRecord.accountBookId = :accountBookId', { accountBookId });
 
-    if (tagType) {
-      qb.leftJoin('flowRecord.tag', 'tag').andWhere('tag.type = :tagType', {
-        tagType,
+    if (categoryId) {
+      qb.andWhere('tag.categoryId = :categoryId', {
+        categoryId,
       });
     }
 

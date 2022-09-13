@@ -6,7 +6,7 @@ import { Empty } from 'antd';
 import { Dayjs } from 'dayjs';
 import { useAtom } from 'jotai';
 import { FC, useMemo } from 'react';
-import * as echarts from 'echarts/core';
+// import * as echarts from 'echarts/core';
 
 export type FlowRecordTrendProps = {
   tagType: TagType;
@@ -14,13 +14,13 @@ export type FlowRecordTrendProps = {
   dateRange?: [Dayjs | null, Dayjs | null] | null;
 };
 
-const COLORS = [
-  ['rgb(255, 191, 0)', 'rgb(224, 62, 76)'],
-  ['rgb(255, 0, 135)', 'rgb(135, 0, 157)'],
-  ['rgb(55, 162, 255)', 'rgb(116, 21, 219)'],
-  ['rgb(0, 221, 255)', 'rgb(77, 119, 255)'],
-  ['rgb(128, 255, 165)', 'rgb(1, 191, 236)'],
-];
+// const COLORS = [
+//   ['rgb(255, 191, 0)', 'rgb(224, 62, 76)'],
+//   ['rgb(255, 0, 135)', 'rgb(135, 0, 157)'],
+//   ['rgb(55, 162, 255)', 'rgb(116, 21, 219)'],
+//   ['rgb(0, 221, 255)', 'rgb(77, 119, 255)'],
+//   ['rgb(128, 255, 165)', 'rgb(1, 191, 236)'],
+// ];
 
 const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
   tagType,
@@ -78,7 +78,7 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
   const options = useMemo<EchartsOptions>(() => {
     const categories = dataset[0].slice(1) as Array<string>;
     return {
-      color: COLORS.map((it) => it[0]),
+      // color: COLORS.map((it) => it[0]),
       tooltip: {
         trigger: 'axis',
         axisPointer: {
@@ -109,7 +109,7 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
         source: dataset,
       },
       series: categories.map((it, index) => {
-        const i = index % COLORS.length;
+        // const i = index % COLORS.length;
 
         return {
           type: 'line',
@@ -120,16 +120,16 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
           },
           areaStyle: {
             opacity: 0.8,
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              {
-                offset: 0,
-                color: COLORS[i][0],
-              },
-              {
-                offset: 1,
-                color: COLORS[i][1],
-              },
-            ]),
+            // color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            //   {
+            //     offset: 0,
+            //     color: COLORS[i][0],
+            //   },
+            //   {
+            //     offset: 1,
+            //     color: COLORS[i][1],
+            //   },
+            // ]),
           },
         };
       }),

@@ -1,0 +1,60 @@
+type SavingAccountTransferRecord implements EntityDateTime {
+  id: ID!
+  name: String!
+  desc: String
+
+  """
+  转账金额，始终为整数
+  """
+  amount: Float!
+
+  trader: User!
+
+  creator: User!
+
+  updater: User!
+
+  from: SavingAccount!
+
+  to: SavingAccount!
+
+  accountBook: AccountBook!
+
+  dealAt: Date!
+
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+input CreateSavingAccountTransferRecord {
+  name: String!
+  desc: String
+  amount: Float!
+  fromSavingAccountId: ID!
+  toSavingAccountId: ID!
+  dealAt: Date!
+  traderId: ID!
+}
+
+input UpdateSavingAccountTransferRecord {
+  id: ID!
+  name: String
+  desc: String
+  amount: Float
+  fromSavingAccountId: ID
+  toSavingAccountId: ID
+  dealAt: Date
+  traderId: ID
+}
+
+type Mutation {
+  createSavingAccountTransferRecord(
+    record: CreateSavingAccountTransferRecord!
+  ): SavingAccountTransferRecord!
+
+  updateSavingAccountTransferRecord(
+    record: UpdateSavingAccountTransferRecord!
+  ): SavingAccountTransferRecord!
+
+  deleteSavingAccountTransferRecord(id: ID!): Boolean!
+}

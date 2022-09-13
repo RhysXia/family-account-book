@@ -1,0 +1,59 @@
+type SavingAccountListWithPagintion {
+  total: Int!
+  data: [SavingAccount!]!
+}
+
+type SavingAccount implements EntityDateTime {
+  id: ID!
+  name: String!
+  desc: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+
+  """
+  余额
+  """
+  amount: Float!
+
+  creator: User!
+  updater: User!
+
+  accountBook: AccountBook!
+
+  getHistoriesByDate(
+    startDate: DateTime
+    endDate: DateTime
+  ): [SavingAccountHistory!]!
+
+  flowRecords(
+    filter: FlowRecordFilter
+    pagination: Pagination
+  ): FlowRecordListWithPagintion!
+  flowRecord(id: ID!): FlowRecord!
+}
+
+input CreateSavingAccountInput {
+  name: String!
+  desc: String
+  """
+  余额
+  """
+  amount: Float!
+  accountBookId: ID!
+}
+
+input UpdateSavingAccountInput {
+  id: ID!
+  name: String
+  desc: String
+  """
+  余额
+  """
+  amount: Float
+}
+
+type Mutation {
+  createSavingAccount(savingAccount: CreateSavingAccountInput!): SavingAccount!
+  updateSavingAccount(savingAccount: UpdateSavingAccountInput!): SavingAccount!
+  deleteSavingAccount(id: ID!): Boolean!
+}

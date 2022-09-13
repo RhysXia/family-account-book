@@ -33,6 +33,8 @@ import {
 import { NodeResolver } from './resolver/NodeResolver';
 import { SavingAccountHistoryResolver } from './resolver/SavingAccountHistoryResolver';
 import { AccountBookStatisticsResolver } from './resolver/AccountBookStatisticsResolver';
+import { CategoryResolver } from './resolver/CategoryResolver';
+import { CategoryDataLoader } from './dataloader/CategoryDataLoader';
 
 @Module({
   imports: [
@@ -100,6 +102,7 @@ import { AccountBookStatisticsResolver } from './resolver/AccountBookStatisticsR
   providers: [
     DateTimeScalar,
     DateScalar,
+    CategoryDataLoader,
     TagDataLoader,
     UserDataLoader,
     SavingAccountAmountDataLoader,
@@ -110,6 +113,7 @@ import { AccountBookStatisticsResolver } from './resolver/AccountBookStatisticsR
     UserResolver,
     AccountBookResolver,
     AccountBookStatisticsResolver,
+    CategoryResolver,
     SavingAccountResolver,
     TagResolver,
     FlowRecordResolver,

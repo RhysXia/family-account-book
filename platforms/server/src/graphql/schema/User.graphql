@@ -1,0 +1,63 @@
+type DetailUser implements EntityDateTime {
+  id: ID!
+  username: String!
+  nickname: String!
+  email: String
+  avatar: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+
+  """
+  获取该用户的账本列表，支持分页
+  """
+  accountBooks(pagination: Pagination): AccountBookListWithPagintion!
+
+  """
+  获取该用户有权限的指定id的账本
+  """
+  accountBook(id: ID!): AccountBook!
+}
+
+type User {
+  id: ID!
+  nickname: String!
+  username: String!
+  email: String
+  avatar: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Query {
+  """
+  获取当前登录用户信息
+  """
+  getCurrentUser: DetailUser!
+  """
+  模糊搜索用户列表，根据username和nickname
+  """
+  findUserListByNameLike(
+    name: String!
+    limit: Int = 10
+    includeSelf: Boolean = false
+  ): [User!]!
+}
+
+input SignUpUserInput {
+  nickname: String!
+  username: String!
+  password: String!
+  email: String
+  avatar: String
+}
+
+input SignInUserInput {
+  username: String!
+  password: String!
+  rememberMe: Boolean
+}
+
+type Mutation {
+  signIn(user: SignInUserInput!): User!
+  signUp(user: SignUpUserInput!): User!
+}

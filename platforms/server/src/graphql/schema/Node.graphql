@@ -1,0 +1,14 @@
+union Node =
+    User
+  | AccountBook
+  | AccountBookStatistics
+  | SavingAccount
+  | Tag
+  | FlowRecord
+  | SavingAccountTransferRecord
+  | SavingAccountHistory
+
+type Query {
+  node(id: ID!): Node!
+  nodes(ids: [ID!]!): [Node!]!
+}

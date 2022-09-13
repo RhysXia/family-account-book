@@ -4,6 +4,7 @@ import { PasswordUtil } from '../common/PasswordUtil';
 import { ManagerModule } from '../manager/ManagerModule';
 import { RepositoryModule } from '../repository/RepositoryModule';
 import { AccountBookService } from './AccountBookService';
+import { CategoryService } from './CategoryService';
 import { FlowRecordService } from './FlowRecordService';
 import { SavingAccountAmountService } from './SavingAccountAmountService';
 import { SavingAccountHistoryService } from './SavingAccountHistoryService';
@@ -14,6 +15,7 @@ import { UserService } from './UserService';
 
 const services = [
   UserService,
+  CategoryService,
   TagService,
   AccountBookService,
   SavingAccountService,

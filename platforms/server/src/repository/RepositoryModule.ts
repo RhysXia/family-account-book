@@ -11,11 +11,13 @@ import { SessionEntity } from '../entity/SessionEntity';
 import { TagEntity } from '../entity/TagEntity';
 import { UserEntity } from '../entity/UserEntity';
 import { isDevelopment } from '../utils/env';
+import { CategoryEntity } from '../entity/CategoryEntity';
 
 const models = [
   SessionEntity,
   UserEntity,
   AccountBookEntity,
+  CategoryEntity,
   TagEntity,
   SavingAccountEntity,
   FlowRecordEntity,

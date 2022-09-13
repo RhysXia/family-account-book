@@ -12,9 +12,11 @@ import {
   ResourceNotFoundException,
 } from '../../exception/ServiceException';
 import { AccountBookService } from '../../service/AccountBookService';
+import { CategoryService } from '../../service/CategoryService';
 import { FlowRecordService } from '../../service/FlowRecordService';
 import { SavingAccountService } from '../../service/SavingAccountService';
 import { TagService } from '../../service/TagService';
+import { CategoryDataLoader } from '../dataloader/CategoryDataLoader';
 import { FlowRecordDataLoader } from '../dataloader/FlowRecordDataLoader';
 import { SavingAccountDataLoader } from '../dataloader/SavingAccountDataLoader';
 import { TagDataLoader } from '../dataloader/TagDataLoader';
@@ -38,8 +40,10 @@ export class AccountBookResolver {
     private readonly tagService: TagService,
     private readonly savingAccountDataLoader: SavingAccountDataLoader,
     private readonly tagDataLoader: TagDataLoader,
+    private readonly categoryDataLoader: CategoryDataLoader,
     private readonly flowRecordDataLoader: FlowRecordDataLoader,
     private readonly flowRecordService: FlowRecordService,
+    private readonly categoryService: CategoryService,
   ) {}
 
   @ResolveField()
@@ -144,6 +148,53 @@ export class AccountBookResolver {
       throw new ResourceNotFoundException('储蓄账户不存在');
     }
     return { ...savingAccount, id };
+  }
+
+  @ResolveField()
+  async categories(
+    @Parent() parent: GraphqlEntity<AccountBookEntity>,
+    @Args('pagination') pagination?: Pagination,
+  ) {
+    const parentId = decodeId(EntityName.ACCOUNT_BOOK, parent.id);
+
+    const { total, data } =
+      await this.categoryService.findAllByAccountBookIdAndPagination(
+        parentId,
+        pagination,
+      );
+
+    return {
+      total,
+      data: data.map((it) => ({
+        ...it,
+        id: encodeId(EntityName.CATEGORY, it.id),
+      })),
+    };
+  }
+
+  @ResolveField()
+  async category(
+    @Parent() parent: GraphqlEntity<AccountBookEntity>,
+    @Args('id') id: string,
+  ) {
+    const category = await this.categoryDataLoader.load(
+      decodeId(EntityName.CATEGORY, id),
+    );
+
+    if (!category) {
+      throw new ResourceNotFoundException('分类不存在');
+    }
+
+    const encodedAccountBookId = encodeId(
+      EntityName.ACCOUNT_BOOK,
+      category.accountBookId,
+    );
+
+    if (encodedAccountBookId !== parent.id) {
+      // 不暴露其他数据信息，一律提示资源不存在
+      throw new ResourceNotFoundException('标签不存在');
+    }
+    return { ...category, id };
   }
 
   @ResolveField()

@@ -7,14 +7,32 @@ import {
 } from 'typeorm';
 import { AbstractTimestampEntity } from './abstract/AbstractTimestampEntity';
 import { AccountBookEntity } from './AccountBookEntity';
-import { CategoryEntity } from './CategoryEntity';
 import { UserEntity } from './UserEntity';
 
 /**
- * 标签
+ * 分类类型
  */
-@Entity('tag')
-export class TagEntity extends AbstractTimestampEntity {
+export enum CategoryType {
+  /**
+   * 该分类下的金额只能为正数
+   */
+  POSITIVE_AMOUNT = 'POSITIVE_AMOUNT',
+  /**
+   * 该分类下的金额只能为负数
+   */
+  NEGATIVE_AMOUNT = 'NEGATIVE_AMOUNT',
+
+  /**
+   * 该分类下的金额可正可负
+   */
+  POSITIVE_OR_NEGATIVE_AMOUNT = 'POSITIVE_OR_NEGATIVE_AMOUNT',
+}
+
+/**
+ * 流水分类
+ */
+@Entity('category')
+export class CategoryEntity extends AbstractTimestampEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
@@ -24,10 +42,8 @@ export class TagEntity extends AbstractTimestampEntity {
   @Column({ nullable: true })
   desc?: string;
 
-  @ManyToOne(() => CategoryEntity, { nullable: false })
-  category!: CategoryEntity;
-  @Column()
-  categoryId!: number;
+  @Column({ nullable: false, type: 'enum', enum: CategoryType })
+  type!: CategoryType;
 
   @ManyToOne(() => UserEntity, { nullable: false })
   creator!: UserEntity;

@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, In } from 'typeorm';
+import { CategoryType } from '../entity/CategoryEntity';
 import { FlowRecordEntity } from '../entity/FlowRecordEntity';
 import { SavingAccountEntity } from '../entity/SavingAccountEntity';
-import { TagEntity, TagType } from '../entity/TagEntity';
+import { TagEntity } from '../entity/TagEntity';
 import { UserEntity } from '../entity/UserEntity';
 import {
   InternalException,
@@ -116,6 +117,9 @@ export class FlowRecordService {
         try {
           // 按道理不可能失败
           tag = await manager.findOneOrFail(TagEntity, {
+            relations: {
+              category: true,
+            },
             where: { id: flowRecord.tagId },
           });
         } catch (err) {
@@ -140,14 +144,15 @@ export class FlowRecordService {
       const newAmount = amount || flowRecord.amount;
       const newDealAt = dealAt || flowRecord.dealAt;
 
-      // 支出不能为正数
-      if (tag.type === TagType.EXPENDITURE) {
+      const category = tag.category;
+
+      if (category.type === CategoryType.NEGATIVE_AMOUNT) {
         if (newAmount >= 0) {
-          throw new ParameterException('支出不能为正数');
+          throw new ParameterException('当前分类不允许金额为正数');
         }
-      } else if (tag.type === TagType.INCOME) {
+      } else if (category.type === CategoryType.POSITIVE_AMOUNT) {
         if (newAmount <= 0) {
-          throw new ParameterException('收入不能为负数');
+          throw new ParameterException('当前分类不允许金额为负数');
         }
       }
 
@@ -218,27 +223,24 @@ export class FlowRecordService {
       let tag: TagEntity;
       try {
         tag = await manager.findOneOrFail(TagEntity, {
+          relations: {
+            category: true,
+          },
           where: { id: tagId, accountBookId },
         });
       } catch (err) {
         throw new ResourceNotFoundException('标签不存在');
       }
 
-      /**
-       * 支出为负数
-       * 收入为正数
-       * 投资可正可负
-       * 借贷可正可负
-       */
+      const category = tag.category;
 
-      // 支出不能为正数
-      if (tag.type === TagType.EXPENDITURE) {
+      if (category.type === CategoryType.NEGATIVE_AMOUNT) {
         if (amount >= 0) {
-          throw new ParameterException('支出不能为正数');
+          throw new ParameterException('当前分类不允许金额为正数');
         }
-      } else if (tag.type === TagType.INCOME) {
+      } else if (category.type === CategoryType.POSITIVE_AMOUNT) {
         if (amount <= 0) {
-          throw new ParameterException('收入不能为负数');
+          throw new ParameterException('当前分类不允许金额为负数');
         }
       }
       let trader: UserEntity;

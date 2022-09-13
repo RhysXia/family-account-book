@@ -46,20 +46,22 @@ const AmountCard: FC<AmountCardProps> = ({ type, title }) => {
       startDate: dates[0],
     });
 
-  const currentMonthAmount = Math.abs(
-    currentMonthData?.node.statistics.flowRecordTotalAmount || 0,
-  );
+  const currentMonthAmount =
+    currentMonthData?.node.statistics.flowRecordTotalAmount || 0;
 
-  const lastMonthAmount = Math.abs(
-    lastMonthData?.node.statistics.flowRecordTotalAmount || 0,
-  );
+  const lastMonthAmount =
+    lastMonthData?.node.statistics.flowRecordTotalAmount || 0;
 
   const userDetails = (
     <div className="flex items-center space-x-2 w-full overflow-auto h-6">
       {totalAmountPerTraderData?.node.statistics.flowRecordTotalAmountPerTrader.map(
         (it) => (
           <div key={it.trader.id}>
-            {it.trader.nickname}: ￥ {it.amount.toLocaleString()}
+            {it.trader.nickname}: ￥{' '}
+            {(type === TagType.EXPENDITURE
+              ? -it.amount
+              : it.amount
+            ).toLocaleString()}
           </div>
         ),
       )}
@@ -70,14 +72,17 @@ const AmountCard: FC<AmountCardProps> = ({ type, title }) => {
     <IndicatorCard
       title={title}
       tips={`月度${title}统计`}
-      value={`￥ ${currentMonthAmount.toLocaleString()}`}
+      value={`￥ ${(type === TagType.EXPENDITURE
+        ? -currentMonthAmount
+        : currentMonthAmount
+      ).toLocaleString()}`}
       footer={userDetails}
     >
       <Indicator
         title="同比上月"
         value={
           lastMonthAmount
-            ? (currentMonthAmount - lastMonthAmount) / lastMonthAmount
+            ? Math.abs((currentMonthAmount - lastMonthAmount) / lastMonthAmount)
             : undefined
         }
       />

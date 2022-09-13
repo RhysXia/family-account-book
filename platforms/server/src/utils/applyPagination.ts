@@ -1,8 +1,8 @@
 import { SelectQueryBuilder } from 'typeorm';
 import { Pagination } from '../graphql/graphql';
 
-export const applyPagination = (
-  builder: SelectQueryBuilder<any>,
+export const applyPagination = <T>(
+  builder: SelectQueryBuilder<T>,
   tableName: string,
   pagination: Pagination | null | undefined,
 ) => {

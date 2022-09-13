@@ -157,7 +157,7 @@ export class AccountBookStatisticsResolver {
       parent.id,
     );
 
-    const { tagType, startDate, endDate, savingAccountId } = filter || {};
+    const { categ, startDate, endDate, savingAccountId } = filter || {};
 
     const array =
       await this.accountBookService.findFlowRecordTotalAmountPerTraderByIdAndGroupByDate(
