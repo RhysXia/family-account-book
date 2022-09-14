@@ -1,5 +1,8 @@
 export const getProp = (value: any, path?: string) => {
-  const paths = (path || '').split('.');
+  if (!path) {
+    return value;
+  }
+  const paths = path.split('.');
   let ret = value;
   paths.forEach((p) => {
     ret = ret[p];
