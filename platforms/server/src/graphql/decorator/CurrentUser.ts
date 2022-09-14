@@ -7,14 +7,18 @@ import { SESSION_CURRENT_USER } from '../../utils/constants';
 const CurrentUser = createParamDecorator(
   (data: { required?: boolean } = {}, ctx: ExecutionContext) => {
     const { session } = GqlExecutionContext.create(ctx).getContext().req;
-    const currentUser = session[SESSION_CURRENT_USER];
+    const currentUser = session[SESSION_CURRENT_USER] as UserEntity | undefined;
     const required = data.required;
 
-    if (required && !currentUser) {
-      throw new AuthentizationException('请先登录');
+    if (!currentUser) {
+      if (required) {
+        throw new AuthentizationException('请先登录');
+      }
+
+      return null;
     }
 
-    const { createdAt, updatedAt, ...others } = currentUser as UserEntity;
+    const { createdAt, updatedAt, ...others } = currentUser;
 
     return {
       ...others,

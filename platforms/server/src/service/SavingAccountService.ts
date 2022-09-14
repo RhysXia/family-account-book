@@ -180,30 +180,32 @@ export class SavingAccountService {
 
         const diff = amount - defaultAmount;
 
-        savingAccount.initialAmount += diff;
-
-        if (savingAccount.initialAmount < 0) {
-          throw new ParameterException('更新余额会导致存在历史余额小于0');
-        }
-
-        // 获得当前最小的历史记录
-        const minAmountMoneyEntity = await manager.findOne(
-          SavingAccountHistoryEntity,
-          {
-            where: {
-              savingAccountId: savingAccount.id,
-            },
-            order: {
-              amount: 'ASC',
-            },
-          },
-        );
-
-        if (minAmountMoneyEntity) {
-          if (minAmountMoneyEntity.amount + diff < 0) {
+        if (diff < 0) {
+          if (savingAccount.initialAmount + diff < 0) {
             throw new ParameterException('更新余额会导致存在历史余额小于0');
           }
+
+          // 获得当前最小的历史记录
+          const minAmountMoneyEntity = await manager.findOne(
+            SavingAccountHistoryEntity,
+            {
+              where: {
+                savingAccountId: savingAccount.id,
+              },
+              order: {
+                amount: 'ASC',
+              },
+            },
+          );
+
+          if (minAmountMoneyEntity) {
+            if (minAmountMoneyEntity.amount + diff < 0) {
+              throw new ParameterException('更新余额会导致存在历史余额小于0');
+            }
+          }
         }
+
+        savingAccount.initialAmount += diff;
 
         await manager
           .createQueryBuilder()

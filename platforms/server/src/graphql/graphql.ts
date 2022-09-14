@@ -378,5 +378,5 @@ export interface User {
 }
 
 export type DateTime = Date;
-export type Node = User | AccountBook | AccountBookStatistics | SavingAccount | Tag | FlowRecord | SavingAccountTransferRecord | SavingAccountHistory;
+export type Node = User | AccountBook | AccountBookStatistics | SavingAccount | Tag | FlowRecord | SavingAccountTransferRecord | SavingAccountHistory | Category;
 type Nullable<T> = T | null;

@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { EntityManager, LessThan } from 'typeorm';
+import { EntityManager, LessThan, MoreThanOrEqual } from 'typeorm';
 import { SavingAccountEntity } from '../entity/SavingAccountEntity';
 import { SavingAccountHistoryEntity } from '../entity/SavingAccountHistoryEntity';
-import { ResourceNotFoundException } from '../exception/ServiceException';
+import {
+  ParameterException,
+  ResourceNotFoundException,
+} from '../exception/ServiceException';
 
 export type UpdateSavingAccountMoneyRecord = {
   oldAmount: number;
@@ -34,6 +37,19 @@ export class SavingAccountHistoryManager {
       });
     } catch (err) {
       throw new ResourceNotFoundException('账户不存在');
+    }
+
+    // 判断加上amount后，余额是否小于0
+    const minAmountEntity = await manager.findOne(SavingAccountHistoryEntity, {
+      where: {
+        savingAccountId,
+        dealAt: MoreThanOrEqual(dealAt),
+        amount: LessThan(-amount),
+      },
+    });
+
+    if (minAmountEntity) {
+      throw new ParameterException('修改余额会导致账户历史余额小于0');
     }
 
     // 可以保证交易时间及以后的金额都是不相同的，所以先把他们都加上amount
@@ -80,6 +96,10 @@ export class SavingAccountHistoryManager {
         await manager.remove(record);
       }
       return;
+    }
+
+    if (oldAmount + amount < 0) {
+      throw new ParameterException('修改余额会导致账户历史余额小于0');
     }
 
     // 交易时间没有记录，说明原来金额和前一个记录相同，这里增加一条记录，在前一个记录上加上amount

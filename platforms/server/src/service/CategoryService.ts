@@ -11,6 +11,23 @@ import { applyPagination } from '../utils/applyPagination';
 export class CategoryService {
   constructor(private readonly dataSource: DataSource) {}
 
+  async findByIdsAndUserId(
+    ids: Array<number>,
+    userId: number,
+  ): Promise<Array<CategoryEntity>> {
+    return this.dataSource
+      .createQueryBuilder(CategoryEntity, 'category')
+      .leftJoin('category.accountBook', 'accountBook')
+      .leftJoin('accountBook.admins', 'admin')
+      .leftJoin('accountBook.members', 'member')
+      .where('category.id IN (:...ids)', { ids })
+      .andWhere('admin.id = :adminId OR member.id = :memberId', {
+        adminId: userId,
+        memberId: userId,
+      })
+      .getMany();
+  }
+
   async delete(id: number, user: UserEntity) {
     return this.dataSource.manager.transaction(async (manager) => {
       const category = await manager
