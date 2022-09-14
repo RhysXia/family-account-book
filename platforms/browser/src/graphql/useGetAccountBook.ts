@@ -1,5 +1,6 @@
+import { useAppQuery } from '@/apollo';
 import { AccountBook } from '@/types';
-import { gql, useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
 
 const GET_ACCOUNT_BOOK_BY_ID = gql`
   query GetAccountBookById($id: ID!) {
@@ -35,7 +36,7 @@ export type AccountBookDetail = AccountBook & {
 };
 
 const useGetAccountBook = (props: { id: string }) => {
-  return useQuery<{
+  return useAppQuery<{
     node: AccountBookDetail;
   }>(GET_ACCOUNT_BOOK_BY_ID, {
     variables: props,

@@ -1,4 +1,5 @@
-import { gql, useMutation } from '@apollo/client';
+import { useAppMutation } from '@/apollo';
+import { gql } from '@apollo/client';
 
 const DELETE_FLOW_RECORD = gql`
   mutation DeleteFlowRecord($id: ID!) {
@@ -7,7 +8,7 @@ const DELETE_FLOW_RECORD = gql`
 `;
 
 const useDeleteFlowRecord = () => {
-  return useMutation<
+  return useAppMutation<
     boolean,
     {
       id: string;

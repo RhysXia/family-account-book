@@ -1,4 +1,5 @@
-import { gql, useMutation } from '@apollo/client';
+import { useAppMutation } from '@/apollo';
+import { gql } from '@apollo/client';
 
 const DELETE_TAG = gql`
   mutation DeleteTag($id: ID!) {
@@ -7,7 +8,7 @@ const DELETE_TAG = gql`
 `;
 
 const useDeleteTag = () => {
-  return useMutation<
+  return useAppMutation<
     { tagId: number },
     {
       id: string;

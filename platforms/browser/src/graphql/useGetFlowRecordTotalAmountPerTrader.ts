@@ -1,5 +1,6 @@
+import { useAppQuery } from '@/apollo';
 import { TagType } from '@/types';
-import { gql, useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
 
 const GET_FLOW_RECORD_TOTAL_AMOUNT_PER_TRADER = gql`
   query GetFlowRecordTotalAmountPerTrader(
@@ -34,7 +35,7 @@ const useGetFlowRecordTotalAmountPerTrader = ({
   startDate?: string;
   endDate?: string;
 }) => {
-  return useQuery<{
+  return useAppQuery<{
     node: {
       id: string;
       statistics: {

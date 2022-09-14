@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, In } from 'typeorm';
 import { AccountBookEntity } from '../entity/AccountBookEntity';
+import { CategoryEntity } from '../entity/CategoryEntity';
 import { FlowRecordEntity } from '../entity/FlowRecordEntity';
 import { SavingAccountEntity } from '../entity/SavingAccountEntity';
 import { SavingAccountHistoryEntity } from '../entity/SavingAccountHistoryEntity';
@@ -415,6 +416,15 @@ export class AccountBookService {
         .createQueryBuilder()
         .delete()
         .from(TagEntity)
+        .where('accountBookId = :accountBookId', {
+          accountBookId: id,
+        })
+        .execute();
+
+      await manager
+        .createQueryBuilder()
+        .delete()
+        .from(CategoryEntity)
         .where('accountBookId = :accountBookId', {
           accountBookId: id,
         })

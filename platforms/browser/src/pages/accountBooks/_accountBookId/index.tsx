@@ -2,7 +2,7 @@ import Content from '@/components/Content';
 import DatePicker from '@/components/DatePicker';
 import { activeAccountBookAtom } from '@/store';
 import { DateGroupBy, TagType } from '@/types';
-import { TagInfoMap } from '@/utils/constants';
+import { CategoryTypeInfoMap } from '@/utils/constants';
 import { Radio, RadioChangeEvent, Tabs } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import { useAtom } from 'jotai';
@@ -10,7 +10,7 @@ import { useCallback, useState } from 'react';
 import AmountCard from './commons/AmountCard';
 import FlowRecordTrend from './commons/FlowRecordTrend';
 
-const keys = Object.keys(TagInfoMap) as Array<TagType>;
+const keys = Object.keys(CategoryTypeInfoMap) as Array<TagType>;
 
 const Overview = () => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
@@ -44,7 +44,7 @@ const Overview = () => {
         <div className="-m-2 -mb-0 flex items-center flex-wrap">
           {keys.map((key) => (
             <div key={key} className="md:w-1/2 lg:w-1/4 px-2">
-              <AmountCard title={TagInfoMap[key].text} type={key} />
+              <AmountCard title={CategoryTypeInfoMap[key].text} type={key} />
             </div>
           ))}
         </div>
@@ -69,7 +69,7 @@ const Overview = () => {
             }
           >
             {keys.map((key) => (
-              <Tabs.TabPane tab={TagInfoMap[key].text} key={key}>
+              <Tabs.TabPane tab={CategoryTypeInfoMap[key].text} key={key}>
                 <FlowRecordTrend
                   dateRange={dateRange}
                   groupBy={groupBy}

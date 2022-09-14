@@ -20,7 +20,7 @@ import {
   TagType,
   AccountBook,
 } from '@/types';
-import { TagInfoMap } from '@/utils/constants';
+import { CategoryTypeInfoMap } from '@/utils/constants';
 import { CreditCardOutlined } from '@ant-design/icons';
 import { Button, Input, InputNumber, Select } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
@@ -111,7 +111,9 @@ const Index = () => {
                     <Select.Option value={tag.id} key={tag.id}>
                       <span
                         className="inline-block leading-4 rounded px-2 py-1 text-white"
-                        style={{ background: TagInfoMap[tag.type].color }}
+                        style={{
+                          background: CategoryTypeInfoMap[tag.type].color,
+                        }}
                       >
                         {tag.name}
                       </span>
@@ -124,7 +126,7 @@ const Index = () => {
           return (
             <span
               className="inline-block leading-4 rounded px-2 py-1 text-white"
-              style={{ background: TagInfoMap[value.type].color }}
+              style={{ background: CategoryTypeInfoMap[value.type].color }}
             >
               {value.name}
             </span>

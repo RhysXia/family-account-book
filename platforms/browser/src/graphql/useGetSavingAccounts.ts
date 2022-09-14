@@ -1,5 +1,6 @@
+import { useAppQuery } from '@/apollo';
 import { PaginationResult, SavingAccount } from '@/types';
-import { gql, useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
 
 const GET_SAVING_ACCOUNTS_BY_ACCOUNT_BOOK_ID = gql`
   query GetSavingAccountsByAccountBookId($accountBookId: ID!) {
@@ -25,7 +26,7 @@ const GET_SAVING_ACCOUNTS_BY_ACCOUNT_BOOK_ID = gql`
 `;
 
 const useGetSavingAccounts = (variables: { accountBookId: string }) => {
-  return useQuery<{
+  return useAppQuery<{
     node: {
       savingAccounts: PaginationResult<
         SavingAccount & {

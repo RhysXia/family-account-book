@@ -2,8 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { DataSource, In } from 'typeorm';
 import { AccountBookEntity } from '../entity/AccountBookEntity';
 import { CategoryEntity, CategoryType } from '../entity/CategoryEntity';
+import { TagEntity } from '../entity/TagEntity';
 import { UserEntity } from '../entity/UserEntity';
-import { ResourceNotFoundException } from '../exception/ServiceException';
+import {
+  ParameterException,
+  ResourceNotFoundException,
+} from '../exception/ServiceException';
 import { Pagination } from '../graphql/graphql';
 import { applyPagination } from '../utils/applyPagination';
 
@@ -46,6 +50,16 @@ export class CategoryService {
 
       if (!category) {
         throw new ResourceNotFoundException('分类不存在');
+      }
+
+      const tag = await manager.findOne(TagEntity, {
+        where: {
+          categoryId: category.id,
+        },
+      });
+
+      if (tag) {
+        throw new ParameterException('存在标签关联该分类，不允许删除');
       }
 
       return manager.remove(category);

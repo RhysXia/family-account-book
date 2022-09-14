@@ -1,4 +1,5 @@
-import { gql, useMutation } from '@apollo/client';
+import { useAppMutation } from '@/apollo';
+import { gql } from '@apollo/client';
 
 const UPDATE_FLOW_RECORD = gql`
   mutation UpdateFlowRecord($flowRecord: UpdateFlowRecordInput!) {
@@ -19,7 +20,7 @@ export type UpdateFlowRecordInput = {
 };
 
 const useUpdateFlowRecord = () => {
-  return useMutation<
+  return useAppMutation<
     { id: string },
     {
       flowRecord: UpdateFlowRecordInput;

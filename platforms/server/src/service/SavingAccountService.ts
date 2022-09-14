@@ -11,6 +11,8 @@ import {
   ParameterException,
   ResourceNotFoundException,
 } from '../exception/ServiceException';
+import { FlowRecordEntity } from '../entity/FlowRecordEntity';
+import { SavingAccountTransferRecordEntity } from '../entity/SavingAccountTransferRecordEntity';
 
 @Injectable()
 export class SavingAccountService {
@@ -34,8 +36,45 @@ export class SavingAccountService {
         throw new ResourceNotFoundException('储蓄账户不存在');
       }
 
-      // 软删除
-      await manager.softRemove(savingAccount);
+      const flowRecord = await manager.findOne(FlowRecordEntity, {
+        where: {
+          savingAccountId: savingAccount.id,
+        },
+      });
+
+      if (flowRecord) {
+        throw new ParameterException('存在流水关联该账户，无法删除');
+      }
+
+      const transfer = await manager.findOne(
+        SavingAccountTransferRecordEntity,
+        {
+          where: [
+            {
+              fromId: savingAccount.id,
+            },
+            {
+              toId: savingAccount.id,
+            },
+          ],
+        },
+      );
+
+      if (transfer) {
+        throw new ParameterException('存在转账记录关联该账户，无法删除');
+      }
+
+      // 删除历史余额
+      await manager
+        .createQueryBuilder()
+        .delete()
+        .from(SavingAccountHistoryEntity)
+        .where('savingAccountId = :savingAccountId', {
+          savingAccountId: savingAccount.id,
+        })
+        .execute();
+
+      await manager.remove(savingAccount);
     });
   }
 

@@ -2,9 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { DataSource, In } from 'typeorm';
 import { AccountBookEntity } from '../entity/AccountBookEntity';
 import { CategoryEntity } from '../entity/CategoryEntity';
+import { FlowRecordEntity } from '../entity/FlowRecordEntity';
 import { TagEntity } from '../entity/TagEntity';
 import { UserEntity } from '../entity/UserEntity';
-import { ResourceNotFoundException } from '../exception/ServiceException';
+import {
+  ParameterException,
+  ResourceNotFoundException,
+} from '../exception/ServiceException';
 import { Pagination } from '../graphql/graphql';
 import { applyPagination } from '../utils/applyPagination';
 
@@ -27,11 +31,21 @@ export class TagService {
         .getOne();
 
       if (!tag) {
-        throw new ResourceNotFoundException('储蓄账户不存在');
+        throw new ResourceNotFoundException('标签不存在');
+      }
+
+      const flowRecord = await manager.find(FlowRecordEntity, {
+        where: {
+          tagId: tag.id,
+        },
+      });
+
+      if (flowRecord) {
+        throw new ParameterException('存在流水关联该标签，无法删除');
       }
 
       // 软删除
-      await manager.softRemove(tag);
+      await manager.remove(tag);
     });
   }
 

@@ -41,17 +41,25 @@ export type SavingAccount = {
   amount: number;
 };
 
-export enum TagType {
-  INCOME = 'INCOME',
-  EXPENDITURE = 'EXPENDITURE',
-  INVESTMENT = 'INVESTMENT',
-  LOAD = 'LOAD',
+export enum CategoryType {
+  POSITIVE_AMOUNT = 'POSITIVE_AMOUNT',
+  NEGATIVE_AMOUNT = 'NEGATIVE_AMOUNT',
+  POSITIVE_OR_NEGATIVE_AMOUNT = 'POSITIVE_OR_NEGATIVE_AMOUNT',
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  desc?: string;
+  type: CategoryType;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export type Tag = {
   id: string;
   name: string;
-  type: TagType;
+  desc?: string;
   createdAt: string;
   updatedAt: string;
 };

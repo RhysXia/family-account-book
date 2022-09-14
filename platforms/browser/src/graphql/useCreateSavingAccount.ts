@@ -1,5 +1,6 @@
+import { useAppMutation } from '@/apollo';
 import { SavingAccount } from '@/types';
-import { gql, useMutation } from '@apollo/client';
+import { gql } from '@apollo/client';
 
 const CREATE_SAVING_ACCOUNT = gql`
   mutation CreateSavingAccount(
@@ -27,7 +28,7 @@ const CREATE_SAVING_ACCOUNT = gql`
 `;
 
 const useCreateSavingAccount = () => {
-  return useMutation<{
+  return useAppMutation<{
     createSavingAccount: SavingAccount;
   }>(CREATE_SAVING_ACCOUNT);
 };

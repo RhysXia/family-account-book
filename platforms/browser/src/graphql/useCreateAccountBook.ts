@@ -1,5 +1,6 @@
+import { useAppMutation } from '@/apollo';
 import { AccountBook } from '@/types';
-import { gql, useMutation } from '@apollo/client';
+import { gql } from '@apollo/client';
 
 const CREATE_ACCOUNT_BOOK = gql`
   mutation CreateAccountBook(
@@ -33,7 +34,7 @@ export type CreateAccountBookVariables = {
 };
 
 const useCreateAccountBook = () => {
-  return useMutation<
+  return useAppMutation<
     {
       createAccountBook: AccountBook;
     },

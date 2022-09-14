@@ -1,5 +1,6 @@
+import { useAppQuery } from '@/apollo';
 import { AccountBook, PaginationResult } from '@/types';
-import { gql, useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
 
 const GET_ACCOUNT_LIST = gql`
   query GetSelfAccountBooks {
@@ -20,7 +21,7 @@ const GET_ACCOUNT_LIST = gql`
 `;
 
 const useGetAccountBooks = () => {
-  return useQuery<{
+  return useAppQuery<{
     getCurrentUser: {
       accountBooks: PaginationResult<AccountBook>;
     };

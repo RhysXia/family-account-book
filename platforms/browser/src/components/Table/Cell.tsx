@@ -1,6 +1,7 @@
 import useConstantFn from '@/hooks/useConstanFn';
 import { Input } from 'antd';
 import { FC, ReactNode } from 'react';
+import clsx from 'clsx';
 
 export type RenderProps<T = any> = {
   value: T;
@@ -13,7 +14,8 @@ export type Render = (data: RenderProps) => ReactNode;
 
 export type Column = {
   title: string;
-  width?: number;
+  width?: number | string;
+  className?: string;
   render?: Render;
   dataIndex?: string;
   key?: string;
@@ -43,7 +45,7 @@ const Cell: FC<CellProps> = ({
   onChange,
   onEdit,
 }) => {
-  const { width, dataIndex, render = DEFAULT_RENDER } = column;
+  const { width, dataIndex, render = DEFAULT_RENDER, className } = column;
 
   const handleValueChange = useConstantFn((v: any) => {
     if (isEdit) {
@@ -54,8 +56,10 @@ const Cell: FC<CellProps> = ({
 
   const value = dataIndex === undefined ? row : row[dataIndex];
 
+  const classes = clsx('table-cell', 'p-2', className);
+
   return (
-    <div className="table-cell p-2" style={{ width }} onDoubleClick={onEdit}>
+    <div className={classes} style={{ width }} onDoubleClick={onEdit}>
       {render({ value, onChange: handleValueChange, isEdit, index })}
     </div>
   );

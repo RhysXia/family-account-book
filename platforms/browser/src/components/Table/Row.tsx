@@ -75,6 +75,9 @@ const Row: FC<RowProps> = ({
       }
       case 'Enter': {
         try {
+          if (data === initalData) {
+            return;
+          }
           await onSubmit?.(data);
           setEdit(false);
         } catch (err) {

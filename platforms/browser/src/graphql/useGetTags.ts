@@ -1,5 +1,6 @@
+import { useAppQuery } from '@/apollo';
 import { PaginationResult, Tag } from '@/types';
-import { gql, useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
 
 const GET_TAGS_BY_ACCOUNT_BOOK_ID = gql`
   query GetTagsByAccountBookId($accountBookId: ID!) {
@@ -24,7 +25,7 @@ const GET_TAGS_BY_ACCOUNT_BOOK_ID = gql`
 `;
 
 const useGetTags = (variables: { accountBookId: string }) => {
-  return useQuery<{
+  return useAppQuery<{
     node: {
       tags: PaginationResult<
         Tag & {

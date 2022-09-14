@@ -1,3 +1,4 @@
+import { useAppQuery } from '@/apollo';
 import {
   FlowRecord,
   PaginationResult,
@@ -6,7 +7,7 @@ import {
   User,
   Pagination,
 } from '@/types';
-import { gql, useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
 
 const GET_SELF_FLOW_RECORDS = gql`
   query GetSelfFlowRecordsByAccountBookId(
@@ -59,7 +60,7 @@ const useGetFlowRecords = (variables: {
   accountBookId: string;
   pagination?: Pagination;
 }) => {
-  return useQuery<{
+  return useAppQuery<{
     node: {
       flowRecords: PaginationResult<FlowRecordDetail>;
     };

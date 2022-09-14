@@ -86,17 +86,17 @@ const items: Array<ItemType> = [
     ],
   },
   {
-    label: '标签',
+    label: '分类管理',
     key: 'tag-group',
     icon: <TagsOutlined />,
     children: [
       {
         label: '列表',
-        key: 'tags',
+        key: 'categories',
       },
       {
         label: '统计',
-        key: 'tags/statistics',
+        key: 'categories/statistics',
       },
     ],
   },

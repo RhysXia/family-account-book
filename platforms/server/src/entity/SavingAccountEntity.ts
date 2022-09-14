@@ -1,6 +1,5 @@
 import {
   Column,
-  DeleteDateColumn,
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -59,10 +58,4 @@ export class SavingAccountEntity extends AbstractTimestampEntity {
   accountBook!: AccountBookEntity;
   @Column()
   accountBookId!: number;
-
-  /**
-   * 删除时间
-   */
-  @DeleteDateColumn({ type: 'timestamptz' })
-  deletedAt?: Date;
 }
