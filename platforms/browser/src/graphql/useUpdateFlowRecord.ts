@@ -21,7 +21,7 @@ export type UpdateFlowRecordInput = {
 
 const useUpdateFlowRecord = () => {
   return useAppMutation<
-    { id: string },
+    { updateFlowRecord: { id: string } },
     {
       flowRecord: UpdateFlowRecordInput;
     }

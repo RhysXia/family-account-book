@@ -17,7 +17,11 @@ export type UpdateCategoryInput = {
 
 const useUpdateCategory = () => {
   return useAppMutation<
-    { id: string },
+    {
+      updateCategory: {
+        id: string;
+      };
+    },
     {
       category: UpdateCategoryInput;
     }

@@ -1,12 +1,10 @@
 import { useAppMutation } from '@/apollo';
-import { Tag, TagType } from '@/types';
+import { Tag } from '@/types';
 import { gql } from '@apollo/client';
 
 const CREATE_TAG = gql`
-  mutation CreateTag($name: String!, $type: TagType!, $accountBookId: ID!) {
-    createTag(
-      tag: { name: $name, type: $type, accountBookId: $accountBookId }
-    ) {
+  mutation CreateTag($tag: CreateTagInput) {
+    createTag(tag: $tag) {
       id
       name
       type
@@ -17,9 +15,9 @@ const CREATE_TAG = gql`
 `;
 
 export type CreateTagInput = {
-  accountBookId: string;
+  categoryId: string;
   name: string;
-  type: TagType;
+  desc?: string;
 };
 
 const useCreateTag = () => {
@@ -27,7 +25,9 @@ const useCreateTag = () => {
     {
       createTag: Tag;
     },
-    CreateTagInput
+    {
+      tag: CreateTagInput;
+    }
   >(CREATE_TAG);
 };
 

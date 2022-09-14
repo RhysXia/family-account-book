@@ -9,7 +9,7 @@ const DELETE_TAG = gql`
 
 const useDeleteTag = () => {
   return useAppMutation<
-    { tagId: number },
+    boolean,
     {
       id: string;
     }

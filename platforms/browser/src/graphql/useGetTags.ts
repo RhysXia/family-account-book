@@ -1,21 +1,52 @@
 import { useAppQuery } from '@/apollo';
-import { PaginationResult, Tag } from '@/types';
+import { Category, Pagination, PaginationResult, Tag } from '@/types';
 import { gql } from '@apollo/client';
 
 const GET_TAGS_BY_ACCOUNT_BOOK_ID = gql`
-  query GetTagsByAccountBookId($accountBookId: ID!) {
+  query GetTagsByAccountBookId($accountBookId: ID!, $pagination: Pagination) {
     node(id: $accountBookId) {
       ... on AccountBook {
         id
-        tags {
+        tags(pagination: $pagination) {
           total
           data {
             id
             name
-            type
+            desc
+            createdAt
+            updatedAt
+          }
+        }
+      }
+    }
+  }
+`;
+
+const GET_TAGS_WITH_CATEGORY_BY_ACCOUNT_BOOK_ID = gql`
+  query GetTagsWithCategoryByAccountBookId(
+    $accountBookId: ID!
+    $pagination: Pagination
+  ) {
+    node(id: $accountBookId) {
+      ... on AccountBook {
+        id
+        tags(pagination: $pagination) {
+          total
+          data {
+            id
+            name
+            desc
             creator {
               id
               nickname
+            }
+            createdAt
+            updatedAt
+            category {
+              id
+              name
+              desc
+              type
             }
           }
         }
@@ -24,7 +55,23 @@ const GET_TAGS_BY_ACCOUNT_BOOK_ID = gql`
   }
 `;
 
-const useGetTags = (variables: { accountBookId: string }) => {
+export const useGetTags = (variables: {
+  accountBookId: string;
+  pagination?: Pagination;
+}) => {
+  return useAppQuery<{
+    node: {
+      tags: PaginationResult<Tag>;
+    };
+  }>(GET_TAGS_BY_ACCOUNT_BOOK_ID, {
+    variables,
+  });
+};
+
+export const useGetTagsWithCategory = (variables: {
+  accountBookId: string;
+  pagination?: Pagination;
+}) => {
   return useAppQuery<{
     node: {
       tags: PaginationResult<
@@ -33,12 +80,11 @@ const useGetTags = (variables: { accountBookId: string }) => {
             id: string;
             nickname: string;
           };
+          category: Category;
         }
       >;
     };
-  }>(GET_TAGS_BY_ACCOUNT_BOOK_ID, {
+  }>(GET_TAGS_WITH_CATEGORY_BY_ACCOUNT_BOOK_ID, {
     variables,
   });
 };
-
-export default useGetTags;

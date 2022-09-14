@@ -95,10 +95,9 @@ const Row: FC<RowProps> = ({
       onKeyDown={handleKeyDown}
     >
       {columns.map((column, subIndex) => {
-        const { key } = column;
         return (
           <Cell
-            key={key ? data[key] : subIndex}
+            key={subIndex}
             column={column}
             row={data}
             isEdit={isEdit}

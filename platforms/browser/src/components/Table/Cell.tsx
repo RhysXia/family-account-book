@@ -2,6 +2,7 @@ import useConstantFn from '@/hooks/useConstanFn';
 import { Input } from 'antd';
 import { FC, ReactNode } from 'react';
 import clsx from 'clsx';
+import { getProp, mergeProp } from './utils';
 
 export type RenderProps<T = any> = {
   value: T;
@@ -18,7 +19,6 @@ export type Column = {
   className?: string;
   render?: Render;
   dataIndex?: string;
-  key?: string;
 };
 
 export type CellProps = {
@@ -49,12 +49,12 @@ const Cell: FC<CellProps> = ({
 
   const handleValueChange = useConstantFn((v: any) => {
     if (isEdit) {
-      const data = dataIndex === undefined ? v : { ...row, [dataIndex]: v };
+      const data = mergeProp(row, v, dataIndex);
       onChange(data);
     }
   });
 
-  const value = dataIndex === undefined ? row : row[dataIndex];
+  const value = getProp(row, dataIndex);
 
   const classes = clsx('table-cell', 'p-2', className);
 
