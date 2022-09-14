@@ -1,55 +1,57 @@
-import { Button, Form, Input, InputNumber, Modal, Table } from 'antd';
-import { ColumnsType } from 'antd/lib/table';
+import { Button, Input, InputNumber, Modal } from 'antd';
 import { useAtom } from 'jotai';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { activeAccountBookAtom } from '@/store';
-import { SavingAccount, User } from '@/types';
+import { SavingAccount } from '@/types';
 import { fromTime } from '@/utils/dayjs';
 import useGetSavingAccounts from '@/graphql/useGetSavingAccounts';
-import useCreateSavingAccount from '@/graphql/useCreateSavingAccount';
 import useDeleteSavingAccount from '@/graphql/useDeleteSavingAccount';
+import CreateModal from './commons/CreateModal';
+import usePagination from '@/hooks/usePage';
+import Content from '@/components/Content';
+import Table from '@/components/Table';
+import { Column, RenderProps } from '@/components/Table/Cell';
+import useUpdateSavingAccount from '@/graphql/useUpdateSavingAccount';
 
 const SavingAccountPage = () => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
-
-  const [form] = Form.useForm();
 
   const [createModalVisible, setCreateModalVisible] = useState(false);
 
   const navigate = useNavigate();
 
+  const { getPagination, limit, offset } = usePagination();
+
   const { data, refetch } = useGetSavingAccounts({
     accountBookId: activeAccountBook!.id,
+    pagination: {
+      limit,
+      offset,
+      orderBy: [
+        {
+          field: 'createdAt',
+          direction: 'DESC',
+        },
+      ],
+    },
   });
 
-  const [createSavingAccount] = useCreateSavingAccount();
-
   const [deleteSavingAccount] = useDeleteSavingAccount();
-
-  const handleOk = useCallback(async () => {
-    await form.validateFields();
-    await createSavingAccount({
-      variables: {
-        ...form.getFieldsValue(),
-        accountBookId: activeAccountBook?.id,
-      },
-    });
-
-    await refetch();
-
-    setCreateModalVisible(false);
-    form.resetFields();
-  }, [form, refetch, activeAccountBook, createSavingAccount]);
-
-  const handleCancel = useCallback(() => {
-    setCreateModalVisible(false);
-    form.resetFields();
-  }, [form]);
+  const [updateSavingAccount] = useUpdateSavingAccount();
 
   const handleCreateButton = useCallback(() => {
     setCreateModalVisible(true);
   }, []);
+
+  const handleCreateCancelled = useCallback(() => {
+    setCreateModalVisible(false);
+  }, []);
+
+  const handleCreated = useCallback(async () => {
+    await refetch();
+    setCreateModalVisible(false);
+  }, [refetch]);
 
   const handleDeleteSavingAccount = useCallback(
     async (id: string) => {
@@ -63,51 +65,110 @@ const SavingAccountPage = () => {
     [deleteSavingAccount, refetch],
   );
 
-  const columns: ColumnsType<any> = [
+  const handleEdit = useCallback(
+    async (value: SavingAccount) => {
+      const { id, name, desc, amount } = value;
+      await updateSavingAccount({
+        variables: {
+          savingAccount: {
+            id,
+            name,
+            desc,
+            amount,
+          },
+        },
+      });
+    },
+    [updateSavingAccount],
+  );
+
+  const columns: Array<Column> = [
     {
       title: '名称',
       dataIndex: 'name',
-      key: 'name',
+      width: '10%',
+      render({ value, onChange, isEdit }: RenderProps<string>) {
+        if (isEdit) {
+          return (
+            <Input
+              size="small"
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+            />
+          );
+        }
+        return <span className="p-2">{value}</span>;
+      },
     },
     {
       title: '描述',
       dataIndex: 'desc',
-      key: 'desc',
+      width: '20%',
+      render({ value, onChange, isEdit }: RenderProps<string>) {
+        if (isEdit) {
+          return (
+            <Input
+              size="small"
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+            />
+          );
+        }
+        return <span className="p-2">{value}</span>;
+      },
     },
     {
       title: '余额',
       dataIndex: 'amount',
-      key: 'amount',
-      render(amount: number) {
-        return `￥${amount.toLocaleString()}`;
+      width: '15%',
+      render({ value, onChange, isEdit }: RenderProps<number>) {
+        if (isEdit) {
+          return (
+            <InputNumber
+              prefix="￥"
+              size="small"
+              value={value}
+              onChange={onChange}
+            />
+          );
+        }
+        return (
+          <span className="p-2">
+            {value.toLocaleString('zh-CN', {
+              style: 'currency',
+              currency: 'CNY',
+            })}
+          </span>
+        );
       },
     },
     {
       title: '创建人',
-      dataIndex: 'creator',
-      key: 'creator',
-      render(creator: User) {
-        return creator.nickname;
+      dataIndex: 'creator.nickname',
+      width: '15%',
+      render({ value }: RenderProps<string>) {
+        return value;
       },
     },
     {
       title: '创建时间',
       dataIndex: 'createdAt',
-      key: 'createdAt',
-      render(createdAt: string) {
-        return fromTime(createdAt);
+      width: '20%',
+      render({ value }: RenderProps<string>) {
+        return fromTime(value);
       },
     },
     {
       title: '操作',
-      render(record: SavingAccount) {
+      width: '20%',
+      render({ value }: RenderProps<SavingAccount>) {
         return (
           <div className="space-x-4">
             <Button
               size="small"
               type="primary"
               onClick={() => {
-                navigate(`${record.id}`);
+                navigate(`${value.id}`);
               }}
             >
               详情
@@ -121,7 +182,7 @@ const SavingAccountPage = () => {
                   title: '确认删除',
                   content: '确认删除该存款账户吗？',
                   onOk: async () => {
-                    await handleDeleteSavingAccount(record.id);
+                    await handleDeleteSavingAccount(value.id);
                   },
                 });
               }}
@@ -134,53 +195,39 @@ const SavingAccountPage = () => {
     },
   ];
 
-  const title = <h1 className="font-bold text-xl mb-2">新建储蓄账户</h1>;
+  const breadcrumbs = [
+    {
+      name: activeAccountBook!.name,
+      path: `/accountBooks/${activeAccountBook!.id}`,
+    },
+    {
+      name: '账户列表',
+    },
+  ];
 
   return (
-    <div className="w-full">
-      <div className="bg-white flex flex-row items-center justify-between p-4 mb-4">
-        <div></div>
-        <div className="">
-          <Button type="primary" onClick={handleCreateButton}>
-            新建
-          </Button>
-        </div>
-      </div>
+    <Content
+      breadcrumbs={breadcrumbs}
+      pagination={data && getPagination(data.node.savingAccounts.total)}
+      action={
+        <Button type="primary" onClick={handleCreateButton}>
+          新建
+        </Button>
+      }
+      title="账户列表"
+    >
       <Table
-        pagination={false}
         columns={columns}
-        dataSource={data?.node.savingAccounts.data.map((it) => ({
-          ...it,
-          key: it.id,
-        }))}
+        editable={true}
+        data={data?.node.savingAccounts.data || []}
+        onEditSubmit={handleEdit}
       />
-      <Modal
+      <CreateModal
         visible={createModalVisible}
-        title={title}
-        onOk={handleOk}
-        onCancel={handleCancel}
-      >
-        <Form form={form} labelCol={{ span: 3 }}>
-          <Form.Item
-            label="名称"
-            name="name"
-            rules={[{ required: true, message: '名称不能为空' }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item label="描述" name="desc">
-            <Input.TextArea autoSize={{ minRows: 4 }} />
-          </Form.Item>
-          <Form.Item
-            label="余额"
-            name="amount"
-            rules={[{ required: true, message: '金额不能为空' }]}
-          >
-            <InputNumber addonBefore="￥" precision={2} className="w-full" />
-          </Form.Item>
-        </Form>
-      </Modal>
-    </div>
+        onCancelled={handleCreateCancelled}
+        onCreated={handleCreated}
+      />
+    </Content>
   );
 };
 

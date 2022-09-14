@@ -3,20 +3,8 @@ import { SavingAccount } from '@/types';
 import { gql } from '@apollo/client';
 
 const CREATE_SAVING_ACCOUNT = gql`
-  mutation CreateSavingAccount(
-    $name: String!
-    $desc: String
-    $amount: Float!
-    $accountBookId: ID!
-  ) {
-    createSavingAccount(
-      savingAccount: {
-        name: $name
-        desc: $desc
-        amount: $amount
-        accountBookId: $accountBookId
-      }
-    ) {
+  mutation CreateSavingAccount($savingAccount: CreateSavingAccountInput!) {
+    createSavingAccount(savingAccount: $savingAccount) {
       id
       name
       desc
@@ -27,10 +15,22 @@ const CREATE_SAVING_ACCOUNT = gql`
   }
 `;
 
+export type CreateSavingAccountInput = {
+  name: string;
+  desc?: string;
+  amount: number;
+  accountBookId: string;
+};
+
 const useCreateSavingAccount = () => {
-  return useAppMutation<{
-    createSavingAccount: SavingAccount;
-  }>(CREATE_SAVING_ACCOUNT);
+  return useAppMutation<
+    {
+      createSavingAccount: SavingAccount;
+    },
+    {
+      savingAccount: CreateSavingAccountInput;
+    }
+  >(CREATE_SAVING_ACCOUNT);
 };
 
 export default useCreateSavingAccount;

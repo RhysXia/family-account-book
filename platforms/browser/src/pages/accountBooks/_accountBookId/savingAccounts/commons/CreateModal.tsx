@@ -1,9 +1,8 @@
-import useCreateCategory, {
-  CreateCategoryInput,
-} from '@/graphql/useCreateCategory';
+import useCreateSavingAccount, {
+  CreateSavingAccountInput,
+} from '@/graphql/useCreateSavingAccount';
 import { activeAccountBookAtom } from '@/store';
-import { CategoryTypes, CategoryTypeInfoMap } from '@/utils/constants';
-import { Modal, Form, Input, Select } from 'antd';
+import { Modal, Form, Input, InputNumber } from 'antd';
 import { useAtom } from 'jotai';
 import { FC, useCallback } from 'react';
 
@@ -20,14 +19,15 @@ const CreateModal: FC<CreateModalProps> = ({
 }) => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
 
-  const [form] = Form.useForm<Omit<CreateCategoryInput, 'accountBookId'>>();
-  const [createCategory] = useCreateCategory();
+  const [form] =
+    Form.useForm<Omit<CreateSavingAccountInput, 'accountBookId'>>();
+  const [createSavingAccount] = useCreateSavingAccount();
 
   const handleOk = useCallback(async () => {
     await form.validateFields();
-    await createCategory({
+    await createSavingAccount({
       variables: {
-        category: {
+        savingAccount: {
           ...form.getFieldsValue(),
           accountBookId: activeAccountBook!.id,
         },
@@ -37,14 +37,14 @@ const CreateModal: FC<CreateModalProps> = ({
     await onCreated();
 
     form.resetFields();
-  }, [form, onCreated, activeAccountBook, createCategory]);
+  }, [form, onCreated, activeAccountBook, createSavingAccount]);
 
   const handleCancel = useCallback(() => {
     onCancelled();
     form.resetFields();
   }, [form, onCancelled]);
 
-  const title = <h1 className="font-bold text-xl mb-2">新建分类</h1>;
+  const title = <h1 className="font-bold text-xl mb-2">新建账户</h1>;
 
   return (
     <Modal
@@ -59,28 +59,22 @@ const CreateModal: FC<CreateModalProps> = ({
           name="name"
           rules={[{ required: true, message: '名称不能为空' }]}
         >
-          <Input placeholder="请输入名称" />
+          <Input />
         </Form.Item>
-        <Form.Item label="类型" name="type">
-          <Select placeholder="请选择类型">
-            {CategoryTypes.map((type) => {
-              return (
-                <Select.Option key={type} value={type}>
-                  <span
-                    className="inline-block leading-4 rounded px-2 py-1 text-white"
-                    style={{
-                      background: CategoryTypeInfoMap[type].color,
-                    }}
-                  >
-                    {CategoryTypeInfoMap[type].text}
-                  </span>
-                </Select.Option>
-              );
-            })}
-          </Select>
+        <Form.Item
+          label="余额"
+          name="amount"
+          rules={[{ required: true, message: '金额不能为空' }]}
+        >
+          <InputNumber
+            min={0.01}
+            addonBefore="￥"
+            precision={2}
+            className="w-full"
+          />
         </Form.Item>
         <Form.Item label="描述" name="desc">
-          <Input.TextArea placeholder="请输入描述" />
+          <Input.TextArea autoSize={{ minRows: 4 }} />
         </Form.Item>
       </Form>
     </Modal>

@@ -1,19 +1,24 @@
 import { useAppQuery } from '@/apollo';
-import { PaginationResult, SavingAccount } from '@/types';
+import { Pagination, PaginationResult, SavingAccount } from '@/types';
 import { gql } from '@apollo/client';
 
 const GET_SAVING_ACCOUNTS_BY_ACCOUNT_BOOK_ID = gql`
-  query GetSavingAccountsByAccountBookId($accountBookId: ID!) {
+  query GetSavingAccountsByAccountBookId(
+    $accountBookId: ID!
+    $pagination: Pagination
+  ) {
     node(id: $accountBookId) {
       ... on AccountBook {
         id
-        savingAccounts {
+        savingAccounts(pagination: $pagination) {
           total
           data {
             id
             name
             desc
             amount
+            createdAt
+            updatedAt
             creator {
               id
               nickname
@@ -25,7 +30,10 @@ const GET_SAVING_ACCOUNTS_BY_ACCOUNT_BOOK_ID = gql`
   }
 `;
 
-const useGetSavingAccounts = (variables: { accountBookId: string }) => {
+const useGetSavingAccounts = (variables: {
+  accountBookId: string;
+  pagination?: Pagination;
+}) => {
   return useAppQuery<{
     node: {
       savingAccounts: PaginationResult<

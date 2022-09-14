@@ -131,7 +131,6 @@ const CategoryPage = () => {
     {
       title: '创建人',
       dataIndex: 'creator',
-      key: 'creator',
       width: '10%',
       render({ value }: { value: User }) {
         return value.nickname;
@@ -140,7 +139,6 @@ const CategoryPage = () => {
     {
       title: '创建时间',
       dataIndex: 'createdAt',
-      key: 'createdAt',
       width: '15%',
       render({ value }) {
         return fromTime(value);
@@ -191,13 +189,13 @@ const CategoryPage = () => {
       path: `/accountBooks/${activeAccountBook!.id}`,
     },
     {
-      name: '分类管理',
+      name: '分类列表',
     },
   ];
 
   return (
     <Content
-      title="分类管理"
+      title="分类列表"
       breadcrumbs={breadcrumbs}
       action={
         <Button type="primary" onClick={handleCreateButton}>

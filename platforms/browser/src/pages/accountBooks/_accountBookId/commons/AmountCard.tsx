@@ -57,11 +57,14 @@ const AmountCard: FC<AmountCardProps> = ({ type, title }) => {
       {totalAmountPerTraderData?.node.statistics.flowRecordTotalAmountPerTrader.map(
         (it) => (
           <div key={it.trader.id}>
-            {it.trader.nickname}: ￥{' '}
+            {it.trader.nickname}:
             {(type === TagType.EXPENDITURE
               ? -it.amount
               : it.amount
-            ).toLocaleString()}
+            ).toLocaleString('zh-CN', {
+              style: 'currency',
+              currency: 'CNY',
+            })}
           </div>
         ),
       )}
@@ -72,10 +75,13 @@ const AmountCard: FC<AmountCardProps> = ({ type, title }) => {
     <IndicatorCard
       title={title}
       tips={`月度${title}统计`}
-      value={`￥ ${(type === TagType.EXPENDITURE
+      value={(type === TagType.EXPENDITURE
         ? -currentMonthAmount
         : currentMonthAmount
-      ).toLocaleString()}`}
+      ).toLocaleString('zh-CN', {
+        style: 'currency',
+        currency: 'CNY',
+      })}
       footer={userDetails}
     >
       <Indicator

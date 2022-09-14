@@ -188,10 +188,21 @@ const TagPage = () => {
     },
   ];
 
+  const breadcrumbs = [
+    {
+      name: activeAccountBook!.name,
+      path: `/accountBooks/${activeAccountBook!.id}`,
+    },
+    {
+      name: '标签列表',
+    },
+  ];
+
   return (
     <Content
+      breadcrumbs={breadcrumbs}
       pagination={data && getPagination(data.node.tags.total)}
-      title="新建标签"
+      title="标签列表"
       action={
         <Button type="primary" onClick={handleCreateButton}>
           新建
