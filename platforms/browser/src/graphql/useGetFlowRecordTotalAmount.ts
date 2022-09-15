@@ -1,5 +1,4 @@
 import { useAppQuery } from '@/apollo';
-import { TagType } from '@/types';
 import { gql } from '@apollo/client';
 
 const GET_FLOW_RECORD_TOTAL_AMOUNT = gql`
@@ -24,7 +23,7 @@ const useGetFlowRecordTotalAmount = ({
   ...others
 }: {
   accountBookId: string;
-  tagType?: TagType;
+  categoryId?: string;
   traderId?: string;
   savingAccountId?: string;
   startDate?: string;

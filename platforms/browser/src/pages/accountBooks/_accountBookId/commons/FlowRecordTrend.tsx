@@ -1,7 +1,7 @@
 import ReactEcharts, { EchartsOptions } from '@/components/ReactEcharts';
 import useGetFlowRecordTotalAmountPerTraderGroupByDate from '@/graphql/useGetFlowRecordTotalAmountPerTraderGroupByDate';
 import { activeAccountBookAtom } from '@/store';
-import { DateGroupBy, TagType } from '@/types';
+import { Category, CategoryType, DateGroupBy } from '@/types';
 import { Empty } from 'antd';
 import { Dayjs } from 'dayjs';
 import { useAtom } from 'jotai';
@@ -9,7 +9,7 @@ import { FC, useMemo } from 'react';
 // import * as echarts from 'echarts/core';
 
 export type FlowRecordTrendProps = {
-  tagType: TagType;
+  category: Category;
   groupBy: DateGroupBy;
   dateRange?: [Dayjs | null, Dayjs | null] | null;
 };
@@ -23,7 +23,7 @@ export type FlowRecordTrendProps = {
 // ];
 
 const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
-  tagType,
+  category,
   groupBy,
   dateRange,
 }) => {
@@ -32,7 +32,7 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
   const { data } = useGetFlowRecordTotalAmountPerTraderGroupByDate({
     accountBookId: activeAccountBook!.id,
     groupBy,
-    tagType,
+    categoryId: category.id,
     startDate: dateRange?.[0]?.toISOString(),
     endDate: dateRange?.[1]?.toISOString(),
   });
@@ -65,7 +65,9 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
 
         const amount = dateAmount.find((it) => it.dealAt === date)?.amount || 0;
 
-        array.push(tagType === TagType.EXPENDITURE ? -amount : amount);
+        array.push(
+          category.type === CategoryType.NEGATIVE_AMOUNT ? -amount : amount,
+        );
       });
       all.push(array);
     });
@@ -73,7 +75,7 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
     all.unshift(['日期', ...header]);
 
     return all;
-  }, [data, tagType]);
+  }, [data, category]);
 
   const options = useMemo<EchartsOptions>(() => {
     const categories = dataset[0].slice(1) as Array<string>;

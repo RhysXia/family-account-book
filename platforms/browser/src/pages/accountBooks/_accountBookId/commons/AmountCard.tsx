@@ -1,19 +1,18 @@
 import { activeAccountBookAtom } from '@/store';
 import { useAtom } from 'jotai';
 import { FC, useMemo } from 'react';
-import { TagType } from '@/types';
 import dayjs from 'dayjs';
 import useGetFlowRecordTotalAmount from '@/graphql/useGetFlowRecordTotalAmount';
 import IndicatorCard from '@/components/IndicatorCard';
 import Indicator from '@/components/Indicator';
 import useGetFlowRecordTotalAmountPerTrader from '@/graphql/useGetFlowRecordTotalAmountPerTrader';
+import { Category, CategoryType } from '@/types';
 
 export type AmountCardProps = {
-  type: TagType;
-  title: string;
+  category: Category;
 };
 
-const AmountCard: FC<AmountCardProps> = ({ type, title }) => {
+const AmountCard: FC<AmountCardProps> = ({ category }) => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
 
   const dates = useMemo(() => {
@@ -28,13 +27,13 @@ const AmountCard: FC<AmountCardProps> = ({ type, title }) => {
 
   const { data: currentMonthData } = useGetFlowRecordTotalAmount({
     accountBookId: activeAccountBook!.id,
-    tagType: type,
+    categoryId: category.id,
     startDate: dates[0],
   });
 
   const { data: lastMonthData } = useGetFlowRecordTotalAmount({
     accountBookId: activeAccountBook!.id,
-    tagType: type,
+    categoryId: category.id,
     startDate: dates[1],
     endDate: dates[2],
   });
@@ -42,7 +41,7 @@ const AmountCard: FC<AmountCardProps> = ({ type, title }) => {
   const { data: totalAmountPerTraderData } =
     useGetFlowRecordTotalAmountPerTrader({
       accountBookId: activeAccountBook!.id,
-      tagType: type,
+      categoryId: category.id,
       startDate: dates[0],
     });
 
@@ -58,7 +57,7 @@ const AmountCard: FC<AmountCardProps> = ({ type, title }) => {
         (it) => (
           <div key={it.trader.id}>
             {it.trader.nickname}:
-            {(type === TagType.EXPENDITURE
+            {(category.type === CategoryType.NEGATIVE_AMOUNT
               ? -it.amount
               : it.amount
             ).toLocaleString('zh-CN', {
@@ -73,9 +72,9 @@ const AmountCard: FC<AmountCardProps> = ({ type, title }) => {
 
   return (
     <IndicatorCard
-      title={title}
-      tips={`月度${title}统计`}
-      value={(type === TagType.EXPENDITURE
+      title={category.name}
+      tips={`月度${category.name}统计`}
+      value={(category.type === CategoryType.NEGATIVE_AMOUNT
         ? -currentMonthAmount
         : currentMonthAmount
       ).toLocaleString('zh-CN', {

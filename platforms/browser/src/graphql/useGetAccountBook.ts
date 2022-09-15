@@ -1,5 +1,5 @@
 import { useAppQuery } from '@/apollo';
-import { AccountBook } from '@/types';
+import { AccountBook, User } from '@/types';
 import { gql } from '@apollo/client';
 
 const GET_ACCOUNT_BOOK_BY_ID = gql`
@@ -14,10 +14,16 @@ const GET_ACCOUNT_BOOK_BY_ID = gql`
         admins {
           id
           nickname
+          username
+          email
+          avatar
         }
         members {
           id
           nickname
+          username
+          email
+          avatar
         }
       }
     }
@@ -25,14 +31,8 @@ const GET_ACCOUNT_BOOK_BY_ID = gql`
 `;
 
 export type AccountBookDetail = AccountBook & {
-  admins: Array<{
-    id: string;
-    nickname: string;
-  }>;
-  members: Array<{
-    id: string;
-    nickname: string;
-  }>;
+  admins: Array<User>;
+  members: Array<User>;
 };
 
 const useGetAccountBook = (props: { id: string }) => {

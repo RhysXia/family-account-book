@@ -76,9 +76,12 @@ export class AccountBookService {
       .orderBy('deal_at', 'ASC');
 
     if (categoryId) {
-      qb.andWhere('tag.categoryId = :categoryId', {
-        categoryId,
-      });
+      qb.leftJoin('flowRecord.tag', 'tag').andWhere(
+        'tag.categoryId = :categoryId',
+        {
+          categoryId,
+        },
+      );
     }
 
     if (savingAccountId) {
@@ -167,9 +170,12 @@ export class AccountBookService {
       .where('flowRecord.accountBookId = :accountBookId', { accountBookId });
 
     if (categoryId) {
-      qb.andWhere('tag.categoryId = :categoryId', {
-        categoryId,
-      });
+      qb.leftJoin('flowRecord.tag', 'tag').andWhere(
+        'tag.categoryId = :categoryId',
+        {
+          categoryId,
+        },
+      );
     }
 
     if (savingAccountId) {
@@ -314,9 +320,12 @@ export class AccountBookService {
       .where('flowRecord.accountBookId = :accountBookId', { accountBookId });
 
     if (categoryId) {
-      qb.andWhere('tag.categoryId = :categoryId', {
-        categoryId,
-      });
+      qb.leftJoin('flowRecord.tag', 'tag').andWhere(
+        'tag.categoryId = :categoryId',
+        {
+          categoryId,
+        },
+      );
     }
 
     if (savingAccountId) {

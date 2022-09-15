@@ -1,5 +1,4 @@
 import DatePicker from '@/components/DatePicker';
-import UserSelect from '@/components/UserSelect';
 import useCreateFlowRecord from '@/graphql/useCreateFlowRecord';
 import useConstantFn from '@/hooks/useConstanFn';
 import { currentUserAtom } from '@/store';
@@ -27,6 +26,7 @@ export type CreateModelProps = {
   onCreated: () => Promise<void>;
   onCancelled: () => void;
   onRefrshSavingAccounts: () => Promise<void>;
+  users: Array<User>;
 };
 
 const CreateModel: FC<CreateModelProps> = ({
@@ -36,6 +36,7 @@ const CreateModel: FC<CreateModelProps> = ({
   onCreated,
   onCancelled,
   onRefrshSavingAccounts,
+  users,
 }) => {
   const [createFlowRecord] = useCreateFlowRecord();
 
@@ -49,37 +50,30 @@ const CreateModel: FC<CreateModelProps> = ({
     desc: string;
     savingAccountId: string;
     tagId: string;
-    trader: {
-      lable: string;
-      value: User;
-    };
+    traderId: string;
   }>();
 
   const handleDoCreate = useCallback(async () => {
-    try {
-      const { amount, dealAt, desc, savingAccountId, tagId, trader } =
-        await form.validateFields();
+    const { amount, dealAt, desc, savingAccountId, tagId, traderId } =
+      await form.validateFields();
 
-      await createFlowRecord({
-        variables: {
-          flowRecord: {
-            amount,
-            desc,
-            savingAccountId,
-            tagId,
-            dealAt: dealAt.format('YYYY-MM-DD'),
-            traderId: trader.value.id,
-          },
+    await createFlowRecord({
+      variables: {
+        flowRecord: {
+          amount,
+          desc,
+          savingAccountId,
+          tagId,
+          dealAt: dealAt.format('YYYY-MM-DD'),
+          traderId,
         },
-      });
+      },
+    });
 
-      setCreated(true);
-      message.success('添加成功');
-      form.resetFields();
-      await onRefrshSavingAccounts();
-    } catch (e) {
-      console.log(e);
-    }
+    setCreated(true);
+    message.success('添加成功');
+    form.resetFields();
+    await onRefrshSavingAccounts();
   }, [form, createFlowRecord, onRefrshSavingAccounts]);
 
   const handleClose = useConstantFn(async (forceFetch?: boolean) => {
@@ -215,10 +209,18 @@ const CreateModel: FC<CreateModelProps> = ({
         </Form.Item>
         <Form.Item
           label="交易人员"
-          name="trader"
+          name="traderId"
           rules={[{ required: true, message: '交易人员不能为空' }]}
         >
-          <UserSelect includeSelf={true} />
+          <Select className="w-full">
+            {users.map((it) => {
+              return (
+                <Select.Option value={it.id} key={it.id}>
+                  <span className="flex items-center">{it.nickname}</span>
+                </Select.Option>
+              );
+            })}
+          </Select>
         </Form.Item>
         <Form.Item label="描述" name="desc">
           <Input.TextArea autoSize={{ minRows: 3 }} placeholder="请输入描述" />

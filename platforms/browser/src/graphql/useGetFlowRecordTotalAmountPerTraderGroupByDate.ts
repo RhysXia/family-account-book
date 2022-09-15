@@ -1,5 +1,5 @@
 import { useAppQuery } from '@/apollo';
-import { DateGroupBy, TagType } from '@/types';
+import { DateGroupBy } from '@/types';
 import { gql } from '@apollo/client';
 
 const GET_FLOW_RECORD_TOTAL_AMOUNT_PER_TRADER_GROUP_BY_DATE = gql`
@@ -39,7 +39,7 @@ const useGetFlowRecordTotalAmountPerTraderGroupByDate = ({
 }: {
   accountBookId: string;
   groupBy: DateGroupBy;
-  tagType?: TagType;
+  categoryId?: string;
   savingAccountId?: string;
   startDate?: string;
   endDate?: string;

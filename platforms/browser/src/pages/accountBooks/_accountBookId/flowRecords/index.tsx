@@ -2,7 +2,6 @@ import Content from '@/components/Content';
 import DatePicker from '@/components/DatePicker';
 import Table from '@/components/Table';
 import { Column, RenderProps } from '@/components/Table/Cell';
-import UserSelect from '@/components/UserSelect';
 import useDeleteFlowRecord from '@/graphql/useDeleteFlowRecord';
 import useGetFlowRecords, {
   FlowRecordDetail,
@@ -17,7 +16,6 @@ import {
   SavingAccount,
   User,
   Tag as Itag,
-  AccountBook,
   Category,
   CategoryType,
 } from '@/types';
@@ -30,9 +28,7 @@ import { useCallback, useMemo, useState } from 'react';
 import CreateModel from './commons/CreateModel';
 
 const Index = () => {
-  const [_activeAccountBook] = useAtom(activeAccountBookAtom);
-
-  const activeAccountBook = _activeAccountBook as AccountBook;
+  const [activeAccountBook] = useAtom(activeAccountBookAtom);
 
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -40,21 +36,26 @@ const Index = () => {
 
   const [deleteFlowRecord] = useDeleteFlowRecord();
 
+  const users = useMemo(() => {
+    const { members, admins } = activeAccountBook!;
+    return [...admins, ...members];
+  }, [activeAccountBook]);
+
   const {
     data: accountBookWithSavingAccounts,
     refetch: refetchSavingAccounts,
   } = useGetSavingAccounts({
-    accountBookId: activeAccountBook.id!,
+    accountBookId: activeAccountBook!.id!,
   });
 
   const { data: tagsData } = useGetTagsWithCategory({
-    accountBookId: activeAccountBook.id!,
+    accountBookId: activeAccountBook!.id!,
   });
 
   const { getPagination, limit, offset } = usePagination();
 
   const { data, refetch } = useGetFlowRecords({
-    accountBookId: activeAccountBook?.id,
+    accountBookId: activeAccountBook!.id,
     pagination: {
       limit,
       offset,
@@ -234,17 +235,20 @@ const Index = () => {
         render({ value, isEdit, onChange }: RenderProps<User>) {
           if (isEdit) {
             return (
-              <UserSelect
+              <Select
                 size="small"
                 className="w-full"
-                includeSelf={true}
-                value={{
-                  key: value.id,
-                  label: value.nickname,
-                  value: value,
-                }}
-                onChange={onChange as any}
-              />
+                value={value.id}
+                onChange={(v) => onChange(users.find((it) => it.id === v)!)}
+              >
+                {users.map((it) => {
+                  return (
+                    <Select.Option value={it.id} key={it.id}>
+                      <span className="flex items-center">{it.nickname}</span>
+                    </Select.Option>
+                  );
+                })}
+              </Select>
             );
           }
           return <span className="p-2">{value.nickname}</span>;
@@ -292,7 +296,7 @@ const Index = () => {
         },
       },
     ],
-    [tags, savingAccounts, handleDelete],
+    [tags, savingAccounts, handleDelete, users],
   );
 
   const handleCreate = useCallback(() => {
@@ -350,8 +354,8 @@ const Index = () => {
 
   const breadcrumbs = [
     {
-      name: activeAccountBook.name,
-      path: `/accountBooks/${activeAccountBook.id}`,
+      name: activeAccountBook!.name,
+      path: `/accountBooks/${activeAccountBook!.id}`,
     },
     {
       name: '流水记录',
@@ -378,6 +382,7 @@ const Index = () => {
         onEditSubmit={handleEditSubmit}
       />
       <CreateModel
+        users={users}
         onCreated={handleCreated}
         onCancelled={handleCancelled}
         onRefrshSavingAccounts={handleRefreshSavingAccounts}
