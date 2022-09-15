@@ -1,4 +1,4 @@
-import { AccountBookDetail } from '@/graphql/useGetAccountBook';
+import { AccountBookDetail } from '@/graphql/accountBook';
 import { atom } from 'jotai';
 import { User } from '../types';
 

@@ -30,12 +30,14 @@ export const GET_ACCOUNT_BOOK_BY_ID = gql`
   }
 `;
 
+export type AccountBookDetail = AccountBook & {
+  admins: Array<User>;
+  members: Array<User>;
+};
+
 export const useGetAccountBookById = (variables: { id: string }) => {
   const { data, ...others } = useAppQuery<{
-    node: AccountBook & {
-      admins: Array<User>;
-      members: Array<User>;
-    };
+    node: AccountBookDetail;
   }>(GET_ACCOUNT_BOOK_BY_ID, {
     variables,
   });
