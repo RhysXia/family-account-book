@@ -34,7 +34,7 @@ export class TagService {
         throw new ResourceNotFoundException('标签不存在');
       }
 
-      const flowRecord = await manager.find(FlowRecordEntity, {
+      const flowRecord = await manager.findOne(FlowRecordEntity, {
         where: {
           tagId: tag.id,
         },

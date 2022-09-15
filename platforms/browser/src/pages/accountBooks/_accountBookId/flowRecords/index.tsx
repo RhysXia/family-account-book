@@ -2,13 +2,14 @@ import Content from '@/components/Content';
 import DatePicker from '@/components/DatePicker';
 import Table from '@/components/Table';
 import { Column, RenderProps } from '@/components/Table/Cell';
-import { useGetSavingAccountListByAccountBookId } from '@/graphql/savingAccount';
-import useDeleteFlowRecord from '@/graphql/useDeleteFlowRecord';
-import useGetFlowRecords, {
+import {
   FlowRecordDetail,
-} from '@/graphql/useGetFlowRecords';
-import { useGetTagsWithCategory } from '@/graphql/useGetTags';
-import useUpdateFlowRecord from '@/graphql/useUpdateFlowRecord';
+  useDeleteFlowRecord,
+  useGetFlowRecordListByAccountBookId,
+  useUpdateFlowRecord,
+} from '@/graphql/flowRecord';
+import { useGetSavingAccountListByAccountBookId } from '@/graphql/savingAccount';
+import { useGetTagsWithCategoryByAccountBookId } from '@/graphql/tag';
 import usePagination from '@/hooks/usePage';
 import { activeAccountBookAtom } from '@/store';
 import {
@@ -48,13 +49,13 @@ const Index = () => {
     accountBookId: activeAccountBook!.id!,
   });
 
-  const { data: tagsData } = useGetTagsWithCategory({
+  const { data: tagsData } = useGetTagsWithCategoryByAccountBookId({
     accountBookId: activeAccountBook!.id!,
   });
 
   const { getPagination, limit, offset } = usePagination();
 
-  const { data, refetch } = useGetFlowRecords({
+  const { data } = useGetFlowRecordListByAccountBookId({
     accountBookId: activeAccountBook!.id,
     pagination: {
       limit,
@@ -77,7 +78,7 @@ const Index = () => {
     [accountBookWithSavingAccounts],
   );
 
-  const tags = useMemo(() => tagsData?.node.tags.data || [], [tagsData]);
+  const tags = useMemo(() => tagsData?.data || [], [tagsData]);
 
   const handleDelete = useCallback(
     async (id: string) => {
@@ -86,9 +87,8 @@ const Index = () => {
           id,
         },
       });
-      await refetch();
     },
-    [deleteFlowRecord, refetch],
+    [deleteFlowRecord],
   );
 
   const columns: Array<Column> = useMemo(
@@ -303,15 +303,6 @@ const Index = () => {
     setModalVisible(true);
   }, []);
 
-  const handleCreated = useCallback(async () => {
-    await refetch();
-    setModalVisible(false);
-  }, [refetch]);
-
-  const handleCancelled = useCallback(async () => {
-    setModalVisible(false);
-  }, []);
-
   const handleRefreshSavingAccounts = useCallback(async () => {
     await refetchSavingAccounts();
   }, [refetchSavingAccounts]);
@@ -362,8 +353,6 @@ const Index = () => {
     },
   ];
 
-  const pagination = data && getPagination(data.node.flowRecords.total);
-
   return (
     <Content
       title="流水管理"
@@ -373,18 +362,17 @@ const Index = () => {
           新建
         </Button>
       }
-      pagination={pagination}
+      pagination={data && getPagination(data.total)}
     >
       <Table
-        data={data?.node.flowRecords.data || []}
+        data={data?.data || []}
         columns={columns}
         editable={true}
         onEditSubmit={handleEditSubmit}
       />
       <CreateModel
         users={users}
-        onCreated={handleCreated}
-        onCancelled={handleCancelled}
+        onChange={setModalVisible}
         onRefrshSavingAccounts={handleRefreshSavingAccounts}
         visible={modalVisible}
         tags={tags}

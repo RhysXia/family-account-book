@@ -1,6 +1,4 @@
-import useCreateCategory, {
-  CreateCategoryInput,
-} from '@/graphql/useCreateCategory';
+import { CreateCategoryInput, useCreateCategory } from '@/graphql/category';
 import { activeAccountBookAtom } from '@/store';
 import { CategoryTypes, CategoryTypeInfoMap } from '@/utils/constants';
 import { Modal, Form, Input, Select } from 'antd';
@@ -9,15 +7,10 @@ import { FC, useCallback } from 'react';
 
 export type CreateModalProps = {
   visible: boolean;
-  onCreated: () => Promise<void>;
-  onCancelled: () => void;
+  onChange: (v: boolean) => void;
 };
 
-const CreateModal: FC<CreateModalProps> = ({
-  visible,
-  onCancelled,
-  onCreated,
-}) => {
+const CreateModal: FC<CreateModalProps> = ({ visible, onChange }) => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
 
   const [form] = Form.useForm<Omit<CreateCategoryInput, 'accountBookId'>>();
@@ -34,15 +27,15 @@ const CreateModal: FC<CreateModalProps> = ({
       },
     });
 
-    await onCreated();
+    onChange(false);
 
     form.resetFields();
-  }, [form, onCreated, activeAccountBook, createCategory]);
+  }, [form, onChange, activeAccountBook, createCategory]);
 
   const handleCancel = useCallback(() => {
-    onCancelled();
+    onChange(false);
     form.resetFields();
-  }, [form, onCancelled]);
+  }, [form, onChange]);
 
   const title = <h1 className="font-bold text-xl mb-2">新建分类</h1>;
 

@@ -1,5 +1,5 @@
 import ReactEcharts, { EchartsOptions } from '@/components/ReactEcharts';
-import useGetFlowRecordTotalAmountPerTraderGroupByDate from '@/graphql/useGetFlowRecordTotalAmountPerTraderGroupByDate';
+import { useGetFlowRecordTotalAmountPerTraderGroupByDateByAccountBookId } from '@/graphql/accountBookStatistics';
 import { activeAccountBookAtom } from '@/store';
 import { Category, CategoryType, DateGroupBy } from '@/types';
 import { Empty } from 'antd';
@@ -29,17 +29,19 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
 }) => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
 
-  const { data } = useGetFlowRecordTotalAmountPerTraderGroupByDate({
-    accountBookId: activeAccountBook!.id,
-    groupBy,
-    categoryId: category.id,
-    startDate: dateRange?.[0]?.toISOString(),
-    endDate: dateRange?.[1]?.toISOString(),
-  });
+  const { data } =
+    useGetFlowRecordTotalAmountPerTraderGroupByDateByAccountBookId({
+      accountBookId: activeAccountBook!.id,
+      groupBy,
+      filter: {
+        categoryId: category.id,
+        startDate: dateRange?.[0]?.toISOString(),
+        endDate: dateRange?.[1]?.toISOString(),
+      },
+    });
 
   const dataset = useMemo(() => {
-    const source =
-      data?.node.statistics.flowRecordTotalAmountPerTraderGroupByDate || [];
+    const source = data || [];
 
     const header = source.map((it) => it.trader.nickname);
 

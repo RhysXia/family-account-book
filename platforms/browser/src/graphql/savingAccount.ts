@@ -115,7 +115,7 @@ export const useDeleteSavingAccountById = () => {
   });
 };
 
-const UPDATE_SAVINGA_ACCOUNT = gql`
+export const UPDATE_SAVINGA_ACCOUNT = gql`
   mutation UpdateSavingAccount($savingAccount: UpdateSavingAccountInput!) {
     updateSavingAccount(savingAccount: $savingAccount) {
       id
@@ -130,7 +130,7 @@ export type UpdateSavingAccountInput = {
   amount?: number;
 };
 
-const useUpdateSavingAccount = () => {
+export const useUpdateSavingAccount = () => {
   return useAppMutation<
     {
       updateSavingAccount: {
@@ -149,5 +149,3 @@ const useUpdateSavingAccount = () => {
     },
   });
 };
-
-export default useUpdateSavingAccount;

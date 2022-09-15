@@ -30,14 +30,14 @@ export const GET_ACCOUNT_BOOK_BY_ID = gql`
   }
 `;
 
-export const useGetAccountBookById = (props: { id: string }) => {
+export const useGetAccountBookById = (variables: { id: string }) => {
   const { data, ...others } = useAppQuery<{
     node: AccountBook & {
       admins: Array<User>;
       members: Array<User>;
     };
   }>(GET_ACCOUNT_BOOK_BY_ID, {
-    variables: props,
+    variables,
   });
 
   return {

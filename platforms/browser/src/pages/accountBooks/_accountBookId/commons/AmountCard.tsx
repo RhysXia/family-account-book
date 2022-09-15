@@ -2,11 +2,13 @@ import { activeAccountBookAtom } from '@/store';
 import { useAtom } from 'jotai';
 import { FC, useMemo } from 'react';
 import dayjs from 'dayjs';
-import useGetFlowRecordTotalAmount from '@/graphql/useGetFlowRecordTotalAmount';
 import IndicatorCard from '@/components/IndicatorCard';
 import Indicator from '@/components/Indicator';
-import useGetFlowRecordTotalAmountPerTrader from '@/graphql/useGetFlowRecordTotalAmountPerTrader';
 import { Category, CategoryType } from '@/types';
+import {
+  useGetFlowRecordTotalAmountByAccountBookId,
+  useGetFlowRecordTotalAmountPerTraderByAccountBookId,
+} from '@/graphql/accountBookStatistics';
 
 export type AmountCardProps = {
   category: Category;
@@ -25,48 +27,52 @@ const AmountCard: FC<AmountCardProps> = ({ category }) => {
     ];
   }, []);
 
-  const { data: currentMonthData } = useGetFlowRecordTotalAmount({
-    accountBookId: activeAccountBook!.id,
-    categoryId: category.id,
-    startDate: dates[0],
-  });
+  const { data: currentMonthData } = useGetFlowRecordTotalAmountByAccountBookId(
+    {
+      accountBookId: activeAccountBook!.id,
+      filter: {
+        categoryId: category.id,
+        startDate: dates[0],
+      },
+    },
+  );
 
-  const { data: lastMonthData } = useGetFlowRecordTotalAmount({
+  const { data: lastMonthData } = useGetFlowRecordTotalAmountByAccountBookId({
     accountBookId: activeAccountBook!.id,
-    categoryId: category.id,
-    startDate: dates[1],
-    endDate: dates[2],
+    filter: {
+      categoryId: category.id,
+      startDate: dates[1],
+      endDate: dates[2],
+    },
   });
 
   const { data: totalAmountPerTraderData } =
-    useGetFlowRecordTotalAmountPerTrader({
+    useGetFlowRecordTotalAmountPerTraderByAccountBookId({
       accountBookId: activeAccountBook!.id,
-      categoryId: category.id,
-      startDate: dates[0],
+      filter: {
+        categoryId: category.id,
+        startDate: dates[0],
+      },
     });
 
-  const currentMonthAmount =
-    currentMonthData?.node.statistics.flowRecordTotalAmount || 0;
+  const currentMonthAmount = currentMonthData || 0;
 
-  const lastMonthAmount =
-    lastMonthData?.node.statistics.flowRecordTotalAmount || 0;
+  const lastMonthAmount = lastMonthData || 0;
 
   const userDetails = (
     <div className="flex items-center space-x-2 w-full overflow-auto h-6">
-      {totalAmountPerTraderData?.node.statistics.flowRecordTotalAmountPerTrader.map(
-        (it) => (
-          <div key={it.trader.id}>
-            {it.trader.nickname}:
-            {(category.type === CategoryType.NEGATIVE_AMOUNT
-              ? -it.amount
-              : it.amount
-            ).toLocaleString('zh-CN', {
-              style: 'currency',
-              currency: 'CNY',
-            })}
-          </div>
-        ),
-      )}
+      {totalAmountPerTraderData?.map((it) => (
+        <div key={it.trader.id}>
+          {it.trader.nickname}:
+          {(category.type === CategoryType.NEGATIVE_AMOUNT
+            ? -it.amount
+            : it.amount
+          ).toLocaleString('zh-CN', {
+            style: 'currency',
+            currency: 'CNY',
+          })}
+        </div>
+      ))}
     </div>
   );
 

@@ -1,6 +1,6 @@
 import Content from '@/components/Content';
 import DatePicker from '@/components/DatePicker';
-import useGetCategories from '@/graphql/useGetCategories';
+import { useGetCategoryListByAccountBookId } from '@/graphql/category';
 import { activeAccountBookAtom } from '@/store';
 import { DateGroupBy } from '@/types';
 import { Radio, RadioChangeEvent, Tabs } from 'antd';
@@ -15,7 +15,7 @@ const Overview = () => {
 
   const [groupBy, setGroupBy] = useState<DateGroupBy>('DAY');
 
-  const { data: categoriesData } = useGetCategories({
+  const { data: categoriesData } = useGetCategoryListByAccountBookId({
     accountBookId: activeAccountBook!.id,
   });
 
@@ -46,7 +46,7 @@ const Overview = () => {
     <Content breadcrumbs={breadcrumbs}>
       <div className="-m-2 space-y-4 bg-gray-100">
         <div className="-m-2 -mb-0 flex items-center flex-wrap">
-          {categoriesData?.node.categories.data.map((it) => (
+          {categoriesData?.data.map((it) => (
             <div key={it.id} className="md:w-1/2 lg:w-1/4 px-2">
               <AmountCard category={it} />
             </div>
@@ -72,7 +72,7 @@ const Overview = () => {
               </div>
             }
           >
-            {categoriesData?.node.categories.data.map((it) => (
+            {categoriesData?.data.map((it) => (
               <Tabs.TabPane tab={it.name} key={it.id}>
                 <FlowRecordTrend
                   dateRange={dateRange}

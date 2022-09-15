@@ -7,14 +7,16 @@ import { Category, CategoryType, User } from '@/types';
 import { CategoryTypeInfoMap } from '@/utils/constants';
 import { fromTime } from '@/utils/dayjs';
 
-import useGetCategories from '@/graphql/useGetCategories';
 import CreateModal from './commons/CreateModal';
 import usePagination from '@/hooks/usePage';
 import Content from '@/components/Content';
 import Table from '@/components/Table';
 import { Column, RenderProps } from '@/components/Table/Cell';
-import useUpdateCategory from '@/graphql/useUpdateCategory';
-import useDeleteCategory from '@/graphql/useDeleteCategory';
+import {
+  useDeleteCategory,
+  useGetCategoryListByAccountBookId,
+  useUpdateCategory,
+} from '@/graphql/category';
 
 const CategoryPage = () => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
@@ -25,7 +27,7 @@ const CategoryPage = () => {
 
   const { getPagination, limit, offset } = usePagination();
 
-  const { data, refetch } = useGetCategories({
+  const { data } = useGetCategoryListByAccountBookId({
     accountBookId: activeAccountBook!.id,
     pagination: {
       limit,
@@ -47,15 +49,6 @@ const CategoryPage = () => {
     setCreateModalVisible(true);
   }, []);
 
-  const handleCreateCancelled = useCallback(() => {
-    setCreateModalVisible(false);
-  }, []);
-
-  const handleCreated = useCallback(async () => {
-    await refetch();
-    setCreateModalVisible(false);
-  }, [refetch]);
-
   const handleDeleteTag = useCallback(
     async (id: string) => {
       await deleteCategory({
@@ -63,9 +56,8 @@ const CategoryPage = () => {
           id,
         },
       });
-      await refetch();
     },
-    [deleteCategory, refetch],
+    [deleteCategory],
   );
 
   const handleEdit = useCallback(
@@ -181,7 +173,7 @@ const CategoryPage = () => {
     },
   ];
 
-  const pagination = data && getPagination(data.node.categories.total);
+  const pagination = data && getPagination(data.total);
 
   const breadcrumbs = [
     {
@@ -207,13 +199,12 @@ const CategoryPage = () => {
       <Table
         editable={true}
         columns={columns}
-        data={data?.node.categories.data || []}
+        data={data?.data || []}
         onEditSubmit={handleEdit}
       />
       <CreateModal
         visible={createModalVisible}
-        onCancelled={handleCreateCancelled}
-        onCreated={handleCreated}
+        onChange={setCreateModalVisible}
       />
     </Content>
   );

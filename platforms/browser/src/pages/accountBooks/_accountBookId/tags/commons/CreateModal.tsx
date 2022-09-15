@@ -1,5 +1,5 @@
-import useCreateTag, { CreateTagInput } from '@/graphql/useCreateTag';
-import useGetCategories from '@/graphql/useGetCategories';
+import { useGetCategoryListByAccountBookId } from '@/graphql/category';
+import { CreateTagInput, useCreateTag } from '@/graphql/tag';
 import { activeAccountBookAtom } from '@/store';
 import { CategoryTypeInfoMap } from '@/utils/constants';
 import { Modal, Form, Input, Select } from 'antd';
@@ -8,21 +8,16 @@ import { FC, useCallback } from 'react';
 
 export type CreateModalProps = {
   visible: boolean;
-  onCreated: () => Promise<void>;
-  onCancelled: () => void;
+  onChange: (v: boolean) => void;
 };
 
-const CreateModal: FC<CreateModalProps> = ({
-  visible,
-  onCancelled,
-  onCreated,
-}) => {
+const CreateModal: FC<CreateModalProps> = ({ visible, onChange }) => {
   const [form] = Form.useForm<CreateTagInput>();
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
 
   const [createTag] = useCreateTag();
 
-  const { data: categoryData } = useGetCategories({
+  const { data: categoryData } = useGetCategoryListByAccountBookId({
     accountBookId: activeAccountBook!.id,
   });
 
@@ -36,15 +31,15 @@ const CreateModal: FC<CreateModalProps> = ({
       },
     });
 
-    await onCreated();
+    onChange(false);
 
     form.resetFields();
-  }, [form, createTag, onCreated]);
+  }, [form, createTag, onChange]);
 
   const handleCancel = useCallback(() => {
     form.resetFields();
-    onCancelled();
-  }, [form, onCancelled]);
+    onChange(false);
+  }, [form, onChange]);
 
   const title = <h1 className="font-bold text-xl mb-2">新建分类</h1>;
 
@@ -65,7 +60,7 @@ const CreateModal: FC<CreateModalProps> = ({
         </Form.Item>
         <Form.Item label="所属分类" name="categoryId">
           <Select>
-            {categoryData?.node.categories.data.map((it) => (
+            {categoryData?.data.map((it) => (
               <Select.Option value={it.id} key={it.id}>
                 <span
                   className="inline-block leading-4 rounded px-2 py-1 text-white"

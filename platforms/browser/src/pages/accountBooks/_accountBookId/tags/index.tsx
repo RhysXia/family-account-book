@@ -5,15 +5,17 @@ import { useNavigate } from 'react-router-dom';
 import { activeAccountBookAtom } from '@/store';
 import { Category, Tag as ITag } from '@/types';
 import { fromTime } from '@/utils/dayjs';
-import { useGetTagsWithCategory } from '@/graphql/useGetTags';
-import useDeleteTag from '@/graphql/useDeleteTag';
 import Content from '@/components/Content';
 import CreateModal from './commons/CreateModal';
 import Table from '@/components/Table';
 import { Column, RenderProps } from '@/components/Table/Cell';
-import useUpdateTag from '@/graphql/useUpdateTag';
 import usePagination from '@/hooks/usePage';
 import { CategoryTypeInfoMap } from '@/utils/constants';
+import {
+  useDeleteTag,
+  useGetTagsWithCategoryByAccountBookId,
+  useUpdateTag,
+} from '@/graphql/tag';
 
 const TagPage = () => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
@@ -24,7 +26,7 @@ const TagPage = () => {
 
   const { getPagination, limit, offset } = usePagination();
 
-  const { data, refetch } = useGetTagsWithCategory({
+  const { data } = useGetTagsWithCategoryByAccountBookId({
     accountBookId: activeAccountBook!.id,
     pagination: {
       limit,
@@ -58,15 +60,6 @@ const TagPage = () => {
     [updateTag],
   );
 
-  const handleCreateCancelled = useCallback(() => {
-    setCreateModalVisible(false);
-  }, []);
-
-  const handleCreated = useCallback(async () => {
-    await refetch();
-    setCreateModalVisible(false);
-  }, [refetch]);
-
   const handleCreateButton = useCallback(() => {
     setCreateModalVisible(true);
   }, []);
@@ -78,9 +71,8 @@ const TagPage = () => {
           id,
         },
       });
-      await refetch();
     },
-    [deleteTag, refetch],
+    [deleteTag],
   );
 
   const columns: Array<Column> = [
@@ -201,7 +193,7 @@ const TagPage = () => {
   return (
     <Content
       breadcrumbs={breadcrumbs}
-      pagination={data && getPagination(data.node.tags.total)}
+      pagination={data && getPagination(data.total)}
       title="标签列表"
       action={
         <Button type="primary" onClick={handleCreateButton}>
@@ -214,12 +206,11 @@ const TagPage = () => {
         index="id"
         editable={true}
         columns={columns}
-        data={data?.node.tags.data || []}
+        data={data?.data || []}
       />
       <CreateModal
         visible={createModalVisible}
-        onCancelled={handleCreateCancelled}
-        onCreated={handleCreated}
+        onChange={setCreateModalVisible}
       />
     </Content>
   );

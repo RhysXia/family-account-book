@@ -1,5 +1,5 @@
 import DatePicker from '@/components/DatePicker';
-import useCreateFlowRecord from '@/graphql/useCreateFlowRecord';
+import { useCreateFlowRecord } from '@/graphql/flowRecord';
 import useConstantFn from '@/hooks/useConstanFn';
 import { currentUserAtom } from '@/store';
 import { Category, CategoryType, SavingAccount, Tag, User } from '@/types';
@@ -17,14 +17,13 @@ import {
 } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import { useAtom } from 'jotai';
-import { FC, useCallback, useState } from 'react';
+import { FC, useCallback } from 'react';
 
 export type CreateModelProps = {
   visible: boolean;
   tags: Array<Tag & { category: Category }>;
   savingAccounts: Array<SavingAccount>;
-  onCreated: () => Promise<void>;
-  onCancelled: () => void;
+  onChange: (v: boolean) => void;
   onRefrshSavingAccounts: () => Promise<void>;
   users: Array<User>;
 };
@@ -33,16 +32,13 @@ const CreateModel: FC<CreateModelProps> = ({
   visible,
   tags,
   savingAccounts,
-  onCreated,
-  onCancelled,
+  onChange,
   onRefrshSavingAccounts,
   users,
 }) => {
   const [createFlowRecord] = useCreateFlowRecord();
 
   const [currentUser] = useAtom(currentUserAtom);
-
-  const [isCreated, setCreated] = useState(false);
 
   const [form] = Form.useForm<{
     amount: number;
@@ -53,7 +49,7 @@ const CreateModel: FC<CreateModelProps> = ({
     traderId: string;
   }>();
 
-  const handleDoCreate = useCallback(async () => {
+  const handleCreate = useCallback(async () => {
     const { amount, dealAt, desc, savingAccountId, tagId, traderId } =
       await form.validateFields();
 
@@ -70,26 +66,19 @@ const CreateModel: FC<CreateModelProps> = ({
       },
     });
 
-    setCreated(true);
-    message.success('添加成功');
     form.resetFields();
+    message.success('添加成功');
     await onRefrshSavingAccounts();
   }, [form, createFlowRecord, onRefrshSavingAccounts]);
 
-  const handleClose = useConstantFn(async (forceFetch?: boolean) => {
-    if (isCreated || forceFetch) {
-      await onCreated();
-    } else {
-      onCancelled();
-    }
-    setCreated(false);
-    form.resetFields();
+  const handleClose = useConstantFn(async () => {
+    onChange(false);
   });
 
   const handleCreateAndClose = useCallback(async () => {
-    await handleDoCreate();
-    await handleClose(true);
-  }, [handleDoCreate, handleClose]);
+    await handleCreate();
+    await handleClose();
+  }, [handleCreate, handleClose]);
 
   const amountRules: Array<FormRule> = [
     { required: true, message: '金额不能为空' },
@@ -123,12 +112,12 @@ const CreateModel: FC<CreateModelProps> = ({
   return (
     <Modal
       visible={visible}
-      onCancel={() => handleClose()}
+      onCancel={handleClose}
       title="添加流水"
       footer={
         <>
-          <Button onClick={() => handleClose()}>取消</Button>
-          <Button type="primary" onClick={handleDoCreate}>
+          <Button onClick={handleClose}>取消</Button>
+          <Button type="primary" onClick={handleCreate}>
             保存并继续
           </Button>
           <Button type="primary" onClick={handleCreateAndClose}>

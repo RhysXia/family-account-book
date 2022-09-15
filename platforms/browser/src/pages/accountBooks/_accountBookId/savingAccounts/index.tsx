@@ -10,7 +10,8 @@ import usePagination from '@/hooks/usePage';
 import Content from '@/components/Content';
 import Table from '@/components/Table';
 import { Column, RenderProps } from '@/components/Table/Cell';
-import useUpdateSavingAccount, {
+import {
+  useUpdateSavingAccount,
   useDeleteSavingAccountById,
   useGetSavingAccountListByAccountBookId,
 } from '@/graphql/savingAccount';
