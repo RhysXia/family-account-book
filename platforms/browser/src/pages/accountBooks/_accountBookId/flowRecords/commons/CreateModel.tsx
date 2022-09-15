@@ -3,8 +3,8 @@ import UserSelect from '@/components/UserSelect';
 import useCreateFlowRecord from '@/graphql/useCreateFlowRecord';
 import useConstantFn from '@/hooks/useConstanFn';
 import { currentUserAtom } from '@/store';
-import { SavingAccount, Tag, User, TagType } from '@/types';
-import { TagInfoMap } from '@/utils/constants';
+import { Category, CategoryType, SavingAccount, Tag, User } from '@/types';
+import { CategoryTypeInfoMap } from '@/utils/constants';
 import { CreditCardOutlined } from '@ant-design/icons';
 import {
   Button,
@@ -22,10 +22,11 @@ import { FC, useCallback, useState } from 'react';
 
 export type CreateModelProps = {
   visible: boolean;
-  tags: Array<Tag>;
+  tags: Array<Tag & { category: Category }>;
   savingAccounts: Array<SavingAccount>;
   onCreated: () => Promise<void>;
   onCancelled: () => void;
+  onRefrshSavingAccounts: () => Promise<void>;
 };
 
 const CreateModel: FC<CreateModelProps> = ({
@@ -34,6 +35,7 @@ const CreateModel: FC<CreateModelProps> = ({
   savingAccounts,
   onCreated,
   onCancelled,
+  onRefrshSavingAccounts,
 }) => {
   const [createFlowRecord] = useCreateFlowRecord();
 
@@ -74,10 +76,11 @@ const CreateModel: FC<CreateModelProps> = ({
       setCreated(true);
       message.success('添加成功');
       form.resetFields();
+      await onRefrshSavingAccounts();
     } catch (e) {
       console.log(e);
     }
-  }, [form, createFlowRecord]);
+  }, [form, createFlowRecord, onRefrshSavingAccounts]);
 
   const handleClose = useConstantFn(async (forceFetch?: boolean) => {
     if (isCreated || forceFetch) {
@@ -106,12 +109,18 @@ const CreateModel: FC<CreateModelProps> = ({
           return;
         }
 
-        if (selectedTag.type === TagType.EXPENDITURE && value > 0) {
-          throw new Error('支出需要为负数');
+        if (
+          selectedTag.category.type === CategoryType.NEGATIVE_AMOUNT &&
+          value > 0
+        ) {
+          throw new Error('标签要求流水不能为正');
         }
 
-        if (selectedTag.type === TagType.INCOME && value < 0) {
-          throw new Error('收入需要为正数');
+        if (
+          selectedTag.category.type === CategoryType.POSITIVE_AMOUNT &&
+          value < 0
+        ) {
+          throw new Error('标签要求流水不能为负');
         }
       },
     },
@@ -158,7 +167,9 @@ const CreateModel: FC<CreateModelProps> = ({
                 <Select.Option value={tag.id} key={tag.id}>
                   <span
                     className="inline-block leading-4 rounded px-2 py-1 text-white"
-                    style={{ background: TagInfoMap[tag.type].color }}
+                    style={{
+                      background: CategoryTypeInfoMap[tag.category.type].color,
+                    }}
                   >
                     {tag.name}
                   </span>

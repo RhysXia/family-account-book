@@ -106,6 +106,9 @@ export class FlowRecordService {
       if (tagId) {
         try {
           tag = await manager.findOneOrFail(TagEntity, {
+            relations: {
+              category: true,
+            },
             where: { id: tagId, accountBookId: flowRecord.accountBookId },
           });
           flowRecord.tag = tag;

@@ -8,7 +8,7 @@ import useGetFlowRecords, {
   FlowRecordDetail,
 } from '@/graphql/useGetFlowRecords';
 import useGetSavingAccounts from '@/graphql/useGetSavingAccounts';
-import useGetTags from '@/graphql/useGetTags';
+import { useGetTagsWithCategory } from '@/graphql/useGetTags';
 import useUpdateFlowRecord from '@/graphql/useUpdateFlowRecord';
 import usePagination from '@/hooks/usePage';
 import { activeAccountBookAtom } from '@/store';
@@ -17,12 +17,13 @@ import {
   SavingAccount,
   User,
   Tag as Itag,
-  TagType,
   AccountBook,
+  Category,
+  CategoryType,
 } from '@/types';
 import { CategoryTypeInfoMap } from '@/utils/constants';
 import { CreditCardOutlined } from '@ant-design/icons';
-import { Button, Input, InputNumber, Select } from 'antd';
+import { Button, Input, InputNumber, Modal, Select } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import { useAtom } from 'jotai';
 import { useCallback, useMemo, useState } from 'react';
@@ -39,11 +40,14 @@ const Index = () => {
 
   const [deleteFlowRecord] = useDeleteFlowRecord();
 
-  const { data: accountBookWithSavingAccounts } = useGetSavingAccounts({
+  const {
+    data: accountBookWithSavingAccounts,
+    refetch: refetchSavingAccounts,
+  } = useGetSavingAccounts({
     accountBookId: activeAccountBook.id!,
   });
 
-  const { data: accountBookWithTags } = useGetTags({
+  const { data: tagsData } = useGetTagsWithCategory({
     accountBookId: activeAccountBook.id!,
   });
 
@@ -72,10 +76,7 @@ const Index = () => {
     [accountBookWithSavingAccounts],
   );
 
-  const tags = useMemo(
-    () => accountBookWithTags?.node.tags.data || [],
-    [accountBookWithTags],
-  );
+  const tags = useMemo(() => tagsData?.node.tags.data || [], [tagsData]);
 
   const handleDelete = useCallback(
     async (id: string) => {
@@ -94,17 +95,19 @@ const Index = () => {
       {
         title: '标签',
         dataIndex: 'tag',
-        width: 120,
-        render({ value, isEdit, onChange }: RenderProps<Itag>) {
+        width: '10%',
+        render({
+          value,
+          isEdit,
+          onChange,
+        }: RenderProps<Itag & { category: Category }>) {
           if (isEdit) {
             return (
               <Select
                 size="small"
                 className="w-full"
                 value={value.id}
-                onChange={(v) =>
-                  onChange(tags.find((it) => it.id === v) as Itag)
-                }
+                onChange={(v) => onChange(tags.find((it) => it.id === v)!)}
               >
                 {tags.map((tag) => {
                   return (
@@ -112,7 +115,8 @@ const Index = () => {
                       <span
                         className="inline-block leading-4 rounded px-2 py-1 text-white"
                         style={{
-                          background: CategoryTypeInfoMap[tag.type].color,
+                          background:
+                            CategoryTypeInfoMap[tag.category.type].color,
                         }}
                       >
                         {tag.name}
@@ -126,7 +130,9 @@ const Index = () => {
           return (
             <span
               className="inline-block leading-4 rounded px-2 py-1 text-white"
-              style={{ background: CategoryTypeInfoMap[value.type].color }}
+              style={{
+                background: CategoryTypeInfoMap[value.category.type].color,
+              }}
             >
               {value.name}
             </span>
@@ -135,17 +141,19 @@ const Index = () => {
       },
       {
         title: '金额',
-        width: 120,
+        width: '10%',
         render({
           value,
           isEdit,
           onChange,
         }: RenderProps<
           FlowRecord & {
-            tag: Itag;
+            tag: Itag & {
+              category: Category;
+            };
           }
         >) {
-          const tagType = value.tag.type;
+          const type = value.tag.category.type;
           if (isEdit) {
             return (
               <InputNumber
@@ -154,8 +162,8 @@ const Index = () => {
                 precision={2}
                 className="w-full"
                 value={value.amount}
-                min={tagType === TagType.INCOME ? 0.01 : undefined}
-                max={tagType === TagType.EXPENDITURE ? -0.01 : undefined}
+                min={type === CategoryType.POSITIVE_AMOUNT ? 0.01 : undefined}
+                max={type === CategoryType.NEGATIVE_AMOUNT ? -0.01 : undefined}
                 onChange={(v) => onChange({ ...value, amount: v })}
               />
             );
@@ -166,7 +174,7 @@ const Index = () => {
       {
         title: '账户',
         dataIndex: 'savingAccount',
-        width: 160,
+        width: '15%',
         render({ value, isEdit, onChange }: RenderProps<SavingAccount>) {
           if (isEdit) {
             return (
@@ -201,7 +209,7 @@ const Index = () => {
       {
         title: '交易日期',
         dataIndex: 'dealAt',
-        width: 150,
+        width: '15%',
         render({ value, isEdit, onChange }: RenderProps<string>) {
           if (isEdit) {
             return (
@@ -222,7 +230,7 @@ const Index = () => {
       {
         title: '交易人员',
         dataIndex: 'trader',
-        width: 150,
+        width: '10%',
         render({ value, isEdit, onChange }: RenderProps<User>) {
           if (isEdit) {
             return (
@@ -245,6 +253,7 @@ const Index = () => {
       {
         title: '描述',
         dataIndex: 'desc',
+        width: '20%',
         render({ value, isEdit, onChange }: RenderProps<string>) {
           if (isEdit) {
             return (
@@ -261,13 +270,21 @@ const Index = () => {
       },
       {
         title: '操作',
-        width: 100,
+        width: '20%',
         render({ value }: RenderProps<FlowRecord>) {
           return (
             <Button
               danger={true}
               size="small"
-              onClick={() => handleDelete(value.id)}
+              onClick={() => {
+                Modal.confirm({
+                  title: '确认删除',
+                  content: '确认删除该存款账户吗？',
+                  onOk: async () => {
+                    await handleDelete(value.id);
+                  },
+                });
+              }}
             >
               删除
             </Button>
@@ -291,6 +308,10 @@ const Index = () => {
     setModalVisible(false);
   }, []);
 
+  const handleRefreshSavingAccounts = useCallback(async () => {
+    await refetchSavingAccounts();
+  }, [refetchSavingAccounts]);
+
   const handleEditSubmit = useCallback(
     async ({
       id,
@@ -301,10 +322,13 @@ const Index = () => {
       tag,
       trader,
     }: FlowRecordDetail) => {
-      if (tag.type === TagType.EXPENDITURE && amount >= 0) {
-        throw new Error('标签类型为支出的时候，金额需要为负数');
-      } else if (tag.type === TagType.INCOME && amount <= 0) {
-        throw new Error('标签类型为收入的时候，金额需要为正数');
+      if (tag.category.type === CategoryType.NEGATIVE_AMOUNT && amount >= 0) {
+        throw new Error('标签要求流水不能为正');
+      } else if (
+        tag.category.type === CategoryType.POSITIVE_AMOUNT &&
+        amount <= 0
+      ) {
+        throw new Error('标签要求流水不能为负');
       }
 
       await uploadFlowRecord({
@@ -338,7 +362,7 @@ const Index = () => {
 
   return (
     <Content
-      title="流水记录"
+      title="流水管理"
       breadcrumbs={breadcrumbs}
       action={
         <Button type="primary" onClick={handleCreate}>
@@ -356,6 +380,7 @@ const Index = () => {
       <CreateModel
         onCreated={handleCreated}
         onCancelled={handleCancelled}
+        onRefrshSavingAccounts={handleRefreshSavingAccounts}
         visible={modalVisible}
         tags={tags}
         savingAccounts={savingAccounts}

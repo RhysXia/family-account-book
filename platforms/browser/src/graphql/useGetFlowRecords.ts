@@ -6,6 +6,7 @@ import {
   Tag,
   User,
   Pagination,
+  Category,
 } from '@/types';
 import { gql } from '@apollo/client';
 
@@ -41,7 +42,14 @@ const GET_SELF_FLOW_RECORDS = gql`
             tag {
               id
               name
-              type
+              desc
+
+              category {
+                id
+                name
+                desc
+                type
+              }
             }
           }
         }
@@ -53,7 +61,9 @@ const GET_SELF_FLOW_RECORDS = gql`
 export type FlowRecordDetail = FlowRecord & {
   trader: User;
   savingAccount: SavingAccount;
-  tag: Tag;
+  tag: Tag & {
+    category: Category;
+  };
 };
 
 const useGetFlowRecords = (variables: {
