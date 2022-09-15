@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import RequireAuth from '@/components/RequireAuth';
 import UserSelect from '@/components/UserSelect';
-import useCreateAccountBook from '@/graphql/useCreateAccountBook';
+import { useCreateAccountBook } from '@/graphql/accountBook';
 
 type FormType = {
   name: string;
@@ -23,10 +23,12 @@ const AccountBookCreate = () => {
       try {
         const { data } = await createAccountBook({
           variables: {
-            name: formValue.name,
-            desc: formValue.desc,
-            adminIds: formValue?.admins.map(({ value }) => value),
-            memberIds: formValue?.members.map(({ value }) => value),
+            accountBook: {
+              name: formValue.name,
+              desc: formValue.desc,
+              adminIds: formValue.admins?.map(({ value }) => value),
+              memberIds: formValue.members?.map(({ value }) => value),
+            },
           },
         });
 

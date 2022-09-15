@@ -5,14 +5,15 @@ import { useNavigate } from 'react-router-dom';
 import { activeAccountBookAtom } from '@/store';
 import { SavingAccount } from '@/types';
 import { fromTime } from '@/utils/dayjs';
-import useGetSavingAccounts from '@/graphql/useGetSavingAccounts';
-import useDeleteSavingAccount from '@/graphql/useDeleteSavingAccount';
 import CreateModal from './commons/CreateModal';
 import usePagination from '@/hooks/usePage';
 import Content from '@/components/Content';
 import Table from '@/components/Table';
 import { Column, RenderProps } from '@/components/Table/Cell';
-import useUpdateSavingAccount from '@/graphql/useUpdateSavingAccount';
+import useUpdateSavingAccount, {
+  useDeleteSavingAccountById,
+  useGetSavingAccountListByAccountBookId,
+} from '@/graphql/savingAccount';
 
 const SavingAccountPage = () => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
@@ -23,7 +24,7 @@ const SavingAccountPage = () => {
 
   const { getPagination, limit, offset } = usePagination();
 
-  const { data, refetch } = useGetSavingAccounts({
+  const { data } = useGetSavingAccountListByAccountBookId({
     accountBookId: activeAccountBook!.id,
     pagination: {
       limit,
@@ -37,21 +38,12 @@ const SavingAccountPage = () => {
     },
   });
 
-  const [deleteSavingAccount] = useDeleteSavingAccount();
+  const [deleteSavingAccount] = useDeleteSavingAccountById();
   const [updateSavingAccount] = useUpdateSavingAccount();
 
   const handleCreateButton = useCallback(() => {
     setCreateModalVisible(true);
   }, []);
-
-  const handleCreateCancelled = useCallback(() => {
-    setCreateModalVisible(false);
-  }, []);
-
-  const handleCreated = useCallback(async () => {
-    await refetch();
-    setCreateModalVisible(false);
-  }, [refetch]);
 
   const handleDeleteSavingAccount = useCallback(
     async (id: string) => {
@@ -60,9 +52,8 @@ const SavingAccountPage = () => {
           id,
         },
       });
-      await refetch();
     },
-    [deleteSavingAccount, refetch],
+    [deleteSavingAccount],
   );
 
   const handleEdit = useCallback(
@@ -208,7 +199,7 @@ const SavingAccountPage = () => {
   return (
     <Content
       breadcrumbs={breadcrumbs}
-      pagination={data && getPagination(data.node.savingAccounts.total)}
+      pagination={data && getPagination(data.total)}
       action={
         <Button type="primary" onClick={handleCreateButton}>
           新建
@@ -219,13 +210,12 @@ const SavingAccountPage = () => {
       <Table
         columns={columns}
         editable={true}
-        data={data?.node.savingAccounts.data || []}
+        data={data?.data || []}
         onEditSubmit={handleEdit}
       />
       <CreateModal
         visible={createModalVisible}
-        onCancelled={handleCreateCancelled}
-        onCreated={handleCreated}
+        onChange={setCreateModalVisible}
       />
     </Content>
   );

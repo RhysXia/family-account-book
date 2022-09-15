@@ -2,11 +2,11 @@ import Content from '@/components/Content';
 import DatePicker from '@/components/DatePicker';
 import Table from '@/components/Table';
 import { Column, RenderProps } from '@/components/Table/Cell';
+import { useGetSavingAccountListByAccountBookId } from '@/graphql/savingAccount';
 import useDeleteFlowRecord from '@/graphql/useDeleteFlowRecord';
 import useGetFlowRecords, {
   FlowRecordDetail,
 } from '@/graphql/useGetFlowRecords';
-import useGetSavingAccounts from '@/graphql/useGetSavingAccounts';
 import { useGetTagsWithCategory } from '@/graphql/useGetTags';
 import useUpdateFlowRecord from '@/graphql/useUpdateFlowRecord';
 import usePagination from '@/hooks/usePage';
@@ -44,7 +44,7 @@ const Index = () => {
   const {
     data: accountBookWithSavingAccounts,
     refetch: refetchSavingAccounts,
-  } = useGetSavingAccounts({
+  } = useGetSavingAccountListByAccountBookId({
     accountBookId: activeAccountBook!.id!,
   });
 
@@ -73,7 +73,7 @@ const Index = () => {
   });
 
   const savingAccounts = useMemo(
-    () => accountBookWithSavingAccounts?.node.savingAccounts.data || [],
+    () => accountBookWithSavingAccounts?.data || [],
     [accountBookWithSavingAccounts],
   );
 

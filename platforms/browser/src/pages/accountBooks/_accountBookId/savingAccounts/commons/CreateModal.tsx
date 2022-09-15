@@ -1,6 +1,7 @@
-import useCreateSavingAccount, {
+import {
   CreateSavingAccountInput,
-} from '@/graphql/useCreateSavingAccount';
+  useCreateSavingAccount,
+} from '@/graphql/savingAccount';
 import { activeAccountBookAtom } from '@/store';
 import { Modal, Form, Input, InputNumber } from 'antd';
 import { useAtom } from 'jotai';
@@ -8,15 +9,10 @@ import { FC, useCallback } from 'react';
 
 export type CreateModalProps = {
   visible: boolean;
-  onCreated: () => Promise<void>;
-  onCancelled: () => void;
+  onChange: (v: boolean) => void;
 };
 
-const CreateModal: FC<CreateModalProps> = ({
-  visible,
-  onCancelled,
-  onCreated,
-}) => {
+const CreateModal: FC<CreateModalProps> = ({ visible, onChange }) => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
 
   const [form] =
@@ -34,15 +30,15 @@ const CreateModal: FC<CreateModalProps> = ({
       },
     });
 
-    await onCreated();
+    onChange(false);
 
     form.resetFields();
-  }, [form, onCreated, activeAccountBook, createSavingAccount]);
+  }, [form, onChange, activeAccountBook, createSavingAccount]);
 
   const handleCancel = useCallback(() => {
-    onCancelled();
+    onChange(false);
     form.resetFields();
-  }, [form, onCancelled]);
+  }, [form, onChange]);
 
   const title = <h1 className="font-bold text-xl mb-2">新建账户</h1>;
 

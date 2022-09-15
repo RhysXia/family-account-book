@@ -6,7 +6,7 @@ import Aside from '@/components/Aside';
 import Header from '@/components/Header';
 import RequireAuth from '@/components/RequireAuth';
 import { activeAccountBookAtom } from '@/store';
-import useGetAccountBook from '@/graphql/useGetAccountBook';
+import { useGetAccountBookById } from '@/graphql/accountBook';
 
 const AccountBookPage = () => {
   const { accountBookId } = useParams();
@@ -15,17 +15,17 @@ const AccountBookPage = () => {
 
   const navigate = useNavigate();
 
-  const { data, error } = useGetAccountBook({ id: accountBookId! });
+  const { data, error } = useGetAccountBookById({ id: accountBookId! });
 
   useEffect(() => {
     if (data) {
-      setActiveAccountBook(data.node);
+      setActiveAccountBook(data);
     } else if (error) {
       navigate('/notfound');
     }
   }, [data, error, setActiveAccountBook, navigate]);
 
-  if (!data?.node) {
+  if (!data) {
     return null;
   }
 
@@ -46,6 +46,8 @@ const AccountBookPage = () => {
   );
 };
 
+export default AccountBookPage;
+
 const Loading = () => {
   return (
     <Spin
@@ -54,5 +56,3 @@ const Loading = () => {
     />
   );
 };
-
-export default AccountBookPage;
