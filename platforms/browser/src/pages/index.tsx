@@ -4,10 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
 import { Modal } from 'antd';
 import RequireAuth from '@/components/RequireAuth';
-import useGetAccountBooks from '@/graphql/useGetAccountBooks';
+import { useGetSelfAccountBookList } from '@/graphql/accountBook';
 
 const HomePage = () => {
-  const { data, loading } = useGetAccountBooks();
+  const { data, loading } = useGetSelfAccountBookList();
   const navigate = useNavigate();
 
   const handleCreateAccountBook = useCallback(() => {
@@ -48,7 +48,7 @@ const HomePage = () => {
               <div className="text-sm text-gray-500 ">创建一个新的账本</div>
             </div>
           </div>
-          {data?.getCurrentUser.accountBooks.data.map((it, index) => {
+          {data?.data.map((it, index) => {
             return (
               <div
                 onClick={() => navigate(`/accountBooks/${it.id}`)}

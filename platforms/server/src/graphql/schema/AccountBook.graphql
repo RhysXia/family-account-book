@@ -35,6 +35,9 @@ type AccountBook implements EntityDateTime {
   ): FlowRecordListWithPagintion!
   flowRecord(id: ID!): FlowRecord!
 
+  categories(pagination: Pagination): CategoryListWithPagintion!
+  category(id: ID!): Category!
+
   """
   账本相关统计数据
   """

@@ -1,10 +1,4 @@
-import {
-  Column,
-  DeleteDateColumn,
-  Entity,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 import { AbstractTimestampEntity } from './abstract/AbstractTimestampEntity';
 import { AccountBookEntity } from './AccountBookEntity';
@@ -59,10 +53,4 @@ export class SavingAccountEntity extends AbstractTimestampEntity {
   accountBook!: AccountBookEntity;
   @Column()
   accountBookId!: number;
-
-  /**
-   * 删除时间
-   */
-  @DeleteDateColumn({ type: 'timestamptz' })
-  deletedAt?: Date;
 }

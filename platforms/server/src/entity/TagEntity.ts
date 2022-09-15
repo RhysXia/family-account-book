@@ -1,35 +1,8 @@
-import {
-  Column,
-  DeleteDateColumn,
-  Entity,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { AbstractTimestampEntity } from './abstract/AbstractTimestampEntity';
 import { AccountBookEntity } from './AccountBookEntity';
+import { CategoryEntity } from './CategoryEntity';
 import { UserEntity } from './UserEntity';
-
-/**
- * 标签类型
- */
-export enum TagType {
-  /**
-   * 收入
-   */
-  INCOME = 'INCOME',
-  /**
-   * 支出
-   */
-  EXPENDITURE = 'EXPENDITURE',
-  /**
-   * 投资
-   */
-  INVESTMENT = 'INVESTMENT',
-  /**
-   * 借贷
-   */
-  LOAD = 'LOAD',
-}
 
 /**
  * 标签
@@ -42,8 +15,13 @@ export class TagEntity extends AbstractTimestampEntity {
   @Column({ nullable: false })
   name!: string;
 
-  @Column({ nullable: false, type: 'enum', enum: TagType })
-  type!: TagType;
+  @Column({ nullable: true })
+  desc?: string;
+
+  @ManyToOne(() => CategoryEntity, { nullable: false })
+  category!: CategoryEntity;
+  @Column()
+  categoryId!: number;
 
   @ManyToOne(() => UserEntity, { nullable: false })
   creator!: UserEntity;
@@ -62,7 +40,4 @@ export class TagEntity extends AbstractTimestampEntity {
   accountBook!: AccountBookEntity;
   @Column()
   accountBookId!: number;
-
-  @DeleteDateColumn()
-  deletedAt?: Date;
 }

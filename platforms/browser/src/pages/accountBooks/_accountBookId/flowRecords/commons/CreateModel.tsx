@@ -1,10 +1,9 @@
 import DatePicker from '@/components/DatePicker';
-import UserSelect from '@/components/UserSelect';
-import useCreateFlowRecord from '@/graphql/useCreateFlowRecord';
+import { useCreateFlowRecord } from '@/graphql/flowRecord';
 import useConstantFn from '@/hooks/useConstanFn';
 import { currentUserAtom } from '@/store';
-import { SavingAccount, Tag, User, TagType } from '@/types';
-import { TagInfoMap } from '@/utils/constants';
+import { Category, CategoryType, SavingAccount, Tag, User } from '@/types';
+import { CategoryTypeInfoMap } from '@/utils/constants';
 import { CreditCardOutlined } from '@ant-design/icons';
 import {
   Button,
@@ -18,28 +17,28 @@ import {
 } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import { useAtom } from 'jotai';
-import { FC, useCallback, useState } from 'react';
+import { FC, useCallback } from 'react';
 
 export type CreateModelProps = {
   visible: boolean;
-  tags: Array<Tag>;
+  tags: Array<Tag & { category: Category }>;
   savingAccounts: Array<SavingAccount>;
-  onCreated: () => Promise<void>;
-  onCancelled: () => void;
+  onChange: (v: boolean) => void;
+  onRefrshSavingAccounts: () => Promise<void>;
+  users: Array<User>;
 };
 
 const CreateModel: FC<CreateModelProps> = ({
   visible,
   tags,
   savingAccounts,
-  onCreated,
-  onCancelled,
+  onChange,
+  onRefrshSavingAccounts,
+  users,
 }) => {
   const [createFlowRecord] = useCreateFlowRecord();
 
   const [currentUser] = useAtom(currentUserAtom);
-
-  const [isCreated, setCreated] = useState(false);
 
   const [form] = Form.useForm<{
     amount: number;
@@ -47,52 +46,39 @@ const CreateModel: FC<CreateModelProps> = ({
     desc: string;
     savingAccountId: string;
     tagId: string;
-    trader: {
-      lable: string;
-      value: User;
-    };
+    traderId: string;
   }>();
 
-  const handleDoCreate = useCallback(async () => {
-    try {
-      const { amount, dealAt, desc, savingAccountId, tagId, trader } =
-        await form.validateFields();
+  const handleCreate = useCallback(async () => {
+    const { amount, dealAt, desc, savingAccountId, tagId, traderId } =
+      await form.validateFields();
 
-      await createFlowRecord({
-        variables: {
-          flowRecord: {
-            amount,
-            desc,
-            savingAccountId,
-            tagId,
-            dealAt: dealAt.format('YYYY-MM-DD'),
-            traderId: trader.value.id,
-          },
+    await createFlowRecord({
+      variables: {
+        flowRecord: {
+          amount,
+          desc,
+          savingAccountId,
+          tagId,
+          dealAt: dealAt.format('YYYY-MM-DD'),
+          traderId,
         },
-      });
+      },
+    });
 
-      setCreated(true);
-      message.success('添加成功');
-      form.resetFields();
-    } catch (e) {
-      console.log(e);
-    }
-  }, [form, createFlowRecord]);
-
-  const handleClose = useConstantFn(async (forceFetch?: boolean) => {
-    if (isCreated || forceFetch) {
-      await onCreated();
-    } else {
-      onCancelled();
-    }
-    setCreated(false);
     form.resetFields();
+    message.success('添加成功');
+    await onRefrshSavingAccounts();
+  }, [form, createFlowRecord, onRefrshSavingAccounts]);
+
+  const handleClose = useConstantFn(async () => {
+    onChange(false);
   });
 
   const handleCreateAndClose = useCallback(async () => {
-    await handleDoCreate();
-    await handleClose(true);
-  }, [handleDoCreate, handleClose]);
+    await handleCreate();
+    await handleClose();
+  }, [handleCreate, handleClose]);
 
   const amountRules: Array<FormRule> = [
     { required: true, message: '金额不能为空' },
@@ -106,12 +92,18 @@ const CreateModel: FC<CreateModelProps> = ({
           return;
         }
 
-        if (selectedTag.type === TagType.EXPENDITURE && value > 0) {
-          throw new Error('支出需要为负数');
+        if (
+          selectedTag.category.type === CategoryType.NEGATIVE_AMOUNT &&
+          value > 0
+        ) {
+          throw new Error('标签要求流水不能为正');
         }
 
-        if (selectedTag.type === TagType.INCOME && value < 0) {
-          throw new Error('收入需要为正数');
+        if (
+          selectedTag.category.type === CategoryType.POSITIVE_AMOUNT &&
+          value < 0
+        ) {
+          throw new Error('标签要求流水不能为负');
         }
       },
     },
@@ -120,12 +112,12 @@ const CreateModel: FC<CreateModelProps> = ({
   return (
     <Modal
       visible={visible}
-      onCancel={() => handleClose()}
+      onCancel={handleClose}
       title="添加流水"
       footer={
         <>
-          <Button onClick={() => handleClose()}>取消</Button>
-          <Button type="primary" onClick={handleDoCreate}>
+          <Button onClick={handleClose}>取消</Button>
+          <Button type="primary" onClick={handleCreate}>
             保存并继续
           </Button>
           <Button type="primary" onClick={handleCreateAndClose}>
@@ -158,7 +150,9 @@ const CreateModel: FC<CreateModelProps> = ({
                 <Select.Option value={tag.id} key={tag.id}>
                   <span
                     className="inline-block leading-4 rounded px-2 py-1 text-white"
-                    style={{ background: TagInfoMap[tag.type].color }}
+                    style={{
+                      background: CategoryTypeInfoMap[tag.category.type].color,
+                    }}
                   >
                     {tag.name}
                   </span>
@@ -204,10 +198,18 @@ const CreateModel: FC<CreateModelProps> = ({
         </Form.Item>
         <Form.Item
           label="交易人员"
-          name="trader"
+          name="traderId"
           rules={[{ required: true, message: '交易人员不能为空' }]}
         >
-          <UserSelect includeSelf={true} />
+          <Select className="w-full">
+            {users.map((it) => {
+              return (
+                <Select.Option value={it.id} key={it.id}>
+                  <span className="flex items-center">{it.nickname}</span>
+                </Select.Option>
+              );
+            })}
+          </Select>
         </Form.Item>
         <Form.Item label="描述" name="desc">
           <Input.TextArea autoSize={{ minRows: 3 }} placeholder="请输入描述" />

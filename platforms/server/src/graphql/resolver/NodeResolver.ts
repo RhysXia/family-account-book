@@ -2,6 +2,7 @@ import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { UserEntity } from '../../entity/UserEntity';
 import { ResourceNotFoundException } from '../../exception/ServiceException';
 import { AccountBookService } from '../../service/AccountBookService';
+import { CategoryService } from '../../service/CategoryService';
 import { FlowRecordService } from '../../service/FlowRecordService';
 import { SavingAccountHistoryService } from '../../service/SavingAccountHistoryService';
 import { SavingAccountService } from '../../service/SavingAccountService';
@@ -17,6 +18,7 @@ export class NodeResolver {
     private readonly accountBookService: AccountBookService,
     private readonly savingAccountService: SavingAccountService,
     private readonly flowRecordService: FlowRecordService,
+    private readonly categoryService: CategoryService,
     private readonly tagService: TagService,
     private readonly savingAccountHistoryService: SavingAccountHistoryService,
     private readonly userService: UserService,
@@ -86,6 +88,10 @@ export class NodeResolver {
         }
         case EntityName.FLOW_RECORD: {
           p = this.flowRecordService.findByIdsAndUserId(idArray, user.id);
+          break;
+        }
+        case EntityName.CATEGORY: {
+          p = this.categoryService.findByIdsAndUserId(idArray, user.id);
           break;
         }
         case EntityName.TAG: {

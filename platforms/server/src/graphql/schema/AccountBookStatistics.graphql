@@ -1,5 +1,5 @@
 input FlowRecordTotalAmountFilter {
-  tagType: TagType
+  categoryId: ID
   traderId: ID
   savingAccountId: ID
   startDate: Date
@@ -7,7 +7,7 @@ input FlowRecordTotalAmountFilter {
 }
 
 input FlowRecordTotalAmountPerTraderFilter {
-  tagType: TagType
+  categoryId: ID
   savingAccountId: ID
   startDate: Date
   endDate: Date

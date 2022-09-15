@@ -1,9 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, In } from 'typeorm';
 import { AccountBookEntity } from '../entity/AccountBookEntity';
-import { TagEntity, TagType } from '../entity/TagEntity';
+import { CategoryEntity } from '../entity/CategoryEntity';
+import { FlowRecordEntity } from '../entity/FlowRecordEntity';
+import { TagEntity } from '../entity/TagEntity';
 import { UserEntity } from '../entity/UserEntity';
-import { ResourceNotFoundException } from '../exception/ServiceException';
+import {
+  ParameterException,
+  ResourceNotFoundException,
+} from '../exception/ServiceException';
 import { Pagination } from '../graphql/graphql';
 import { applyPagination } from '../utils/applyPagination';
 
@@ -26,11 +31,21 @@ export class TagService {
         .getOne();
 
       if (!tag) {
-        throw new ResourceNotFoundException('储蓄账户不存在');
+        throw new ResourceNotFoundException('标签不存在');
+      }
+
+      const flowRecord = await manager.findOne(FlowRecordEntity, {
+        where: {
+          tagId: tag.id,
+        },
+      });
+
+      if (flowRecord) {
+        throw new ParameterException('存在流水关联该标签，无法删除');
       }
 
       // 软删除
-      await manager.softRemove(tag);
+      await manager.remove(tag);
     });
   }
 
@@ -38,12 +53,12 @@ export class TagService {
     id: number,
     tag: {
       name?: string;
+      desc?: string;
     },
     user: UserEntity,
   ) {
+    const { desc, name } = tag;
     return this.dataSource.manager.transaction(async (manager) => {
-      const { name } = tag;
-
       let tagEntity: TagEntity;
       try {
         tagEntity = await manager.findOneOrFail(TagEntity, {
@@ -67,12 +82,17 @@ export class TagService {
         .getOne();
 
       if (!accountBook) {
-        throw new ResourceNotFoundException('账本不存在');
+        throw new ResourceNotFoundException('标签不存在');
       }
 
       if (name) {
         tagEntity.name = name;
       }
+
+      if (desc) {
+        tagEntity.desc = desc;
+      }
+
       tagEntity.updater = user;
 
       return manager.save(tagEntity);
@@ -82,19 +102,32 @@ export class TagService {
   async create(
     tagInput: {
       name: string;
-      accountBookId: number;
-      type: TagType;
+      desc?: string;
+      categoryId: number;
     },
     user: UserEntity,
   ) {
     return this.dataSource.manager.transaction(async (manager) => {
-      const { accountBookId, name, type } = tagInput;
+      const { categoryId, name, desc } = tagInput;
+
+      let category: CategoryEntity;
+      try {
+        category = await manager.findOneOrFail(CategoryEntity, {
+          where: {
+            id: categoryId,
+          },
+        });
+      } catch (err) {
+        throw new ResourceNotFoundException('分类不存在');
+      }
 
       const accountBook = await manager
         .createQueryBuilder(AccountBookEntity, 'accountBook')
         .leftJoin('accountBook.admins', 'admin')
         .leftJoin('accountBook.members', 'member')
-        .where('accountBook.id = :accountBookId', { accountBookId })
+        .where('accountBook.id = :accountBookId', {
+          accountBookId: category.accountBookId,
+        })
         .andWhere('admin.id = :adminId OR member.id = :memberId', {
           adminId: user.id,
           memberId: user.id,
@@ -102,15 +135,15 @@ export class TagService {
         .getOne();
 
       if (!accountBook) {
-        throw new ResourceNotFoundException('账本不存在');
+        throw new ResourceNotFoundException('分类不存在');
       }
 
       const tag = new TagEntity();
 
-      tag.accountBook = accountBook;
       tag.name = name;
-      tag.type = type;
-
+      tag.desc = desc;
+      tag.category = category;
+      tag.accountBook = accountBook;
       tag.creator = user;
       tag.updater = user;
 
@@ -126,10 +159,30 @@ export class TagService {
     });
   }
 
+  async findAllByCategoryIdAndPagination(
+    categoryId: number,
+    pagination?: Pagination,
+  ): Promise<{ total: number; data: Array<TagEntity> }> {
+    const qb = this.dataSource
+      .createQueryBuilder(TagEntity, 'tag')
+      .where('tag.categoryId = :categoryId', { categoryId });
+
+    const result = await applyPagination(
+      qb,
+      'tag',
+      pagination,
+    ).getManyAndCount();
+
+    return {
+      total: result[1],
+      data: result[0],
+    };
+  }
+
   async findAllByAccountBookIdAndPagination(
     accountBookId: number,
     pagination?: Pagination,
-  ): Promise<{ total: number; data: Array<AccountBookEntity> }> {
+  ): Promise<{ total: number; data: Array<TagEntity> }> {
     const qb = this.dataSource
       .createQueryBuilder(TagEntity, 'tag')
       .where('tag.accountBookId = :accountBookId', { accountBookId });

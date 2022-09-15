@@ -3,29 +3,13 @@ type TagListWithPagintion {
   data: [Tag!]!
 }
 
-enum TagType {
-  """
-  收入
-  """
-  INCOME
-  """
-  支出
-  """
-  EXPENDITURE
-  """
-  投资
-  """
-  INVESTMENT
-  """
-  借贷
-  """
-  LOAD
-}
-
 type Tag implements EntityDateTime {
   id: ID!
   name: String!
-  type: TagType!
+
+  desc: String
+
+  category: Category!
 
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -44,13 +28,14 @@ type Tag implements EntityDateTime {
 
 input CreateTagInput {
   name: String!
-  type: TagType!
-  accountBookId: ID!
+  desc: String
+  categoryId: ID!
 }
 
 input UpdateTagInput {
   id: ID!
-  name: String!
+  name: String
+  desc: String
 }
 
 type Mutation {

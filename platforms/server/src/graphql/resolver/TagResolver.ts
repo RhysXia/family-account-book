@@ -14,6 +14,7 @@ import {
 import { FlowRecordService } from '../../service/FlowRecordService';
 import { TagService } from '../../service/TagService';
 import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
+import { CategoryDataLoader } from '../dataloader/CategoryDataLoader';
 import { FlowRecordDataLoader } from '../dataloader/FlowRecordDataLoader';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
@@ -30,11 +31,23 @@ import { decodeId, encodeId, EntityName, getIdInfo } from '../utils';
 export class TagResolver {
   constructor(
     private readonly userDataLoader: UserDataLoader,
+    private readonly categoryDataLoader: CategoryDataLoader,
     private readonly accountBookDataLoader: AccountBookDataLoader,
     private readonly tagService: TagService,
     private readonly flowRecordDataLoader: FlowRecordDataLoader,
     private readonly flowRecordService: FlowRecordService,
   ) {}
+
+  @ResolveField()
+  async category(@Parent() parent: GraphqlEntity<TagEntity>) {
+    const category =
+      parent.category ||
+      (await this.categoryDataLoader.load(parent.categoryId));
+
+    return category
+      ? { ...category, id: encodeId(EntityName.CATEGORY, parent.categoryId) }
+      : null;
+  }
 
   @ResolveField()
   async creator(@Parent() parent: GraphqlEntity<TagEntity>) {
@@ -161,10 +174,13 @@ export class TagResolver {
     @CurrentUser({ required: true }) currentUser: UserEntity,
     @Args('tag') tag: CreateTagInput,
   ) {
+    const { name, desc, categoryId } = tag;
+
     const entity = await this.tagService.create(
       {
-        ...tag,
-        accountBookId: decodeId(EntityName.ACCOUNT_BOOK, tag.accountBookId),
+        categoryId: decodeId(EntityName.CATEGORY, categoryId),
+        name,
+        ...(desc && { desc }),
       },
       currentUser,
     );
@@ -179,9 +195,14 @@ export class TagResolver {
     @CurrentUser({ required: true }) currentUser: UserEntity,
     @Args('tag') tag: UpdateTagInput,
   ) {
+    const { name, desc } = tag;
+
     const entity = await this.tagService.update(
       decodeId(EntityName.TAG, tag.id),
-      tag,
+      {
+        ...(name && { name }),
+        ...(desc && { desc }),
+      },
       currentUser,
     );
     return {

@@ -4,6 +4,7 @@ export enum EntityName {
   DETAIL_USER = 'DetailUser',
   USER = 'User',
   ACCOUNT_BOOK = 'AccountBook',
+  CATEGORY = 'Category',
   ACCOUNT_BOOK_STATISTICS = 'AccountBookStatistics',
   SAVING_ACCOUNT = 'SavingAccount',
   SAVING_ACCOUNT_HISTORY = 'SavingAccountHistory',

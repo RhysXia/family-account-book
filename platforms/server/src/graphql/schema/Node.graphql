@@ -7,6 +7,7 @@ union Node =
   | FlowRecord
   | SavingAccountTransferRecord
   | SavingAccountHistory
+  | Category
 
 type Query {
   node(id: ID!): Node!

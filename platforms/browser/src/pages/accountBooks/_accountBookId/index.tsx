@@ -1,8 +1,8 @@
 import Content from '@/components/Content';
 import DatePicker from '@/components/DatePicker';
+import { useGetCategoryListByAccountBookId } from '@/graphql/category';
 import { activeAccountBookAtom } from '@/store';
-import { DateGroupBy, TagType } from '@/types';
-import { TagInfoMap } from '@/utils/constants';
+import { DateGroupBy } from '@/types';
 import { Radio, RadioChangeEvent, Tabs } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import { useAtom } from 'jotai';
@@ -10,13 +10,17 @@ import { useCallback, useState } from 'react';
 import AmountCard from './commons/AmountCard';
 import FlowRecordTrend from './commons/FlowRecordTrend';
 
-const keys = Object.keys(TagInfoMap) as Array<TagType>;
-
 const Overview = () => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
 
   const [groupBy, setGroupBy] = useState<DateGroupBy>('DAY');
-  const [tagType, setTagType] = useState<TagType>(keys[0]);
+
+  const { data: categoriesData } = useGetCategoryListByAccountBookId({
+    accountBookId: activeAccountBook!.id,
+  });
+
+  const [activeCategoryId, setActiveCategoryId] = useState<string>();
+
   const [dateRange, setDateRange] = useState<
     [Dayjs | null, Dayjs | null] | null
   >(() => {
@@ -42,16 +46,16 @@ const Overview = () => {
     <Content breadcrumbs={breadcrumbs}>
       <div className="-m-2 space-y-4 bg-gray-100">
         <div className="-m-2 -mb-0 flex items-center flex-wrap">
-          {keys.map((key) => (
-            <div key={key} className="md:w-1/2 lg:w-1/4 px-2">
-              <AmountCard title={TagInfoMap[key].text} type={key} />
+          {categoriesData?.data.map((it) => (
+            <div key={it.id} className="md:w-1/2 lg:w-1/4 px-2">
+              <AmountCard category={it} />
             </div>
           ))}
         </div>
         <div className="bg-white rounded px-4">
           <Tabs
-            activeKey={tagType}
-            onChange={setTagType as any}
+            activeKey={activeCategoryId}
+            onChange={setActiveCategoryId as any}
             destroyInactiveTabPane={true}
             tabBarExtraContent={
               <div className="space-x-4">
@@ -68,12 +72,12 @@ const Overview = () => {
               </div>
             }
           >
-            {keys.map((key) => (
-              <Tabs.TabPane tab={TagInfoMap[key].text} key={key}>
+            {categoriesData?.data.map((it) => (
+              <Tabs.TabPane tab={it.name} key={it.id}>
                 <FlowRecordTrend
                   dateRange={dateRange}
                   groupBy={groupBy}
-                  tagType={key}
+                  category={it}
                 />
               </Tabs.TabPane>
             ))}

@@ -20,10 +20,7 @@ import { DateTimeScalar } from './scalar/DateTimeScalar';
 import { DateScalar } from './scalar/DateScalar';
 import { SavingAccountTransferRecordResolver } from './resolver/SavingAccountTransferRecordResolver';
 import { SavingAccountTransferRecordDataLoader } from './dataloader/SavingAccountTransferRecordDataLoader';
-import {
-  ApolloError,
-  ApolloServerPluginUsageReporting,
-} from 'apollo-server-core';
+import { ApolloError } from 'apollo-server-core';
 import {
   AuthentizationException,
   BaseServiceException,
@@ -33,6 +30,8 @@ import {
 import { NodeResolver } from './resolver/NodeResolver';
 import { SavingAccountHistoryResolver } from './resolver/SavingAccountHistoryResolver';
 import { AccountBookStatisticsResolver } from './resolver/AccountBookStatisticsResolver';
+import { CategoryResolver } from './resolver/CategoryResolver';
+import { CategoryDataLoader } from './dataloader/CategoryDataLoader';
 
 @Module({
   imports: [
@@ -78,20 +77,7 @@ import { AccountBookStatisticsResolver } from './resolver/AccountBookStatisticsR
 
             return err;
           },
-          plugins: [
-            new QueryComplexityPlugin(50),
-            ApolloServerPluginUsageReporting({
-              rewriteError(err) {
-                // Return `null` to avoid reporting `AuthenticationError`s
-                if (err instanceof BaseServiceException) {
-                  return null;
-                }
-
-                // All other errors will be reported.
-                return err;
-              },
-            }),
-          ],
+          plugins: [new QueryComplexityPlugin(50)],
         };
       },
     }),
@@ -100,6 +86,7 @@ import { AccountBookStatisticsResolver } from './resolver/AccountBookStatisticsR
   providers: [
     DateTimeScalar,
     DateScalar,
+    CategoryDataLoader,
     TagDataLoader,
     UserDataLoader,
     SavingAccountAmountDataLoader,
@@ -110,6 +97,7 @@ import { AccountBookStatisticsResolver } from './resolver/AccountBookStatisticsR
     UserResolver,
     AccountBookResolver,
     AccountBookStatisticsResolver,
+    CategoryResolver,
     SavingAccountResolver,
     TagResolver,
     FlowRecordResolver,

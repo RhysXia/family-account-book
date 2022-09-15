@@ -1,5 +1,6 @@
+import { useAppMutation } from '@/apollo';
 import { User } from '@/types';
-import { gql, useMutation } from '@apollo/client';
+import { gql } from '@apollo/client';
 
 const LOGIN = gql`
   mutation Login($username: String!, $password: String!, $rememberMe: Boolean) {
@@ -22,7 +23,7 @@ const LOGIN = gql`
 `;
 
 const useLogin = () => {
-  return useMutation<{ signIn: User }>(LOGIN);
+  return useAppMutation<{ signIn: User }>(LOGIN);
 };
 
 export default useLogin;
