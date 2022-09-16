@@ -7,7 +7,7 @@ import { UserService } from '../../service/UserService';
 export class UserDataLoader extends DataLoader<number, UserEntity | undefined> {
   constructor(userService: UserService) {
     super(async (ids) => {
-      const list = await userService.findAllByIds(ids as Array<number>);
+      const list = await userService.findAllByIds(Array.from(new Set(ids)));
 
       return ids.map((id) => list.find((it) => it.id === id));
     });

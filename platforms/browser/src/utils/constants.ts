@@ -2,11 +2,11 @@ import { CategoryType } from '../types';
 
 export const CategoryTypeInfoMap = {
   [CategoryType.NEGATIVE_AMOUNT]: {
-    text: '收入',
+    text: '支出',
     color: '#FCA5A5',
   },
   [CategoryType.POSITIVE_AMOUNT]: {
-    text: '支出',
+    text: '收入',
     color: '#6EE7B7',
   },
   [CategoryType.POSITIVE_OR_NEGATIVE_AMOUNT]: {

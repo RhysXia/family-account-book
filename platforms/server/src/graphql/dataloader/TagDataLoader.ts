@@ -7,7 +7,7 @@ import { TagService } from '../../service/TagService';
 export class TagDataLoader extends DataLoader<number, TagEntity | undefined> {
   constructor(tagService: TagService) {
     super(async (ids) => {
-      const list = await tagService.findByIds(ids as Array<number>);
+      const list = await tagService.findByIds(Array.from(new Set(ids)));
 
       return ids.map((id) => list.find((it) => it.id === id));
     });

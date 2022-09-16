@@ -13,7 +13,7 @@ export class SavingAccountTransferRecordDataLoader extends DataLoader<
   ) {
     super(async (ids) => {
       const list = await savingAccountTransferRecordService.findAllByIds(
-        ids as Array<number>,
+        Array.from(new Set(ids)),
       );
 
       return ids.map((id) => list.find((it) => it.id === id));

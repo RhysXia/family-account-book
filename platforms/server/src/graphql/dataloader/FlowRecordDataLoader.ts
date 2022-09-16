@@ -10,7 +10,9 @@ export class FlowRecordDataLoader extends DataLoader<
 > {
   constructor(flowRecordService: FlowRecordService) {
     super(async (ids) => {
-      const list = await flowRecordService.findAllByIds(ids as Array<number>);
+      const list = await flowRecordService.findAllByIds(
+        Array.from(new Set(ids)),
+      );
 
       return ids.map((id) => list.find((it) => it.id === id));
     });

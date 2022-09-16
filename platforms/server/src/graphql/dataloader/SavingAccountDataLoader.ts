@@ -11,7 +11,7 @@ export class SavingAccountDataLoader extends DataLoader<
   constructor(savingAccountService: SavingAccountService) {
     super(async (ids) => {
       const list = await savingAccountService.findAllByIds(
-        ids as Array<number>,
+        Array.from(new Set(ids)),
       );
       return ids.map((id) => list.find((it) => it.id === id));
     });

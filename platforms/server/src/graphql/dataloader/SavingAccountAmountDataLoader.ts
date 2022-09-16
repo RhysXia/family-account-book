@@ -14,7 +14,7 @@ export class SavingAccountAmountDataLoader extends DataLoader<
   constructor(savingAccountAmountService: SavingAccountAmountService) {
     super(async (savingAccountIds) => {
       const list = await savingAccountAmountService.findBySavingAccountIds(
-        savingAccountIds as Array<number>,
+        Array.from(new Set(savingAccountIds)),
       );
 
       return savingAccountIds.map((savingAccountId) =>

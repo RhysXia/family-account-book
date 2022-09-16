@@ -10,7 +10,7 @@ export class CategoryDataLoader extends DataLoader<
 > {
   constructor(categoryService: CategoryService) {
     super(async (ids) => {
-      const list = await categoryService.findAllByIds(ids as Array<number>);
+      const list = await categoryService.findAllByIds(Array.from(new Set(ids)));
 
       return ids.map((id) => list.find((it) => it.id === id));
     });

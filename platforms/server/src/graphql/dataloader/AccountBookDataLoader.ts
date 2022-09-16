@@ -10,7 +10,9 @@ export class AccountBookDataLoader extends DataLoader<
 > {
   constructor(accountBookService: AccountBookService) {
     super(async (ids) => {
-      const list = await accountBookService.findAllByIds(ids as Array<number>);
+      const list = await accountBookService.findAllByIds(
+        Array.from(new Set(ids)),
+      );
 
       return ids.map((id) => list.find((it) => it.id === id));
     });
