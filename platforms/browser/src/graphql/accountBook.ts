@@ -79,7 +79,7 @@ export const useGetSelfAccountBookList = () => {
 };
 
 export const CREATE_ACCOUNT_BOOK = gql`
-  mutation CreateAccountBook($accountBook: CreateAccountBookInput) {
+  mutation CreateAccountBook($accountBook: CreateAccountBookInput!) {
     createAccountBook(accountBook: $accountBook) {
       id
       name
