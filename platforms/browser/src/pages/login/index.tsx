@@ -21,15 +21,11 @@ const LoginPage = () => {
 
   const handleFinish = useCallback(
     async (value: FormType) => {
-      try {
-        const { data } = await login({
-          variables: value,
-        });
-        if (data) {
-          setCurrentUser(data.signIn);
-        }
-      } catch (err) {
-        message.error((err as Error).message);
+      const { data } = await login({
+        variables: value,
+      });
+      if (data) {
+        setCurrentUser(data.signIn);
       }
     },
     [login, setCurrentUser],
