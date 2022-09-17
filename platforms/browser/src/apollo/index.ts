@@ -17,18 +17,20 @@ export { default as apolloClient } from './apolloClient';
 
 export const useAppQuery = <TData = any, TVariables = OperationVariables>(
   query: DocumentNode | TypedDocumentNode<TData, TVariables>,
-  options?: QueryHookOptions<TData, TVariables>,
+  options?: QueryHookOptions<TData, TVariables> & { disableMessage?: boolean },
 ) => {
-  const data = useQuery(query, options);
+  const { disableMessage, ...otherOptions } = options || {};
+
+  const data = useQuery(query, otherOptions);
 
   const error = data.error;
 
   useEffect(() => {
-    if (!error) {
+    if (!error || disableMessage) {
       return;
     }
     message.error(error.message);
-  }, [error]);
+  }, [error, disableMessage]);
 
   return data;
 };
@@ -40,11 +42,15 @@ export const useAppMutation = <
   TCache extends ApolloCache<any> = ApolloCache<any>,
 >(
   mutation: DocumentNode | TypedDocumentNode<TData, TVariables>,
-  options?: MutationHookOptions<TData, TVariables, TContext>,
+  options?: MutationHookOptions<TData, TVariables, TContext> & {
+    disableMessage?: boolean;
+  },
 ) => {
+  const { disableMessage, ...otherOptions } = options || {};
+
   const [handler, ...others] = useMutation<TData, TVariables, TContext, TCache>(
     mutation,
-    options,
+    otherOptions,
   );
 
   const newHandler = useMemo<typeof handler>(() => {
@@ -53,11 +59,13 @@ export const useAppMutation = <
         const data = await handler(...params);
         return data;
       } catch (err) {
-        message.error((err as ApolloError).message);
+        if (!disableMessage) {
+          message.error((err as ApolloError).message);
+        }
         throw err;
       }
     };
-  }, [handler]);
+  }, [handler, disableMessage]);
 
   return [newHandler, ...others] as const;
 };

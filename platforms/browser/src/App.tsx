@@ -1,11 +1,12 @@
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, Spin } from 'antd';
 import { StrictMode, Suspense } from 'react';
-import { BrowserRouter, useRoutes } from 'react-router-dom';
+import { BrowserRouter, RouteObject, useRoutes } from 'react-router-dom';
 import routes from '~react-pages';
 import zhCn from 'antd/es/locale/zh_CN';
 import { ApolloProvider } from '@apollo/client';
 import { apolloClient } from './apollo';
 import { useAtomsDevtools } from 'jotai/devtools';
+import RequireAuth from '@/components/RequireAuth';
 
 import './assets/styles/index.less';
 
@@ -25,9 +26,39 @@ const App = () => {
   );
 };
 
+const wrapAuth = (route: RouteObject): RouteObject => {
+  if (route.element) {
+    return {
+      ...route,
+      element: <RequireAuth>{route.element}</RequireAuth>,
+    };
+  }
+  return {
+    ...route,
+    children: route.children?.map(wrapAuth),
+  };
+};
+
+const mappedRoutes = routes.map((it) => {
+  if (it.path === 'login') {
+    return it;
+  }
+
+  return wrapAuth(it);
+});
+
 export const Router = () => {
-  const element = useRoutes(routes);
-  return <Suspense fallback={<p>Loading...</p>}>{element}</Suspense>;
+  const element = useRoutes(mappedRoutes);
+
+  return <Suspense fallback={<Loading />}>{element}</Suspense>;
+};
+
+const Loading = () => {
+  return (
+    <div className="w-screen h-screen flex items-center justify-center">
+      <Spin size="large" />
+    </div>
+  );
 };
 
 export default App;

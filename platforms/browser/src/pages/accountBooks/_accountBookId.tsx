@@ -4,7 +4,6 @@ import { Suspense, useEffect } from 'react';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
 import Aside from '@/components/Aside';
 import Header from '@/components/Header';
-import RequireAuth from '@/components/RequireAuth';
 import { activeAccountBookAtom } from '@/store';
 import { useGetAccountBookById } from '@/graphql/accountBook';
 
@@ -30,19 +29,17 @@ const AccountBookPage = () => {
   }
 
   return (
-    <RequireAuth>
-      <div className="flex flex-col min-h-screen">
-        <Header />
-        <div className="flex flex-1 flex-row">
-          <Aside />
-          <div className="bg-gray-100 flex flex-1 p-4">
-            <Suspense fallback={<Loading />}>
-              <Outlet />
-            </Suspense>
-          </div>
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <div className="flex flex-1 flex-row">
+        <Aside />
+        <div className="bg-gray-100 flex flex-1 p-4">
+          <Suspense fallback={<Loading />}>
+            <Outlet />
+          </Suspense>
         </div>
       </div>
-    </RequireAuth>
+    </div>
   );
 };
 

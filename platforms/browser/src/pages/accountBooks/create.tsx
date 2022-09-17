@@ -1,7 +1,6 @@
 import { Button, Form, Input, message, Modal } from 'antd';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import RequireAuth from '@/components/RequireAuth';
 import UserSelect from '@/components/UserSelect';
 import { useCreateAccountBook } from '@/graphql/accountBook';
 
@@ -54,50 +53,48 @@ const AccountBookCreate = () => {
   );
 
   return (
-    <RequireAuth>
-      <Modal
-        visible={true}
-        title={title}
-        closable={false}
-        footer={null}
-        getContainer={false}
-        closeIcon={false}
-      >
-        <Form layout="vertical" form={form} onFinish={handleFinish}>
-          <Form.Item
-            name="name"
-            label="账本名称"
-            rules={[{ required: true, message: '账本名称不能为空' }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item name="desc" label="账本描述">
-            <Input.TextArea autoSize={{ minRows: 4 }} />
-          </Form.Item>
-          <Form.Item name="admins" label="管理员">
-            <UserSelect multiple={true} includeSelf={true} />
-          </Form.Item>
-          <Form.Item name="members" label="普通成员">
-            <UserSelect multiple={true} includeSelf={true} />
-          </Form.Item>
-          <Form.Item>
-            <Button block={true} type="primary" htmlType="submit">
-              提交
+    <Modal
+      visible={true}
+      title={title}
+      closable={false}
+      footer={null}
+      getContainer={false}
+      closeIcon={false}
+    >
+      <Form layout="vertical" form={form} onFinish={handleFinish}>
+        <Form.Item
+          name="name"
+          label="账本名称"
+          rules={[{ required: true, message: '账本名称不能为空' }]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item name="desc" label="账本描述">
+          <Input.TextArea autoSize={{ minRows: 4 }} />
+        </Form.Item>
+        <Form.Item name="admins" label="管理员">
+          <UserSelect multiple={true} includeSelf={true} />
+        </Form.Item>
+        <Form.Item name="members" label="普通成员">
+          <UserSelect multiple={true} includeSelf={true} />
+        </Form.Item>
+        <Form.Item>
+          <Button block={true} type="primary" htmlType="submit">
+            提交
+          </Button>
+          <div className="text-right">
+            <Button
+              className="text-pink-500"
+              type="text"
+              htmlType="submit"
+              onClick={handleBack}
+            >
+              取消 &gt;
             </Button>
-            <div className="text-right">
-              <Button
-                className="text-pink-500"
-                type="text"
-                htmlType="submit"
-                onClick={handleBack}
-              >
-                取消 &gt;
-              </Button>
-            </div>
-          </Form.Item>
-        </Form>
-      </Modal>
-    </RequireAuth>
+          </div>
+        </Form.Item>
+      </Form>
+    </Modal>
   );
 };
 

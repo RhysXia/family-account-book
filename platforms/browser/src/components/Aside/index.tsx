@@ -132,7 +132,7 @@ const Aside = () => {
     [navigate],
   );
 
-  const selectKey = pathname.replace(/\/accountBooks\/\d+\/?/, '');
+  const selectKey = pathname.replace(/\/accountBooks\/[\w\d=]+\/?/, '');
 
   console.log(selectKey);
 
