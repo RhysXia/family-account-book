@@ -54,8 +54,8 @@ const TagPage = () => {
   const [updateTag] = useUpdateTag();
 
   const handleEdit = useCallback(
-    async (tag: ITag) => {
-      const { id, name, desc } = tag;
+    async (tag: ITag & { category: Category }) => {
+      const { id, name, desc, category } = tag;
 
       await updateTag({
         variables: {
@@ -63,8 +63,10 @@ const TagPage = () => {
             id,
             name,
             desc,
+            categoryId: category.id,
           },
         },
+        disableMessage: true,
       });
     },
     [updateTag],
@@ -127,7 +129,33 @@ const TagPage = () => {
       style: {
         minWidth: '15%',
       },
-      render({ value }: RenderProps<Category>) {
+      render({ value, onChange, isEdit }: RenderProps<Category>) {
+        if (isEdit) {
+          return (
+            <Select
+              className="w-full"
+              value={value.id}
+              onChange={(v) =>
+                onChange(categoryData!.data.find((it) => it.id === v)!)
+              }
+              showSearch={true}
+              optionFilterProp="name"
+            >
+              {categoryData?.data.map((it) => (
+                <Select.Option value={it.id} key={it.id} name={it.name}>
+                  <span
+                    className="inline-block leading-4 rounded px-2 py-1 text-white"
+                    style={{
+                      background: CategoryTypeInfoMap[it.type].color,
+                    }}
+                  >
+                    {it.name}
+                  </span>
+                </Select.Option>
+              ))}
+            </Select>
+          );
+        }
         return (
           <span
             className="inline-block leading-4 rounded px-2 py-1 text-white"

@@ -41,6 +41,7 @@ input UpdateTagInput {
   id: ID!
   name: String
   desc: String
+  categoryId: ID
 }
 
 type Mutation {

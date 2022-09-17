@@ -162,6 +162,7 @@ export type UpdateTagInput = {
   id: string;
   name?: string;
   desc?: string;
+  categoryId?: string;
 };
 
 export const useUpdateTag = () => {

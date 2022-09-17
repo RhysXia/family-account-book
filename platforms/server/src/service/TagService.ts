@@ -54,14 +54,20 @@ export class TagService {
     tag: {
       name?: string;
       desc?: string;
+      categoryId?: number;
     },
     user: UserEntity,
   ) {
-    const { desc, name } = tag;
+    const { desc, name, categoryId } = tag;
     return this.dataSource.manager.transaction(async (manager) => {
       let tagEntity: TagEntity;
       try {
         tagEntity = await manager.findOneOrFail(TagEntity, {
+          relations: {
+            ...(categoryId && {
+              category: true,
+            }),
+          },
           where: { id },
         });
       } catch (err) {
@@ -83,6 +89,23 @@ export class TagService {
 
       if (!accountBook) {
         throw new ResourceNotFoundException('标签不存在');
+      }
+
+      if (categoryId) {
+        let categoryEntity: CategoryEntity;
+        try {
+          categoryEntity = await manager.findOneOrFail(CategoryEntity, {
+            where: { id: categoryId },
+          });
+        } catch (err) {
+          throw new ResourceNotFoundException('分类不存在');
+        }
+
+        if (tagEntity.category.type !== categoryEntity.type) {
+          throw new ParameterException('不能切换到不同类型的分类');
+        }
+
+        tagEntity.category = categoryEntity;
       }
 
       if (name) {

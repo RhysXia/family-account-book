@@ -184,13 +184,16 @@ export class TagResolver {
     @CurrentUser({ required: true }) currentUser: UserEntity,
     @Args('tag') tag: UpdateTagInput,
   ) {
-    const { name, desc } = tag;
+    const { name, desc, categoryId } = tag;
 
     const entity = await this.tagService.update(
       decodeId(EntityName.TAG, tag.id),
       {
         ...(name && { name }),
         ...(desc && { desc }),
+        ...(categoryId && {
+          categoryId: decodeId(EntityName.CATEGORY, categoryId),
+        }),
       },
       currentUser,
     );

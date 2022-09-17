@@ -122,6 +122,7 @@ const Index = () => {
           if (isEdit) {
             return (
               <TagSelect
+                className="w-full"
                 accountBookId={activeAccountBook!.id}
                 size="small"
                 value={value.id}

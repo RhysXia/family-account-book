@@ -3,6 +3,8 @@ import {
   ApolloError,
   DefaultContext,
   DocumentNode,
+  FetchResult,
+  MutationFunctionOptions,
   MutationHookOptions,
   OperationVariables,
   QueryHookOptions,
@@ -53,13 +55,24 @@ export const useAppMutation = <
     otherOptions,
   );
 
-  const newHandler = useMemo<typeof handler>(() => {
-    return async (...params) => {
+  const newHandler = useMemo<
+    (
+      options?: MutationFunctionOptions<TData, TVariables, TContext, TCache> & {
+        disableMessage?: boolean;
+      },
+    ) => Promise<FetchResult<TData>>
+  >(() => {
+    return async (params) => {
+      const actualDisableMessage =
+        params?.disableMessage === undefined
+          ? disableMessage
+          : params?.disableMessage;
+
       try {
-        const data = await handler(...params);
+        const data = await handler(params);
         return data;
       } catch (err) {
-        if (!disableMessage) {
+        if (!actualDisableMessage) {
           message.error((err as ApolloError).message);
         }
         throw err;

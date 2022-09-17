@@ -163,6 +163,7 @@ export interface UpdateTagInput {
     id: string;
     name?: Nullable<string>;
     desc?: Nullable<string>;
+    categoryId?: Nullable<string>;
 }
 
 export interface SignUpUserInput {
