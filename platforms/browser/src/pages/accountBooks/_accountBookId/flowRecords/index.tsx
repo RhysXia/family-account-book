@@ -418,6 +418,7 @@ const Index = () => {
             placeholder={['交易开始日期', '交易结束时间']}
             value={dealAtRange}
             onChange={setDealAtRange}
+            allowEmpty={[false, true]}
           />
         </div>
         <Table
