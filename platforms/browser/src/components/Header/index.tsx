@@ -51,7 +51,7 @@ const Header = () => {
           <div className="space-x-2">
             <Dropdown overlay={overlay}>
               <Avatar className="bg-indigo-500 cursor-pointer">
-                {currentUser?.username}
+                {currentUser?.nickname}
               </Avatar>
             </Dropdown>
           </div>
