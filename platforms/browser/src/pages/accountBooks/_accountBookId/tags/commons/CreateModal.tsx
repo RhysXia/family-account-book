@@ -78,6 +78,9 @@ const CreateModal: FC<CreateModalProps> = ({ visible, onChange }) => {
             ))}
           </Select>
         </Form.Item>
+        <Form.Item label="描述" name="desc">
+          <Input.TextArea autoSize={{ minRows: 4 }} />
+        </Form.Item>
       </Form>
     </Modal>
   );
