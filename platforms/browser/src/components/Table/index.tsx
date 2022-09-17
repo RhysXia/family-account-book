@@ -21,9 +21,9 @@ const Table: FC<TableProps> = ({
   return (
     <div className="table w-full rounded overflow-hidden border-collapse">
       <div className="table-header-group bg-slate-200 font-bold">
-        {columns.map(({ width, title }, i) => {
+        {columns.map(({ style, title }, i) => {
           return (
-            <div key={i} className="table-cell p-2" style={{ width }}>
+            <div key={i} className="table-cell p-2" style={style}>
               {title}
             </div>
           );
