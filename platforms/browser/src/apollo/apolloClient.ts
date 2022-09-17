@@ -7,8 +7,14 @@ const link = new BatchHttpLink({
 });
 const apolloClient = new ApolloClient({
   uri: '/graphql',
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({}),
   link: link,
+  defaultOptions: {
+    watchQuery: {
+      // cahce-first 对 refetchQueries 支持有问题
+      fetchPolicy: 'cache-and-network',
+    },
+  },
 });
 
 export default apolloClient;

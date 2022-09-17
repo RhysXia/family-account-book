@@ -50,7 +50,7 @@ const CreateModal: FC<CreateModalProps> = ({ visible, onChange }) => {
       onOk={handleOk}
       onCancel={handleCancel}
     >
-      <Form form={form} labelCol={{ span: 3 }}>
+      <Form form={form} labelCol={{ span: 4 }}>
         <Form.Item
           label="名称"
           name="name"
@@ -58,7 +58,11 @@ const CreateModal: FC<CreateModalProps> = ({ visible, onChange }) => {
         >
           <Input />
         </Form.Item>
-        <Form.Item label="所属分类" name="categoryId">
+        <Form.Item
+          label="所属分类"
+          name="categoryId"
+          rules={[{ required: true, message: '分类不能为空' }]}
+        >
           <Select>
             {categoryData?.data.map((it) => (
               <Select.Option value={it.id} key={it.id}>

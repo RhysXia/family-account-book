@@ -54,7 +54,11 @@ const CreateModal: FC<CreateModalProps> = ({ visible, onChange }) => {
         >
           <Input placeholder="请输入名称" />
         </Form.Item>
-        <Form.Item label="类型" name="type">
+        <Form.Item
+          label="类型"
+          name="type"
+          rules={[{ required: true, message: '类型不能为空' }]}
+        >
           <Select placeholder="请选择类型">
             {CategoryTypes.map((type) => {
               return (

@@ -6,6 +6,8 @@ import Pages from 'vite-plugin-pages';
 import { resolve } from 'path';
 import graphqlTag from 'babel-plugin-graphql-tag';
 
+const isDevelopment = process.env.NODE_ENV === 'development';
+
 // https://vitejs.dev/config/
 export default defineConfig({
   css: {
@@ -20,15 +22,23 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
     },
   },
+  build: {
+    emptyOutDir: true,
+  },
   plugins: [
     react({
       babel: {
-        plugins: [jotaiDebugLabel, jotaiReactRefresh, graphqlTag],
+        plugins: [
+          isDevelopment && jotaiDebugLabel,
+          isDevelopment && jotaiReactRefresh,
+          !isDevelopment && graphqlTag,
+        ].filter(Boolean),
       },
     }),
     Pages({
       exclude: ['**/commons/**'],
       routeStyle: 'nuxt',
+      importMode: 'async',
     }),
   ],
   server: {

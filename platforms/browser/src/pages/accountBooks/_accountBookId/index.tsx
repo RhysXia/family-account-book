@@ -1,12 +1,13 @@
 import Content from '@/components/Content';
 import DatePicker from '@/components/DatePicker';
 import { useGetCategoryListByAccountBookId } from '@/graphql/category';
+import useConstantFn from '@/hooks/useConstanFn';
 import { activeAccountBookAtom } from '@/store';
 import { DateGroupBy } from '@/types';
 import { Radio, RadioChangeEvent, Tabs } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import { useAtom } from 'jotai';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import AmountCard from './commons/AmountCard';
 import FlowRecordTrend from './commons/FlowRecordTrend';
 
@@ -14,6 +15,8 @@ const Overview = () => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
 
   const [groupBy, setGroupBy] = useState<DateGroupBy>('DAY');
+
+  const [manualDateChange, setManualDateChange] = useState(false);
 
   const { data: categoriesData } = useGetCategoryListByAccountBookId({
     accountBookId: activeAccountBook!.id,
@@ -27,6 +30,39 @@ const Overview = () => {
     const now = dayjs();
     return [now.startOf('month'), null];
   });
+
+  const handleDateChange = useCallback(
+    (v: [Dayjs | null, Dayjs | null] | null) => {
+      setManualDateChange(true);
+      setDateRange(v);
+    },
+    [],
+  );
+
+  const changeDateRangeOnGroupBy = useConstantFn((groupByProp: DateGroupBy) => {
+    if (manualDateChange) {
+      return;
+    }
+    const now = dayjs();
+    switch (groupByProp) {
+      case 'DAY': {
+        setDateRange([now.startOf('month'), null]);
+        break;
+      }
+      case 'MONTH': {
+        setDateRange([now.startOf('year'), null]);
+        break;
+      }
+      case 'YEAR': {
+        setDateRange([null, null]);
+        break;
+      }
+    }
+  });
+
+  useEffect(() => {
+    changeDateRangeOnGroupBy(groupBy);
+  }, [groupBy, changeDateRangeOnGroupBy]);
 
   const handleGroupByChange = useCallback((e: RadioChangeEvent) => {
     setGroupBy(e.target.value);
@@ -47,7 +83,7 @@ const Overview = () => {
       <div className="-m-2 space-y-4 bg-gray-100">
         <div className="-m-2 -mb-0 flex items-center flex-wrap">
           {categoriesData?.data.map((it) => (
-            <div key={it.id} className="md:w-1/2 lg:w-1/4 px-2">
+            <div key={it.id} className="md:w-1/2 lg:w-1/4 p-2">
               <AmountCard category={it} />
             </div>
           ))}
@@ -67,7 +103,7 @@ const Overview = () => {
                 <DatePicker.RangePicker
                   allowEmpty={[false, true]}
                   value={dateRange}
-                  onChange={setDateRange}
+                  onChange={handleDateChange}
                 />
               </div>
             }

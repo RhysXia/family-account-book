@@ -35,11 +35,11 @@ const AccountBookPage = () => {
         <Header />
         <div className="flex flex-1 flex-row">
           <Aside />
-          <Suspense fallback={<Loading />}>
-            <div className="bg-gray-100 flex flex-1 p-4">
+          <div className="bg-gray-100 flex flex-1 p-4">
+            <Suspense fallback={<Loading />}>
               <Outlet />
-            </div>
-          </Suspense>
+            </Suspense>
+          </div>
         </div>
       </div>
     </RequireAuth>

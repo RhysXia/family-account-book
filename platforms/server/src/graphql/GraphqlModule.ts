@@ -32,6 +32,7 @@ import { SavingAccountHistoryResolver } from './resolver/SavingAccountHistoryRes
 import { AccountBookStatisticsResolver } from './resolver/AccountBookStatisticsResolver';
 import { CategoryResolver } from './resolver/CategoryResolver';
 import { CategoryDataLoader } from './dataloader/CategoryDataLoader';
+import { isDevelopment } from '../utils/env';
 
 @Module({
   imports: [
@@ -48,13 +49,15 @@ import { CategoryDataLoader } from './dataloader/CategoryDataLoader';
         return {
           typePaths: ['./**/*.graphql'],
           playground: isPlayground,
-          definitions: {
-            path: join(process.cwd(), 'src/graphql/graphql.ts'),
-            customScalarTypeMapping: {
-              DateTime: 'Date',
-              Date: 'Date',
-            },
-          },
+          definitions: isDevelopment
+            ? {
+                path: join(process.cwd(), 'src/graphql/graphql.ts'),
+                customScalarTypeMapping: {
+                  DateTime: 'Date',
+                  Date: 'Date',
+                },
+              }
+            : undefined,
           debug: isGraphqlDebug,
           csrfPrevention: true,
           cache: 'bounded',
