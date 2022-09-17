@@ -3,6 +3,25 @@ type AccountBookListWithPagintion {
   data: [AccountBook!]!
 }
 
+input AccountBookTagFilter {
+  categoryId: ID
+}
+
+input AccountBookFlowRecordFilter {
+  """
+  过滤交易人的流水
+  """
+  traderId: ID
+  tagId: ID
+  savingAccountId: ID
+  startDealAt: Date
+  endDealAt: Date
+}
+
+input AccountBookCategoryFilter {
+  type: CategoryType
+}
+
 type AccountBook implements EntityDateTime {
   id: ID!
   name: String!
@@ -26,16 +45,22 @@ type AccountBook implements EntityDateTime {
   savingAccounts(pagination: Pagination): SavingAccountListWithPagintion!
   savingAccount(id: ID!): SavingAccount!
 
-  tags(pagination: Pagination): TagListWithPagintion
+  tags(
+    filter: AccountBookTagFilter
+    pagination: Pagination
+  ): TagListWithPagintion
   tag(id: ID!): Tag!
 
   flowRecords(
-    filter: FlowRecordFilter
+    filter: AccountBookFlowRecordFilter
     pagination: Pagination
   ): FlowRecordListWithPagintion!
   flowRecord(id: ID!): FlowRecord!
 
-  categories(pagination: Pagination): CategoryListWithPagintion!
+  categories(
+    filter: AccountBookCategoryFilter
+    pagination: Pagination
+  ): CategoryListWithPagintion!
   category(id: ID!): Category!
 
   """

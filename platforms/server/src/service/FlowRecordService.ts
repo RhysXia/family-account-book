@@ -292,11 +292,15 @@ export class FlowRecordService {
       traderId,
       savingAccountId,
       tagId,
+      startDealAt,
+      endDealAt,
     }: {
       accountBookId?: number;
       traderId?: number;
       savingAccountId?: number;
       tagId?: number;
+      startDealAt?: Date;
+      endDealAt?: Date;
     },
     pagination?: Pagination,
   ): Promise<{ total: number; data: Array<FlowRecordEntity> }> {
@@ -324,6 +328,18 @@ export class FlowRecordService {
     if (tagId) {
       qb.andWhere('flowRecord.tagId = :tagId', {
         tagId,
+      });
+    }
+
+    if (startDealAt) {
+      qb.andWhere('flowRecord.dealAt >= :startDealAt', {
+        startDealAt,
+      });
+    }
+
+    if (endDealAt) {
+      qb.andWhere('flowRecord.dealAt <= :endDealAt', {
+        endDealAt,
       });
     }
 

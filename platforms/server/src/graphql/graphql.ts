@@ -30,6 +30,22 @@ export enum DateGroupBy {
     DAY = "DAY"
 }
 
+export interface AccountBookTagFilter {
+    categoryId?: Nullable<string>;
+}
+
+export interface AccountBookFlowRecordFilter {
+    traderId?: Nullable<string>;
+    tagId?: Nullable<string>;
+    savingAccountId?: Nullable<string>;
+    startDealAt?: Nullable<Date>;
+    endDealAt?: Nullable<Date>;
+}
+
+export interface AccountBookCategoryFilter {
+    type?: Nullable<CategoryType>;
+}
+
 export interface CreateAccountBookInput {
     name: string;
     desc?: Nullable<string>;
@@ -73,11 +89,6 @@ export interface UpdateCategoryInput {
     desc?: Nullable<string>;
 }
 
-export interface FlowRecordFilter {
-    traderId?: Nullable<string>;
-    creatorId?: Nullable<string>;
-}
-
 export interface CreateFlowRecordInput {
     desc?: Nullable<string>;
     dealAt: Date;
@@ -93,6 +104,11 @@ export interface UpdateFlowRecordInput {
     dealAt?: Nullable<Date>;
     amount?: Nullable<number>;
     savingAccountId?: Nullable<string>;
+    tagId?: Nullable<string>;
+    traderId?: Nullable<string>;
+}
+
+export interface SavingAccountFlowRecordFilter {
     tagId?: Nullable<string>;
     traderId?: Nullable<string>;
 }
@@ -129,6 +145,11 @@ export interface UpdateSavingAccountTransferRecord {
     fromSavingAccountId?: Nullable<string>;
     toSavingAccountId?: Nullable<string>;
     dealAt?: Nullable<Date>;
+    traderId?: Nullable<string>;
+}
+
+export interface TagFlowRecordFilter {
+    savingAccountId?: Nullable<string>;
     traderId?: Nullable<string>;
 }
 

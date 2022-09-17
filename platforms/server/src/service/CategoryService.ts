@@ -165,11 +165,20 @@ export class CategoryService {
 
   async findAllByAccountBookIdAndPagination(
     accountBookId: number,
+    filter?: {
+      type?: CategoryType;
+    },
     pagination?: Pagination,
   ): Promise<{ total: number; data: Array<CategoryEntity> }> {
+    const { type } = filter || {};
+
     const qb = this.dataSource
       .createQueryBuilder(CategoryEntity, 'category')
       .where('category.accountBookId = :accountBookId', { accountBookId });
+
+    if (type) {
+      qb.andWhere('category.type = :type', { type });
+    }
 
     const result = await applyPagination(
       qb,

@@ -15,7 +15,7 @@ export const GET_FLOW_RECORD_LIST_BY_ACCOUNT_BOOK_ID = gql`
   query GetFlowRecordListByAccountBookId(
     $accountBookId: ID!
     $pagination: Pagination
-    $filter: FlowRecordFilter
+    $filter: AccountBookFlowRecordFilter
   ) {
     node(id: $accountBookId) {
       ... on AccountBook {
@@ -31,6 +31,7 @@ export const GET_FLOW_RECORD_LIST_BY_ACCOUNT_BOOK_ID = gql`
             trader {
               id
               username
+              nickname
               email
               avatar
             }
@@ -68,8 +69,17 @@ export type FlowRecordDetail = FlowRecord & {
   };
 };
 
+export type AccountBookFlowRecordFilter = {
+  savingAccountId?: string;
+  tagId?: string;
+  traderId?: string;
+  startDealAt?: string;
+  endDealAt?: string;
+};
+
 export const useGetFlowRecordListByAccountBookId = (variables: {
   accountBookId: string;
+  filter?: AccountBookFlowRecordFilter;
   pagination?: Pagination;
 }) => {
   const { data, ...others } = useAppQuery<{

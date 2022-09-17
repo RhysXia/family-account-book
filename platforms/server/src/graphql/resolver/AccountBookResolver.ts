@@ -24,9 +24,11 @@ import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
 import {
   CreateAccountBookInput,
-  FlowRecordFilter,
+  AccountBookCategoryFilter,
   Pagination,
   UpdateAccountBookInput,
+  AccountBookFlowRecordFilter,
+  AccountBookTagFilter,
 } from '../graphql';
 import { GraphqlEntity } from '../types';
 import { decodeId, encodeId, EntityName, getIdInfo } from '../utils';
@@ -153,13 +155,19 @@ export class AccountBookResolver {
   @ResolveField()
   async categories(
     @Parent() parent: GraphqlEntity<AccountBookEntity>,
+    @Args('filter') filter?: AccountBookCategoryFilter,
     @Args('pagination') pagination?: Pagination,
   ) {
     const parentId = decodeId(EntityName.ACCOUNT_BOOK, parent.id);
 
+    const { type } = filter || {};
+
     const { total, data } =
       await this.categoryService.findAllByAccountBookIdAndPagination(
         parentId,
+        {
+          ...(type && { type }),
+        },
         pagination,
       );
 
@@ -200,13 +208,21 @@ export class AccountBookResolver {
   @ResolveField()
   async tags(
     @Parent() parent: GraphqlEntity<AccountBookEntity>,
+    @Args('filter') filter?: AccountBookTagFilter,
     @Args('pagination') pagination?: Pagination,
   ) {
+    const { categoryId } = filter || {};
+
     const parentId = decodeId(EntityName.ACCOUNT_BOOK, parent.id);
 
     const { total, data } =
       await this.tagService.findAllByAccountBookIdAndPagination(
         parentId,
+        {
+          ...(categoryId && {
+            categoryId: decodeId(EntityName.CATEGORY, categoryId),
+          }),
+        },
         pagination,
       );
 
@@ -245,12 +261,13 @@ export class AccountBookResolver {
   @ResolveField()
   async flowRecords(
     @Parent() parent: GraphqlEntity<AccountBookEntity>,
-    @Args('filter') filter?: FlowRecordFilter,
+    @Args('filter') filter?: AccountBookFlowRecordFilter,
     @Args('pagination') pagination?: Pagination,
   ) {
     const parentId = decodeId(EntityName.ACCOUNT_BOOK, parent.id);
 
-    const { traderId, creatorId } = filter || {};
+    const { traderId, tagId, savingAccountId, startDealAt, endDealAt } =
+      filter || {};
 
     let traderIdValue;
 
@@ -266,29 +283,21 @@ export class AccountBookResolver {
       traderIdValue = info.id;
     }
 
-    let creatorIdValue;
-
-    if (creatorId) {
-      const info = getIdInfo(creatorId);
-
-      if (
-        info.name !== EntityName.DETAIL_USER &&
-        info.name !== EntityName.USER
-      ) {
-        throw new ParameterException('traderId不存在');
-      }
-      creatorIdValue = info.id;
-    }
-
     const { total, data } =
       await this.flowRecordService.findAllByConditionAndPagination(
         {
           ...(traderIdValue && {
             traderId: traderIdValue,
           }),
-          ...(creatorIdValue && {
-            creatorId: creatorIdValue,
+          ...(tagId && { tagId: decodeId(EntityName.TAG, tagId) }),
+          ...(savingAccountId && {
+            savingAccountId: decodeId(
+              EntityName.SAVING_ACCOUNT,
+              savingAccountId,
+            ),
           }),
+          ...(startDealAt && { startDealAt }),
+          ...(endDealAt && { endDealAt }),
           accountBookId: parentId,
         },
         pagination,

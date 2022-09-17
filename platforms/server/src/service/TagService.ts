@@ -181,11 +181,20 @@ export class TagService {
 
   async findAllByAccountBookIdAndPagination(
     accountBookId: number,
+    filter?: {
+      categoryId?: number;
+    },
     pagination?: Pagination,
   ): Promise<{ total: number; data: Array<TagEntity> }> {
+    const { categoryId } = filter || {};
+
     const qb = this.dataSource
       .createQueryBuilder(TagEntity, 'tag')
       .where('tag.accountBookId = :accountBookId', { accountBookId });
+
+    if (categoryId) {
+      qb.andWhere('tag.categoryId = :categoryId', { categoryId });
+    }
 
     const result = await applyPagination(
       qb,

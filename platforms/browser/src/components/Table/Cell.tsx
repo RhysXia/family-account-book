@@ -15,7 +15,7 @@ export type Render = (data: RenderProps) => ReactNode;
 
 export type Column = {
   title: string;
-  width?: number | string;
+  style?: React.CSSProperties;
   className?: string;
   render?: Render;
   dataIndex?: string;
@@ -45,7 +45,7 @@ const Cell: FC<CellProps> = ({
   onChange,
   onEdit,
 }) => {
-  const { width, dataIndex, render = DEFAULT_RENDER, className } = column;
+  const { style, dataIndex, render = DEFAULT_RENDER, className } = column;
 
   const handleValueChange = useConstantFn((v: any) => {
     if (isEdit) {
@@ -59,7 +59,7 @@ const Cell: FC<CellProps> = ({
   const classes = clsx('table-cell', 'p-2', className);
 
   return (
-    <div className={classes} style={{ width }} onDoubleClick={onEdit}>
+    <div className={classes} style={style} onDoubleClick={onEdit}>
       {render({ value, onChange: handleValueChange, isEdit, index })}
     </div>
   );

@@ -63,9 +63,9 @@ const CreateModal: FC<CreateModalProps> = ({ visible, onChange }) => {
           name="categoryId"
           rules={[{ required: true, message: '分类不能为空' }]}
         >
-          <Select>
+          <Select showSearch={true} optionFilterProp="name">
             {categoryData?.data.map((it) => (
-              <Select.Option value={it.id} key={it.id}>
+              <Select.Option value={it.id} key={it.id} name={it.name}>
                 <span
                   className="inline-block leading-4 rounded px-2 py-1 text-white"
                   style={{

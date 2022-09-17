@@ -3,6 +3,11 @@ type TagListWithPagintion {
   data: [Tag!]!
 }
 
+input TagFlowRecordFilter {
+  savingAccountId: ID
+  traderId: ID
+}
+
 type Tag implements EntityDateTime {
   id: ID!
   name: String!
@@ -20,7 +25,7 @@ type Tag implements EntityDateTime {
   accountBook: AccountBook!
 
   flowRecords(
-    filter: FlowRecordFilter
+    filter: TagFlowRecordFilter
     pagination: Pagination
   ): FlowRecordListWithPagintion!
   flowRecord(id: ID!): FlowRecord!

@@ -2,6 +2,7 @@ import Content from '@/components/Content';
 import DatePicker from '@/components/DatePicker';
 import Table from '@/components/Table';
 import { Column, RenderProps } from '@/components/Table/Cell';
+import TagSelect from '@/components/TagSelect';
 import {
   FlowRecordDetail,
   useDeleteFlowRecord,
@@ -53,10 +54,26 @@ const Index = () => {
     accountBookId: activeAccountBook!.id!,
   });
 
+  const tags = useMemo(() => tagsData?.data || [], [tagsData]);
+
   const { getPagination, limit, offset } = usePagination();
+
+  const [tagIdFilter, setTagIdFilter] = useState<string>();
+  const [traderIdFilter, setTraderIdFilter] = useState<string>();
+  const [savingAccountIdFilter, setSavingAccountIdFilter] = useState<string>();
+  const [dealAtRange, setDealAtRange] = useState<
+    [Dayjs | null, Dayjs | null] | null
+  >();
 
   const { data } = useGetFlowRecordListByAccountBookId({
     accountBookId: activeAccountBook!.id,
+    filter: {
+      tagId: tagIdFilter,
+      traderId: traderIdFilter,
+      savingAccountId: savingAccountIdFilter,
+      startDealAt: dealAtRange?.[0]?.format('YYYY-MM-DD'),
+      endDealAt: dealAtRange?.[1]?.format('YYYY-MM-DD'),
+    },
     pagination: {
       limit,
       offset,
@@ -78,8 +95,6 @@ const Index = () => {
     [accountBookWithSavingAccounts],
   );
 
-  const tags = useMemo(() => tagsData?.data || [], [tagsData]);
-
   const handleDelete = useCallback(
     async (id: string) => {
       await deleteFlowRecord({
@@ -96,7 +111,9 @@ const Index = () => {
       {
         title: '标签',
         dataIndex: 'tag',
-        width: '10%',
+        style: {
+          minWidth: '15%',
+        },
         render({
           value,
           isEdit,
@@ -104,28 +121,12 @@ const Index = () => {
         }: RenderProps<Itag & { category: Category }>) {
           if (isEdit) {
             return (
-              <Select
+              <TagSelect
+                accountBookId={activeAccountBook!.id}
                 size="small"
-                className="w-full"
                 value={value.id}
-                onChange={(v) => onChange(tags.find((it) => it.id === v)!)}
-              >
-                {tags.map((tag) => {
-                  return (
-                    <Select.Option value={tag.id} key={tag.id}>
-                      <span
-                        className="inline-block leading-4 rounded px-2 py-1 text-white"
-                        style={{
-                          background:
-                            CategoryTypeInfoMap[tag.category.type].color,
-                        }}
-                      >
-                        {tag.name}
-                      </span>
-                    </Select.Option>
-                  );
-                })}
-              </Select>
+                onChange={(id) => onChange(tags.find((it) => it.id === id)!)}
+              />
             );
           }
           return (
@@ -142,7 +143,9 @@ const Index = () => {
       },
       {
         title: '金额',
-        width: '10%',
+        style: {
+          minWidth: '10%',
+        },
         render({
           value,
           isEdit,
@@ -161,7 +164,6 @@ const Index = () => {
                 size="small"
                 formatter={(v) => `¥ ${v}`}
                 precision={2}
-                className="w-full"
                 value={value.amount}
                 min={type === CategoryType.POSITIVE_AMOUNT ? 0.01 : undefined}
                 max={type === CategoryType.NEGATIVE_AMOUNT ? -0.01 : undefined}
@@ -175,13 +177,14 @@ const Index = () => {
       {
         title: '账户',
         dataIndex: 'savingAccount',
-        width: '15%',
+        style: {
+          minWidth: '20%',
+        },
         render({ value, isEdit, onChange }: RenderProps<SavingAccount>) {
           if (isEdit) {
             return (
               <Select
                 size="small"
-                className="w-full"
                 value={value.id}
                 onChange={(v) =>
                   onChange(
@@ -210,14 +213,15 @@ const Index = () => {
       {
         title: '交易日期',
         dataIndex: 'dealAt',
-        width: '15%',
+        style: {
+          minWidth: '10%',
+        },
         render({ value, isEdit, onChange }: RenderProps<string>) {
           if (isEdit) {
             return (
               <DatePicker
                 clearIcon={false}
                 size="small"
-                className="w-full"
                 value={dayjs(value)}
                 onChange={(v) => onChange((v as Dayjs).toString())}
               />
@@ -231,13 +235,14 @@ const Index = () => {
       {
         title: '交易人员',
         dataIndex: 'trader',
-        width: '10%',
+        style: {
+          minWidth: '10%',
+        },
         render({ value, isEdit, onChange }: RenderProps<User>) {
           if (isEdit) {
             return (
               <Select
                 size="small"
-                className="w-full"
                 value={value.id}
                 onChange={(v) => onChange(users.find((it) => it.id === v)!)}
               >
@@ -257,13 +262,11 @@ const Index = () => {
       {
         title: '描述',
         dataIndex: 'desc',
-        width: '20%',
         render({ value, isEdit, onChange }: RenderProps<string>) {
           if (isEdit) {
             return (
               <Input
                 size="small"
-                className="w-full"
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
               />
@@ -274,7 +277,9 @@ const Index = () => {
       },
       {
         title: '操作',
-        width: '20%',
+        style: {
+          minWidth: '15%',
+        },
         render({ value }: RenderProps<FlowRecord>) {
           return (
             <Button
@@ -296,7 +301,7 @@ const Index = () => {
         },
       },
     ],
-    [tags, savingAccounts, handleDelete, users],
+    [tags, savingAccounts, handleDelete, users, activeAccountBook],
   );
 
   const handleCreate = useCallback(() => {
@@ -364,18 +369,70 @@ const Index = () => {
       }
       pagination={data && getPagination(data.total)}
     >
-      <Table
-        data={data?.data || []}
-        columns={columns}
-        editable={true}
-        onEditSubmit={handleEditSubmit}
-      />
+      <div className="space-y-2">
+        <div className="flex justify-end space-x-2">
+          <TagSelect
+            allowClear={true}
+            value={tagIdFilter}
+            onChange={setTagIdFilter}
+            placeholder="请选择标签"
+            style={{ minWidth: 250 }}
+            accountBookId={activeAccountBook!.id}
+          />
+          <Select
+            style={{ minWidth: 200 }}
+            allowClear={true}
+            placeholder="请选择交易人员"
+            value={traderIdFilter}
+            onChange={setTraderIdFilter}
+          >
+            {users.map((it) => {
+              return (
+                <Select.Option value={it.id} key={it.id}>
+                  <span className="flex items-center">{it.nickname}</span>
+                </Select.Option>
+              );
+            })}
+          </Select>
+          <Select
+            allowClear={true}
+            placeholder="请选择账户"
+            style={{ minWidth: 250 }}
+            value={savingAccountIdFilter}
+            onChange={setSavingAccountIdFilter}
+          >
+            {savingAccounts.map((it) => {
+              return (
+                <Select.Option value={it.id} key={it.id}>
+                  <span className="flex items-center">
+                    <CreditCardOutlined />
+                    <span className="pl-2">
+                      {it.name}(¥{it.amount})
+                    </span>
+                  </span>
+                </Select.Option>
+              );
+            })}
+          </Select>
+          <DatePicker.RangePicker
+            placeholder={['交易开始日期', '交易结束时间']}
+            value={dealAtRange}
+            onChange={setDealAtRange}
+          />
+        </div>
+        <Table
+          data={data?.data || []}
+          columns={columns}
+          editable={true}
+          onEditSubmit={handleEditSubmit}
+        />
+      </div>
       <CreateModel
+        tags={tags}
         users={users}
         onChange={setModalVisible}
         onRefrshSavingAccounts={handleRefreshSavingAccounts}
         visible={modalVisible}
-        tags={tags}
         savingAccounts={savingAccounts}
       />
     </Content>

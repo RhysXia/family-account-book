@@ -5,12 +5,13 @@ import { gql } from '@apollo/client';
 export const GET_TAG_LIST_BY_ACCOUNT_BOOK_ID = gql`
   query GetTagListByAccountBookId(
     $accountBookId: ID!
+    $filter: TagFilter
     $pagination: Pagination
   ) {
     node(id: $accountBookId) {
       ... on AccountBook {
         id
-        tags(pagination: $pagination) {
+        tags(filter: $filter, pagination: $pagination) {
           total
           data {
             id
@@ -28,12 +29,13 @@ export const GET_TAG_LIST_BY_ACCOUNT_BOOK_ID = gql`
 export const GET_TAG_LIST_WITH_CATEGORY_BY_ACCOUNT_BOOK_ID = gql`
   query GetTagsWithCategoryByAccountBookId(
     $accountBookId: ID!
+    $filter: AccountBookTagFilter
     $pagination: Pagination
   ) {
     node(id: $accountBookId) {
       ... on AccountBook {
         id
-        tags(pagination: $pagination) {
+        tags(filter: $filter, pagination: $pagination) {
           total
           data {
             id
@@ -58,8 +60,13 @@ export const GET_TAG_LIST_WITH_CATEGORY_BY_ACCOUNT_BOOK_ID = gql`
   }
 `;
 
+export type AccountBookTagFilter = {
+  categoryId?: string;
+};
+
 export const useGetTagListByAccountBookId = (variables: {
   accountBookId: string;
+  filter?: AccountBookTagFilter;
   pagination?: Pagination;
 }) => {
   const { data, ...others } = useAppQuery<{
@@ -78,6 +85,7 @@ export const useGetTagListByAccountBookId = (variables: {
 
 export const useGetTagsWithCategoryByAccountBookId = (variables: {
   accountBookId: string;
+  filter?: AccountBookTagFilter;
   pagination?: Pagination;
 }) => {
   const { data, ...others } = useAppQuery<{

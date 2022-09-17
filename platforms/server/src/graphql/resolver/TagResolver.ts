@@ -20,7 +20,7 @@ import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
 import {
   CreateTagInput,
-  FlowRecordFilter,
+  TagFlowRecordFilter,
   Pagination,
   UpdateTagInput,
 } from '../graphql';
@@ -86,12 +86,12 @@ export class TagResolver {
   @ResolveField()
   async flowRecords(
     @Parent() parent: GraphqlEntity<TagEntity>,
-    @Args('filter') filter?: FlowRecordFilter,
+    @Args('filter') filter?: TagFlowRecordFilter,
     @Args('pagination') pagination?: Pagination,
   ) {
     const parentId = decodeId(EntityName.TAG, parent.id);
 
-    const { traderId, creatorId } = filter || {};
+    const { traderId, savingAccountId } = filter || {};
 
     let traderIdValue;
 
@@ -107,28 +107,17 @@ export class TagResolver {
       traderIdValue = info.id;
     }
 
-    let creatorIdValue;
-
-    if (creatorId) {
-      const info = getIdInfo(creatorId);
-
-      if (
-        info.name !== EntityName.DETAIL_USER &&
-        info.name !== EntityName.USER
-      ) {
-        throw new ParameterException('traderId不存在');
-      }
-      creatorIdValue = info.id;
-    }
-
     const { total, data } =
       await this.flowRecordService.findAllByConditionAndPagination(
         {
           ...(traderIdValue && {
             traderId: traderIdValue,
           }),
-          ...(creatorIdValue && {
-            creatorId: creatorIdValue,
+          ...(savingAccountId && {
+            savingAccountId: decodeId(
+              EntityName.SAVING_ACCOUNT,
+              savingAccountId,
+            ),
           }),
           tagId: parentId,
         },

@@ -1,4 +1,4 @@
-import { Button, Input, Modal } from 'antd';
+import { Button, Input, Modal, Select } from 'antd';
 import { useAtom } from 'jotai';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -16,11 +16,18 @@ import {
   useGetTagsWithCategoryByAccountBookId,
   useUpdateTag,
 } from '@/graphql/tag';
+import { useGetCategoryListByAccountBookId } from '@/graphql/category';
 
 const TagPage = () => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
 
   const [createModalVisible, setCreateModalVisible] = useState(false);
+
+  const { data: categoryData } = useGetCategoryListByAccountBookId({
+    accountBookId: activeAccountBook!.id,
+  });
+
+  const [categoryIdFilter, setCategoryIdFilter] = useState<string>();
 
   const navigate = useNavigate();
 
@@ -28,6 +35,9 @@ const TagPage = () => {
 
   const { data } = useGetTagsWithCategoryByAccountBookId({
     accountBookId: activeAccountBook!.id,
+    filter: {
+      categoryId: categoryIdFilter,
+    },
     pagination: {
       limit,
       offset,
@@ -79,7 +89,9 @@ const TagPage = () => {
     {
       title: '名称',
       dataIndex: 'name',
-      width: '10%',
+      style: {
+        minWidth: '10%',
+      },
       render({ value, onChange, isEdit }: RenderProps<string>) {
         if (isEdit) {
           return (
@@ -96,7 +108,6 @@ const TagPage = () => {
     {
       title: '描述',
       dataIndex: 'desc',
-      width: '20%',
       render({ value, onChange, isEdit }: RenderProps<string>) {
         if (isEdit) {
           return (
@@ -113,7 +124,9 @@ const TagPage = () => {
     {
       title: '所属分类',
       dataIndex: 'category',
-      width: '15%',
+      style: {
+        minWidth: '15%',
+      },
       render({ value }: RenderProps<Category>) {
         return (
           <span
@@ -130,7 +143,9 @@ const TagPage = () => {
     {
       title: '创建人',
       dataIndex: 'creator.nickname',
-      width: '10%',
+      style: {
+        minWidth: '10%',
+      },
       render({ value }: RenderProps<string>) {
         return value;
       },
@@ -138,14 +153,18 @@ const TagPage = () => {
     {
       title: '创建时间',
       dataIndex: 'createdAt',
-      width: '15%',
+      style: {
+        minWidth: '15%',
+      },
       render({ value }: RenderProps<string>) {
         return fromTime(value);
       },
     },
     {
       title: '操作',
-      width: '20%',
+      style: {
+        minWidth: '15%',
+      },
       render({ value }: RenderProps<ITag>) {
         return (
           <div className="space-x-4">
@@ -201,13 +220,39 @@ const TagPage = () => {
         </Button>
       }
     >
-      <Table
-        onEditSubmit={handleEdit}
-        index="id"
-        editable={true}
-        columns={columns}
-        data={data?.data || []}
-      />
+      <div className="space-y-2">
+        <div className="flex justify-end">
+          <Select
+            value={categoryIdFilter}
+            onChange={setCategoryIdFilter}
+            style={{ width: 200 }}
+            allowClear={true}
+            placeholder="请选择分类"
+            showSearch={true}
+            optionFilterProp="name"
+          >
+            {categoryData?.data.map((it) => (
+              <Select.Option value={it.id} key={it.id} name={it.name}>
+                <span
+                  className="inline-block leading-4 rounded px-2 py-1 text-white"
+                  style={{
+                    background: CategoryTypeInfoMap[it.type].color,
+                  }}
+                >
+                  {it.name}
+                </span>
+              </Select.Option>
+            ))}
+          </Select>
+        </div>
+        <Table
+          onEditSubmit={handleEdit}
+          index="id"
+          editable={true}
+          columns={columns}
+          data={data?.data || []}
+        />
+      </div>
       <CreateModal
         visible={createModalVisible}
         onChange={setCreateModalVisible}

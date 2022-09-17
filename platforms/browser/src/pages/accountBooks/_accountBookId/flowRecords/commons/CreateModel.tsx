@@ -1,9 +1,9 @@
 import DatePicker from '@/components/DatePicker';
+import TagSelect from '@/components/TagSelect';
 import { useCreateFlowRecord } from '@/graphql/flowRecord';
 import useConstantFn from '@/hooks/useConstanFn';
-import { currentUserAtom } from '@/store';
+import { activeAccountBookAtom, currentUserAtom } from '@/store';
 import { Category, CategoryType, SavingAccount, Tag, User } from '@/types';
-import { CategoryTypeInfoMap } from '@/utils/constants';
 import { CreditCardOutlined } from '@ant-design/icons';
 import {
   Button,
@@ -38,6 +38,8 @@ const CreateModel: FC<CreateModelProps> = ({
 }) => {
   const [createFlowRecord] = useCreateFlowRecord();
 
+  const [activeAccountBook] = useAtom(activeAccountBookAtom);
+
   const [currentUser] = useAtom(currentUserAtom);
 
   const [form] = Form.useForm<{
@@ -66,13 +68,17 @@ const CreateModel: FC<CreateModelProps> = ({
       },
     });
 
-    form.resetFields();
+    // 只清空金额，方便在此输入
+    form.setFieldValue('amount', undefined);
+
     message.success('添加成功');
     await onRefrshSavingAccounts();
   }, [form, createFlowRecord, onRefrshSavingAccounts]);
 
   const handleClose = useConstantFn(async () => {
     onChange(false);
+    // 关闭的时候，清空
+    form.resetFields();
   });
 
   const handleCreateAndClose = useCallback(async () => {
@@ -144,22 +150,7 @@ const CreateModel: FC<CreateModelProps> = ({
           name="tagId"
           rules={[{ required: true, message: '标签不能为空' }]}
         >
-          <Select>
-            {tags.map((tag) => {
-              return (
-                <Select.Option value={tag.id} key={tag.id}>
-                  <span
-                    className="inline-block leading-4 rounded px-2 py-1 text-white"
-                    style={{
-                      background: CategoryTypeInfoMap[tag.category.type].color,
-                    }}
-                  >
-                    {tag.name}
-                  </span>
-                </Select.Option>
-              );
-            })}
-          </Select>
+          <TagSelect accountBookId={activeAccountBook!.id} />
         </Form.Item>
         <Form.Item
           label="金额"

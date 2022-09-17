@@ -1,10 +1,10 @@
-import { Button, Input, Modal, Tag } from 'antd';
+import { Button, Input, Modal, Select, Tag } from 'antd';
 import { useAtom } from 'jotai';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { activeAccountBookAtom } from '@/store';
 import { Category, CategoryType, User } from '@/types';
-import { CategoryTypeInfoMap } from '@/utils/constants';
+import { CategoryTypeInfoMap, CategoryTypes } from '@/utils/constants';
 import { fromTime } from '@/utils/dayjs';
 
 import CreateModal from './commons/CreateModal';
@@ -27,8 +27,13 @@ const CategoryPage = () => {
 
   const { getPagination, limit, offset } = usePagination();
 
+  const [categoryTypeFilter, setCategoryTypeFilter] = useState<CategoryType>();
+
   const { data } = useGetCategoryListByAccountBookId({
     accountBookId: activeAccountBook!.id,
+    filter: {
+      type: categoryTypeFilter,
+    },
     pagination: {
       limit,
       offset,
@@ -79,7 +84,9 @@ const CategoryPage = () => {
     {
       title: '名称',
       dataIndex: 'name',
-      width: '15%',
+      style: {
+        minWidth: '15%',
+      },
       render({ value, isEdit, onChange }: RenderProps<string>) {
         if (isEdit) {
           return (
@@ -95,7 +102,9 @@ const CategoryPage = () => {
     },
     {
       title: '类型',
-      width: '15%',
+      style: {
+        minWidth: '15%',
+      },
       dataIndex: 'type',
       render({ value }: RenderProps<CategoryType>) {
         const { text, color } = CategoryTypeInfoMap[value];
@@ -105,7 +114,6 @@ const CategoryPage = () => {
     },
     {
       title: '描述',
-      width: '25%',
       dataIndex: 'desc',
       render({ value, isEdit, onChange }: RenderProps<string>) {
         if (isEdit) {
@@ -123,7 +131,9 @@ const CategoryPage = () => {
     {
       title: '创建人',
       dataIndex: 'creator',
-      width: '10%',
+      style: {
+        minWidth: '10%',
+      },
       render({ value }: { value: User }) {
         return value.nickname;
       },
@@ -131,14 +141,18 @@ const CategoryPage = () => {
     {
       title: '创建时间',
       dataIndex: 'createdAt',
-      width: '15%',
+      style: {
+        minWidth: '10%',
+      },
       render({ value }) {
         return fromTime(value);
       },
     },
     {
       title: '操作',
-      width: '20%',
+      style: {
+        minWidth: '15%',
+      },
       render({ value }: { value: Category }) {
         return (
           <div className="space-x-4">
@@ -196,12 +210,38 @@ const CategoryPage = () => {
       }
       pagination={pagination}
     >
-      <Table
-        editable={true}
-        columns={columns}
-        data={data?.data || []}
-        onEditSubmit={handleEdit}
-      />
+      <div className="space-y-2">
+        <div className="flex justify-end">
+          <Select
+            style={{ width: 200 }}
+            placeholder="请选择类型"
+            value={categoryTypeFilter}
+            onChange={setCategoryTypeFilter}
+            allowClear={true}
+          >
+            {CategoryTypes.map((type) => {
+              return (
+                <Select.Option key={type} value={type}>
+                  <span
+                    className="inline-block leading-4 rounded px-2 py-1 text-white"
+                    style={{
+                      background: CategoryTypeInfoMap[type].color,
+                    }}
+                  >
+                    {CategoryTypeInfoMap[type].text}
+                  </span>
+                </Select.Option>
+              );
+            })}
+          </Select>
+        </div>
+        <Table
+          editable={true}
+          columns={columns}
+          data={data?.data || []}
+          onEditSubmit={handleEdit}
+        />
+      </div>
       <CreateModal
         visible={createModalVisible}
         onChange={setCreateModalVisible}

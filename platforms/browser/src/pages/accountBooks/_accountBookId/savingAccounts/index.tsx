@@ -78,7 +78,9 @@ const SavingAccountPage = () => {
     {
       title: '名称',
       dataIndex: 'name',
-      width: '10%',
+      style: {
+        minWidth: '10%',
+      },
       render({ value, onChange, isEdit }: RenderProps<string>) {
         if (isEdit) {
           return (
@@ -95,7 +97,6 @@ const SavingAccountPage = () => {
     {
       title: '描述',
       dataIndex: 'desc',
-      width: '20%',
       render({ value, onChange, isEdit }: RenderProps<string>) {
         if (isEdit) {
           return (
@@ -112,7 +113,9 @@ const SavingAccountPage = () => {
     {
       title: '余额',
       dataIndex: 'amount',
-      width: '15%',
+      style: {
+        minWidth: '15%',
+      },
       render({ value, onChange, isEdit }: RenderProps<number>) {
         if (isEdit) {
           return (
@@ -137,7 +140,9 @@ const SavingAccountPage = () => {
     {
       title: '创建人',
       dataIndex: 'creator.nickname',
-      width: '15%',
+      style: {
+        minWidth: '10%',
+      },
       render({ value }: RenderProps<string>) {
         return value;
       },
@@ -145,14 +150,18 @@ const SavingAccountPage = () => {
     {
       title: '创建时间',
       dataIndex: 'createdAt',
-      width: '20%',
+      style: {
+        minWidth: '15%',
+      },
       render({ value }: RenderProps<string>) {
         return fromTime(value);
       },
     },
     {
       title: '操作',
-      width: '20%',
+      style: {
+        minWidth: '15%',
+      },
       render({ value }: RenderProps<SavingAccount>) {
         return (
           <div className="space-x-4">

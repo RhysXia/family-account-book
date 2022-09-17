@@ -3,6 +3,11 @@ type SavingAccountListWithPagintion {
   data: [SavingAccount!]!
 }
 
+input SavingAccountFlowRecordFilter {
+  tagId: ID
+  traderId: ID
+}
+
 type SavingAccount implements EntityDateTime {
   id: ID!
   name: String!
@@ -26,7 +31,7 @@ type SavingAccount implements EntityDateTime {
   ): [SavingAccountHistory!]!
 
   flowRecords(
-    filter: FlowRecordFilter
+    filter: SavingAccountFlowRecordFilter
     pagination: Pagination
   ): FlowRecordListWithPagintion!
   flowRecord(id: ID!): FlowRecord!

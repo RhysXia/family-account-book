@@ -10,25 +10,25 @@ export const applyPagination = <T>(
     return builder;
   }
 
-  let sqb = builder;
   if (Number.isInteger(pagination.limit)) {
-    sqb = sqb.limit(pagination.limit as number);
+    builder.limit(pagination.limit as number);
   }
 
   if (Number.isInteger(pagination.offset)) {
-    sqb = sqb.offset(pagination.offset as number);
+    builder.offset(pagination.offset as number);
   }
 
   const orderBy = pagination.orderBy;
+
   if (!orderBy) {
-    return sqb;
+    return builder;
   }
 
   orderBy.forEach((order) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    sqb = sqb.orderBy(`${tableName}.${order.field}`, order.direction);
+    builder.orderBy(`${tableName}.${order.field}`, order.direction);
   });
 
-  return sqb;
+  return builder;
 };

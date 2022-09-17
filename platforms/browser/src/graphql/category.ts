@@ -4,6 +4,7 @@ import {
   CategoryType,
   Pagination,
   PaginationResult,
+  Tag,
   User,
 } from '@/types';
 import { gql } from '@apollo/client';
@@ -11,12 +12,13 @@ import { gql } from '@apollo/client';
 export const GET_CATEGORY_LIST_BY_ACCOUNT_BOOK_ID = gql`
   query GetCategoryListByAccountBookId(
     $accountBookId: ID!
+    $filter: AccountBookCategoryFilter
     $pagination: Pagination
   ) {
     node(id: $accountBookId) {
       ... on AccountBook {
         id
-        categories(pagination: $pagination) {
+        categories(filter: $filter, pagination: $pagination) {
           total
           data {
             id
@@ -39,8 +41,13 @@ export const GET_CATEGORY_LIST_BY_ACCOUNT_BOOK_ID = gql`
   }
 `;
 
+export type AccountBookCategoryFilter = {
+  type?: CategoryType;
+};
+
 export const useGetCategoryListByAccountBookId = (variables: {
   accountBookId: string;
+  filter?: AccountBookCategoryFilter;
   pagination?: Pagination;
 }) => {
   const { data, ...others } = useAppQuery<{
@@ -52,6 +59,67 @@ export const useGetCategoryListByAccountBookId = (variables: {
       >;
     };
   }>(GET_CATEGORY_LIST_BY_ACCOUNT_BOOK_ID, {
+    variables,
+  });
+
+  return {
+    data: data?.node.categories,
+    ...others,
+  };
+};
+
+export const GET_CATEGORY_LIST_WITH_TAG_LIST_BY_ACCOUNT_BOOK_ID = gql`
+  query GetCategoryListByAccountBookId(
+    $accountBookId: ID!
+    $filter: AccountBookCategoryFilter
+    $pagination: Pagination
+  ) {
+    node(id: $accountBookId) {
+      ... on AccountBook {
+        id
+        categories(filter: $filter, pagination: $pagination) {
+          total
+          data {
+            id
+            name
+            type
+            desc
+            creator {
+              id
+              nickname
+              username
+              email
+              avatar
+            }
+            createdAt
+            updatedAt
+            tags {
+              id
+              name
+              desc
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const useGetCategoryListWithTagListByAccountBookId = (variables: {
+  accountBookId: string;
+  pagination?: Pagination;
+}) => {
+  const { data, ...others } = useAppQuery<{
+    node: {
+      categories: PaginationResult<
+        Category & {
+          creator: User;
+        } & {
+          tags: PaginationResult<Tag>;
+        }
+      >;
+    };
+  }>(GET_CATEGORY_LIST_WITH_TAG_LIST_BY_ACCOUNT_BOOK_ID, {
     variables,
   });
 
@@ -93,7 +161,10 @@ export const useCreateCategory = () => {
       if (errors) {
         return [];
       }
-      return [GET_CATEGORY_LIST_BY_ACCOUNT_BOOK_ID];
+      return [
+        GET_CATEGORY_LIST_BY_ACCOUNT_BOOK_ID,
+        GET_CATEGORY_LIST_WITH_TAG_LIST_BY_ACCOUNT_BOOK_ID,
+      ];
     },
   });
 };
@@ -127,7 +198,10 @@ export const useUpdateCategory = () => {
       if (errors) {
         return [];
       }
-      return [GET_CATEGORY_LIST_BY_ACCOUNT_BOOK_ID];
+      return [
+        GET_CATEGORY_LIST_BY_ACCOUNT_BOOK_ID,
+        GET_CATEGORY_LIST_WITH_TAG_LIST_BY_ACCOUNT_BOOK_ID,
+      ];
     },
   });
 };
@@ -151,7 +225,10 @@ export const useDeleteCategory = () => {
       if (errors) {
         return [];
       }
-      return [GET_CATEGORY_LIST_BY_ACCOUNT_BOOK_ID];
+      return [
+        GET_CATEGORY_LIST_BY_ACCOUNT_BOOK_ID,
+        GET_CATEGORY_LIST_WITH_TAG_LIST_BY_ACCOUNT_BOOK_ID,
+      ];
     },
   });
 };
