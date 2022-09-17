@@ -68,8 +68,9 @@ const CreateModel: FC<CreateModelProps> = ({
       },
     });
 
-    // 只清空金额，方便在此输入
+    // 不清空不经常修改的字段，方便快速输入
     form.setFieldValue('amount', undefined);
+    form.setFieldValue('desc', undefined);
 
     message.success('添加成功');
     await onRefrshSavingAccounts();
