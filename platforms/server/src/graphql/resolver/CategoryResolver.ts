@@ -33,6 +33,16 @@ export class CategoryResolver {
   ) {}
 
   @ResolveField()
+  async statistics(@Parent() parent: GraphqlEntity<CategoryEntity>) {
+    return {
+      id: encodeId(
+        EntityName.CATEGORY_STATISTICS,
+        decodeId(EntityName.CATEGORY, parent.id),
+      ),
+    };
+  }
+
+  @ResolveField()
   async accountBook(@Parent() parent: GraphqlEntity<CategoryEntity>) {
     const accountBook =
       parent.accountBook ||

@@ -94,6 +94,12 @@ export class NodeResolver {
           p = this.categoryService.findByIdsAndUserId(idArray, user.id);
           break;
         }
+        case EntityName.CATEGORY_STATISTICS: {
+          p = this.categoryService
+            .findByIdsAndUserId(idArray, user.id)
+            .then((array) => array.map((it) => ({ id: it.id })));
+          break;
+        }
         case EntityName.TAG: {
           p = this.tagService.findByIdsAndUserId(idArray, user.id);
           break;

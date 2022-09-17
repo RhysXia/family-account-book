@@ -9,18 +9,18 @@ import { FC, useMemo } from 'react';
 // import * as echarts from 'echarts/core';
 
 export type FlowRecordTrendProps = {
-  category: Category;
+  category?: Category;
   groupBy: DateGroupBy;
   dateRange?: [Dayjs | null, Dayjs | null] | null;
 };
 
-// const COLORS = [
-//   ['rgb(255, 191, 0)', 'rgb(224, 62, 76)'],
-//   ['rgb(255, 0, 135)', 'rgb(135, 0, 157)'],
-//   ['rgb(55, 162, 255)', 'rgb(116, 21, 219)'],
-//   ['rgb(0, 221, 255)', 'rgb(77, 119, 255)'],
-//   ['rgb(128, 255, 165)', 'rgb(1, 191, 236)'],
-// ];
+const COLORS = [
+  ['rgb(255, 191, 0)', 'rgb(224, 62, 76)'],
+  ['rgb(255, 0, 135)', 'rgb(135, 0, 157)'],
+  ['rgb(55, 162, 255)', 'rgb(116, 21, 219)'],
+  ['rgb(0, 221, 255)', 'rgb(77, 119, 255)'],
+  ['rgb(128, 255, 165)', 'rgb(1, 191, 236)'],
+];
 
 const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
   category,
@@ -34,7 +34,7 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
       accountBookId: activeAccountBook!.id,
       groupBy,
       filter: {
-        categoryId: category.id,
+        categoryId: category?.id,
         startDate: dateRange?.[0]?.toISOString(),
         endDate: dateRange?.[1]?.toISOString(),
       },
@@ -68,7 +68,7 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
         const amount = dateAmount.find((it) => it.dealAt === date)?.amount || 0;
 
         array.push(
-          category.type === CategoryType.NEGATIVE_AMOUNT ? -amount : amount,
+          category?.type === CategoryType.NEGATIVE_AMOUNT ? -amount : amount,
         );
       });
       all.push(array);
@@ -82,7 +82,7 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
   const options = useMemo<EchartsOptions>(() => {
     const categories = dataset[0].slice(1) as Array<string>;
     return {
-      // color: COLORS.map((it) => it[0]),
+      color: COLORS.map((it) => it[0]),
       tooltip: {
         trigger: 'axis',
         axisPointer: {
@@ -118,6 +118,7 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
         return {
           type: 'line',
           stack: 'Total',
+          stackStrategy: 'all',
           smooth: true,
           emphasis: {
             focus: 'series',

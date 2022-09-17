@@ -30,6 +30,8 @@ type Category implements EntityDateTime {
 
   createdAt: DateTime!
   updatedAt: DateTime!
+
+  statistics: CategoryStatistics!
 }
 
 input CreateCategoryInput {

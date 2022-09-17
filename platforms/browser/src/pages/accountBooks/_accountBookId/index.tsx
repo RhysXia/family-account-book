@@ -119,6 +119,10 @@ const Overview = () => {
             ))}
           </Tabs>
         </div>
+        <div className="bg-white rounded px-4">
+          <div className="p-2 text-sm">净收入</div>
+          <FlowRecordTrend dateRange={dateRange} groupBy={groupBy} />
+        </div>
       </div>
     </Content>
   );

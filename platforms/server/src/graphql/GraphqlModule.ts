@@ -33,6 +33,7 @@ import { AccountBookStatisticsResolver } from './resolver/AccountBookStatisticsR
 import { CategoryResolver } from './resolver/CategoryResolver';
 import { CategoryDataLoader } from './dataloader/CategoryDataLoader';
 import { isDevelopment } from '../utils/env';
+import { CategoryStatisticsResolver } from './resolver/CategoryStatisticsResolver';
 
 @Module({
   imports: [
@@ -101,6 +102,7 @@ import { isDevelopment } from '../utils/env';
     AccountBookResolver,
     AccountBookStatisticsResolver,
     CategoryResolver,
+    CategoryStatisticsResolver,
     SavingAccountResolver,
     TagResolver,
     FlowRecordResolver,

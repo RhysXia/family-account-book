@@ -279,11 +279,16 @@ export interface Category extends EntityDateTime {
     updater: User;
     createdAt: DateTime;
     updatedAt: DateTime;
+    statistics: CategoryStatistics;
 }
 
 export interface CategoryListWithPagintion {
     total: number;
     data: Category[];
+}
+
+export interface CategoryStatistics {
+    id: string;
 }
 
 export interface FlowRecordListWithPagintion {
@@ -399,5 +404,5 @@ export interface User {
 }
 
 export type DateTime = Date;
-export type Node = User | AccountBook | AccountBookStatistics | SavingAccount | Tag | FlowRecord | SavingAccountTransferRecord | SavingAccountHistory | Category;
+export type Node = User | AccountBook | AccountBookStatistics | SavingAccount | Tag | FlowRecord | SavingAccountTransferRecord | SavingAccountHistory | Category | CategoryStatistics;
 type Nullable<T> = T | null;

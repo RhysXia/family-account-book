@@ -8,6 +8,7 @@ union Node =
   | SavingAccountTransferRecord
   | SavingAccountHistory
   | Category
+  | CategoryStatistics
 
 type Query {
   node(id: ID!): Node!

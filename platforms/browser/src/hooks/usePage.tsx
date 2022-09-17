@@ -8,7 +8,7 @@ export type PaginationProps = {
 };
 
 const usePagination = ({
-  defaultSize: defaultPageSize = 10,
+  defaultSize: defaultPageSize = 20,
 }: PaginationProps = {}) => {
   const [params, setParams] = useSearchParams();
 
