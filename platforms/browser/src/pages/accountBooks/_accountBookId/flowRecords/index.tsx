@@ -83,7 +83,7 @@ const Index = () => {
           direction: 'DESC',
         },
         {
-          field: 'updatedAt',
+          field: 'createdAt',
           direction: 'DESC',
         },
       ],
