@@ -134,8 +134,6 @@ const Aside = () => {
 
   const selectKey = pathname.replace(/\/accountBooks\/[\w\d=]+\/?/, '');
 
-  console.log(selectKey);
-
   return (
     <div className="min-h-full w-60 bg-white text-white flex flex-col">
       <div className="px-6 py-2 flex flex-col">

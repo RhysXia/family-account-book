@@ -6,6 +6,9 @@ import Aside from '@/components/Aside';
 import Header from '@/components/Header';
 import { activeAccountBookAtom } from '@/store';
 import { useGetAccountBookById } from '@/graphql/accountBook';
+import { CalculatorOutlined } from '@ant-design/icons';
+import FloatingButton from '@/components/FloatingButton';
+import Calculator from '@/components/Calculator';
 
 const AccountBookPage = () => {
   const { accountBookId } = useParams();
@@ -36,6 +39,11 @@ const AccountBookPage = () => {
         <div className="bg-gray-100 flex flex-1 p-4">
           <Suspense fallback={<Loading />}>
             <Outlet />
+            <div className="fixed right-5 bottom-5" style={{ zIndex: 9999 }}>
+              <FloatingButton icon={<CalculatorOutlined />}>
+                <Calculator />
+              </FloatingButton>
+            </div>
           </Suspense>
         </div>
       </div>
