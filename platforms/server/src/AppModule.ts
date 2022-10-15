@@ -7,8 +7,6 @@ import { isDevelopment } from './utils/env';
 
 const envName = isDevelopment ? 'dev' : 'prod';
 
-console.log(envName);
-
 @Module({
   imports: [
     ConfigModule.forRoot({

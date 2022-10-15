@@ -55,7 +55,6 @@ const TagSelect: FC<TagSelectProps> = ({ accountBookId, ...others }) => {
     })
     .filter((it) => it.tags.length);
 
-  console.log(filteredTagsGroupByCategory);
 
   return (
     <Select
