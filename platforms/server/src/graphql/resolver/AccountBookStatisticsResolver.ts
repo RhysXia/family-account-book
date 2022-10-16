@@ -27,11 +27,20 @@ export class AccountBookStatisticsResolver {
       parent.id,
     );
 
-    const { traderId, categoryId, startDate, endDate, savingAccountId } =
-      filter || {};
+    const {
+      traderId,
+      categoryId,
+      startDate,
+      endDate,
+      savingAccountId,
+      categoryType,
+    } = filter || {};
 
     return this.accountBookService.findFlowRecordTotalAmountById(
       {
+        ...(categoryType && {
+          categoryType,
+        }),
         ...(categoryId && {
           categoryId: decodeId(EntityName.CATEGORY, categoryId),
         }),
@@ -60,11 +69,15 @@ export class AccountBookStatisticsResolver {
       parent.id,
     );
 
-    const { categoryId, startDate, endDate, savingAccountId } = filter || {};
+    const { categoryId, startDate, endDate, savingAccountId, categoryType } =
+      filter || {};
 
     const array =
       await this.accountBookService.findFlowRecordTotalAmountPerTraderById(
         {
+          ...(categoryType && {
+            categoryType,
+          }),
           ...(categoryId && {
             categoryId: decodeId(EntityName.CATEGORY, categoryId),
           }),
@@ -105,11 +118,20 @@ export class AccountBookStatisticsResolver {
       parent.id,
     );
 
-    const { traderId, categoryId, startDate, endDate, savingAccountId } =
-      filter || {};
+    const {
+      traderId,
+      categoryId,
+      startDate,
+      endDate,
+      savingAccountId,
+      categoryType,
+    } = filter || {};
 
     return this.accountBookService.findFlowRecordTotalAmountByIdAndGroupByDate(
       {
+        ...(categoryType && {
+          categoryType,
+        }),
         ...(categoryId && {
           categoryId: decodeId(EntityName.CATEGORY, categoryId),
         }),
@@ -140,11 +162,15 @@ export class AccountBookStatisticsResolver {
       parent.id,
     );
 
-    const { categoryId, startDate, endDate, savingAccountId } = filter || {};
+    const { categoryId, startDate, endDate, savingAccountId, categoryType } =
+      filter || {};
 
     const array =
       await this.accountBookService.findFlowRecordTotalAmountPerTraderByIdAndGroupByDate(
         {
+          ...(categoryType && {
+            categoryType,
+          }),
           ...(categoryId && {
             categoryId: decodeId(EntityName.CATEGORY, categoryId),
           }),

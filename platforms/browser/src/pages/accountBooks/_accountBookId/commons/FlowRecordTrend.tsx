@@ -10,6 +10,7 @@ import { FC, useMemo } from 'react';
 
 export type FlowRecordTrendProps = {
   category?: Category;
+  categoryType?: CategoryType;
   groupBy: DateGroupBy;
   dateRange?: [Dayjs | null, Dayjs | null] | null;
 };
@@ -26,6 +27,7 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
   category,
   groupBy,
   dateRange,
+  categoryType,
 }) => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
 
@@ -34,6 +36,7 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
       accountBookId: activeAccountBook!.id,
       groupBy,
       filter: {
+        categoryType,
         categoryId: category?.id,
         startDate: dateRange?.[0]?.toISOString(),
         endDate: dateRange?.[1]?.toISOString(),
@@ -68,7 +71,9 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
         const amount = dateAmount.find((it) => it.dealAt === date)?.amount || 0;
 
         array.push(
-          category?.type === CategoryType.NEGATIVE_AMOUNT ? -amount : amount,
+          (category?.type || categoryType) === CategoryType.NEGATIVE_AMOUNT
+            ? -amount
+            : amount,
         );
       });
       all.push(array);

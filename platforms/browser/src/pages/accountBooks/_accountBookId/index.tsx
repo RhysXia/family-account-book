@@ -3,7 +3,8 @@ import DatePicker from '@/components/DatePicker';
 import { useGetCategoryListByAccountBookId } from '@/graphql/category';
 import useConstantFn from '@/hooks/useConstanFn';
 import { activeAccountBookAtom } from '@/store';
-import { DateGroupBy } from '@/types';
+import { CategoryType, DateGroupBy } from '@/types';
+import { CategoryTypeInfoMap, CategoryTypes } from '@/utils/constants';
 import { Radio, RadioChangeEvent, Tabs } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import { useAtom } from 'jotai';
@@ -20,9 +21,18 @@ const Overview = () => {
 
   const { data: categoriesData } = useGetCategoryListByAccountBookId({
     accountBookId: activeAccountBook!.id,
+    pagination: {
+      orderBy: [
+        {
+          field: 'type',
+          direction: 'ASC',
+        },
+      ],
+    },
   });
 
   const [activeCategoryId, setActiveCategoryId] = useState<string>();
+  const [activeCategoryType, setActiveCategoryType] = useState<CategoryType>();
 
   const [dateRange, setDateRange] = useState<
     [Dayjs | null, Dayjs | null] | null
@@ -81,12 +91,47 @@ const Overview = () => {
   return (
     <Content breadcrumbs={breadcrumbs}>
       <div className="-m-2 space-y-4 bg-gray-100">
+        <h1 className="bg-white font-bold text-lg p-2 rounded">当月统计</h1>
         <div className="-m-2 -mb-0 flex items-center flex-wrap">
           {categoriesData?.data.map((it) => (
             <div key={it.id} className="md:w-1/2 lg:w-1/4 p-2">
               <AmountCard category={it} />
             </div>
           ))}
+        </div>
+        <div className="bg-white rounded px-4">
+          <Tabs
+            activeKey={activeCategoryType}
+            onChange={setActiveCategoryType as any}
+            destroyInactiveTabPane={true}
+            tabBarExtraContent={
+              <div className="space-x-4">
+                <Radio.Group value={groupBy} onChange={handleGroupByChange}>
+                  <Radio.Button value="DAY">按日</Radio.Button>
+                  <Radio.Button value="MONTH">按月</Radio.Button>
+                  <Radio.Button value="YEAR">按年</Radio.Button>
+                </Radio.Group>
+                <DatePicker.RangePicker
+                  allowEmpty={[false, true]}
+                  value={dateRange}
+                  onChange={handleDateChange}
+                />
+              </div>
+            }
+          >
+            <Tabs.TabPane tab="净收入">
+              <FlowRecordTrend dateRange={dateRange} groupBy={groupBy} />
+            </Tabs.TabPane>
+            {CategoryTypes.map((key) => (
+              <Tabs.TabPane tab={CategoryTypeInfoMap[key].text} key={key}>
+                <FlowRecordTrend
+                  dateRange={dateRange}
+                  groupBy={groupBy}
+                  categoryType={key}
+                />
+              </Tabs.TabPane>
+            ))}
+          </Tabs>
         </div>
         <div className="bg-white rounded px-4">
           <Tabs

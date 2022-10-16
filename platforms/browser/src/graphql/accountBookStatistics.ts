@@ -1,5 +1,5 @@
 import { useAppQuery } from '@/apollo';
-import { DateGroupBy, User } from '@/types';
+import { CategoryType, DateGroupBy, User } from '@/types';
 import { gql } from '@apollo/client';
 
 export const GET_FLOW_RECORD_TOTAL_AMOUNT_BY_ACCOUNT_BOOK_ID = gql`
@@ -21,6 +21,7 @@ export const GET_FLOW_RECORD_TOTAL_AMOUNT_BY_ACCOUNT_BOOK_ID = gql`
 
 export type FlowRecordTotalAmountFilter = {
   categoryId?: string;
+  categoryType?: CategoryType;
   traderId?: string;
   savingAccountId?: string;
   startDate?: string;
@@ -74,6 +75,7 @@ const GET_FLOW_RECORD_TOTAL_AMOUNT_PER_TRADER_BY_ACCOUNT_BOOK_ID = gql`
 
 export type FlowRecordTotalAmountPerTraderFilter = {
   categoryId?: string;
+  categoryType?: CategoryType;
   savingAccountId?: string;
   startDate?: string;
   endDate?: string;

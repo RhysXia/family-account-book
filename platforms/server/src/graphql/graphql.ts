@@ -71,6 +71,7 @@ export interface UpdateAccountBookInput {
 
 export interface FlowRecordTotalAmountFilter {
     categoryId?: Nullable<string>;
+    categoryType?: Nullable<CategoryType>;
     traderId?: Nullable<string>;
     savingAccountId?: Nullable<string>;
     startDate?: Nullable<Date>;
@@ -79,6 +80,7 @@ export interface FlowRecordTotalAmountFilter {
 
 export interface FlowRecordTotalAmountPerTraderFilter {
     categoryId?: Nullable<string>;
+    categoryType?: Nullable<CategoryType>;
     savingAccountId?: Nullable<string>;
     startDate?: Nullable<Date>;
     endDate?: Nullable<Date>;

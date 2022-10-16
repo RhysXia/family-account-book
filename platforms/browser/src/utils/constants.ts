@@ -10,7 +10,7 @@ export const CategoryTypeInfoMap = {
     color: '#6EE7B7',
   },
   [CategoryType.POSITIVE_OR_NEGATIVE_AMOUNT]: {
-    text: '收入或支出',
+    text: '投资',
     color: '#93C5FD',
   },
 };

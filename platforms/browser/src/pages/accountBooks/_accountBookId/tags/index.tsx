@@ -25,6 +25,14 @@ const TagPage = () => {
 
   const { data: categoryData } = useGetCategoryListByAccountBookId({
     accountBookId: activeAccountBook!.id,
+    pagination: {
+      orderBy: [
+        {
+          field: 'type',
+          direction: 'ASC',
+        },
+      ],
+    },
   });
 
   const [categoryIdFilter, setCategoryIdFilter] = useState<string>();

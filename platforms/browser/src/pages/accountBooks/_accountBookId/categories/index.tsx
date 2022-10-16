@@ -47,8 +47,8 @@ const CategoryPage = () => {
       offset,
       orderBy: [
         {
-          field: 'createdAt',
-          direction: 'DESC',
+          field: 'type',
+          direction: 'ASC',
         },
       ],
     },

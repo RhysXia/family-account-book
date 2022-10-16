@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, In } from 'typeorm';
 import { AccountBookEntity } from '../entity/AccountBookEntity';
-import { CategoryEntity } from '../entity/CategoryEntity';
+import { CategoryEntity, CategoryType } from '../entity/CategoryEntity';
 import { FlowRecordEntity } from '../entity/FlowRecordEntity';
 import { SavingAccountEntity } from '../entity/SavingAccountEntity';
 import { SavingAccountHistoryEntity } from '../entity/SavingAccountHistoryEntity';
@@ -22,11 +22,13 @@ export class AccountBookService {
       startDate,
       savingAccountId,
       categoryId,
+      categoryType,
     }: {
       endDate?: Date;
       startDate?: Date;
       savingAccountId?: number;
       categoryId?: number;
+      categoryType?: CategoryType;
     },
     accountBookId: number,
     groupBy: DateGroupBy,
@@ -75,13 +77,21 @@ export class AccountBookService {
       .where('flowRecord.accountBookId = :accountBookId', { accountBookId })
       .orderBy('deal_at', 'ASC');
 
-    if (categoryId) {
-      qb.leftJoin('flowRecord.tag', 'tag').andWhere(
-        'tag.categoryId = :categoryId',
-        {
+    if (categoryId || categoryType) {
+      qb.leftJoin('flowRecord.tag', 'tag');
+
+      if (categoryId) {
+        qb.andWhere('tag.categoryId = :categoryId', {
           categoryId,
-        },
-      );
+        });
+      } else {
+        qb.leftJoin('tag.category', 'category').andWhere(
+          'category.type = :categoryType',
+          {
+            categoryType,
+          },
+        );
+      }
     }
 
     if (savingAccountId) {
@@ -139,11 +149,13 @@ export class AccountBookService {
       startDate,
       savingAccountId,
       categoryId,
+      categoryType,
     }: {
       endDate?: Date;
       startDate?: Date;
       savingAccountId?: number;
       categoryId?: number;
+      categoryType?: CategoryType;
     },
     accountBookId: number,
   ): Promise<
@@ -169,13 +181,21 @@ export class AccountBookService {
       .groupBy('trader.id')
       .where('flowRecord.accountBookId = :accountBookId', { accountBookId });
 
-    if (categoryId) {
-      qb.leftJoin('flowRecord.tag', 'tag').andWhere(
-        'tag.categoryId = :categoryId',
-        {
+    if (categoryId || categoryType) {
+      qb.leftJoin('flowRecord.tag', 'tag');
+
+      if (categoryId) {
+        qb.andWhere('tag.categoryId = :categoryId', {
           categoryId,
-        },
-      );
+        });
+      } else {
+        qb.leftJoin('tag.category', 'category').andWhere(
+          'category.type = :categoryType',
+          {
+            categoryType,
+          },
+        );
+      }
     }
 
     if (savingAccountId) {
@@ -225,12 +245,14 @@ export class AccountBookService {
       categoryId,
       traderId,
       savingAccountId,
+      categoryType,
     }: {
       startDate?: Date;
       endDate?: Date;
       categoryId?: number;
       traderId?: number;
       savingAccountId?: number;
+      categoryType?: CategoryType;
     },
     accountBookId: number,
     groupBy: DateGroupBy,
@@ -260,10 +282,21 @@ export class AccountBookService {
       .where('flowRecord.accountBookId = :accountBookId', { accountBookId })
       .orderBy('deal_at', 'ASC');
 
-    if (categoryId) {
-      qb.andWhere('tag.categoryId = :categoryId', {
-        categoryId,
-      });
+    if (categoryId || categoryType) {
+      qb.leftJoin('flowRecord.tag', 'tag');
+
+      if (categoryId) {
+        qb.andWhere('tag.categoryId = :categoryId', {
+          categoryId,
+        });
+      } else {
+        qb.leftJoin('tag.category', 'category').andWhere(
+          'category.type = :categoryType',
+          {
+            categoryType,
+          },
+        );
+      }
     }
 
     if (savingAccountId) {
@@ -305,12 +338,14 @@ export class AccountBookService {
       categoryId,
       traderId,
       savingAccountId,
+      categoryType,
     }: {
       startDate?: Date;
       endDate?: Date;
       categoryId?: number;
       traderId?: number;
       savingAccountId?: number;
+      categoryType?: CategoryType;
     },
     accountBookId: number,
   ): Promise<number> {
@@ -319,15 +354,22 @@ export class AccountBookService {
       .select('SUM(flowRecord.amount)', 'totalAmount')
       .where('flowRecord.accountBookId = :accountBookId', { accountBookId });
 
-    if (categoryId) {
-      qb.leftJoin('flowRecord.tag', 'tag').andWhere(
-        'tag.categoryId = :categoryId',
-        {
-          categoryId,
-        },
-      );
-    }
+    if (categoryId || categoryType) {
+      qb.leftJoin('flowRecord.tag', 'tag');
 
+      if (categoryId) {
+        qb.andWhere('tag.categoryId = :categoryId', {
+          categoryId,
+        });
+      } else {
+        qb.leftJoin('tag.category', 'category').andWhere(
+          'category.type = :categoryType',
+          {
+            categoryType,
+          },
+        );
+      }
+    }
     if (savingAccountId) {
       qb.andWhere('flowRecord.savingAccountId = :savingAccountId', {
         savingAccountId,
