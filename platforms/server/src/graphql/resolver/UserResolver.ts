@@ -66,7 +66,7 @@ export class UserResolver {
   }
 
   @Query()
-  async getCurrentUser(@CurrentUser({ required: true }) user: UserEntity) {
+  async currentUser(@CurrentUser({ required: true }) user: UserEntity) {
     return { ...user, id: encodeId(EntityName.DETAIL_USER, user.id) };
   }
 

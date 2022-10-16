@@ -1,6 +1,4 @@
 import { Args, Parent, ResolveField, Resolver } from '@nestjs/graphql';
-
-import { ParameterException } from '../../exception/ServiceException';
 import { AccountBookService } from '../../service/AccountBookService';
 import {
   DateGroupBy,
@@ -8,7 +6,8 @@ import {
   FlowRecordTotalAmountPerTraderFilter,
 } from '../graphql';
 import { GraphqlEntity } from '../types';
-import { decodeId, encodeId, EntityName, getIdInfo } from '../utils';
+import { decodeId, encodeId, EntityName } from '../utils';
+import { getUserId } from '../utils/getUserId';
 
 export type AccountBookStatistics = {
   id: string;
@@ -31,19 +30,6 @@ export class AccountBookStatisticsResolver {
     const { traderId, categoryId, startDate, endDate, savingAccountId } =
       filter || {};
 
-    let traderIdValue: number | undefined;
-
-    if (traderId) {
-      const info = getIdInfo(traderId);
-      if (
-        info.name !== EntityName.DETAIL_USER &&
-        info.name !== EntityName.USER
-      ) {
-        throw new ParameterException('userId不正确');
-      }
-      traderIdValue = info.id;
-    }
-
     return this.accountBookService.findFlowRecordTotalAmountById(
       {
         ...(categoryId && {
@@ -56,7 +42,9 @@ export class AccountBookStatisticsResolver {
         ...(endDate && {
           endDate,
         }),
-        traderId: traderIdValue,
+        ...(traderId && {
+          traderId: getUserId(traderId),
+        }),
       },
       accountBookId,
     );
@@ -120,19 +108,6 @@ export class AccountBookStatisticsResolver {
     const { traderId, categoryId, startDate, endDate, savingAccountId } =
       filter || {};
 
-    let traderIdValue: number | undefined;
-
-    if (traderId) {
-      const info = getIdInfo(traderId);
-      if (
-        info.name !== EntityName.DETAIL_USER &&
-        info.name !== EntityName.USER
-      ) {
-        throw new ParameterException('userId不正确');
-      }
-      traderIdValue = info.id;
-    }
-
     return this.accountBookService.findFlowRecordTotalAmountByIdAndGroupByDate(
       {
         ...(categoryId && {
@@ -145,7 +120,9 @@ export class AccountBookStatisticsResolver {
         ...(endDate && {
           endDate,
         }),
-        traderId: traderIdValue,
+        ...(traderId && {
+          traderId: getUserId(traderId),
+        }),
       },
       accountBookId,
       groupBy,

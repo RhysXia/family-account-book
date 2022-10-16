@@ -7,7 +7,6 @@ import {
 } from '@nestjs/graphql';
 import { FlowRecordEntity } from '../../entity/FlowRecordEntity';
 import { UserEntity } from '../../entity/UserEntity';
-import { ParameterException } from '../../exception/ServiceException';
 import { FlowRecordService } from '../../service/FlowRecordService';
 import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
 import { SavingAccountDataLoader } from '../dataloader/SavingAccountDataLoader';
@@ -16,7 +15,8 @@ import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
 import { CreateFlowRecordInput, UpdateFlowRecordInput } from '../graphql';
 import { GraphqlEntity } from '../types';
-import { decodeId, encodeId, EntityName, getIdInfo } from '../utils';
+import { decodeId, encodeId, EntityName } from '../utils';
+import { getUserId } from '../utils/getUserId';
 
 @Resolver('FlowRecord')
 export class FlowRecordResolver {
@@ -100,19 +100,13 @@ export class FlowRecordResolver {
   ) {
     const { savingAccountId, tagId, traderId, desc, ...others } = flowRecord;
 
-    const { id: traderIdValue, name } = getIdInfo(traderId);
-
-    if (name !== EntityName.USER && name !== EntityName.DETAIL_USER) {
-      throw new ParameterException('traderId 不正确');
-    }
-
     const entity = await this.flowRecordService.create(
       {
         ...others,
         ...(desc && {
           desc,
         }),
-        traderId: traderIdValue,
+        traderId: getUserId(traderId),
         savingAccountId: decodeId(EntityName.SAVING_ACCOUNT, savingAccountId),
         tagId: decodeId(EntityName.TAG, tagId),
       },
@@ -146,12 +140,7 @@ export class FlowRecordResolver {
     }
 
     if (traderId) {
-      const { id: traderIdValue, name } = getIdInfo(traderId);
-
-      if (name !== EntityName.USER && name !== EntityName.DETAIL_USER) {
-        throw new ParameterException('traderId 不正确');
-      }
-      updatedFlowRecord.traderId = traderIdValue;
+      updatedFlowRecord.traderId = getUserId(traderId);
     }
 
     if (savingAccountId) {

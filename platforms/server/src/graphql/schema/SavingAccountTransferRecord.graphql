@@ -1,6 +1,10 @@
+type SavingAccountTransferRecordWithPagintion {
+  total: Int!
+  data: [SavingAccountTransferRecord!]!
+}
+
 type SavingAccountTransferRecord implements EntityDateTime {
   id: ID!
-  name: String!
   desc: String
 
   """
@@ -27,7 +31,6 @@ type SavingAccountTransferRecord implements EntityDateTime {
 }
 
 input CreateSavingAccountTransferRecord {
-  name: String!
   desc: String
   amount: Float!
   fromSavingAccountId: ID!
@@ -38,7 +41,6 @@ input CreateSavingAccountTransferRecord {
 
 input UpdateSavingAccountTransferRecord {
   id: ID!
-  name: String
   desc: String
   amount: Float
   fromSavingAccountId: ID

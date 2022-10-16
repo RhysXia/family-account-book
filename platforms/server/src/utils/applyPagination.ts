@@ -24,10 +24,14 @@ export const applyPagination = <T>(
     return builder;
   }
 
-  orderBy.forEach((order) => {
+  orderBy.forEach((order, index) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    builder.orderBy(`${tableName}.${order.field}`, order.direction);
+
+    builder[index > 0 ? 'andOrderBy' : 'orderBy'](
+      `${tableName}.${order.field}`,
+      order.direction,
+    );
   });
 
   return builder;

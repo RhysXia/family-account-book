@@ -22,8 +22,13 @@ const items: Array<ItemType> = [
     icon: <AppstoreOutlined />,
   },
   {
-    label: '流水记录',
+    label: '流水管理',
     key: 'flowRecords',
+    icon: <EditOutlined />,
+  },
+  {
+    label: '转账管理',
+    key: 'transferRecords',
     icon: <EditOutlined />,
   },
   // {

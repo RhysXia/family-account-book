@@ -13,9 +13,6 @@ export class SavingAccountTransferRecordEntity extends AbstractTimestampEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({ nullable: false })
-  name!: string;
-
   @Column({ nullable: true })
   desc?: string;
 

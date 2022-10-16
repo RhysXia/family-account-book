@@ -7,10 +7,7 @@ import {
 } from '@nestjs/graphql';
 import { TagEntity } from '../../entity/TagEntity';
 import { UserEntity } from '../../entity/UserEntity';
-import {
-  ParameterException,
-  ResourceNotFoundException,
-} from '../../exception/ServiceException';
+import { ResourceNotFoundException } from '../../exception/ServiceException';
 import { FlowRecordService } from '../../service/FlowRecordService';
 import { TagService } from '../../service/TagService';
 import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
@@ -25,7 +22,8 @@ import {
   UpdateTagInput,
 } from '../graphql';
 import { GraphqlEntity } from '../types';
-import { decodeId, encodeId, EntityName, getIdInfo } from '../utils';
+import { decodeId, encodeId, EntityName } from '../utils';
+import { getUserId } from '../utils/getUserId';
 
 @Resolver('Tag')
 export class TagResolver {
@@ -93,25 +91,11 @@ export class TagResolver {
 
     const { traderId, savingAccountId } = filter || {};
 
-    let traderIdValue;
-
-    if (traderId) {
-      const info = getIdInfo(traderId);
-
-      if (
-        info.name !== EntityName.DETAIL_USER &&
-        info.name !== EntityName.USER
-      ) {
-        throw new ParameterException('traderId不存在');
-      }
-      traderIdValue = info.id;
-    }
-
     const { total, data } =
       await this.flowRecordService.findAllByConditionAndPagination(
         {
-          ...(traderIdValue && {
-            traderId: traderIdValue,
+          ...(traderId && {
+            traderId: getUserId(traderId),
           }),
           ...(savingAccountId && {
             savingAccountId: decodeId(

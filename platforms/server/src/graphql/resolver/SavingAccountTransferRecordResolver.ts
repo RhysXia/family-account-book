@@ -9,6 +9,7 @@ import { SavingAccountTransferRecordEntity } from '../../entity/SavingAccountTra
 import { UserEntity } from '../../entity/UserEntity';
 import { SavingAccountTransferRecordService } from '../../service/SavingAccountTransferRecordService';
 import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
+import { SavingAccountDataLoader } from '../dataloader/SavingAccountDataLoader';
 import { SavingAccountTransferRecordDataLoader } from '../dataloader/SavingAccountTransferRecordDataLoader';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
@@ -18,13 +19,14 @@ import {
 } from '../graphql';
 import { GraphqlEntity } from '../types';
 import { decodeId, encodeId, EntityName } from '../utils';
+import { getUserId } from '../utils/getUserId';
 
 @Resolver('SavingAccountTransferRecord')
 export class SavingAccountTransferRecordResolver {
   constructor(
     private readonly savingAccountTransferRecordService: SavingAccountTransferRecordService,
     private readonly accountBookDataLoader: AccountBookDataLoader,
-    private readonly savingAccountTransferRecordDataLoader: SavingAccountTransferRecordDataLoader,
+    private readonly savingAccountDataLoader: SavingAccountDataLoader,
     private readonly userDataLoader: UserDataLoader,
   ) {}
 
@@ -40,6 +42,34 @@ export class SavingAccountTransferRecordResolver {
       ? {
           ...accountBook,
           id: encodeId(EntityName.ACCOUNT_BOOK, parent.accountBookId),
+        }
+      : null;
+  }
+
+  @ResolveField()
+  async to(@Parent() parent: GraphqlEntity<SavingAccountTransferRecordEntity>) {
+    const savingAccount =
+      parent.to || (await this.savingAccountDataLoader.load(parent.toId));
+
+    return savingAccount
+      ? {
+          ...savingAccount,
+          id: encodeId(EntityName.SAVING_ACCOUNT, parent.toId),
+        }
+      : null;
+  }
+
+  @ResolveField()
+  async from(
+    @Parent() parent: GraphqlEntity<SavingAccountTransferRecordEntity>,
+  ) {
+    const savingAccount =
+      parent.from || (await this.savingAccountDataLoader.load(parent.fromId));
+
+    return savingAccount
+      ? {
+          ...savingAccount,
+          id: encodeId(EntityName.SAVING_ACCOUNT, parent.fromId),
         }
       : null;
   }
@@ -97,7 +127,7 @@ export class SavingAccountTransferRecordResolver {
       {
         ...others,
         ...(desc && { desc }),
-        traderId: decodeId(EntityName.USER, traderId),
+        traderId: getUserId(traderId),
         toSavingAccountId: decodeId(
           EntityName.SAVING_ACCOUNT,
           toSavingAccountId,
@@ -126,7 +156,6 @@ export class SavingAccountTransferRecordResolver {
       fromSavingAccountId,
       traderId,
       desc,
-      name,
       amount,
       dealAt,
       ...others
@@ -137,7 +166,6 @@ export class SavingAccountTransferRecordResolver {
       {
         ...others,
         ...(desc && { desc }),
-        ...(name && { name }),
         ...(amount && { amount }),
         ...(dealAt && { dealAt }),
         ...(toSavingAccountId && {
@@ -153,7 +181,7 @@ export class SavingAccountTransferRecordResolver {
           ),
         }),
         ...(traderId && {
-          traderId: decodeId(EntityName.USER, traderId),
+          traderId: getUserId(traderId),
         }),
       },
       currentUser,

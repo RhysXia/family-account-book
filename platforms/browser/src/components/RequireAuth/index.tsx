@@ -16,7 +16,7 @@ const RequireAuth: FC<{ children: ReactNode }> = ({ children }) => {
     }
     const { data } = await getCurrentUser();
     if (data) {
-      setCurrentUser(data.getCurrentUser);
+      setCurrentUser(data.currentUser);
       return;
     }
 

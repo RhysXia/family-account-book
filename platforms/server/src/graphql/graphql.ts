@@ -42,6 +42,14 @@ export interface AccountBookFlowRecordFilter {
     endDealAt?: Nullable<Date>;
 }
 
+export interface AccountBookSavingAccountTransferRecordFilter {
+    traderId?: Nullable<string>;
+    fromSavingAccountId?: Nullable<string>;
+    toSavingAccountId?: Nullable<string>;
+    startDealAt?: Nullable<Date>;
+    endDealAt?: Nullable<Date>;
+}
+
 export interface AccountBookCategoryFilter {
     type?: Nullable<CategoryType>;
 }
@@ -128,7 +136,6 @@ export interface UpdateSavingAccountInput {
 }
 
 export interface CreateSavingAccountTransferRecord {
-    name: string;
     desc?: Nullable<string>;
     amount: number;
     fromSavingAccountId: string;
@@ -139,7 +146,6 @@ export interface CreateSavingAccountTransferRecord {
 
 export interface UpdateSavingAccountTransferRecord {
     id: string;
-    name?: Nullable<string>;
     desc?: Nullable<string>;
     amount?: Nullable<number>;
     fromSavingAccountId?: Nullable<string>;
@@ -213,6 +219,8 @@ export interface AccountBook extends EntityDateTime {
     updatedAt: DateTime;
     savingAccounts: SavingAccountListWithPagintion;
     savingAccount: SavingAccount;
+    savingAccountTransferRecords: SavingAccountTransferRecordWithPagintion;
+    savingAccountTransferRecord: SavingAccountTransferRecord;
     tags?: Nullable<TagListWithPagintion>;
     tag: Tag;
     flowRecords: FlowRecordListWithPagintion;
@@ -315,7 +323,7 @@ export interface FlowRecord extends EntityDateTime {
 export interface IQuery {
     node(id: string): Node | Promise<Node>;
     nodes(ids: string[]): Node[] | Promise<Node[]>;
-    getCurrentUser(): DetailUser | Promise<DetailUser>;
+    currentUser(): DetailUser | Promise<DetailUser>;
     findUserListByNameLike(name: string, limit?: Nullable<number>, includeSelf?: Nullable<boolean>): User[] | Promise<User[]>;
 }
 
@@ -347,9 +355,13 @@ export interface SavingAccountHistory {
     accountBook: AccountBook;
 }
 
+export interface SavingAccountTransferRecordWithPagintion {
+    total: number;
+    data: SavingAccountTransferRecord[];
+}
+
 export interface SavingAccountTransferRecord extends EntityDateTime {
     id: string;
-    name: string;
     desc?: Nullable<string>;
     amount: number;
     trader: User;

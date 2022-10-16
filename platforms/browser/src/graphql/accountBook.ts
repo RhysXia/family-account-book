@@ -50,7 +50,7 @@ export const useGetAccountBookById = (variables: { id: string }) => {
 
 const GET_SELF_ACCOUNT_BOOK_LIST = gql`
   query GetSelfAccountBookList {
-    getCurrentUser {
+    currentUser {
       id
       accountBooks {
         total
@@ -68,12 +68,12 @@ const GET_SELF_ACCOUNT_BOOK_LIST = gql`
 
 export const useGetSelfAccountBookList = () => {
   const { data, ...others } = useAppQuery<{
-    getCurrentUser: {
+    currentUser: {
       accountBooks: PaginationResult<AccountBook>;
     };
   }>(GET_SELF_ACCOUNT_BOOK_LIST);
   return {
-    data: data?.getCurrentUser.accountBooks,
+    data: data?.currentUser.accountBooks,
     ...others,
   };
 };

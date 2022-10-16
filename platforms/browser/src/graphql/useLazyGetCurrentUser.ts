@@ -3,7 +3,7 @@ import { gql, useLazyQuery } from '@apollo/client';
 
 const CURRENT_USER = gql`
   query GetCurrentUser {
-    getCurrentUser {
+    currentUser {
       id
       username
       nickname
@@ -16,7 +16,7 @@ const CURRENT_USER = gql`
 `;
 
 const useLazyGetCurrentUser = () => {
-  return useLazyQuery<{ getCurrentUser: User }>(CURRENT_USER);
+  return useLazyQuery<{ currentUser: User }>(CURRENT_USER);
 };
 
 export default useLazyGetCurrentUser;

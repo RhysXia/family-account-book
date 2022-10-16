@@ -7,8 +7,10 @@ import {
   ParameterException,
   ResourceNotFoundException,
 } from '../exception/ServiceException';
+import { Pagination } from '../graphql/graphql';
 
 import { SavingAccountHistoryManager } from '../manager/SavingAccountHistoryManager';
+import { applyPagination } from '../utils/applyPagination';
 
 @Injectable()
 export class SavingAccountTransferRecordService {
@@ -16,6 +18,70 @@ export class SavingAccountTransferRecordService {
     private readonly dataSource: DataSource,
     private readonly savingAccountHistoryManager: SavingAccountHistoryManager,
   ) {}
+
+  async findAllByConditionAndPagination(
+    {
+      traderId,
+      fromSavingAccountId,
+      toSavingAccountId,
+      startDealAt,
+      endDealAt,
+      accountBookId,
+    }: {
+      traderId?: number;
+      fromSavingAccountId?: number;
+      toSavingAccountId?: number;
+      startDealAt?: Date;
+      endDealAt?: Date;
+      accountBookId: number;
+    },
+    pagination?: Pagination,
+  ): Promise<{ total: any; data: Array<SavingAccountTransferRecordEntity> }> {
+    const qb = this.dataSource
+      .createQueryBuilder(SavingAccountTransferRecordEntity, 'transferRecord')
+      .where('transferRecord.accountBookId = :accountBookId', {
+        accountBookId,
+      });
+
+    if (traderId) {
+      qb.andWhere('transferRecord.traderId = :traderId', { traderId });
+    }
+
+    if (toSavingAccountId) {
+      qb.andWhere('transferRecord.toId = :toSavingAccountId', {
+        toSavingAccountId,
+      });
+    }
+
+    if (fromSavingAccountId) {
+      qb.andWhere('transferRecord.fromId = :fromSavingAccountId', {
+        fromSavingAccountId,
+      });
+    }
+
+    if (startDealAt) {
+      qb.andWhere('transferRecord.dealAt >= :startDealAt', {
+        startDealAt,
+      });
+    }
+
+    if (endDealAt) {
+      qb.andWhere('transferRecord.dealAt <= :endDealAt', {
+        endDealAt,
+      });
+    }
+
+    const result = await applyPagination(
+      qb,
+      'transferRecord',
+      pagination,
+    ).getManyAndCount();
+
+    return {
+      total: result[1],
+      data: result[0],
+    };
+  }
 
   async findByIdsAndUserId(ids: Array<number>, userId: number) {
     const transferRecords = await this.dataSource.manager
@@ -83,7 +149,6 @@ export class SavingAccountTransferRecordService {
 
   async create(
     record: {
-      name: string;
       desc?: string;
       amount: number;
       dealAt: Date;
@@ -94,7 +159,6 @@ export class SavingAccountTransferRecordService {
     currentUser: UserEntity,
   ) {
     const {
-      name,
       desc,
       amount,
       fromSavingAccountId,
@@ -114,8 +178,9 @@ export class SavingAccountTransferRecordService {
     return this.dataSource.transaction(async (manager) => {
       const fromSavingAccount = await manager
         .createQueryBuilder(SavingAccountEntity, 'savingAccount')
-        .leftJoin('savingAccount.admins', 'admin')
-        .leftJoin('savingAccount.members', 'member')
+        .leftJoin('savingAccount.accountBook', 'accountBook')
+        .leftJoin('accountBook.admins', 'admin')
+        .leftJoin('accountBook.members', 'member')
         .where('savingAccount.id = :id', { id: fromSavingAccountId })
         .andWhere(
           new Brackets((qb) => {
@@ -131,15 +196,7 @@ export class SavingAccountTransferRecordService {
 
       const toSavingAccount = await manager
         .createQueryBuilder(SavingAccountEntity, 'savingAccount')
-        .leftJoin('savingAccount.admins', 'admin')
-        .leftJoin('savingAccount.members', 'member')
         .where('savingAccount.id = :id', { id: toSavingAccountId })
-        .andWhere(
-          new Brackets((qb) => {
-            qb.where('admin.id = :id', { id: currentUser.id });
-            qb.orWhere('member.id = :id', { id: currentUser.id });
-          }),
-        )
         .getOne();
 
       if (!toSavingAccount) {
@@ -175,13 +232,13 @@ export class SavingAccountTransferRecordService {
         throw new ParameterException('交易人员不存在');
       }
 
-      newRecord.name = name;
       newRecord.desc = desc;
       newRecord.amount = amount;
       newRecord.creator = currentUser;
       newRecord.updater = currentUser;
       newRecord.from = fromSavingAccount;
       newRecord.to = toSavingAccount;
+      newRecord.accountBookId = fromSavingAccount.accountBookId;
       newRecord.dealAt = dealAt;
 
       return manager.save(newRecord);
@@ -191,7 +248,6 @@ export class SavingAccountTransferRecordService {
   async update(
     id: number,
     record: {
-      name?: string;
       desc?: string;
       amount?: number;
       dealAt?: Date;
@@ -202,7 +258,6 @@ export class SavingAccountTransferRecordService {
     currentUser: UserEntity,
   ) {
     const {
-      name,
       desc,
       amount,
       fromSavingAccountId,
@@ -261,10 +316,6 @@ export class SavingAccountTransferRecordService {
 
       oldRecord.updater = currentUser;
 
-      if (name) {
-        oldRecord.name = name;
-      }
-
       if (desc) {
         oldRecord.desc = desc;
       }
@@ -280,8 +331,9 @@ export class SavingAccountTransferRecordService {
       if (fromSavingAccountId) {
         const fromSavingAccount = await manager
           .createQueryBuilder(SavingAccountEntity, 'savingAccount')
-          .leftJoin('savingAccount.admins', 'admin')
-          .leftJoin('savingAccount.members', 'member')
+          .leftJoin('savingAccount.accountBook', 'accountBook')
+          .leftJoin('accountBook.admins', 'admin')
+          .leftJoin('accountBook.members', 'member')
           .where('savingAccount.id = :id', { id: fromSavingAccountId })
           .andWhere(
             new Brackets((qb) => {
@@ -305,15 +357,7 @@ export class SavingAccountTransferRecordService {
       if (toSavingAccountId) {
         const toSavingAccount = await manager
           .createQueryBuilder(SavingAccountEntity, 'savingAccount')
-          .leftJoin('savingAccount.admins', 'admin')
-          .leftJoin('savingAccount.members', 'member')
           .where('savingAccount.id = :id', { id: toSavingAccountId })
-          .andWhere(
-            new Brackets((qb) => {
-              qb.where('admin.id = :id', { id: currentUser.id });
-              qb.orWhere('member.id = :id', { id: currentUser.id });
-            }),
-          )
           .getOne();
 
         if (!toSavingAccount) {

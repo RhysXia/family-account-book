@@ -7,18 +7,17 @@ import {
 } from '@nestjs/graphql';
 import { AccountBookEntity } from '../../entity/AccountBookEntity';
 import { UserEntity } from '../../entity/UserEntity';
-import {
-  ParameterException,
-  ResourceNotFoundException,
-} from '../../exception/ServiceException';
+import { ResourceNotFoundException } from '../../exception/ServiceException';
 import { AccountBookService } from '../../service/AccountBookService';
 import { CategoryService } from '../../service/CategoryService';
 import { FlowRecordService } from '../../service/FlowRecordService';
 import { SavingAccountService } from '../../service/SavingAccountService';
+import { SavingAccountTransferRecordService } from '../../service/SavingAccountTransferRecordService';
 import { TagService } from '../../service/TagService';
 import { CategoryDataLoader } from '../dataloader/CategoryDataLoader';
 import { FlowRecordDataLoader } from '../dataloader/FlowRecordDataLoader';
 import { SavingAccountDataLoader } from '../dataloader/SavingAccountDataLoader';
+import { SavingAccountTransferRecordDataLoader } from '../dataloader/SavingAccountTransferRecordDataLoader';
 import { TagDataLoader } from '../dataloader/TagDataLoader';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
@@ -29,9 +28,11 @@ import {
   UpdateAccountBookInput,
   AccountBookFlowRecordFilter,
   AccountBookTagFilter,
+  AccountBookSavingAccountTransferRecordFilter,
 } from '../graphql';
 import { GraphqlEntity } from '../types';
-import { decodeId, encodeId, EntityName, getIdInfo } from '../utils';
+import { decodeId, encodeId, EntityName } from '../utils';
+import { getUserId } from '../utils/getUserId';
 
 @Resolver('AccountBook')
 export class AccountBookResolver {
@@ -46,6 +47,8 @@ export class AccountBookResolver {
     private readonly flowRecordDataLoader: FlowRecordDataLoader,
     private readonly flowRecordService: FlowRecordService,
     private readonly categoryService: CategoryService,
+    private readonly savingAccountTransferRecordService: SavingAccountTransferRecordService,
+    private readonly savingAccountTransferRecordDataLoader: SavingAccountTransferRecordDataLoader,
   ) {}
 
   @ResolveField()
@@ -269,25 +272,11 @@ export class AccountBookResolver {
     const { traderId, tagId, savingAccountId, startDealAt, endDealAt } =
       filter || {};
 
-    let traderIdValue;
-
-    if (traderId) {
-      const info = getIdInfo(traderId);
-
-      if (
-        info.name !== EntityName.DETAIL_USER &&
-        info.name !== EntityName.USER
-      ) {
-        throw new ParameterException('traderId不存在');
-      }
-      traderIdValue = info.id;
-    }
-
     const { total, data } =
       await this.flowRecordService.findAllByConditionAndPagination(
         {
-          ...(traderIdValue && {
-            traderId: traderIdValue,
+          ...(traderId && {
+            traderId: getUserId(traderId),
           }),
           ...(tagId && { tagId: decodeId(EntityName.TAG, tagId) }),
           ...(savingAccountId && {
@@ -337,6 +326,82 @@ export class AccountBookResolver {
     return { ...flowRecord, id };
   }
 
+  @ResolveField()
+  async savingAccountTransferRecords(
+    @Parent() parent: GraphqlEntity<AccountBookEntity>,
+    @Args('filter') filter?: AccountBookSavingAccountTransferRecordFilter,
+    @Args('pagination') pagination?: Pagination,
+  ) {
+    const parentId = decodeId(EntityName.ACCOUNT_BOOK, parent.id);
+
+    const {
+      traderId,
+      fromSavingAccountId,
+      toSavingAccountId,
+      startDealAt,
+      endDealAt,
+    } = filter || {};
+
+    const { total, data } =
+      await this.savingAccountTransferRecordService.findAllByConditionAndPagination(
+        {
+          ...(traderId && {
+            traderId: getUserId(traderId),
+          }),
+          ...(fromSavingAccountId && {
+            fromSavingAccountId: decodeId(
+              EntityName.SAVING_ACCOUNT,
+              fromSavingAccountId,
+            ),
+          }),
+          ...(toSavingAccountId && {
+            toSavingAccountId: decodeId(
+              EntityName.SAVING_ACCOUNT,
+              toSavingAccountId,
+            ),
+          }),
+          ...(startDealAt && { startDealAt }),
+          ...(endDealAt && { endDealAt }),
+          accountBookId: parentId,
+        },
+        pagination,
+      );
+
+    return {
+      total,
+      data: data.map((it) => ({
+        ...it,
+        id: encodeId(EntityName.SAVING_ACCOUNT_TRANSFER_RECORD, it.id),
+      })),
+    };
+  }
+
+  @ResolveField()
+  async savingAccountTransferRecord(
+    @Parent() parent: GraphqlEntity<AccountBookEntity>,
+    @Args('id') id: string,
+  ) {
+    const transferRecord =
+      await this.savingAccountTransferRecordDataLoader.load(
+        decodeId(EntityName.SAVING_ACCOUNT_TRANSFER_RECORD, id),
+      );
+
+    if (!transferRecord) {
+      throw new ResourceNotFoundException('转账记录不存在');
+    }
+
+    const encodedAccountBookId = encodeId(
+      EntityName.ACCOUNT_BOOK,
+      transferRecord.accountBookId,
+    );
+
+    if (encodedAccountBookId !== parent.id) {
+      // 不暴露其他数据信息，一律提示资源不存在
+      throw new ResourceNotFoundException('转账记录不存在');
+    }
+    return { ...transferRecord, id };
+  }
+
   @Mutation()
   async createAccountBook(
     @CurrentUser({ required: true }) user: UserEntity,
@@ -351,10 +416,10 @@ export class AccountBookResolver {
           desc,
         }),
         ...(adminIds && {
-          adminIds: adminIds.map((it) => decodeId(EntityName.USER, it)),
+          adminIds: adminIds.map((it) => getUserId(it)),
         }),
         ...(memberIds && {
-          memberIds: memberIds.map((it) => decodeId(EntityName.USER, it)),
+          memberIds: memberIds.map((it) => getUserId(it)),
         }),
       },
       user,
@@ -383,10 +448,10 @@ export class AccountBookResolver {
           desc,
         }),
         ...(adminIds && {
-          adminIds: adminIds.map((it) => decodeId(EntityName.USER, it)),
+          adminIds: adminIds.map((it) => getUserId(it)),
         }),
         ...(memberIds && {
-          memberIds: memberIds.map((it) => decodeId(EntityName.USER, it)),
+          memberIds: memberIds.map((it) => getUserId(it)),
         }),
       },
       user,

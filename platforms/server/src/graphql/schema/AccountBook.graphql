@@ -18,6 +18,14 @@ input AccountBookFlowRecordFilter {
   endDealAt: Date
 }
 
+input AccountBookSavingAccountTransferRecordFilter {
+  traderId: ID
+  fromSavingAccountId: ID
+  toSavingAccountId: ID
+  startDealAt: Date
+  endDealAt: Date
+}
+
 input AccountBookCategoryFilter {
   type: CategoryType
 }
@@ -44,6 +52,13 @@ type AccountBook implements EntityDateTime {
 
   savingAccounts(pagination: Pagination): SavingAccountListWithPagintion!
   savingAccount(id: ID!): SavingAccount!
+
+  savingAccountTransferRecords(
+    filter: AccountBookSavingAccountTransferRecordFilter
+    pagination: Pagination
+  ): SavingAccountTransferRecordWithPagintion!
+
+  savingAccountTransferRecord(id: ID!): SavingAccountTransferRecord!
 
   tags(
     filter: AccountBookTagFilter

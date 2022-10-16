@@ -74,3 +74,17 @@ export type FlowRecord = {
 };
 
 export type DateGroupBy = 'YEAR' | 'MONTH' | 'DAY';
+
+export type TransferRecord = {
+  id: string;
+  desc?: string;
+  createdAt: string;
+  updatedAt: string;
+  dealAt: string;
+  creator: User;
+  updater: User;
+  amount: number;
+
+  from: SavingAccount;
+  to: SavingAccount;
+};
