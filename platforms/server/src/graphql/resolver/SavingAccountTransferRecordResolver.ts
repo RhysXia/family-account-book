@@ -10,7 +10,6 @@ import { UserEntity } from '../../entity/UserEntity';
 import { SavingAccountTransferRecordService } from '../../service/SavingAccountTransferRecordService';
 import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
 import { SavingAccountDataLoader } from '../dataloader/SavingAccountDataLoader';
-import { SavingAccountTransferRecordDataLoader } from '../dataloader/SavingAccountTransferRecordDataLoader';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
 import {

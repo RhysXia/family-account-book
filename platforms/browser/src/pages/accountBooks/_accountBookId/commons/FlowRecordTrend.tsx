@@ -82,7 +82,7 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
     all.unshift(['日期', ...header]);
 
     return all;
-  }, [data, category]);
+  }, [data, category, categoryType]);
 
   const options = useMemo<EchartsOptions>(() => {
     const categories = dataset[0].slice(1) as Array<string>;
