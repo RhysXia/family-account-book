@@ -56,7 +56,7 @@ const Index = () => {
 
   const tags = useMemo(() => tagsData?.data || [], [tagsData]);
 
-  const { getPagination, limit, offset } = usePagination();
+  const { getPagination, limit, offset, setPage } = usePagination();
 
   const [tagIdFilter, setTagIdFilter] = useState<string>();
   const [traderIdFilter, setTraderIdFilter] = useState<string>();
@@ -64,6 +64,16 @@ const Index = () => {
   const [dealAtRange, setDealAtRange] = useState<
     [Dayjs | null, Dayjs | null] | null
   >();
+
+  const handleChange = useCallback(
+    (fn: (any) => void) => {
+      return (args: any) => {
+        fn(args);
+        setPage(1);
+      };
+    },
+    [setPage],
+  );
 
   const { data } = useGetFlowRecordListByAccountBookId({
     accountBookId: activeAccountBook!.id,
@@ -371,7 +381,7 @@ const Index = () => {
           <TagSelect
             allowClear={true}
             value={tagIdFilter}
-            onChange={setTagIdFilter}
+            onChange={handleChange(setTagIdFilter)}
             placeholder="请选择标签"
             style={{ minWidth: 250 }}
             accountBookId={activeAccountBook!.id}
@@ -381,7 +391,7 @@ const Index = () => {
             allowClear={true}
             placeholder="请选择交易人员"
             value={traderIdFilter}
-            onChange={setTraderIdFilter}
+            onChange={handleChange(setTraderIdFilter)}
           >
             {users.map((it) => {
               return (
@@ -396,7 +406,7 @@ const Index = () => {
             placeholder="请选择账户"
             style={{ minWidth: 250 }}
             value={savingAccountIdFilter}
-            onChange={setSavingAccountIdFilter}
+            onChange={handleChange(setSavingAccountIdFilter)}
           >
             {savingAccounts.map((it) => {
               return (
@@ -414,7 +424,7 @@ const Index = () => {
           <DatePicker.RangePicker
             placeholder={['交易开始日期', '交易结束时间']}
             value={dealAtRange}
-            onChange={setDealAtRange}
+            onChange={handleChange(setDealAtRange)}
             allowEmpty={[true, true]}
           />
         </div>

@@ -25,9 +25,17 @@ const CategoryPage = () => {
 
   const navigate = useNavigate();
 
-  const { getPagination, limit, offset } = usePagination();
+  const { getPagination, limit, offset, setPage } = usePagination();
 
   const [categoryTypeFilter, setCategoryTypeFilter] = useState<CategoryType>();
+
+  const handleCategoryTypeChange = useCallback(
+    (type: CategoryType) => {
+      setPage(1);
+      setCategoryTypeFilter(type);
+    },
+    [setPage],
+  );
 
   const { data } = useGetCategoryListByAccountBookId({
     accountBookId: activeAccountBook!.id,
@@ -216,7 +224,7 @@ const CategoryPage = () => {
             style={{ width: 200 }}
             placeholder="请选择类型"
             value={categoryTypeFilter}
-            onChange={setCategoryTypeFilter}
+            onChange={handleCategoryTypeChange}
             allowClear={true}
           >
             {CategoryTypes.map((type) => {

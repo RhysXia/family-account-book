@@ -31,7 +31,15 @@ const TagPage = () => {
 
   const navigate = useNavigate();
 
-  const { getPagination, limit, offset } = usePagination();
+  const { getPagination, limit, offset, setPage } = usePagination();
+
+  const handleCategoryIdChange = useCallback(
+    (id: string) => {
+      setPage(1);
+      setCategoryIdFilter(id);
+    },
+    [setPage],
+  );
 
   const { data } = useGetTagsWithCategoryByAccountBookId({
     accountBookId: activeAccountBook!.id,
@@ -252,7 +260,7 @@ const TagPage = () => {
         <div className="flex justify-end">
           <Select
             value={categoryIdFilter}
-            onChange={setCategoryIdFilter}
+            onChange={handleCategoryIdChange}
             style={{ width: 200 }}
             allowClear={true}
             placeholder="请选择分类"
