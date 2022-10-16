@@ -43,7 +43,7 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
       },
     });
 
-  const dataset = useMemo(() => {
+  const singleDataset = useMemo(() => {
     const source = data || [];
 
     const header = source.map((it) => it.trader.nickname);
@@ -84,8 +84,31 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
     return all;
   }, [data, category, categoryType]);
 
+  const sumDataset = useMemo(() => {
+    const all: Array<Array<any>> = [];
+
+    singleDataset.forEach((row, i) => {
+      if (i === 0) {
+        all.push(row);
+        return;
+      }
+      const array: Array<any> = [];
+
+      row.forEach((col, j) => {
+        if (j === 0) {
+          array.push(col);
+          return;
+        }
+        array.push(i > 1 ? all[i - 1][j] + col : col);
+      });
+      all.push(array);
+    });
+
+    return all;
+  }, [singleDataset]);
+
   const options = useMemo<EchartsOptions>(() => {
-    const categories = dataset[0].slice(1) as Array<string>;
+    const categories = singleDataset[0].slice(1) as Array<string>;
     return {
       color: COLORS.map((it) => it[0]),
       tooltip: {
@@ -114,39 +137,45 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
       yAxis: {
         type: 'value',
       },
-      dataset: {
-        source: dataset,
-      },
-      series: categories.map((it, index) => {
-        // const i = index % COLORS.length;
+      dataset: [
+        {
+          source: singleDataset,
+        },
+        {
+          source: sumDataset,
+        },
+      ],
+      series: [
+        ...categories.map((it, index) => {
+          // const i = index % COLORS.length;
 
-        return {
-          type: 'line',
-          stack: 'Total',
-          stackStrategy: 'all',
-          smooth: true,
-          emphasis: {
-            focus: 'series',
-          },
-          areaStyle: {
-            opacity: 0.8,
-            // color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            //   {
-            //     offset: 0,
-            //     color: COLORS[i][0],
-            //   },
-            //   {
-            //     offset: 1,
-            //     color: COLORS[i][1],
-            //   },
-            // ]),
-          },
-        };
-      }),
+          return {
+            datasetIndex: 0,
+            type: 'bar',
+            emphasis: {
+              focus: 'series',
+            },
+          };
+        }),
+        ...categories.map((it, index) => {
+          // const i = index % COLORS.length;
+
+          return {
+            datasetIndex: 1,
+            type: 'line',
+            smooth: true,
+            stack: 'Total',
+            stackStrategy: 'all',
+            emphasis: {
+              focus: 'series',
+            },
+          };
+        }),
+      ],
     };
-  }, [dataset]);
+  }, [singleDataset, sumDataset]);
 
-  const isEmpty = dataset.length < 2;
+  const isEmpty = singleDataset.length < 2;
 
   return (
     <div className="w-full h-60 flex items-center justify-center">
