@@ -101,38 +101,32 @@ export class SavingAccountTransferRecordService {
 
   async delete(id: number, currentUser: UserEntity) {
     return this.dataSource.transaction(async (manager) => {
-      let record: SavingAccountTransferRecordEntity;
-      try {
-        record = await manager.findOneOrFail(
-          SavingAccountTransferRecordEntity,
-          {
-            where: {
-              id,
-              accountBook: [
-                {
-                  admins: [{ id: currentUser.id }],
-                },
-                {
-                  members: [{ id: currentUser.id }],
-                },
-              ],
-            },
-          },
-        );
-      } catch (err) {
+      const record = await manager
+        .createQueryBuilder(SavingAccountTransferRecordEntity, 'transferRecord')
+        .leftJoin('transferRecord.accountBook', 'accountBook')
+        .leftJoin('accountBook.admins', 'admin')
+        .leftJoin('accountBook.members', 'member')
+        .where('transferRecord.id = :id', { id })
+        .andWhere('admin.id = :adminId OR member.id = :memberId', {
+          adminId: currentUser.id,
+          memberId: currentUser.id,
+        })
+        .getOne();
+
+      if (!record) {
         throw new ResourceNotFoundException('记录不存在');
       }
 
       await this.savingAccountHistoryManager.reset(manager, {
         amount: -record.amount,
         dealAt: record.dealAt,
-        savingAccountId: record.from.id,
+        savingAccountId: record.fromId,
       });
 
       await this.savingAccountHistoryManager.reset(manager, {
         amount: record.amount,
         dealAt: record.dealAt,
-        savingAccountId: record.to.id,
+        savingAccountId: record.toId,
       });
 
       return manager.remove(record);
@@ -181,11 +175,14 @@ export class SavingAccountTransferRecordService {
         .leftJoin('savingAccount.accountBook', 'accountBook')
         .leftJoin('accountBook.admins', 'admin')
         .leftJoin('accountBook.members', 'member')
-        .where('savingAccount.id = :id', { id: fromSavingAccountId })
+        .where('savingAccount.id = :savingAccountId', {
+          savingAccountId: fromSavingAccountId,
+        })
         .andWhere(
           new Brackets((qb) => {
-            qb.where('admin.id = :id', { id: currentUser.id });
-            qb.orWhere('member.id = :id', { id: currentUser.id });
+            qb.where('admin.id = :adminId', {
+              adminId: currentUser.id,
+            }).orWhere('member.id = :memberId', { memberId: currentUser.id });
           }),
         )
         .getOne();
@@ -198,6 +195,13 @@ export class SavingAccountTransferRecordService {
         .createQueryBuilder(SavingAccountEntity, 'savingAccount')
         .where('savingAccount.id = :id', { id: toSavingAccountId })
         .getOne();
+
+      console.log(
+        fromSavingAccountId,
+        toSavingAccountId,
+        fromSavingAccount,
+        toSavingAccount,
+      );
 
       if (!toSavingAccount) {
         throw new ResourceNotFoundException('转入账户不存在');
@@ -334,11 +338,13 @@ export class SavingAccountTransferRecordService {
           .leftJoin('savingAccount.accountBook', 'accountBook')
           .leftJoin('accountBook.admins', 'admin')
           .leftJoin('accountBook.members', 'member')
-          .where('savingAccount.id = :id', { id: fromSavingAccountId })
+          .where('savingAccount.id = :savingAccountId', {
+            savingAccountId: fromSavingAccountId,
+          })
           .andWhere(
             new Brackets((qb) => {
-              qb.where('admin.id = :id', { id: currentUser.id });
-              qb.orWhere('member.id = :id', { id: currentUser.id });
+              qb.where('admin.id = :adminId', { adminId: currentUser.id });
+              qb.orWhere('member.id = :memberId', { memberId: currentUser.id });
             }),
           )
           .getOne();

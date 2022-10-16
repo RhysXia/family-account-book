@@ -81,10 +81,5 @@ export type TransferRecord = {
   createdAt: string;
   updatedAt: string;
   dealAt: string;
-  creator: User;
-  updater: User;
   amount: number;
-
-  from: SavingAccount;
-  to: SavingAccount;
 };
