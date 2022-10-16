@@ -196,13 +196,6 @@ export class SavingAccountTransferRecordService {
         .where('savingAccount.id = :id', { id: toSavingAccountId })
         .getOne();
 
-      console.log(
-        fromSavingAccountId,
-        toSavingAccountId,
-        fromSavingAccount,
-        toSavingAccount,
-      );
-
       if (!toSavingAccount) {
         throw new ResourceNotFoundException('转入账户不存在');
       }
