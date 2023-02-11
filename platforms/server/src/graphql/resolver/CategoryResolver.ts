@@ -84,7 +84,7 @@ export class CategoryResolver {
     @Args('filter') filter?: CategoryFlowRecordFilter,
     @Args('pagination') pagination?: Pagination,
   ) {
-    const parentId = decodeId(EntityName.TAG, parent.id);
+    const parentId = decodeId(EntityName.CATEGORY, parent.id);
 
     const { traderId, savingAccountId, tagId } = filter || {};
 

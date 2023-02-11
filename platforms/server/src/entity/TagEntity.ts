@@ -1,14 +1,6 @@
-import {
-  Column,
-  Entity,
-  JoinTable,
-  ManyToMany,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { AbstractTimestampEntity } from './abstract/AbstractTimestampEntity';
 import { AccountBookEntity } from './AccountBookEntity';
-import { FlowRecordEntity } from './FlowRecordEntity';
 
 /**
  * 标签
@@ -31,16 +23,4 @@ export class TagEntity extends AbstractTimestampEntity {
   accountBook!: AccountBookEntity;
   @Column()
   accountBookId!: number;
-
-  @ManyToMany(() => FlowRecordEntity)
-  @JoinTable({
-    name: 'relation_tag_flowrecord',
-    joinColumn: {
-      name: 'tag_id',
-    },
-    inverseJoinColumn: {
-      name: 'flow_record_id',
-    },
-  })
-  flowRecords!: Array<FlowRecordEntity>;
 }

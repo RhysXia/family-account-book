@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, In } from 'typeorm';
 import { AccountBookEntity } from '../entity/AccountBookEntity';
+import { FlowRecordEntity } from '../entity/FlowRecordEntity';
+import { RelationTagFlowRecord } from '../entity/RelationTagFlowRecord';
 import { TagEntity } from '../entity/TagEntity';
 import { UserEntity } from '../entity/UserEntity';
 import { ResourceNotFoundException } from '../exception/ServiceException';
@@ -12,13 +14,23 @@ export class TagService {
   constructor(private readonly dataSource: DataSource) {}
 
   async findAllByFlowRecordId(flowRecordId: number) {
-    return this.dataSource.manager.find(TagEntity, {
+    const flowRecord = await this.dataSource.manager.findOne(FlowRecordEntity, {
+      select: {
+        tags: true,
+      },
+      relations: {
+        tags: true,
+      },
       where: {
-        flowRecords: {
-          id: flowRecordId,
-        },
+        id: flowRecordId,
       },
     });
+
+    if (!flowRecord) {
+      throw new ResourceNotFoundException('流水不存在');
+    }
+
+    return flowRecord.tags;
   }
 
   async delete(id: number, currentUser: UserEntity) {
@@ -39,9 +51,9 @@ export class TagService {
         throw new ResourceNotFoundException('标签不存在');
       }
 
-      tag.flowRecords = [];
-
-      await manager.save(tag);
+      await manager.delete(RelationTagFlowRecord, {
+        tagId: id,
+      });
 
       await manager.delete(TagEntity, { id });
     });

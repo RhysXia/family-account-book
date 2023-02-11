@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  JoinTable,
   ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -53,7 +54,16 @@ export class FlowRecordEntity extends AbstractTimestampEntity {
   @Column()
   traderId!: number;
 
-  @ManyToMany(() => TagEntity, { nullable: false })
+  @ManyToMany(() => TagEntity, (tag) => tag.id)
+  @JoinTable({
+    name: 'relation_tag_flow_record',
+    joinColumn: {
+      name: 'flowRecordId',
+    },
+    inverseJoinColumn: {
+      name: 'tagId',
+    },
+  })
   tags!: Array<TagEntity>;
 
   /**

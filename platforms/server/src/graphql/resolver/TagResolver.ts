@@ -77,14 +77,12 @@ export class TagResolver {
     const parentId = decodeId(EntityName.TAG, parent.id);
 
     const { traderId, savingAccountId, categoryId } = filter || {};
-
     const { total, data } =
       await this.flowRecordService.findAllByConditionAndPagination(
         {
           ...(traderId && {
             traderId: getUserId(traderId),
           }),
-
           ...(savingAccountId && {
             savingAccountId: decodeId(
               EntityName.SAVING_ACCOUNT,
