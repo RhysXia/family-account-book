@@ -9,27 +9,29 @@ import { CategoryEntity } from '../../entity/CategoryEntity';
 import { UserEntity } from '../../entity/UserEntity';
 import { ResourceNotFoundException } from '../../exception/ServiceException';
 import { CategoryService } from '../../service/CategoryService';
-import { TagService } from '../../service/TagService';
+import { FlowRecordService } from '../../service/FlowRecordService';
 import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
-import { TagDataLoader } from '../dataloader/TagDataLoader';
+import { FlowRecordDataLoader } from '../dataloader/FlowRecordDataLoader';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
 import {
+  CategoryFlowRecordFilter,
   CreateCategoryInput,
   Pagination,
   UpdateCategoryInput,
 } from '../graphql';
 import { GraphqlEntity } from '../types';
 import { decodeId, encodeId, EntityName } from '../utils';
+import { getUserId } from '../utils/getUserId';
 
 @Resolver('Category')
 export class CategoryResolver {
   constructor(
     private readonly accountBookDataLoader: AccountBookDataLoader,
     private readonly userDataLoader: UserDataLoader,
-    private readonly tagDataLoader: TagDataLoader,
-    private readonly tagService: TagService,
+    private readonly flowRecordService: FlowRecordService,
     private readonly categoryService: CategoryService,
+    private readonly flowRecordDataLoader: FlowRecordDataLoader,
   ) {}
 
   @ResolveField()
@@ -57,15 +59,52 @@ export class CategoryResolver {
   }
 
   @ResolveField()
-  async tags(
+  async createdBy(@Parent() parent: GraphqlEntity<CategoryEntity>) {
+    const createdBy =
+      parent.createdBy || (await this.userDataLoader.load(parent.createdById));
+
+    return createdBy
+      ? { ...createdBy, id: encodeId(EntityName.USER, parent.createdById) }
+      : null;
+  }
+
+  @ResolveField()
+  async updatedBy(@Parent() parent: GraphqlEntity<CategoryEntity>) {
+    const updatedBy =
+      parent.updatedBy || (await this.userDataLoader.load(parent.updatedById));
+
+    return updatedBy
+      ? { ...updatedBy, id: encodeId(EntityName.USER, parent.updatedById) }
+      : null;
+  }
+
+  @ResolveField()
+  async flowRecords(
     @Parent() parent: GraphqlEntity<CategoryEntity>,
+    @Args('filter') filter?: CategoryFlowRecordFilter,
     @Args('pagination') pagination?: Pagination,
   ) {
-    const parentId = decodeId(EntityName.CATEGORY, parent.id);
+    const parentId = decodeId(EntityName.TAG, parent.id);
+
+    const { traderId, savingAccountId, tagId } = filter || {};
 
     const { total, data } =
-      await this.tagService.findAllByCategoryIdAndPagination(
-        parentId,
+      await this.flowRecordService.findAllByConditionAndPagination(
+        {
+          ...(traderId && {
+            traderId: getUserId(traderId),
+          }),
+          ...(savingAccountId && {
+            savingAccountId: decodeId(
+              EntityName.SAVING_ACCOUNT,
+              savingAccountId,
+            ),
+          }),
+          ...(tagId && {
+            tagId: decodeId(EntityName.TAG, tagId),
+          }),
+          categoryId: parentId,
+        },
         pagination,
       );
 
@@ -73,49 +112,34 @@ export class CategoryResolver {
       total,
       data: data.map((it) => ({
         ...it,
-        id: encodeId(EntityName.TAG, it.id),
+        id: encodeId(EntityName.FLOW_RECORD, it.id),
       })),
     };
   }
 
   @ResolveField()
-  async tag(
+  async flowRecord(
     @Parent() parent: GraphqlEntity<CategoryEntity>,
     @Args('id') id: string,
   ) {
-    const tag = await this.tagDataLoader.load(decodeId(EntityName.TAG, id));
+    const flowRecord = await this.flowRecordDataLoader.load(
+      decodeId(EntityName.FLOW_RECORD, id),
+    );
 
-    if (!tag) {
-      throw new ResourceNotFoundException('标签不存在');
+    if (!flowRecord) {
+      throw new ResourceNotFoundException('流水不存在');
     }
 
-    const encodedCategoryId = encodeId(EntityName.CATEGORY, tag.categoryId);
+    const encodedCategoryId = encodeId(
+      EntityName.CATEGORY,
+      flowRecord.categoryId,
+    );
 
     if (encodedCategoryId !== parent.id) {
       // 不暴露其他数据信息，一律提示资源不存在
-      throw new ResourceNotFoundException('标签不存在');
+      throw new ResourceNotFoundException('流水不存在');
     }
-    return { ...tag, id };
-  }
-
-  @ResolveField()
-  async creator(@Parent() parent: GraphqlEntity<CategoryEntity>) {
-    const creator =
-      parent.creator || (await this.userDataLoader.load(parent.creatorId));
-
-    return creator
-      ? { ...creator, id: encodeId(EntityName.USER, parent.creatorId) }
-      : null;
-  }
-
-  @ResolveField()
-  async updater(@Parent() parent: GraphqlEntity<CategoryEntity>) {
-    const updater =
-      parent.updater || (await this.userDataLoader.load(parent.updaterId));
-
-    return updater
-      ? { ...updater, id: encodeId(EntityName.USER, parent.updaterId) }
-      : null;
+    return { ...flowRecord, id };
   }
 
   @Mutation()

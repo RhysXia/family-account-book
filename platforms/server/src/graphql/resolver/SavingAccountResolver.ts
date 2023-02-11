@@ -9,11 +9,9 @@ import { SavingAccountEntity } from '../../entity/SavingAccountEntity';
 import { UserEntity } from '../../entity/UserEntity';
 import { ResourceNotFoundException } from '../../exception/ServiceException';
 import { FlowRecordService } from '../../service/FlowRecordService';
-import { SavingAccountHistoryService } from '../../service/SavingAccountHistoryService';
 import { SavingAccountService } from '../../service/SavingAccountService';
 import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
 import { FlowRecordDataLoader } from '../dataloader/FlowRecordDataLoader';
-import { SavingAccountAmountDataLoader } from '../dataloader/SavingAccountAmountDataLoader';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
 import {
@@ -30,26 +28,11 @@ import { getUserId } from '../utils/getUserId';
 export class SavingAccountResolver {
   constructor(
     private readonly savingAccountService: SavingAccountService,
-    private readonly savingAccountHistoryService: SavingAccountHistoryService,
-    private readonly savingAccountMoneyDataLoader: SavingAccountAmountDataLoader,
     private readonly userDataLoader: UserDataLoader,
     private readonly accountBookDataLoader: AccountBookDataLoader,
     private readonly flowRecordDataLoader: FlowRecordDataLoader,
     private readonly flowRecordService: FlowRecordService,
   ) {}
-
-  @ResolveField()
-  async amount(@Parent() parent: GraphqlEntity<SavingAccountEntity>) {
-    const money = await this.savingAccountMoneyDataLoader.load(
-      decodeId(EntityName.SAVING_ACCOUNT, parent.id),
-    );
-
-    if (money) {
-      return money.amount;
-    }
-
-    return parent.initialAmount;
-  }
 
   @ResolveField()
   async accountBook(@Parent() parent: GraphqlEntity<SavingAccountEntity>) {
@@ -66,42 +49,23 @@ export class SavingAccountResolver {
   }
 
   @ResolveField()
-  async creator(@Parent() parent: GraphqlEntity<SavingAccountEntity>) {
-    const creator =
-      parent.creator || (await this.userDataLoader.load(parent.creatorId));
+  async createdBy(@Parent() parent: GraphqlEntity<SavingAccountEntity>) {
+    const createdBy =
+      parent.createdBy || (await this.userDataLoader.load(parent.createdById));
 
-    return creator
-      ? { ...creator, id: encodeId(EntityName.USER, parent.creatorId) }
+    return createdBy
+      ? { ...createdBy, id: encodeId(EntityName.USER, parent.createdById) }
       : null;
   }
 
   @ResolveField()
-  async updater(@Parent() parent: GraphqlEntity<SavingAccountEntity>) {
-    const updater =
-      parent.updater || (await this.userDataLoader.load(parent.updaterId));
+  async updatedBy(@Parent() parent: GraphqlEntity<SavingAccountEntity>) {
+    const updatedBy =
+      parent.updatedBy || (await this.userDataLoader.load(parent.updatedById));
 
-    return updater
-      ? { ...updater, id: encodeId(EntityName.USER, parent.updaterId) }
+    return updatedBy
+      ? { ...updatedBy, id: encodeId(EntityName.USER, parent.updatedById) }
       : null;
-  }
-
-  @ResolveField()
-  async getHistoriesByDate(
-    @Parent() parent: GraphqlEntity<SavingAccountEntity>,
-    @Args('startDate') startDate: Date,
-    @Args('endDate') endDate: Date,
-  ) {
-    const histories =
-      await this.savingAccountHistoryService.findBySavingAccountIdAndDealAtBetween(
-        decodeId(EntityName.SAVING_ACCOUNT, parent.id),
-        startDate,
-        endDate,
-      );
-
-    return histories.map((it) => ({
-      ...it,
-      id: encodeId(EntityName.SAVING_ACCOUNT_HISTORY, it.id),
-    }));
   }
 
   @ResolveField()

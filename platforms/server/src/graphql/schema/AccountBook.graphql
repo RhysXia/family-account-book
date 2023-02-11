@@ -3,25 +3,20 @@ type AccountBookListWithPagintion {
   data: [AccountBook!]!
 }
 
-input AccountBookTagFilter {
-  categoryId: ID
-}
+# input AccountBookTagFilter {
+# }
 
 input AccountBookFlowRecordFilter {
   """
   过滤交易人的流水
   """
   traderId: ID
-  tagId: ID
-  savingAccountId: ID
-  startDealAt: Date
-  endDealAt: Date
-}
 
-input AccountBookSavingAccountTransferRecordFilter {
-  traderId: ID
-  fromSavingAccountId: ID
-  toSavingAccountId: ID
+  tagId: ID
+
+  categoryId: ID
+
+  savingAccountId: ID
   startDealAt: Date
   endDealAt: Date
 }
@@ -43,25 +38,17 @@ type AccountBook implements EntityDateTime {
   """
   members: [User!]!
 
-  creator: User!
-
-  updater: User!
-
   createdAt: DateTime!
+  createdBy: User!
+
   updatedAt: DateTime!
+  updatedBy: User!
 
   savingAccounts(pagination: Pagination): SavingAccountListWithPagintion!
   savingAccount(id: ID!): SavingAccount!
 
-  savingAccountTransferRecords(
-    filter: AccountBookSavingAccountTransferRecordFilter
-    pagination: Pagination
-  ): SavingAccountTransferRecordWithPagintion!
-
-  savingAccountTransferRecord(id: ID!): SavingAccountTransferRecord!
-
   tags(
-    filter: AccountBookTagFilter
+    # filter: AccountBookTagFilter
     pagination: Pagination
   ): TagListWithPagintion
   tag(id: ID!): Tag!

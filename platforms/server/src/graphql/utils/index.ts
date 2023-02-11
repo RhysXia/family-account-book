@@ -8,10 +8,8 @@ export enum EntityName {
   CATEGORY = 'Category',
   CATEGORY_STATISTICS = 'CategoryStatistics',
   SAVING_ACCOUNT = 'SavingAccount',
-  SAVING_ACCOUNT_HISTORY = 'SavingAccountHistory',
   FLOW_RECORD = 'FlowRecord',
   TAG = 'Tag',
-  SAVING_ACCOUNT_TRANSFER_RECORD = 'SavingAccountTransferRecord',
 }
 
 export const encodeId = (name: EntityName, id: number) => {

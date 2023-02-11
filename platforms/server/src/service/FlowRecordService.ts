@@ -1,25 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, In } from 'typeorm';
-import { CategoryType } from '../entity/CategoryEntity';
+import { CategoryEntity, CategoryType } from '../entity/CategoryEntity';
 import { FlowRecordEntity } from '../entity/FlowRecordEntity';
 import { SavingAccountEntity } from '../entity/SavingAccountEntity';
 import { TagEntity } from '../entity/TagEntity';
 import { UserEntity } from '../entity/UserEntity';
 import {
-  InternalException,
   ParameterException,
   ResourceNotFoundException,
 } from '../exception/ServiceException';
 import { Pagination } from '../graphql/graphql';
-import { SavingAccountHistoryManager } from '../manager/SavingAccountHistoryManager';
 import { applyPagination } from '../utils/applyPagination';
 
 @Injectable()
 export class FlowRecordService {
-  constructor(
-    private readonly dataSource: DataSource,
-    private readonly savingAccountMoneyRecordManager: SavingAccountHistoryManager,
-  ) {}
+  constructor(private readonly dataSource: DataSource) {}
 
   async findByIdsAndUserId(ids: Array<number>, userId: number) {
     const flowRecords = await this.dataSource.manager
@@ -55,13 +50,21 @@ export class FlowRecordService {
         throw new ResourceNotFoundException('流水不存在');
       }
 
-      await this.savingAccountMoneyRecordManager.reset(manager, {
-        amount: record.amount,
-        dealAt: record.dealAt,
-        savingAccountId: record.savingAccountId,
+      const savingAccount = await manager.findOneOrFail(SavingAccountEntity, {
+        where: {
+          id: record.savingAccountId,
+        },
       });
 
-      await manager.remove(record);
+      savingAccount.amount -= record.amount;
+
+      if (savingAccount.amount < 0) {
+        throw new ParameterException('删除会导致关联储蓄账户余额小于0');
+      }
+
+      await manager.save(savingAccount);
+
+      await manager.delete(FlowRecordEntity, { id });
     });
   }
 
@@ -72,14 +75,22 @@ export class FlowRecordService {
       dealAt?: Date;
       amount?: number;
       savingAccountId?: number;
-      tagId?: number;
+      tagIds?: Array<number>;
+      categoryId?: number;
       traderId?: number;
     },
     user: UserEntity,
   ) {
     return this.dataSource.transaction(async (manager) => {
-      const { desc, dealAt, amount, savingAccountId, tagId, traderId } =
-        flowRecordInput;
+      const {
+        desc,
+        dealAt,
+        amount,
+        savingAccountId,
+        tagIds,
+        categoryId,
+        traderId,
+      } = flowRecordInput;
 
       const flowRecord = await manager
         .createQueryBuilder(FlowRecordEntity, 'flowRecord')
@@ -97,94 +108,110 @@ export class FlowRecordService {
         throw new ResourceNotFoundException('流水不存在');
       }
 
+      if (dealAt) {
+        flowRecord.dealAt = dealAt;
+      }
+
       if (desc) {
         flowRecord.desc = desc;
       }
 
-      let tag: TagEntity;
-
-      if (tagId) {
-        try {
-          tag = await manager.findOneOrFail(TagEntity, {
-            relations: {
-              category: true,
-            },
-            where: { id: tagId, accountBookId: flowRecord.accountBookId },
-          });
-          flowRecord.tag = tag;
-        } catch (err) {
-          console.error(err);
-          throw new ResourceNotFoundException('标签不存在');
-        }
-      } else {
-        try {
-          // 按道理不可能失败
-          tag = await manager.findOneOrFail(TagEntity, {
-            relations: {
-              category: true,
-            },
-            where: { id: flowRecord.tagId },
-          });
-        } catch (err) {
-          throw new InternalException('标签不存在');
-        }
-      }
-
-      if (savingAccountId) {
-        try {
-          await manager.findOneOrFail(SavingAccountEntity, {
-            where: {
-              id: savingAccountId,
-              accountBookId: flowRecord.accountBookId,
-            },
-          });
-        } catch (err) {
-          throw new ResourceNotFoundException('储蓄账户不存在');
-        }
-      }
-
-      const newSavingAccountId = savingAccountId || flowRecord.savingAccountId;
-      const newAmount = amount || flowRecord.amount;
-      const newDealAt = dealAt || flowRecord.dealAt;
-
-      const category = tag.category;
-
-      if (category.type === CategoryType.NEGATIVE_AMOUNT) {
-        if (newAmount >= 0) {
-          throw new ParameterException('当前分类不允许金额为正数');
-        }
-      } else if (category.type === CategoryType.POSITIVE_AMOUNT) {
-        if (newAmount <= 0) {
-          throw new ParameterException('当前分类不允许金额为负数');
-        }
-      }
-
       if (traderId) {
-        try {
-          const trader = await manager.findOneOrFail(UserEntity, {
-            where: {
-              id: traderId,
-            },
-          });
-          flowRecord.trader = trader;
-        } catch (err) {
-          console.error(err);
+        const trader = await manager.findOne(UserEntity, {
+          where: {
+            id: traderId,
+          },
+        });
+        if (!trader) {
           throw new ResourceNotFoundException('交易人员不存在');
         }
+
+        flowRecord.trader = trader;
       }
 
-      await this.savingAccountMoneyRecordManager.update(manager, {
-        oldAmount: flowRecord.amount,
-        oldDealAt: flowRecord.dealAt,
-        oldSavingAccountId: flowRecord.savingAccountId,
-        newAmount,
-        newDealAt,
-        newSavingAccountId,
+      if (tagIds) {
+        const tags = await manager.find(TagEntity, {
+          where: {
+            accountBookId: flowRecord.accountBookId,
+            id: In(tagIds),
+          },
+        });
+
+        if (tags.length !== tagIds.length) {
+          throw new ResourceNotFoundException('有不存在的标签');
+        }
+
+        flowRecord.tags = tags;
+      }
+
+      const actualAmount = amount ?? flowRecord.amount;
+
+      if (categoryId) {
+        const category = await manager.findOne(CategoryEntity, {
+          where: {
+            id: categoryId,
+            accountBookId: flowRecord.accountBookId,
+          },
+        });
+
+        if (!category) {
+          throw new ResourceNotFoundException('分类不存在');
+        }
+
+        if (category.type === CategoryType.EXPENDITURE) {
+          if (actualAmount >= 0) {
+            throw new ParameterException('当前分类不允许金额为正数');
+          }
+        } else if (category.type === CategoryType.INCOME) {
+          if (actualAmount <= 0) {
+            throw new ParameterException('当前分类不允许金额为负数');
+          }
+        }
+
+        flowRecord.category = category;
+      }
+
+      const oldSavingAccountBook = await manager.findOneOrFail(
+        SavingAccountEntity,
+        {
+          where: {
+            id: flowRecord.savingAccountId,
+          },
+        },
+      );
+
+      oldSavingAccountBook.amount -= flowRecord.amount;
+
+      const actualSavingAccount = savingAccountId ?? flowRecord.savingAccountId;
+
+      if (flowRecord.savingAccountId !== actualSavingAccount) {
+        if (oldSavingAccountBook.amount < 0) {
+          throw new ParameterException('解除绑定会导致原关联储蓄账户余额小于0');
+        }
+      }
+
+      await manager.save(oldSavingAccountBook);
+
+      const newSavingAccount = await manager.findOne(SavingAccountEntity, {
+        where: {
+          id: actualSavingAccount,
+          accountBookId: flowRecord.accountBookId,
+        },
       });
 
-      flowRecord.savingAccountId = newSavingAccountId;
-      flowRecord.dealAt = newDealAt;
-      flowRecord.amount = newAmount;
+      if (!newSavingAccount) {
+        throw new ResourceNotFoundException('储蓄账户不存在');
+      }
+
+      newSavingAccount.amount += actualAmount;
+
+      if (newSavingAccount.amount < 0) {
+        throw new ParameterException('新关联的储蓄账户余额小于0');
+      }
+
+      await manager.save(newSavingAccount);
+
+      flowRecord.amount = actualAmount;
 
       return manager.save(flowRecord);
     });
@@ -196,14 +223,30 @@ export class FlowRecordService {
       dealAt: Date;
       amount: number;
       savingAccountId: number;
-      tagId: number;
+      tagIds: Array<number>;
       traderId: number;
+      categoryId: number;
     },
     user: UserEntity,
   ) {
     return this.dataSource.transaction(async (manager) => {
-      const { desc, amount, dealAt, savingAccountId, tagId, traderId } =
-        flowRecordInput;
+      const {
+        desc,
+        amount,
+        dealAt,
+        savingAccountId,
+        tagIds,
+        categoryId,
+        traderId,
+      } = flowRecordInput;
+
+      const flowRecordEntity = new FlowRecordEntity();
+
+      flowRecordEntity.desc = desc;
+      flowRecordEntity.dealAt = dealAt;
+      flowRecordEntity.amount = amount;
+      flowRecordEntity.createdBy = user;
+      flowRecordEntity.updatedBy = user;
 
       const savingAccount = await manager
         .createQueryBuilder(SavingAccountEntity, 'savingAccount')
@@ -221,60 +264,70 @@ export class FlowRecordService {
         throw new ResourceNotFoundException('储蓄账户不存在');
       }
 
-      const accountBookId = savingAccount.accountBookId;
+      savingAccount.amount += amount;
 
-      let tag: TagEntity;
-      try {
-        tag = await manager.findOneOrFail(TagEntity, {
-          relations: {
-            category: true,
-          },
-          where: { id: tagId, accountBookId },
-        });
-      } catch (err) {
-        throw new ResourceNotFoundException('标签不存在');
+      if (savingAccount.amount < 0) {
+        throw new ParameterException('关联的储蓄账户余额小于0');
       }
 
-      const category = tag.category;
+      await manager.save(savingAccount);
 
-      if (category.type === CategoryType.NEGATIVE_AMOUNT) {
+      flowRecordEntity.savingAccount = savingAccount;
+
+      const accountBookId = savingAccount.accountBookId;
+
+      flowRecordEntity.accountBookId = accountBookId;
+
+      if (tagIds.length) {
+        const tags = await manager.find(TagEntity, {
+          where: {
+            id: In(tagIds),
+            accountBookId: savingAccount.accountBookId,
+          },
+        });
+
+        if (tagIds.length !== tags.length) {
+          throw new ResourceNotFoundException('有部分标签不存在');
+        }
+
+        flowRecordEntity.tags = tags;
+      }
+
+      const category = await manager.findOne(CategoryEntity, {
+        where: {
+          id: categoryId,
+          accountBookId: savingAccount.accountBookId,
+        },
+      });
+
+      if (!category) {
+        throw new ResourceNotFoundException('分类不存在');
+      }
+
+      flowRecordEntity.category = category;
+
+      if (category.type === CategoryType.EXPENDITURE) {
         if (amount >= 0) {
           throw new ParameterException('当前分类不允许金额为正数');
         }
-      } else if (category.type === CategoryType.POSITIVE_AMOUNT) {
+      } else if (category.type === CategoryType.INCOME) {
         if (amount <= 0) {
           throw new ParameterException('当前分类不允许金额为负数');
         }
       }
-      let trader: UserEntity;
-      try {
-        trader = await manager.findOneOrFail(UserEntity, {
-          where: {
-            id: traderId,
-          },
-        });
-      } catch (err) {
-        throw new ParameterException('交易人员不存在');
-      }
 
-      await this.savingAccountMoneyRecordManager.create(manager, {
-        amount,
-        dealAt,
-        savingAccountId,
+      // 这里不检查trader不属于账本的情况
+      const trader = await manager.findOne(UserEntity, {
+        where: {
+          id: traderId,
+        },
       });
 
-      const flowRecordEntity = new FlowRecordEntity();
+      if (!trader) {
+        throw new ResourceNotFoundException('交易人员不存在');
+      }
 
-      flowRecordEntity.desc = desc;
-      flowRecordEntity.dealAt = dealAt;
-      flowRecordEntity.amount = amount;
-      flowRecordEntity.accountBookId = accountBookId;
-      flowRecordEntity.savingAccount = savingAccount;
-      flowRecordEntity.tag = tag;
-      // 这里不检查trader不属于账本的情况
       flowRecordEntity.trader = trader;
-      flowRecordEntity.creator = user;
-      flowRecordEntity.updater = user;
 
       return manager.save(flowRecordEntity);
     });
@@ -292,12 +345,14 @@ export class FlowRecordService {
       traderId,
       savingAccountId,
       tagId,
+      categoryId,
       startDealAt,
       endDealAt,
     }: {
       accountBookId?: number;
       traderId?: number;
       savingAccountId?: number;
+      categoryId?: number;
       tagId?: number;
       startDealAt?: Date;
       endDealAt?: Date;
@@ -326,8 +381,14 @@ export class FlowRecordService {
     }
 
     if (tagId) {
-      qb.andWhere('flowRecord.tagId = :tagId', {
+      qb.leftJoin('flowRecord.tags', 'tag').andWhere('tag.id = :tagId', {
         tagId,
+      });
+    }
+
+    if (categoryId) {
+      qb.andWhere('flowRecord.categoryId = :categoryId', {
+        categoryId,
       });
     }
 

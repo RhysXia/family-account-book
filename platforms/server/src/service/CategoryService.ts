@@ -2,9 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { DataSource, In } from 'typeorm';
 import { AccountBookEntity } from '../entity/AccountBookEntity';
 import { CategoryEntity, CategoryType } from '../entity/CategoryEntity';
-import { TagEntity } from '../entity/TagEntity';
+import { FlowRecordEntity } from '../entity/FlowRecordEntity';
+import { SavingAccountEntity } from '../entity/SavingAccountEntity';
 import { UserEntity } from '../entity/UserEntity';
 import {
+  InternalException,
   ParameterException,
   ResourceNotFoundException,
 } from '../exception/ServiceException';
@@ -42,9 +44,8 @@ export class CategoryService {
         .where('category.id = :id', {
           id,
         })
-        .andWhere('admin.id = :adminId OR member.id = :memberId', {
+        .andWhere('admin.id = :adminId', {
           adminId: user.id,
-          memberId: user.id,
         })
         .getOne();
 
@@ -52,17 +53,50 @@ export class CategoryService {
         throw new ResourceNotFoundException('分类不存在');
       }
 
-      const tag = await manager.findOne(TagEntity, {
+      // 回去分类下的流水总额，添加回对应账号
+      const totalFlowRecordAmount = await manager
+        .createQueryBuilder(FlowRecordEntity, 'flowRecord')
+        .select('SUM(flowRecord.amount)', 'totalAmount')
+        .addSelect('flowRecord.savingAccountId', 'savingAccountId')
+        .where('flowRecord.categoryId = :categoryId', { categoryId: id })
+        .groupBy('flowRecord.savingAccountId')
+        .getRawMany<{ totalAmount: number; savingAccountId: number }>();
+
+      const savingAccountIds = totalFlowRecordAmount.map(
+        (it) => it.savingAccountId,
+      );
+
+      const savingAccounts = await manager.find(SavingAccountEntity, {
         where: {
-          categoryId: category.id,
+          id: In(savingAccountIds),
         },
       });
 
-      if (tag) {
-        throw new ParameterException('存在标签关联该分类，不允许删除');
-      }
+      totalFlowRecordAmount.forEach((it) => {
+        const savingAccount = savingAccounts.find(
+          (s) => s.id === it.savingAccountId,
+        );
 
-      return manager.remove(category);
+        if (!savingAccount) {
+          throw new InternalException(`账户(id: ${it.savingAccountId})不存在`);
+        }
+
+        savingAccount.amount -= it.totalAmount;
+
+        if (savingAccount.amount < 0) {
+          throw new ParameterException(
+            `删除会导致账户${savingAccount.name}(id: ${savingAccount.id})余额小于0`,
+          );
+        }
+      });
+
+      await manager.save(savingAccounts);
+
+      await manager.delete(FlowRecordEntity, {
+        categoryId: id,
+      });
+
+      return manager.delete(CategoryEntity, { id });
     });
   }
 
@@ -104,7 +138,7 @@ export class CategoryService {
         category.desc = desc;
       }
 
-      category.updater = user;
+      category.updatedBy = user;
 
       return manager.save(category);
     });
@@ -148,8 +182,8 @@ export class CategoryService {
       category.type = type;
       category.accountBook = accountBook;
 
-      category.creator = user;
-      category.updater = user;
+      category.createdBy = user;
+      category.updatedBy = user;
 
       return manager.save(category);
     });

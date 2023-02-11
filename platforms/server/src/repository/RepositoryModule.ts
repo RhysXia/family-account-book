@@ -3,10 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AccountBookEntity } from '../entity/AccountBookEntity';
 import { FlowRecordEntity } from '../entity/FlowRecordEntity';
-import { SavingAccountHistoryEntity } from '../entity/SavingAccountHistoryEntity';
-import { SavingAccountAmountView } from '../entity/SavingAccountAmountView';
 import { SavingAccountEntity } from '../entity/SavingAccountEntity';
-import { SavingAccountTransferRecordEntity } from '../entity/SavingAccountTransferRecordEntity';
 import { SessionEntity } from '../entity/SessionEntity';
 import { TagEntity } from '../entity/TagEntity';
 import { UserEntity } from '../entity/UserEntity';
@@ -21,9 +18,6 @@ const models = [
   TagEntity,
   SavingAccountEntity,
   FlowRecordEntity,
-  SavingAccountHistoryEntity,
-  SavingAccountAmountView,
-  SavingAccountTransferRecordEntity,
 ];
 
 const features = TypeOrmModule.forFeature(models);
