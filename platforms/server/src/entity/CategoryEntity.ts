@@ -45,4 +45,7 @@ export class CategoryEntity extends AbstractTimestampEntity {
   accountBook!: AccountBookEntity;
   @Column()
   accountBookId!: number;
+
+  @Column({ nullable: false })
+  order!: number;
 }
