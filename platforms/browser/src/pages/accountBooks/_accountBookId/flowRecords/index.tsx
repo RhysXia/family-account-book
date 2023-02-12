@@ -92,6 +92,10 @@ const Index = () => {
           field: 'dealAt',
           direction: 'DESC',
         },
+        {
+          field: 'createdAt',
+          direction: 'DESC',
+        },
       ],
     },
   });
