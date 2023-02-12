@@ -35,10 +35,6 @@ const SavingAccountPage = () => {
           field: 'order',
           direction: 'DESC',
         },
-        {
-          field: 'createdAt',
-          direction: 'DESC',
-        },
       ],
     },
   });

@@ -251,11 +251,12 @@ export class TagService {
       qb.andWhere('tag.categoryId = :categoryId', { categoryId });
     }
 
-    const result = await applyPagination(
-      qb,
-      'tag',
-      pagination,
-    ).getManyAndCount();
+    const result = await applyPagination(qb, 'tag', pagination, [
+      {
+        alias: 'category',
+        relation: 'tag.category',
+      },
+    ]).getManyAndCount();
 
     return {
       total: result[1],

@@ -1,5 +1,5 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { join } from 'path';
@@ -42,6 +42,8 @@ import { CategoryStatisticsResolver } from './resolver/CategoryStatisticsResolve
 
         const isGraphqlDebug =
           configService.get<string>('GRAPHQL_DEBUG') === 'true';
+
+        const logger = new Logger();
 
         return {
           typePaths: ['./**/*.graphql'],

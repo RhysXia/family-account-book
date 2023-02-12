@@ -63,11 +63,11 @@ const TagPage = () => {
       offset,
       orderBy: [
         {
-          field: 'order',
+          field: 'category.order',
           direction: 'DESC',
         },
         {
-          field: 'createdAt',
+          field: 'order',
           direction: 'DESC',
         },
       ],

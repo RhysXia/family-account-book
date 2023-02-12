@@ -10,7 +10,7 @@ export const CategoryTypeInfoMap = {
     color: '#6EE7B7',
   },
   [CategoryType.UNKNOWN]: {
-    text: '未知',
+    text: '其他',
     color: '#93C5FD',
   },
 };
