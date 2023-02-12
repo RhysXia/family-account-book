@@ -17,8 +17,6 @@ const GET_USER_LIST = gql`
       username
       email
       avatar
-      createdAt
-      updatedAt
     }
   }
 `;

@@ -4,6 +4,7 @@ import { AccountBookEntity } from '../entity/AccountBookEntity';
 import { CategoryEntity, CategoryType } from '../entity/CategoryEntity';
 import { FlowRecordEntity } from '../entity/FlowRecordEntity';
 import { SavingAccountEntity } from '../entity/SavingAccountEntity';
+import { TagEntity } from '../entity/TagEntity';
 import { UserEntity } from '../entity/UserEntity';
 import {
   InternalException,
@@ -16,6 +17,21 @@ import { applyPagination } from '../utils/applyPagination';
 @Injectable()
 export class CategoryService {
   constructor(private readonly dataSource: DataSource) {}
+
+  async findByTagId(tagId: number) {
+    const tag = await this.dataSource.manager.findOne(TagEntity, {
+      relations: { category: true },
+      where: {
+        id: tagId,
+      },
+    });
+
+    if (!tag) {
+      return;
+    }
+
+    return tag.category;
+  }
 
   async findByIdsAndUserId(
     ids: Array<number>,
@@ -56,9 +72,10 @@ export class CategoryService {
       // 回去分类下的流水总额，添加回对应账号
       const totalFlowRecordAmount = await manager
         .createQueryBuilder(FlowRecordEntity, 'flowRecord')
+        .leftJoin('flowRecord.tag', 'tag')
         .select('SUM(flowRecord.amount)', 'totalAmount')
         .addSelect('flowRecord.savingAccountId', 'savingAccountId')
-        .where('flowRecord.categoryId = :categoryId', { categoryId: id })
+        .where('tag.categoryId = :categoryId', { categoryId: id })
         .groupBy('flowRecord.savingAccountId')
         .getRawMany<{ totalAmount: number; savingAccountId: number }>();
 
@@ -92,8 +109,18 @@ export class CategoryService {
 
       await manager.save(savingAccounts);
 
+      const tags = await manager.find(TagEntity, {
+        where: {
+          categoryId: id,
+        },
+      });
+
       await manager.delete(FlowRecordEntity, {
-        categoryId: id,
+        tagId: In(tags.map((it) => it.id)),
+      });
+
+      await manager.delete(TagEntity, {
+        id: In(tags.map((it) => it.id)),
       });
 
       return manager.delete(CategoryEntity, { id });
@@ -184,6 +211,14 @@ export class CategoryService {
 
       category.createdBy = user;
       category.updatedBy = user;
+
+      const count = await manager.count(CategoryEntity, {
+        where: {
+          accountBookId,
+        },
+      });
+
+      category.order = count + 1;
 
       return manager.save(category);
     });

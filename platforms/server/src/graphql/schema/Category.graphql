@@ -1,9 +1,3 @@
-input CategoryFlowRecordFilter {
-  savingAccountId: ID
-  tagId: ID
-  traderId: ID
-}
-
 enum CategoryType {
   """
   收入
@@ -19,11 +13,18 @@ enum CategoryType {
   UNKNOWN
 }
 
+input CategoryFlowRecordFilter {
+  savingAccountId: ID
+  tagId: ID
+  traderId: ID
+}
+
 type Category implements EntityDateTime {
   id: ID!
   name: String!
   desc: String
   type: CategoryType!
+  order: Int!
 
   accountBook: AccountBook!
 
@@ -32,6 +33,9 @@ type Category implements EntityDateTime {
 
   updatedAt: DateTime!
   updatedBy: User!
+
+  tags(pagination: Pagination): TagListWithPagintion
+  tag(id: ID!): Tag!
 
   flowRecords(
     filter: CategoryFlowRecordFilter

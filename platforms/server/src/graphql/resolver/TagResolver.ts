@@ -11,6 +11,7 @@ import { ResourceNotFoundException } from '../../exception/ServiceException';
 import { FlowRecordService } from '../../service/FlowRecordService';
 import { TagService } from '../../service/TagService';
 import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
+import { CategoryDataLoader } from '../dataloader/CategoryDataLoader';
 import { FlowRecordDataLoader } from '../dataloader/FlowRecordDataLoader';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
@@ -31,6 +32,7 @@ export class TagResolver {
     private readonly accountBookDataLoader: AccountBookDataLoader,
     private readonly tagService: TagService,
     private readonly flowRecordDataLoader: FlowRecordDataLoader,
+    private readonly categoryDataLoader: CategoryDataLoader,
     private readonly flowRecordService: FlowRecordService,
   ) {}
 
@@ -69,6 +71,20 @@ export class TagResolver {
   }
 
   @ResolveField()
+  async category(@Parent() parent: GraphqlEntity<TagEntity>) {
+    const category =
+      parent.category ||
+      (await this.categoryDataLoader.load(parent.categoryId));
+
+    return category
+      ? {
+          ...category,
+          id: encodeId(EntityName.CATEGORY, parent.categoryId),
+        }
+      : null;
+  }
+
+  @ResolveField()
   async flowRecords(
     @Parent() parent: GraphqlEntity<TagEntity>,
     @Args('filter') filter?: TagFlowRecordFilter,
@@ -76,7 +92,7 @@ export class TagResolver {
   ) {
     const parentId = decodeId(EntityName.TAG, parent.id);
 
-    const { traderId, savingAccountId, categoryId } = filter || {};
+    const { traderId, savingAccountId } = filter || {};
     const { total, data } =
       await this.flowRecordService.findAllByConditionAndPagination(
         {
@@ -88,9 +104,6 @@ export class TagResolver {
               EntityName.SAVING_ACCOUNT,
               savingAccountId,
             ),
-          }),
-          ...(categoryId && {
-            categoryId: decodeId(EntityName.CATEGORY, categoryId),
           }),
           tagId: parentId,
         },
@@ -121,9 +134,7 @@ export class TagResolver {
 
     const parentId = decodeId(EntityName.TAG, parent.id);
 
-    const tags = await this.tagService.findAllByFlowRecordId(flowRecord.id);
-
-    if (tags.every((it) => it.id !== parentId)) {
+    if (flowRecord.tagId !== parentId) {
       throw new ResourceNotFoundException('流水不存在');
     }
 
@@ -135,11 +146,11 @@ export class TagResolver {
     @CurrentUser({ required: true }) currentUser: UserEntity,
     @Args('tag') tag: CreateTagInput,
   ) {
-    const { name, desc, accountBookId } = tag;
+    const { name, desc, categoryId } = tag;
 
     const entity = await this.tagService.create(
       {
-        accountBookId: decodeId(EntityName.ACCOUNT_BOOK, accountBookId),
+        categoryId: decodeId(EntityName.CATEGORY, categoryId),
         name,
         ...(desc && { desc }),
       },

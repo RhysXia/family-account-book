@@ -38,6 +38,9 @@ export class CategoryEntity extends AbstractTimestampEntity {
   @Column({ nullable: false, type: 'enum', enum: CategoryType })
   type!: CategoryType;
 
+  @Column({ nullable: false })
+  order!: number;
+
   /**
    * 所属账本
    */
@@ -45,7 +48,4 @@ export class CategoryEntity extends AbstractTimestampEntity {
   accountBook!: AccountBookEntity;
   @Column()
   accountBookId!: number;
-
-  @Column({ nullable: false })
-  order!: number;
 }

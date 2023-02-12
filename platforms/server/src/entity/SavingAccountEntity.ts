@@ -29,6 +29,9 @@ export class SavingAccountEntity extends AbstractTimestampEntity {
   })
   amount!: number;
 
+  @Column({ nullable: false })
+  order!: number;
+
   /**
    * 所属账本
    */

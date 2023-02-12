@@ -26,11 +26,6 @@ const items: Array<ItemType> = [
     key: 'flowRecords',
     icon: <EditOutlined />,
   },
-  {
-    label: '转账管理',
-    key: 'transferRecords',
-    icon: <EditOutlined />,
-  },
   // {
   //   label: '支出',
   //   key: 'expenditure-group',

@@ -13,6 +13,7 @@ type SavingAccount implements EntityDateTime {
   id: ID!
   name: String!
   desc: String
+  order: Int!
 
   createdAt: DateTime!
   createdBy: User!

@@ -71,7 +71,7 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
         const amount = dateAmount.find((it) => it.dealAt === date)?.amount || 0;
 
         array.push(
-          (category?.type || categoryType) === CategoryType.NEGATIVE_AMOUNT
+          (category?.type || categoryType) === CategoryType.EXPENDITURE
             ? -amount
             : amount,
         );

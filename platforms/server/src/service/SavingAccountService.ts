@@ -127,6 +127,14 @@ export class SavingAccountService {
       savingAccount.updatedBy = user;
       savingAccount.accountBook = accountBook;
 
+      const count = await manager.count(SavingAccountEntity, {
+        where: {
+          accountBookId,
+        },
+      });
+
+      savingAccount.order = count + 1;
+
       return manager.save(savingAccount);
     });
   }

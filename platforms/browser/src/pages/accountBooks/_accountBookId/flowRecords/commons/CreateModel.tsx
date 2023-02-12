@@ -100,16 +100,13 @@ const CreateModel: FC<CreateModelProps> = ({
         }
 
         if (
-          selectedTag.category.type === CategoryType.NEGATIVE_AMOUNT &&
+          selectedTag.category.type === CategoryType.EXPENDITURE &&
           value > 0
         ) {
           throw new Error('标签要求流水不能为正');
         }
 
-        if (
-          selectedTag.category.type === CategoryType.POSITIVE_AMOUNT &&
-          value < 0
-        ) {
+        if (selectedTag.category.type === CategoryType.INCOME && value < 0) {
           throw new Error('标签要求流水不能为负');
         }
       },

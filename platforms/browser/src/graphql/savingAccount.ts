@@ -19,7 +19,7 @@ export const GET_SAVING_ACCOUNTS_BY_ACCOUNT_BOOK_ID = gql`
             amount
             createdAt
             updatedAt
-            creator {
+            createdBy {
               id
               nickname
             }
@@ -38,7 +38,7 @@ export const useGetSavingAccountListByAccountBookId = (variables: {
     node: {
       savingAccounts: PaginationResult<
         SavingAccount & {
-          creator: {
+          createdBy: {
             id: string;
             nickname: string;
           };

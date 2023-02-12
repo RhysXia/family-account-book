@@ -7,11 +7,16 @@ import {
 } from '@nestjs/graphql';
 import { CategoryEntity } from '../../entity/CategoryEntity';
 import { UserEntity } from '../../entity/UserEntity';
-import { ResourceNotFoundException } from '../../exception/ServiceException';
+import {
+  InternalException,
+  ResourceNotFoundException,
+} from '../../exception/ServiceException';
 import { CategoryService } from '../../service/CategoryService';
 import { FlowRecordService } from '../../service/FlowRecordService';
+import { TagService } from '../../service/TagService';
 import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
 import { FlowRecordDataLoader } from '../dataloader/FlowRecordDataLoader';
+import { TagDataLoader } from '../dataloader/TagDataLoader';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
 import {
@@ -32,6 +37,8 @@ export class CategoryResolver {
     private readonly flowRecordService: FlowRecordService,
     private readonly categoryService: CategoryService,
     private readonly flowRecordDataLoader: FlowRecordDataLoader,
+    private readonly tagDataLoader: TagDataLoader,
+    private readonly tagService: TagService,
   ) {}
 
   @ResolveField()
@@ -79,6 +86,48 @@ export class CategoryResolver {
   }
 
   @ResolveField()
+  async tags(
+    @Parent() parent: GraphqlEntity<CategoryEntity>,
+    @Args('pagination') pagination?: Pagination,
+  ) {
+    const parentId = decodeId(EntityName.CATEGORY, parent.id);
+
+    const { total, data } =
+      await this.tagService.findAllByCategoryIdAndPagination(
+        parentId,
+        pagination,
+      );
+
+    return {
+      total,
+      data: data.map((it) => ({
+        ...it,
+        id: encodeId(EntityName.TAG, it.id),
+      })),
+    };
+  }
+
+  @ResolveField()
+  async tag(
+    @Parent() parent: GraphqlEntity<CategoryEntity>,
+    @Args('id') id: string,
+  ) {
+    const tag = await this.tagDataLoader.load(decodeId(EntityName.TAG, id));
+
+    if (!tag) {
+      throw new ResourceNotFoundException('标签不存在');
+    }
+
+    const encodedCategoryId = encodeId(EntityName.CATEGORY, tag.categoryId);
+
+    if (encodedCategoryId !== parent.id) {
+      // 不暴露其他数据信息，一律提示资源不存在
+      throw new ResourceNotFoundException('标签不存在');
+    }
+    return { ...tag, id };
+  }
+
+  @ResolveField()
   async flowRecords(
     @Parent() parent: GraphqlEntity<CategoryEntity>,
     @Args('filter') filter?: CategoryFlowRecordFilter,
@@ -87,7 +136,6 @@ export class CategoryResolver {
     const parentId = decodeId(EntityName.CATEGORY, parent.id);
 
     const { traderId, savingAccountId, tagId } = filter || {};
-
     const { total, data } =
       await this.flowRecordService.findAllByConditionAndPagination(
         {
@@ -130,15 +178,20 @@ export class CategoryResolver {
       throw new ResourceNotFoundException('流水不存在');
     }
 
-    const encodedCategoryId = encodeId(
-      EntityName.CATEGORY,
-      flowRecord.categoryId,
-    );
+    const parentId = decodeId(EntityName.TAG, parent.id);
 
-    if (encodedCategoryId !== parent.id) {
-      // 不暴露其他数据信息，一律提示资源不存在
+    const category = await this.categoryService.findByTagId(flowRecord.tagId);
+
+    if (!category) {
+      throw new InternalException(
+        `标签(id: ${flowRecord.tagId})不存在关联的分类`,
+      );
+    }
+
+    if (category.id !== parentId) {
       throw new ResourceNotFoundException('流水不存在');
     }
+
     return { ...flowRecord, id };
   }
 

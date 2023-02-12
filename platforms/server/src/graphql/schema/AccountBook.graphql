@@ -3,8 +3,9 @@ type AccountBookListWithPagintion {
   data: [AccountBook!]!
 }
 
-# input AccountBookTagFilter {
-# }
+input AccountBookTagFilter {
+  categoryId: ID
+}
 
 input AccountBookFlowRecordFilter {
   """
@@ -47,8 +48,14 @@ type AccountBook implements EntityDateTime {
   savingAccounts(pagination: Pagination): SavingAccountListWithPagintion!
   savingAccount(id: ID!): SavingAccount!
 
+  categories(
+    filter: AccountBookCategoryFilter
+    pagination: Pagination
+  ): CategoryListWithPagintion!
+  category(id: ID!): Category!
+
   tags(
-    # filter: AccountBookTagFilter
+    filter: AccountBookTagFilter
     pagination: Pagination
   ): TagListWithPagintion
   tag(id: ID!): Tag!
@@ -58,12 +65,6 @@ type AccountBook implements EntityDateTime {
     pagination: Pagination
   ): FlowRecordListWithPagintion!
   flowRecord(id: ID!): FlowRecord!
-
-  categories(
-    filter: AccountBookCategoryFilter
-    pagination: Pagination
-  ): CategoryListWithPagintion!
-  category(id: ID!): Category!
 
   """
   账本相关统计数据

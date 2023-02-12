@@ -9,7 +9,6 @@ import { TagEntity } from '../entity/TagEntity';
 import { UserEntity } from '../entity/UserEntity';
 import { isDevelopment } from '../utils/env';
 import { CategoryEntity } from '../entity/CategoryEntity';
-import { RelationTagFlowRecord } from '../entity/RelationTagFlowRecord';
 
 const models = [
   SessionEntity,
@@ -19,7 +18,6 @@ const models = [
   TagEntity,
   SavingAccountEntity,
   FlowRecordEntity,
-  RelationTagFlowRecord,
 ];
 
 const features = TypeOrmModule.forFeature(models);

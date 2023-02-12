@@ -25,6 +25,7 @@ import {
   Pagination,
   UpdateAccountBookInput,
   AccountBookFlowRecordFilter,
+  AccountBookTagFilter,
 } from '../graphql';
 import { GraphqlEntity } from '../types';
 import { decodeId, encodeId, EntityName } from '../utils';
@@ -205,13 +206,21 @@ export class AccountBookResolver {
   @ResolveField()
   async tags(
     @Parent() parent: GraphqlEntity<AccountBookEntity>,
+    @Args('filter') filter?: AccountBookTagFilter,
     @Args('pagination') pagination?: Pagination,
   ) {
     const parentId = decodeId(EntityName.ACCOUNT_BOOK, parent.id);
 
+    const { categoryId } = filter || {};
+
     const { total, data } =
       await this.tagService.findAllByAccountBookIdAndPagination(
         parentId,
+        {
+          ...(categoryId && {
+            categoryId: decodeId(EntityName.CATEGORY, categoryId),
+          }),
+        },
         pagination,
       );
 

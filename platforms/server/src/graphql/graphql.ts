@@ -30,6 +30,10 @@ export enum DateGroupBy {
     DAY = "DAY"
 }
 
+export interface AccountBookTagFilter {
+    categoryId?: Nullable<string>;
+}
+
 export interface AccountBookFlowRecordFilter {
     traderId?: Nullable<string>;
     tagId?: Nullable<string>;
@@ -101,8 +105,7 @@ export interface CreateFlowRecordInput {
     dealAt: Date;
     amount: number;
     savingAccountId: string;
-    tagIds: string[];
-    categoryId: string;
+    tagId: string;
     traderId: string;
 }
 
@@ -112,8 +115,7 @@ export interface UpdateFlowRecordInput {
     dealAt?: Nullable<Date>;
     amount?: Nullable<number>;
     savingAccountId?: Nullable<string>;
-    tagIds?: Nullable<string[]>;
-    categoryId?: Nullable<string>;
+    tagId?: Nullable<string>;
     traderId?: Nullable<string>;
 }
 
@@ -139,20 +141,20 @@ export interface UpdateSavingAccountInput {
 
 export interface TagFlowRecordFilter {
     savingAccountId?: Nullable<string>;
-    categoryId?: Nullable<string>;
     traderId?: Nullable<string>;
 }
 
 export interface CreateTagInput {
     name: string;
     desc?: Nullable<string>;
-    accountBookId: string;
+    categoryId: string;
 }
 
 export interface UpdateTagInput {
     id: string;
     name?: Nullable<string>;
     desc?: Nullable<string>;
+    categoryId?: Nullable<string>;
 }
 
 export interface SignUpUserInput {
@@ -204,12 +206,12 @@ export interface AccountBook extends EntityDateTime {
     updatedBy: User;
     savingAccounts: SavingAccountListWithPagintion;
     savingAccount: SavingAccount;
+    categories: CategoryListWithPagintion;
+    category: Category;
     tags?: Nullable<TagListWithPagintion>;
     tag: Tag;
     flowRecords: FlowRecordListWithPagintion;
     flowRecord: FlowRecord;
-    categories: CategoryListWithPagintion;
-    category: Category;
     statistics: AccountBookStatistics;
 }
 
@@ -229,8 +231,8 @@ export interface IMutation {
     createTag(tag: CreateTagInput): Tag | Promise<Tag>;
     updateTag(tag: UpdateTagInput): Tag | Promise<Tag>;
     deleteTag(id: string): boolean | Promise<boolean>;
-    signIn(user: SignInUserInput): User | Promise<User>;
-    signUp(user: SignUpUserInput): User | Promise<User>;
+    signIn(user: SignInUserInput): DetailUser | Promise<DetailUser>;
+    signUp(user: SignUpUserInput): DetailUser | Promise<DetailUser>;
 }
 
 export interface FlowRecordTotalAmountPerUser {
@@ -261,11 +263,14 @@ export interface Category extends EntityDateTime {
     name: string;
     desc?: Nullable<string>;
     type: CategoryType;
+    order: number;
     accountBook: AccountBook;
     createdAt: DateTime;
     createdBy: User;
     updatedAt: DateTime;
     updatedBy: User;
+    tags?: Nullable<TagListWithPagintion>;
+    tag: Tag;
     flowRecords: FlowRecordListWithPagintion;
     flowRecord: FlowRecord;
     statistics: CategoryStatistics;
@@ -297,8 +302,7 @@ export interface FlowRecord extends EntityDateTime {
     amount: number;
     accountBook: AccountBook;
     savingAccount: SavingAccount;
-    tags: Tag[];
-    category: Category;
+    tag: Tag;
 }
 
 export interface IQuery {
@@ -317,6 +321,7 @@ export interface SavingAccount extends EntityDateTime {
     id: string;
     name: string;
     desc?: Nullable<string>;
+    order: number;
     createdAt: DateTime;
     createdBy: User;
     updatedAt: DateTime;
@@ -336,11 +341,13 @@ export interface Tag extends EntityDateTime {
     id: string;
     name: string;
     desc?: Nullable<string>;
+    order: number;
     createdAt: DateTime;
     createdBy: User;
     updatedAt: DateTime;
     updatedBy: User;
     accountBook: AccountBook;
+    category: Category;
     flowRecords: FlowRecordListWithPagintion;
     flowRecord: FlowRecord;
 }

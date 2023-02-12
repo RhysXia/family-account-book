@@ -8,10 +8,9 @@ import {
 import { FlowRecordEntity } from '../../entity/FlowRecordEntity';
 import { UserEntity } from '../../entity/UserEntity';
 import { FlowRecordService } from '../../service/FlowRecordService';
-import { TagService } from '../../service/TagService';
 import { AccountBookDataLoader } from '../dataloader/AccountBookDataLoader';
-import { CategoryDataLoader } from '../dataloader/CategoryDataLoader';
 import { SavingAccountDataLoader } from '../dataloader/SavingAccountDataLoader';
+import { TagDataLoader } from '../dataloader/TagDataLoader';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
 import { CreateFlowRecordInput, UpdateFlowRecordInput } from '../graphql';
@@ -25,9 +24,8 @@ export class FlowRecordResolver {
     private readonly userDataLoader: UserDataLoader,
     private readonly accountBookDataLoader: AccountBookDataLoader,
     private readonly savingAccountDataLoader: SavingAccountDataLoader,
-    private readonly categoryDataLoader: CategoryDataLoader,
+    private readonly tagDataLoader: TagDataLoader,
     private readonly flowRecordService: FlowRecordService,
-    private readonly tagService: TagService,
   ) {}
 
   @ResolveField()
@@ -89,28 +87,10 @@ export class FlowRecordResolver {
   }
 
   @ResolveField()
-  async category(@Parent() parent: GraphqlEntity<FlowRecordEntity>) {
-    const category =
-      parent.category ||
-      (await this.categoryDataLoader.load(parent.categoryId));
+  async tag(@Parent() parent: GraphqlEntity<FlowRecordEntity>) {
+    const tag = parent.tag || (await this.tagDataLoader.load(parent.tagId));
 
-    return category
-      ? {
-          ...category,
-          id: encodeId(EntityName.CATEGORY, parent.categoryId),
-        }
-      : null;
-  }
-
-  @ResolveField()
-  async tags(@Parent() parent: GraphqlEntity<FlowRecordEntity>) {
-    const tags =
-      parent.tags ||
-      (await this.tagService.findAllByFlowRecordId(
-        decodeId(EntityName.FLOW_RECORD, parent.id),
-      ));
-
-    return tags.map((it) => ({ ...it, id: encodeId(EntityName.TAG, it.id) }));
+    return tag;
   }
 
   @Mutation()
@@ -118,8 +98,7 @@ export class FlowRecordResolver {
     @CurrentUser({ required: true }) currentUser: UserEntity,
     @Args('flowRecord') flowRecord: CreateFlowRecordInput,
   ) {
-    const { savingAccountId, tagIds, categoryId, traderId, desc, ...others } =
-      flowRecord;
+    const { savingAccountId, tagId, traderId, desc, ...others } = flowRecord;
 
     const entity = await this.flowRecordService.create(
       {
@@ -129,8 +108,7 @@ export class FlowRecordResolver {
         }),
         traderId: getUserId(traderId),
         savingAccountId: decodeId(EntityName.SAVING_ACCOUNT, savingAccountId),
-        categoryId: decodeId(EntityName.CATEGORY, categoryId),
-        tagIds: tagIds.map((it) => decodeId(EntityName.TAG, it)),
+        tagId: decodeId(EntityName.TAG, tagId),
       },
       currentUser,
     );
@@ -146,16 +124,8 @@ export class FlowRecordResolver {
     @CurrentUser({ required: true }) currentUser: UserEntity,
     @Args('flowRecord') flowRecord: UpdateFlowRecordInput,
   ) {
-    const {
-      id,
-      savingAccountId,
-      tagIds,
-      categoryId,
-      traderId,
-      desc,
-      dealAt,
-      amount,
-    } = flowRecord;
+    const { id, savingAccountId, tagId, traderId, desc, dealAt, amount } =
+      flowRecord;
 
     const entity = await this.flowRecordService.update(
       decodeId(EntityName.FLOW_RECORD, id),
@@ -175,11 +145,8 @@ export class FlowRecordResolver {
         ...(savingAccountId && {
           savingAccountId: decodeId(EntityName.SAVING_ACCOUNT, savingAccountId),
         }),
-        ...(categoryId && {
-          categoryId: decodeId(EntityName.CATEGORY, categoryId),
-        }),
-        ...(tagIds && {
-          tagIds: tagIds.map((it) => decodeId(EntityName.TAG, it)),
+        ...(tagId && {
+          categoryId: decodeId(EntityName.TAG, tagId),
         }),
       },
       currentUser,

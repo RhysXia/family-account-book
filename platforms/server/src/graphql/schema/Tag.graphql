@@ -5,15 +5,14 @@ type TagListWithPagintion {
 
 input TagFlowRecordFilter {
   savingAccountId: ID
-  categoryId: ID
   traderId: ID
 }
 
 type Tag implements EntityDateTime {
   id: ID!
   name: String!
-
   desc: String
+  order: Int!
 
   createdAt: DateTime!
   createdBy: User!
@@ -22,6 +21,8 @@ type Tag implements EntityDateTime {
   updatedBy: User!
 
   accountBook: AccountBook!
+
+  category: Category!
 
   flowRecords(
     filter: TagFlowRecordFilter
@@ -33,13 +34,14 @@ type Tag implements EntityDateTime {
 input CreateTagInput {
   name: String!
   desc: String
-  accountBookId: String!
+  categoryId: ID!
 }
 
 input UpdateTagInput {
   id: ID!
   name: String
   desc: String
+  categoryId: ID
 }
 
 type Mutation {

@@ -77,21 +77,25 @@ export class AccountBookService {
       .where('flowRecord.accountBookId = :accountBookId', { accountBookId })
       .orderBy('deal_at', 'ASC');
 
-    if (categoryId) {
-      qb.andWhere('flowRecord.categoryId = :categoryId', { categoryId });
-    }
-
-    if (categoryType) {
-      qb.leftJoin('flowRecord.category', 'category').andWhere(
-        'category.categoryType = :categoryType',
-        { categoryType },
-      );
-    }
-
     if (tagId) {
-      qb.leftJoin('flowRecord.tags', 'tag').andWhere('tag.id = :tagId', {
+      qb.andWhere('flowRecord.tagId = :tagId', {
         tagId,
       });
+    }
+
+    if (categoryId || categoryType) {
+      qb.leftJoin('flowRecord.tag', 'tag');
+
+      if (categoryId) {
+        qb.andWhere('tag.categoryId = :categoryId', { categoryId });
+      }
+
+      if (categoryType) {
+        qb.leftJoin('tag.category', 'category').andWhere(
+          'category.type = :categoryType',
+          { categoryType },
+        );
+      }
     }
 
     if (savingAccountId) {
@@ -183,21 +187,25 @@ export class AccountBookService {
       .groupBy('trader.id')
       .where('flowRecord.accountBookId = :accountBookId', { accountBookId });
 
-    if (categoryId) {
-      qb.andWhere('flowRecord.categoryId = :categoryId', { categoryId });
-    }
-
-    if (categoryType) {
-      qb.leftJoin('flowRecord.category', 'category').andWhere(
-        'category.categoryType = :categoryType',
-        { categoryType },
-      );
-    }
-
     if (tagId) {
-      qb.leftJoin('flowRecord.tags', 'tag').andWhere('tag.id = :tagId', {
+      qb.andWhere('flowRecord.tagId = :tagId', {
         tagId,
       });
+    }
+
+    if (categoryId || categoryType) {
+      qb.leftJoin('flowRecord.tag', 'tag');
+
+      if (categoryId) {
+        qb.andWhere('tag.categoryId = :categoryId', { categoryId });
+      }
+
+      if (categoryType) {
+        qb.leftJoin('tag.category', 'category').andWhere(
+          'category.type = :categoryType',
+          { categoryType },
+        );
+      }
     }
 
     if (savingAccountId) {
@@ -286,21 +294,25 @@ export class AccountBookService {
       .where('flowRecord.accountBookId = :accountBookId', { accountBookId })
       .orderBy('deal_at', 'ASC');
 
-    if (categoryId) {
-      qb.andWhere('flowRecord.categoryId = :categoryId', { categoryId });
-    }
-
-    if (categoryType) {
-      qb.leftJoin('flowRecord.category', 'category').andWhere(
-        'category.categoryType = :categoryType',
-        { categoryType },
-      );
-    }
-
     if (tagId) {
-      qb.leftJoin('flowRecord.tags', 'tag').andWhere('tag.id = :tagId', {
+      qb.andWhere('flowRecord.tagId = :tagId', {
         tagId,
       });
+    }
+
+    if (categoryId || categoryType) {
+      qb.leftJoin('flowRecord.tag', 'tag');
+
+      if (categoryId) {
+        qb.andWhere('tag.categoryId = :categoryId', { categoryId });
+      }
+
+      if (categoryType) {
+        qb.leftJoin('tag.category', 'category').andWhere(
+          'category.type = :categoryType',
+          { categoryType },
+        );
+      }
     }
 
     if (savingAccountId) {
@@ -360,21 +372,25 @@ export class AccountBookService {
       .select('SUM(flowRecord.amount)', 'totalAmount')
       .where('flowRecord.accountBookId = :accountBookId', { accountBookId });
 
-    if (categoryId) {
-      qb.andWhere('flowRecord.categoryId = :categoryId', { categoryId });
-    }
-
-    if (categoryType) {
-      qb.leftJoin('flowRecord.category', 'category').andWhere(
-        'category.categoryType = :categoryType',
-        { categoryType },
-      );
-    }
-
     if (tagId) {
-      qb.leftJoin('flowRecord.tags', 'tag').andWhere('tag.id = :tagId', {
+      qb.andWhere('flowRecord.tagId = :tagId', {
         tagId,
       });
+    }
+
+    if (categoryId || categoryType) {
+      qb.leftJoin('flowRecord.tag', 'tag');
+
+      if (categoryId) {
+        qb.andWhere('tag.categoryId = :categoryId', { categoryId });
+      }
+
+      if (categoryType) {
+        qb.leftJoin('tag.category', 'category').andWhere(
+          'category.type = :categoryType',
+          { categoryType },
+        );
+      }
     }
 
     if (savingAccountId) {

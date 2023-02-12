@@ -64,7 +64,7 @@ const AmountCard: FC<AmountCardProps> = ({ category }) => {
       {totalAmountPerTraderData?.map((it) => (
         <div key={it.trader.id}>
           {it.trader.nickname}:
-          {(category.type === CategoryType.NEGATIVE_AMOUNT && it.amount < 0
+          {(category.type === CategoryType.EXPENDITURE && it.amount < 0
             ? -it.amount
             : it.amount
           ).toLocaleString('zh-CN', {
@@ -80,7 +80,7 @@ const AmountCard: FC<AmountCardProps> = ({ category }) => {
     <IndicatorCard
       title={category.name}
       tips={`月度${category.name}统计`}
-      value={(category.type === CategoryType.NEGATIVE_AMOUNT &&
+      value={(category.type === CategoryType.EXPENDITURE &&
       currentMonthAmount < 0
         ? -currentMonthAmount
         : currentMonthAmount

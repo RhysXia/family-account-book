@@ -1,18 +1,10 @@
-import {
-  Column,
-  Entity,
-  JoinTable,
-  ManyToMany,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { AbstractTimestampEntity } from './abstract/AbstractTimestampEntity';
 import { AccountBookEntity } from './AccountBookEntity';
 import { UserEntity } from './UserEntity';
 import { SavingAccountEntity } from './SavingAccountEntity';
 import { TagEntity } from './TagEntity';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
-import { CategoryEntity } from './CategoryEntity';
 
 /**
  * 流水记录
@@ -54,25 +46,10 @@ export class FlowRecordEntity extends AbstractTimestampEntity {
   @Column()
   traderId!: number;
 
-  @ManyToMany(() => TagEntity, (tag) => tag.id)
-  @JoinTable({
-    name: 'relation_tag_flow_record',
-    joinColumn: {
-      name: 'flowRecordId',
-    },
-    inverseJoinColumn: {
-      name: 'tagId',
-    },
-  })
-  tags!: Array<TagEntity>;
-
-  /**
-   * 所属分类
-   */
-  @ManyToOne(() => CategoryEntity, { nullable: false })
-  category!: CategoryEntity;
+  @ManyToOne(() => TagEntity, { nullable: false })
+  tag!: TagEntity;
   @Column()
-  categoryId!: number;
+  tagId!: number;
 
   /**
    * 支付或者收入渠道

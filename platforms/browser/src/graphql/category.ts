@@ -25,7 +25,7 @@ export const GET_CATEGORY_LIST_BY_ACCOUNT_BOOK_ID = gql`
             name
             type
             desc
-            creator {
+            createdBy {
               id
               nickname
               username
@@ -54,7 +54,7 @@ export const useGetCategoryListByAccountBookId = (variables: {
     node: {
       categories: PaginationResult<
         Category & {
-          creator: User;
+          createdBy: User;
         }
       >;
     };
@@ -84,7 +84,7 @@ export const GET_CATEGORY_LIST_WITH_TAG_LIST_BY_ACCOUNT_BOOK_ID = gql`
             name
             type
             desc
-            creator {
+            createdBy {
               id
               nickname
               username
@@ -113,7 +113,7 @@ export const useGetCategoryListWithTagListByAccountBookId = (variables: {
     node: {
       categories: PaginationResult<
         Category & {
-          creator: User;
+          createdBy: User;
         } & {
           tags: PaginationResult<Tag>;
         }
