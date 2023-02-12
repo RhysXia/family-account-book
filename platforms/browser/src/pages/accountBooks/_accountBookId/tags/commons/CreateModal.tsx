@@ -19,6 +19,18 @@ const CreateModal: FC<CreateModalProps> = ({ visible, onChange }) => {
 
   const { data: categoryData } = useGetCategoryListByAccountBookId({
     accountBookId: activeAccountBook!.id,
+    pagination: {
+      orderBy: [
+        {
+          field: 'order',
+          direction: 'DESC',
+        },
+        {
+          field: 'createdAt',
+          direction: 'DESC',
+        },
+      ],
+    },
   });
 
   const handleOk = useCallback(async () => {

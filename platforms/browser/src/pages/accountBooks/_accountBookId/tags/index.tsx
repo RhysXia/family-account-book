@@ -28,8 +28,12 @@ const TagPage = () => {
     pagination: {
       orderBy: [
         {
-          field: 'type',
-          direction: 'ASC',
+          field: 'order',
+          direction: 'DESC',
+        },
+        {
+          field: 'createdAt',
+          direction: 'DESC',
         },
       ],
     },
@@ -58,6 +62,10 @@ const TagPage = () => {
       limit,
       offset,
       orderBy: [
+        {
+          field: 'order',
+          direction: 'DESC',
+        },
         {
           field: 'createdAt',
           direction: 'DESC',

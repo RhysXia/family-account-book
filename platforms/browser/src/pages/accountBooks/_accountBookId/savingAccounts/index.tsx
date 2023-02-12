@@ -32,6 +32,10 @@ const SavingAccountPage = () => {
       offset,
       orderBy: [
         {
+          field: 'order',
+          direction: 'DESC',
+        },
+        {
           field: 'createdAt',
           direction: 'DESC',
         },

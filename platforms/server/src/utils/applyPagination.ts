@@ -25,10 +25,7 @@ export const applyPagination = <T>(
   }
 
   orderBy.forEach((order, index) => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-
-    builder[index > 0 ? 'andOrderBy' : 'orderBy'](
+    builder[index > 0 ? 'addOrderBy' : 'orderBy'](
       `${tableName}.${order.field}`,
       order.direction,
     );
