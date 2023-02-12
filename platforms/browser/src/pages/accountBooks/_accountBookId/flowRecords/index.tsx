@@ -172,8 +172,8 @@ const Index = () => {
                 formatter={(v) => `¥ ${v}`}
                 precision={2}
                 value={value.amount}
-                min={type === CategoryType.POSITIVE_AMOUNT ? 0.01 : undefined}
-                max={type === CategoryType.NEGATIVE_AMOUNT ? -0.01 : undefined}
+                min={type === CategoryType.INCOME ? 0.01 : undefined}
+                max={type === CategoryType.EXPENDITURE ? -0.01 : undefined}
                 onChange={(v) => onChange({ ...value, amount: v })}
               />
             );
@@ -329,12 +329,9 @@ const Index = () => {
       tag,
       trader,
     }: FlowRecordDetail) => {
-      if (tag.category.type === CategoryType.NEGATIVE_AMOUNT && amount >= 0) {
+      if (tag.category.type === CategoryType.EXPENDITURE && amount >= 0) {
         throw new Error('标签要求流水不能为正');
-      } else if (
-        tag.category.type === CategoryType.POSITIVE_AMOUNT &&
-        amount <= 0
-      ) {
+      } else if (tag.category.type === CategoryType.INCOME && amount <= 0) {
         throw new Error('标签要求流水不能为负');
       }
 

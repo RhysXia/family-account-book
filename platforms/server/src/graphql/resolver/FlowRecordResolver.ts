@@ -24,8 +24,8 @@ export class FlowRecordResolver {
     private readonly userDataLoader: UserDataLoader,
     private readonly accountBookDataLoader: AccountBookDataLoader,
     private readonly savingAccountDataLoader: SavingAccountDataLoader,
-    private readonly flowRecordService: FlowRecordService,
     private readonly tagDataLoader: TagDataLoader,
+    private readonly flowRecordService: FlowRecordService,
   ) {}
 
   @ResolveField()
@@ -39,22 +39,22 @@ export class FlowRecordResolver {
   }
 
   @ResolveField()
-  async creator(@Parent() parent: GraphqlEntity<FlowRecordEntity>) {
-    const creator =
-      parent.creator || (await this.userDataLoader.load(parent.creatorId));
+  async createdBy(@Parent() parent: GraphqlEntity<FlowRecordEntity>) {
+    const createdBy =
+      parent.createdBy || (await this.userDataLoader.load(parent.createdById));
 
-    return creator
-      ? { ...creator, id: encodeId(EntityName.USER, parent.creatorId) }
+    return createdBy
+      ? { ...createdBy, id: encodeId(EntityName.USER, parent.createdById) }
       : null;
   }
 
   @ResolveField()
-  async updater(@Parent() parent: GraphqlEntity<FlowRecordEntity>) {
-    const updater =
-      parent.updater || (await this.userDataLoader.load(parent.updaterId));
+  async updatedBy(@Parent() parent: GraphqlEntity<FlowRecordEntity>) {
+    const updatedBy =
+      parent.updatedBy || (await this.userDataLoader.load(parent.updatedById));
 
-    return updater
-      ? { ...updater, id: encodeId(EntityName.USER, parent.updaterId) }
+    return updatedBy
+      ? { ...updatedBy, id: encodeId(EntityName.USER, parent.updatedById) }
       : null;
   }
 
@@ -90,7 +90,7 @@ export class FlowRecordResolver {
   async tag(@Parent() parent: GraphqlEntity<FlowRecordEntity>) {
     const tag = parent.tag || (await this.tagDataLoader.load(parent.tagId));
 
-    return tag ? { ...tag, id: encodeId(EntityName.TAG, parent.tagId) } : null;
+    return tag;
   }
 
   @Mutation()
@@ -127,36 +127,28 @@ export class FlowRecordResolver {
     const { id, savingAccountId, tagId, traderId, desc, dealAt, amount } =
       flowRecord;
 
-    const updatedFlowRecord: Partial<FlowRecordEntity> = {};
-
-    if (desc) {
-      updatedFlowRecord.desc = desc;
-    }
-    if (dealAt) {
-      updatedFlowRecord.dealAt = dealAt;
-    }
-    if (amount) {
-      updatedFlowRecord.amount = amount;
-    }
-
-    if (traderId) {
-      updatedFlowRecord.traderId = getUserId(traderId);
-    }
-
-    if (savingAccountId) {
-      updatedFlowRecord.savingAccountId = decodeId(
-        EntityName.SAVING_ACCOUNT,
-        savingAccountId,
-      );
-    }
-
-    if (tagId) {
-      updatedFlowRecord.tagId = decodeId(EntityName.TAG, tagId);
-    }
-
     const entity = await this.flowRecordService.update(
       decodeId(EntityName.FLOW_RECORD, id),
-      updatedFlowRecord,
+      {
+        ...(desc && {
+          desc,
+        }),
+        ...(dealAt && {
+          dealAt,
+        }),
+        ...(amount && {
+          amount,
+        }),
+        ...(traderId && {
+          traderId: getUserId(traderId),
+        }),
+        ...(savingAccountId && {
+          savingAccountId: decodeId(EntityName.SAVING_ACCOUNT, savingAccountId),
+        }),
+        ...(tagId && {
+          categoryId: decodeId(EntityName.TAG, tagId),
+        }),
+      },
       currentUser,
     );
     return {

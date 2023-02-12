@@ -2,7 +2,6 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 import { AbstractTimestampEntity } from './abstract/AbstractTimestampEntity';
 import { AccountBookEntity } from './AccountBookEntity';
-import { UserEntity } from './UserEntity';
 
 /**
  * 储蓄账户
@@ -28,23 +27,10 @@ export class SavingAccountEntity extends AbstractTimestampEntity {
     nullable: false,
     transformer: new ColumnNumericTransformer(),
   })
-  initialAmount!: number;
+  amount!: number;
 
-  /**
-   * 创建人
-   */
-  @ManyToOne(() => UserEntity, { nullable: false })
-  creator!: UserEntity;
-  @Column()
-  creatorId!: number;
-
-  /**
-   * 修改人
-   */
-  @ManyToOne(() => UserEntity, { nullable: false })
-  updater!: UserEntity;
-  @Column()
-  updaterId!: number;
+  @Column({ nullable: false })
+  order!: number;
 
   /**
    * 所属账本

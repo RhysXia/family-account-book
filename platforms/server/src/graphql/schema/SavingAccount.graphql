@@ -5,6 +5,7 @@ type SavingAccountListWithPagintion {
 
 input SavingAccountFlowRecordFilter {
   tagId: ID
+  categoryId: ID
   traderId: ID
 }
 
@@ -12,23 +13,20 @@ type SavingAccount implements EntityDateTime {
   id: ID!
   name: String!
   desc: String
+  order: Int!
+
   createdAt: DateTime!
+  createdBy: User!
+
   updatedAt: DateTime!
+  updatedBy: User!
 
   """
   余额
   """
   amount: Float!
 
-  creator: User!
-  updater: User!
-
   accountBook: AccountBook!
-
-  getHistoriesByDate(
-    startDate: DateTime
-    endDate: DateTime
-  ): [SavingAccountHistory!]!
 
   flowRecords(
     filter: SavingAccountFlowRecordFilter

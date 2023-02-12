@@ -3,7 +3,6 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
-  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { AbstractTimestampEntity } from './abstract/AbstractTimestampEntity';
@@ -23,21 +22,11 @@ export class AccountBookEntity extends AbstractTimestampEntity {
   @Column({ nullable: true })
   desc?: string;
 
-  @ManyToOne(() => UserEntity, { nullable: false })
-  creator!: UserEntity;
-  @Column()
-  creatorId!: number;
-
-  @ManyToOne(() => UserEntity, { nullable: false })
-  updater!: UserEntity;
-  @Column()
-  updaterId!: number;
-
   // 管理员
   @ManyToMany(() => UserEntity)
   @JoinTable({
-    name: 'project_admin',
-    joinColumn: { name: 'project_id' },
+    name: 'relation_accountbook_admin',
+    joinColumn: { name: 'accountbook_id' },
     inverseJoinColumn: { name: 'admin_id' },
   })
   admins!: Array<UserEntity>;
@@ -45,8 +34,8 @@ export class AccountBookEntity extends AbstractTimestampEntity {
   // 账本普通成员
   @ManyToMany(() => UserEntity)
   @JoinTable({
-    name: 'project_member',
-    joinColumn: { name: 'project_id' },
+    name: 'relation_accountbook_member',
+    joinColumn: { name: 'accountbook_id' },
     inverseJoinColumn: { name: 'member_id' },
   })
   members!: Array<UserEntity>;

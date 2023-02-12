@@ -4,8 +4,6 @@ import { AccountBookEntity } from '../entity/AccountBookEntity';
 import { CategoryEntity, CategoryType } from '../entity/CategoryEntity';
 import { FlowRecordEntity } from '../entity/FlowRecordEntity';
 import { SavingAccountEntity } from '../entity/SavingAccountEntity';
-import { SavingAccountHistoryEntity } from '../entity/SavingAccountHistoryEntity';
-import { SavingAccountTransferRecordEntity } from '../entity/SavingAccountTransferRecordEntity';
 import { TagEntity } from '../entity/TagEntity';
 import { UserEntity } from '../entity/UserEntity';
 import { ResourceNotFoundException } from '../exception/ServiceException';
@@ -23,10 +21,12 @@ export class AccountBookService {
       savingAccountId,
       categoryId,
       categoryType,
+      tagId,
     }: {
       endDate?: Date;
       startDate?: Date;
       savingAccountId?: number;
+      tagId?: number;
       categoryId?: number;
       categoryType?: CategoryType;
     },
@@ -77,19 +77,23 @@ export class AccountBookService {
       .where('flowRecord.accountBookId = :accountBookId', { accountBookId })
       .orderBy('deal_at', 'ASC');
 
+    if (tagId) {
+      qb.andWhere('flowRecord.tagId = :tagId', {
+        tagId,
+      });
+    }
+
     if (categoryId || categoryType) {
       qb.leftJoin('flowRecord.tag', 'tag');
 
       if (categoryId) {
-        qb.andWhere('tag.categoryId = :categoryId', {
-          categoryId,
-        });
-      } else {
+        qb.andWhere('tag.categoryId = :categoryId', { categoryId });
+      }
+
+      if (categoryType) {
         qb.leftJoin('tag.category', 'category').andWhere(
           'category.type = :categoryType',
-          {
-            categoryType,
-          },
+          { categoryType },
         );
       }
     }
@@ -150,10 +154,12 @@ export class AccountBookService {
       savingAccountId,
       categoryId,
       categoryType,
+      tagId,
     }: {
       endDate?: Date;
       startDate?: Date;
       savingAccountId?: number;
+      tagId?: number;
       categoryId?: number;
       categoryType?: CategoryType;
     },
@@ -181,19 +187,23 @@ export class AccountBookService {
       .groupBy('trader.id')
       .where('flowRecord.accountBookId = :accountBookId', { accountBookId });
 
+    if (tagId) {
+      qb.andWhere('flowRecord.tagId = :tagId', {
+        tagId,
+      });
+    }
+
     if (categoryId || categoryType) {
       qb.leftJoin('flowRecord.tag', 'tag');
 
       if (categoryId) {
-        qb.andWhere('tag.categoryId = :categoryId', {
-          categoryId,
-        });
-      } else {
+        qb.andWhere('tag.categoryId = :categoryId', { categoryId });
+      }
+
+      if (categoryType) {
         qb.leftJoin('tag.category', 'category').andWhere(
           'category.type = :categoryType',
-          {
-            categoryType,
-          },
+          { categoryType },
         );
       }
     }
@@ -246,11 +256,13 @@ export class AccountBookService {
       traderId,
       savingAccountId,
       categoryType,
+      tagId,
     }: {
       startDate?: Date;
       endDate?: Date;
       categoryId?: number;
       traderId?: number;
+      tagId?: number;
       savingAccountId?: number;
       categoryType?: CategoryType;
     },
@@ -282,19 +294,23 @@ export class AccountBookService {
       .where('flowRecord.accountBookId = :accountBookId', { accountBookId })
       .orderBy('deal_at', 'ASC');
 
+    if (tagId) {
+      qb.andWhere('flowRecord.tagId = :tagId', {
+        tagId,
+      });
+    }
+
     if (categoryId || categoryType) {
       qb.leftJoin('flowRecord.tag', 'tag');
 
       if (categoryId) {
-        qb.andWhere('tag.categoryId = :categoryId', {
-          categoryId,
-        });
-      } else {
+        qb.andWhere('tag.categoryId = :categoryId', { categoryId });
+      }
+
+      if (categoryType) {
         qb.leftJoin('tag.category', 'category').andWhere(
           'category.type = :categoryType',
-          {
-            categoryType,
-          },
+          { categoryType },
         );
       }
     }
@@ -339,12 +355,14 @@ export class AccountBookService {
       traderId,
       savingAccountId,
       categoryType,
+      tagId,
     }: {
       startDate?: Date;
       endDate?: Date;
       categoryId?: number;
       traderId?: number;
       savingAccountId?: number;
+      tagId?: number;
       categoryType?: CategoryType;
     },
     accountBookId: number,
@@ -354,22 +372,27 @@ export class AccountBookService {
       .select('SUM(flowRecord.amount)', 'totalAmount')
       .where('flowRecord.accountBookId = :accountBookId', { accountBookId });
 
+    if (tagId) {
+      qb.andWhere('flowRecord.tagId = :tagId', {
+        tagId,
+      });
+    }
+
     if (categoryId || categoryType) {
       qb.leftJoin('flowRecord.tag', 'tag');
 
       if (categoryId) {
-        qb.andWhere('tag.categoryId = :categoryId', {
-          categoryId,
-        });
-      } else {
+        qb.andWhere('tag.categoryId = :categoryId', { categoryId });
+      }
+
+      if (categoryType) {
         qb.leftJoin('tag.category', 'category').andWhere(
           'category.type = :categoryType',
-          {
-            categoryType,
-          },
+          { categoryType },
         );
       }
     }
+
     if (savingAccountId) {
       qb.andWhere('flowRecord.savingAccountId = :savingAccountId', {
         savingAccountId,
@@ -413,9 +436,8 @@ export class AccountBookService {
 
   async delete(id: number, user: UserEntity) {
     return this.dataSource.transaction(async (manager) => {
-      let accountBook: AccountBookEntity;
       try {
-        accountBook = await manager.findOneOrFail(AccountBookEntity, {
+        await manager.findOneOrFail(AccountBookEntity, {
           where: {
             id,
             admins: {
@@ -427,61 +449,23 @@ export class AccountBookService {
         throw new ResourceNotFoundException('账本不存在');
       }
 
-      await manager
-        .createQueryBuilder()
-        .delete()
-        .from(SavingAccountTransferRecordEntity)
-        .where('accountBookId = :accountBookId', {
-          accountBookId: id,
-        })
-        .execute();
+      await manager.delete(FlowRecordEntity, {
+        accountBookId: id,
+      });
 
-      await manager
-        .createQueryBuilder()
-        .delete()
-        .from(FlowRecordEntity)
-        .where('accountBookId = :accountBookId', {
-          accountBookId: id,
-        })
-        .execute();
+      await manager.delete(SavingAccountEntity, {
+        accountBookId: id,
+      });
 
-      await manager
-        .createQueryBuilder()
-        .delete()
-        .from(SavingAccountHistoryEntity)
-        .where('accountBookId = :accountBookId', {
-          accountBookId: id,
-        })
-        .execute();
+      await manager.delete(TagEntity, {
+        accountBookId: id,
+      });
 
-      await manager
-        .createQueryBuilder()
-        .delete()
-        .from(SavingAccountEntity)
-        .where('accountBookId = :accountBookId', {
-          accountBookId: id,
-        })
-        .execute();
+      await manager.delete(CategoryEntity, {
+        accountBookId: id,
+      });
 
-      await manager
-        .createQueryBuilder()
-        .delete()
-        .from(TagEntity)
-        .where('accountBookId = :accountBookId', {
-          accountBookId: id,
-        })
-        .execute();
-
-      await manager
-        .createQueryBuilder()
-        .delete()
-        .from(CategoryEntity)
-        .where('accountBookId = :accountBookId', {
-          accountBookId: id,
-        })
-        .execute();
-
-      return manager.remove(accountBook);
+      return manager.delete(AccountBookEntity, { id });
     });
   }
 
@@ -601,8 +585,8 @@ export class AccountBookService {
       const accountBook = new AccountBookEntity();
       accountBook.name = accountBookInput.name;
       accountBook.desc = accountBookInput.desc;
-      accountBook.creator = author;
-      accountBook.updater = author;
+      accountBook.createdBy = author;
+      accountBook.updatedBy = author;
       accountBook.admins = admins;
       accountBook.members = members;
 
@@ -638,7 +622,7 @@ export class AccountBookService {
         throw new ResourceNotFoundException('账本不存在');
       }
 
-      accountBook.updater = user;
+      accountBook.updatedBy = user;
 
       if (name) {
         accountBook.name = name;

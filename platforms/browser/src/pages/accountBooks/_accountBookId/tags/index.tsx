@@ -186,7 +186,7 @@ const TagPage = () => {
     },
     {
       title: '创建人',
-      dataIndex: 'creator.nickname',
+      dataIndex: 'createdBy.nickname',
       style: {
         minWidth: '10%',
       },

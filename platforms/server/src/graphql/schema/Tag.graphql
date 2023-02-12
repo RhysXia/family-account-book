@@ -11,18 +11,18 @@ input TagFlowRecordFilter {
 type Tag implements EntityDateTime {
   id: ID!
   name: String!
-
   desc: String
-
-  category: Category!
+  order: Int!
 
   createdAt: DateTime!
-  updatedAt: DateTime!
+  createdBy: User!
 
-  creator: User!
-  updater: User!
+  updatedAt: DateTime!
+  updatedBy: User!
 
   accountBook: AccountBook!
+
+  category: Category!
 
   flowRecords(
     filter: TagFlowRecordFilter

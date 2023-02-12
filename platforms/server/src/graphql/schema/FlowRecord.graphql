@@ -8,7 +8,10 @@ type FlowRecord implements EntityDateTime {
   desc: String
 
   createdAt: DateTime!
+  createdBy: User!
+
   updatedAt: DateTime!
+  updatedBy: User!
 
   """
   交易时间
@@ -16,9 +19,6 @@ type FlowRecord implements EntityDateTime {
   dealAt: Date!
 
   trader: User!
-
-  creator: User!
-  updater: User!
 
   amount: Float!
 

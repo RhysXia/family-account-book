@@ -39,12 +39,24 @@ export type SavingAccount = {
   amount: number;
 };
 
+/**
+ * 分类类型
+ */
 export enum CategoryType {
-  POSITIVE_AMOUNT = 'POSITIVE_AMOUNT',
-  NEGATIVE_AMOUNT = 'NEGATIVE_AMOUNT',
-  POSITIVE_OR_NEGATIVE_AMOUNT = 'POSITIVE_OR_NEGATIVE_AMOUNT',
-}
+  /**
+   * 收入
+   */
+  INCOME = 'INCOME',
+  /**
+   * 支出
+   */
+  EXPENDITURE = 'EXPENDITURE',
 
+  /**
+   * 不确定
+   */
+  UNKNOWN = 'UNKNOWN',
+}
 export interface Category {
   id: string;
   name: string;
@@ -68,8 +80,8 @@ export type FlowRecord = {
   createdAt: string;
   updatedAt: string;
   dealAt: string;
-  creator: User;
-  updater: User;
+  createdBy: User;
+  updatedBy: User;
   amount: number;
 };
 

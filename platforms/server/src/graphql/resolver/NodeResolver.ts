@@ -4,9 +4,7 @@ import { ResourceNotFoundException } from '../../exception/ServiceException';
 import { AccountBookService } from '../../service/AccountBookService';
 import { CategoryService } from '../../service/CategoryService';
 import { FlowRecordService } from '../../service/FlowRecordService';
-import { SavingAccountHistoryService } from '../../service/SavingAccountHistoryService';
 import { SavingAccountService } from '../../service/SavingAccountService';
-import { SavingAccountTransferRecordService } from '../../service/SavingAccountTransferRecordService';
 import { TagService } from '../../service/TagService';
 import { UserService } from '../../service/UserService';
 import CurrentUser from '../decorator/CurrentUser';
@@ -20,9 +18,7 @@ export class NodeResolver {
     private readonly flowRecordService: FlowRecordService,
     private readonly categoryService: CategoryService,
     private readonly tagService: TagService,
-    private readonly savingAccountHistoryService: SavingAccountHistoryService,
     private readonly userService: UserService,
-    private readonly savingAccountTransferRecordService: SavingAccountTransferRecordService,
   ) {}
 
   @ResolveField()
@@ -104,22 +100,8 @@ export class NodeResolver {
           p = this.tagService.findByIdsAndUserId(idArray, user.id);
           break;
         }
-        case EntityName.SAVING_ACCOUNT_HISTORY: {
-          p = this.savingAccountHistoryService.findByIdsAndUserId(
-            idArray,
-            user.id,
-          );
-          break;
-        }
         case EntityName.USER: {
           p = this.userService.findAllByIds(idArray);
-          break;
-        }
-        case EntityName.SAVING_ACCOUNT_TRANSFER_RECORD: {
-          p = this.savingAccountTransferRecordService.findByIdsAndUserId(
-            idArray,
-            user.id,
-          );
           break;
         }
       }

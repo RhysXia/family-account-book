@@ -9,9 +9,9 @@
 /* eslint-disable */
 
 export enum CategoryType {
-    POSITIVE_AMOUNT = "POSITIVE_AMOUNT",
-    NEGATIVE_AMOUNT = "NEGATIVE_AMOUNT",
-    POSITIVE_OR_NEGATIVE_AMOUNT = "POSITIVE_OR_NEGATIVE_AMOUNT"
+    INCOME = "INCOME",
+    EXPENDITURE = "EXPENDITURE",
+    UNKNOWN = "UNKNOWN"
 }
 
 export enum CacheControlScope {
@@ -37,15 +37,8 @@ export interface AccountBookTagFilter {
 export interface AccountBookFlowRecordFilter {
     traderId?: Nullable<string>;
     tagId?: Nullable<string>;
+    categoryId?: Nullable<string>;
     savingAccountId?: Nullable<string>;
-    startDealAt?: Nullable<Date>;
-    endDealAt?: Nullable<Date>;
-}
-
-export interface AccountBookSavingAccountTransferRecordFilter {
-    traderId?: Nullable<string>;
-    fromSavingAccountId?: Nullable<string>;
-    toSavingAccountId?: Nullable<string>;
     startDealAt?: Nullable<Date>;
     endDealAt?: Nullable<Date>;
 }
@@ -74,6 +67,7 @@ export interface FlowRecordTotalAmountFilter {
     categoryType?: Nullable<CategoryType>;
     traderId?: Nullable<string>;
     savingAccountId?: Nullable<string>;
+    tagId?: Nullable<string>;
     startDate?: Nullable<Date>;
     endDate?: Nullable<Date>;
 }
@@ -81,9 +75,16 @@ export interface FlowRecordTotalAmountFilter {
 export interface FlowRecordTotalAmountPerTraderFilter {
     categoryId?: Nullable<string>;
     categoryType?: Nullable<CategoryType>;
+    tagId?: Nullable<string>;
     savingAccountId?: Nullable<string>;
     startDate?: Nullable<Date>;
     endDate?: Nullable<Date>;
+}
+
+export interface CategoryFlowRecordFilter {
+    savingAccountId?: Nullable<string>;
+    tagId?: Nullable<string>;
+    traderId?: Nullable<string>;
 }
 
 export interface CreateCategoryInput {
@@ -120,6 +121,7 @@ export interface UpdateFlowRecordInput {
 
 export interface SavingAccountFlowRecordFilter {
     tagId?: Nullable<string>;
+    categoryId?: Nullable<string>;
     traderId?: Nullable<string>;
 }
 
@@ -135,25 +137,6 @@ export interface UpdateSavingAccountInput {
     name?: Nullable<string>;
     desc?: Nullable<string>;
     amount?: Nullable<number>;
-}
-
-export interface CreateSavingAccountTransferRecord {
-    desc?: Nullable<string>;
-    amount: number;
-    fromSavingAccountId: string;
-    toSavingAccountId: string;
-    dealAt: Date;
-    traderId: string;
-}
-
-export interface UpdateSavingAccountTransferRecord {
-    id: string;
-    desc?: Nullable<string>;
-    amount?: Nullable<number>;
-    fromSavingAccountId?: Nullable<string>;
-    toSavingAccountId?: Nullable<string>;
-    dealAt?: Nullable<Date>;
-    traderId?: Nullable<string>;
 }
 
 export interface TagFlowRecordFilter {
@@ -201,7 +184,9 @@ export interface Pagination {
 
 export interface EntityDateTime {
     createdAt: DateTime;
+    createdBy: User;
     updatedAt: DateTime;
+    updatedBy: User;
 }
 
 export interface AccountBookListWithPagintion {
@@ -215,20 +200,18 @@ export interface AccountBook extends EntityDateTime {
     desc?: Nullable<string>;
     admins: User[];
     members: User[];
-    creator: User;
-    updater: User;
     createdAt: DateTime;
+    createdBy: User;
     updatedAt: DateTime;
+    updatedBy: User;
     savingAccounts: SavingAccountListWithPagintion;
     savingAccount: SavingAccount;
-    savingAccountTransferRecords: SavingAccountTransferRecordWithPagintion;
-    savingAccountTransferRecord: SavingAccountTransferRecord;
+    categories: CategoryListWithPagintion;
+    category: Category;
     tags?: Nullable<TagListWithPagintion>;
     tag: Tag;
     flowRecords: FlowRecordListWithPagintion;
     flowRecord: FlowRecord;
-    categories: CategoryListWithPagintion;
-    category: Category;
     statistics: AccountBookStatistics;
 }
 
@@ -245,14 +228,11 @@ export interface IMutation {
     createSavingAccount(savingAccount: CreateSavingAccountInput): SavingAccount | Promise<SavingAccount>;
     updateSavingAccount(savingAccount: UpdateSavingAccountInput): SavingAccount | Promise<SavingAccount>;
     deleteSavingAccount(id: string): boolean | Promise<boolean>;
-    createSavingAccountTransferRecord(record: CreateSavingAccountTransferRecord): SavingAccountTransferRecord | Promise<SavingAccountTransferRecord>;
-    updateSavingAccountTransferRecord(record: UpdateSavingAccountTransferRecord): SavingAccountTransferRecord | Promise<SavingAccountTransferRecord>;
-    deleteSavingAccountTransferRecord(id: string): boolean | Promise<boolean>;
     createTag(tag: CreateTagInput): Tag | Promise<Tag>;
     updateTag(tag: UpdateTagInput): Tag | Promise<Tag>;
     deleteTag(id: string): boolean | Promise<boolean>;
-    signIn(user: SignInUserInput): User | Promise<User>;
-    signUp(user: SignUpUserInput): User | Promise<User>;
+    signIn(user: SignInUserInput): DetailUser | Promise<DetailUser>;
+    signUp(user: SignUpUserInput): DetailUser | Promise<DetailUser>;
 }
 
 export interface FlowRecordTotalAmountPerUser {
@@ -283,13 +263,16 @@ export interface Category extends EntityDateTime {
     name: string;
     desc?: Nullable<string>;
     type: CategoryType;
+    order: number;
     accountBook: AccountBook;
+    createdAt: DateTime;
+    createdBy: User;
+    updatedAt: DateTime;
+    updatedBy: User;
     tags?: Nullable<TagListWithPagintion>;
     tag: Tag;
-    creator: User;
-    updater: User;
-    createdAt: DateTime;
-    updatedAt: DateTime;
+    flowRecords: FlowRecordListWithPagintion;
+    flowRecord: FlowRecord;
     statistics: CategoryStatistics;
 }
 
@@ -311,11 +294,11 @@ export interface FlowRecord extends EntityDateTime {
     id: string;
     desc?: Nullable<string>;
     createdAt: DateTime;
+    createdBy: User;
     updatedAt: DateTime;
+    updatedBy: User;
     dealAt: Date;
     trader: User;
-    creator: User;
-    updater: User;
     amount: number;
     accountBook: AccountBook;
     savingAccount: SavingAccount;
@@ -338,43 +321,15 @@ export interface SavingAccount extends EntityDateTime {
     id: string;
     name: string;
     desc?: Nullable<string>;
+    order: number;
     createdAt: DateTime;
+    createdBy: User;
     updatedAt: DateTime;
+    updatedBy: User;
     amount: number;
-    creator: User;
-    updater: User;
     accountBook: AccountBook;
-    getHistoriesByDate: SavingAccountHistory[];
     flowRecords: FlowRecordListWithPagintion;
     flowRecord: FlowRecord;
-}
-
-export interface SavingAccountHistory {
-    id: string;
-    amount: number;
-    dealAt: Date;
-    savingAccount: SavingAccount;
-    accountBook: AccountBook;
-}
-
-export interface SavingAccountTransferRecordWithPagintion {
-    total: number;
-    data: SavingAccountTransferRecord[];
-}
-
-export interface SavingAccountTransferRecord extends EntityDateTime {
-    id: string;
-    desc?: Nullable<string>;
-    amount: number;
-    trader: User;
-    creator: User;
-    updater: User;
-    from: SavingAccount;
-    to: SavingAccount;
-    accountBook: AccountBook;
-    dealAt: Date;
-    createdAt: DateTime;
-    updatedAt: DateTime;
 }
 
 export interface TagListWithPagintion {
@@ -386,17 +341,18 @@ export interface Tag extends EntityDateTime {
     id: string;
     name: string;
     desc?: Nullable<string>;
-    category: Category;
+    order: number;
     createdAt: DateTime;
+    createdBy: User;
     updatedAt: DateTime;
-    creator: User;
-    updater: User;
+    updatedBy: User;
     accountBook: AccountBook;
+    category: Category;
     flowRecords: FlowRecordListWithPagintion;
     flowRecord: FlowRecord;
 }
 
-export interface DetailUser extends EntityDateTime {
+export interface DetailUser {
     id: string;
     username: string;
     nickname: string;
@@ -414,10 +370,8 @@ export interface User {
     username: string;
     email?: Nullable<string>;
     avatar?: Nullable<string>;
-    createdAt: DateTime;
-    updatedAt: DateTime;
 }
 
 export type DateTime = Date;
-export type Node = User | AccountBook | AccountBookStatistics | SavingAccount | Tag | FlowRecord | SavingAccountTransferRecord | SavingAccountHistory | Category | CategoryStatistics;
+export type Node = User | AccountBook | AccountBookStatistics | SavingAccount | Tag | FlowRecord | Category | CategoryStatistics;
 type Nullable<T> = T | null;

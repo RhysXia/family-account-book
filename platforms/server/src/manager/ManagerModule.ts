@@ -1,8 +1,7 @@
 import { Module } from '@nestjs/common';
 import { RepositoryModule } from '../repository/RepositoryModule';
-import { SavingAccountHistoryManager } from './SavingAccountHistoryManager';
 
-const managers = [SavingAccountHistoryManager];
+const managers = [];
 
 @Module({
   imports: [RepositoryModule],

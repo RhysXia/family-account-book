@@ -1,9 +1,10 @@
-type DetailUser implements EntityDateTime {
+type DetailUser {
   id: ID!
   username: String!
   nickname: String!
   email: String
   avatar: String
+
   createdAt: DateTime!
   updatedAt: DateTime!
 
@@ -24,8 +25,6 @@ type User {
   username: String!
   email: String
   avatar: String
-  createdAt: DateTime!
-  updatedAt: DateTime!
 }
 
 type Query {
@@ -58,6 +57,6 @@ input SignInUserInput {
 }
 
 type Mutation {
-  signIn(user: SignInUserInput!): User!
-  signUp(user: SignUpUserInput!): User!
+  signIn(user: SignInUserInput!): DetailUser!
+  signUp(user: SignUpUserInput!): DetailUser!
 }

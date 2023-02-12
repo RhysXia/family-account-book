@@ -1,16 +1,22 @@
 enum CategoryType {
   """
-  该分类下的金额只能为正数
+  收入
   """
-  POSITIVE_AMOUNT
+  INCOME
   """
-  该分类下的金额只能为负数
+  支出
   """
-  NEGATIVE_AMOUNT
+  EXPENDITURE
   """
-  该分类下的金额可正可负
+  未知
   """
-  POSITIVE_OR_NEGATIVE_AMOUNT
+  UNKNOWN
+}
+
+input CategoryFlowRecordFilter {
+  savingAccountId: ID
+  tagId: ID
+  traderId: ID
 }
 
 type Category implements EntityDateTime {
@@ -18,18 +24,24 @@ type Category implements EntityDateTime {
   name: String!
   desc: String
   type: CategoryType!
+  order: Int!
 
   accountBook: AccountBook!
+
+  createdAt: DateTime!
+  createdBy: User!
+
+  updatedAt: DateTime!
+  updatedBy: User!
 
   tags(pagination: Pagination): TagListWithPagintion
   tag(id: ID!): Tag!
 
-  creator: User!
-
-  updater: User!
-
-  createdAt: DateTime!
-  updatedAt: DateTime!
+  flowRecords(
+    filter: CategoryFlowRecordFilter
+    pagination: Pagination
+  ): FlowRecordListWithPagintion!
+  flowRecord(id: ID!): FlowRecord!
 
   statistics: CategoryStatistics!
 }

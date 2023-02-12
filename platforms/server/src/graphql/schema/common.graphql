@@ -57,7 +57,10 @@ input Pagination {
 
 interface EntityDateTime {
   createdAt: DateTime!
+  createdBy: User!
+
   updatedAt: DateTime!
+  updatedBy: User!
 }
 
 enum DateGroupBy {

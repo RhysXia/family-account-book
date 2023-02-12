@@ -3,9 +3,11 @@ import { DataSource, In } from 'typeorm';
 import { AccountBookEntity } from '../entity/AccountBookEntity';
 import { CategoryEntity } from '../entity/CategoryEntity';
 import { FlowRecordEntity } from '../entity/FlowRecordEntity';
+import { SavingAccountEntity } from '../entity/SavingAccountEntity';
 import { TagEntity } from '../entity/TagEntity';
 import { UserEntity } from '../entity/UserEntity';
 import {
+  InternalException,
   ParameterException,
   ResourceNotFoundException,
 } from '../exception/ServiceException';
@@ -34,18 +36,50 @@ export class TagService {
         throw new ResourceNotFoundException('标签不存在');
       }
 
-      const flowRecord = await manager.findOne(FlowRecordEntity, {
+      // 回去分类下的流水总额，添加回对应账号
+      const totalFlowRecordAmount = await manager
+        .createQueryBuilder(FlowRecordEntity, 'flowRecord')
+        .select('SUM(flowRecord.amount)', 'totalAmount')
+        .addSelect('flowRecord.savingAccountId', 'savingAccountId')
+        .where('flowRecord.tagId = :tagId', { tagId: id })
+        .groupBy('flowRecord.savingAccountId')
+        .getRawMany<{ totalAmount: number; savingAccountId: number }>();
+
+      const savingAccountIds = totalFlowRecordAmount.map(
+        (it) => it.savingAccountId,
+      );
+
+      const savingAccounts = await manager.find(SavingAccountEntity, {
         where: {
-          tagId: tag.id,
+          id: In(savingAccountIds),
         },
       });
 
-      if (flowRecord) {
-        throw new ParameterException('存在流水关联该标签，无法删除');
-      }
+      totalFlowRecordAmount.forEach((it) => {
+        const savingAccount = savingAccounts.find(
+          (s) => s.id === it.savingAccountId,
+        );
 
-      // 软删除
-      await manager.remove(tag);
+        if (!savingAccount) {
+          throw new InternalException(`账户(id: ${it.savingAccountId})不存在`);
+        }
+
+        savingAccount.amount -= it.totalAmount;
+
+        if (savingAccount.amount < 0) {
+          throw new ParameterException(
+            `删除会导致账户${savingAccount.name}(id: ${savingAccount.id})余额小于0`,
+          );
+        }
+      });
+
+      await manager.save(savingAccounts);
+
+      await manager.delete(FlowRecordEntity, {
+        tagId: id,
+      });
+
+      await manager.delete(TagEntity, { id });
     });
   }
 
@@ -54,20 +88,14 @@ export class TagService {
     tag: {
       name?: string;
       desc?: string;
-      categoryId?: number;
     },
     user: UserEntity,
   ) {
-    const { desc, name, categoryId } = tag;
+    const { desc, name } = tag;
     return this.dataSource.manager.transaction(async (manager) => {
       let tagEntity: TagEntity;
       try {
         tagEntity = await manager.findOneOrFail(TagEntity, {
-          relations: {
-            ...(categoryId && {
-              category: true,
-            }),
-          },
           where: { id },
         });
       } catch (err) {
@@ -91,23 +119,6 @@ export class TagService {
         throw new ResourceNotFoundException('标签不存在');
       }
 
-      if (categoryId) {
-        let categoryEntity: CategoryEntity;
-        try {
-          categoryEntity = await manager.findOneOrFail(CategoryEntity, {
-            where: { id: categoryId },
-          });
-        } catch (err) {
-          throw new ResourceNotFoundException('分类不存在');
-        }
-
-        if (tagEntity.category.type !== categoryEntity.type) {
-          throw new ParameterException('不能切换到不同类型的分类');
-        }
-
-        tagEntity.category = categoryEntity;
-      }
-
       if (name) {
         tagEntity.name = name;
       }
@@ -116,7 +127,7 @@ export class TagService {
         tagEntity.desc = desc;
       }
 
-      tagEntity.updater = user;
+      tagEntity.updatedBy = user;
 
       return manager.save(tagEntity);
     });
@@ -131,25 +142,15 @@ export class TagService {
     user: UserEntity,
   ) {
     return this.dataSource.manager.transaction(async (manager) => {
-      const { categoryId, name, desc } = tagInput;
+      const { name, desc, categoryId } = tagInput;
 
-      let category: CategoryEntity;
-      try {
-        category = await manager.findOneOrFail(CategoryEntity, {
-          where: {
-            id: categoryId,
-          },
-        });
-      } catch (err) {
-        throw new ResourceNotFoundException('分类不存在');
-      }
-
-      const accountBook = await manager
-        .createQueryBuilder(AccountBookEntity, 'accountBook')
+      const category = await manager
+        .createQueryBuilder(CategoryEntity, 'category')
+        .leftJoin('category.accountBook', 'accountBook')
         .leftJoin('accountBook.admins', 'admin')
         .leftJoin('accountBook.members', 'member')
-        .where('accountBook.id = :accountBookId', {
-          accountBookId: category.accountBookId,
+        .where('category.id = :categoryId', {
+          categoryId,
         })
         .andWhere('admin.id = :adminId OR member.id = :memberId', {
           adminId: user.id,
@@ -157,18 +158,26 @@ export class TagService {
         })
         .getOne();
 
-      if (!accountBook) {
+      if (!category) {
         throw new ResourceNotFoundException('分类不存在');
       }
 
       const tag = new TagEntity();
 
+      tag.accountBookId = category.accountBookId;
       tag.name = name;
       tag.desc = desc;
       tag.category = category;
-      tag.accountBook = accountBook;
-      tag.creator = user;
-      tag.updater = user;
+      tag.createdBy = user;
+      tag.updatedBy = user;
+
+      const count = await manager.count(TagEntity, {
+        where: {
+          categoryId,
+        },
+      });
+
+      tag.order = count + 1;
 
       return manager.save(tag);
     });
@@ -204,13 +213,9 @@ export class TagService {
 
   async findAllByAccountBookIdAndPagination(
     accountBookId: number,
-    filter?: {
-      categoryId?: number;
-    },
+    { categoryId }: { categoryId?: number },
     pagination?: Pagination,
   ): Promise<{ total: number; data: Array<TagEntity> }> {
-    const { categoryId } = filter || {};
-
     const qb = this.dataSource
       .createQueryBuilder(TagEntity, 'tag')
       .where('tag.accountBookId = :accountBookId', { accountBookId });

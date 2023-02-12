@@ -109,7 +109,7 @@ const CategoryPage = () => {
       },
     },
     {
-      title: '类型',
+      title: '用途',
       style: {
         minWidth: '15%',
       },
@@ -138,7 +138,7 @@ const CategoryPage = () => {
     },
     {
       title: '创建人',
-      dataIndex: 'creator',
+      dataIndex: 'createdBy',
       style: {
         minWidth: '10%',
       },
@@ -180,7 +180,8 @@ const CategoryPage = () => {
               onClick={() => {
                 Modal.confirm({
                   title: '确认删除',
-                  content: '确认删除该分类吗？',
+                  content:
+                    '删除分类会同步删除分类下的标签和流水记录，确认删除该分类吗？',
                   onOk: async () => {
                     await handleDeleteTag(value.id);
                   },
@@ -222,7 +223,7 @@ const CategoryPage = () => {
         <div className="flex justify-end">
           <Select
             style={{ width: 200 }}
-            placeholder="请选择类型"
+            placeholder="请选择用途"
             value={categoryTypeFilter}
             onChange={handleCategoryTypeChange}
             allowClear={true}

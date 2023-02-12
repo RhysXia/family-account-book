@@ -46,16 +46,6 @@ export class FlowRecordEntity extends AbstractTimestampEntity {
   @Column()
   traderId!: number;
 
-  @ManyToOne(() => UserEntity, { nullable: false })
-  creator!: UserEntity;
-  @Column()
-  creatorId!: number;
-
-  @ManyToOne(() => UserEntity, { nullable: false })
-  updater!: UserEntity;
-  @Column()
-  updaterId!: number;
-
   @ManyToOne(() => TagEntity, { nullable: false })
   tag!: TagEntity;
   @Column()

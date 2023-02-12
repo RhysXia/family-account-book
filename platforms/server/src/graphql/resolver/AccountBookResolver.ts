@@ -12,12 +12,10 @@ import { AccountBookService } from '../../service/AccountBookService';
 import { CategoryService } from '../../service/CategoryService';
 import { FlowRecordService } from '../../service/FlowRecordService';
 import { SavingAccountService } from '../../service/SavingAccountService';
-import { SavingAccountTransferRecordService } from '../../service/SavingAccountTransferRecordService';
 import { TagService } from '../../service/TagService';
 import { CategoryDataLoader } from '../dataloader/CategoryDataLoader';
 import { FlowRecordDataLoader } from '../dataloader/FlowRecordDataLoader';
 import { SavingAccountDataLoader } from '../dataloader/SavingAccountDataLoader';
-import { SavingAccountTransferRecordDataLoader } from '../dataloader/SavingAccountTransferRecordDataLoader';
 import { TagDataLoader } from '../dataloader/TagDataLoader';
 import { UserDataLoader } from '../dataloader/UserDataLoader';
 import CurrentUser from '../decorator/CurrentUser';
@@ -28,7 +26,6 @@ import {
   UpdateAccountBookInput,
   AccountBookFlowRecordFilter,
   AccountBookTagFilter,
-  AccountBookSavingAccountTransferRecordFilter,
 } from '../graphql';
 import { GraphqlEntity } from '../types';
 import { decodeId, encodeId, EntityName } from '../utils';
@@ -47,8 +44,6 @@ export class AccountBookResolver {
     private readonly flowRecordDataLoader: FlowRecordDataLoader,
     private readonly flowRecordService: FlowRecordService,
     private readonly categoryService: CategoryService,
-    private readonly savingAccountTransferRecordService: SavingAccountTransferRecordService,
-    private readonly savingAccountTransferRecordDataLoader: SavingAccountTransferRecordDataLoader,
   ) {}
 
   @ResolveField()
@@ -89,22 +84,22 @@ export class AccountBookResolver {
   }
 
   @ResolveField()
-  async creator(@Parent() parent: GraphqlEntity<AccountBookEntity>) {
-    const creator =
-      parent.creator || (await this.userDataLoader.load(parent.creatorId));
+  async createdBy(@Parent() parent: GraphqlEntity<AccountBookEntity>) {
+    const createdBy =
+      parent.createdBy || (await this.userDataLoader.load(parent.createdById));
 
-    return creator
-      ? { ...creator, id: encodeId(EntityName.USER, parent.creatorId) }
+    return createdBy
+      ? { ...createdBy, id: encodeId(EntityName.USER, parent.createdById) }
       : null;
   }
 
   @ResolveField()
-  async updater(@Parent() parent: GraphqlEntity<AccountBookEntity>) {
-    const updater =
-      parent.updater || (await this.userDataLoader.load(parent.updaterId));
+  async updatedBy(@Parent() parent: GraphqlEntity<AccountBookEntity>) {
+    const updatedBy =
+      parent.updatedBy || (await this.userDataLoader.load(parent.updatedById));
 
-    return updater
-      ? { ...updater, id: encodeId(EntityName.USER, parent.updaterId) }
+    return updatedBy
+      ? { ...updatedBy, id: encodeId(EntityName.USER, parent.updatedById) }
       : null;
   }
 
@@ -214,9 +209,9 @@ export class AccountBookResolver {
     @Args('filter') filter?: AccountBookTagFilter,
     @Args('pagination') pagination?: Pagination,
   ) {
-    const { categoryId } = filter || {};
-
     const parentId = decodeId(EntityName.ACCOUNT_BOOK, parent.id);
+
+    const { categoryId } = filter || {};
 
     const { total, data } =
       await this.tagService.findAllByAccountBookIdAndPagination(
@@ -269,8 +264,14 @@ export class AccountBookResolver {
   ) {
     const parentId = decodeId(EntityName.ACCOUNT_BOOK, parent.id);
 
-    const { traderId, tagId, savingAccountId, startDealAt, endDealAt } =
-      filter || {};
+    const {
+      traderId,
+      tagId,
+      categoryId,
+      savingAccountId,
+      startDealAt,
+      endDealAt,
+    } = filter || {};
 
     const { total, data } =
       await this.flowRecordService.findAllByConditionAndPagination(
@@ -279,6 +280,9 @@ export class AccountBookResolver {
             traderId: getUserId(traderId),
           }),
           ...(tagId && { tagId: decodeId(EntityName.TAG, tagId) }),
+          ...(categoryId && {
+            categoryId: decodeId(EntityName.CATEGORY, categoryId),
+          }),
           ...(savingAccountId && {
             savingAccountId: decodeId(
               EntityName.SAVING_ACCOUNT,
@@ -324,82 +328,6 @@ export class AccountBookResolver {
       throw new ResourceNotFoundException('流水不存在');
     }
     return { ...flowRecord, id };
-  }
-
-  @ResolveField()
-  async savingAccountTransferRecords(
-    @Parent() parent: GraphqlEntity<AccountBookEntity>,
-    @Args('filter') filter?: AccountBookSavingAccountTransferRecordFilter,
-    @Args('pagination') pagination?: Pagination,
-  ) {
-    const parentId = decodeId(EntityName.ACCOUNT_BOOK, parent.id);
-
-    const {
-      traderId,
-      fromSavingAccountId,
-      toSavingAccountId,
-      startDealAt,
-      endDealAt,
-    } = filter || {};
-
-    const { total, data } =
-      await this.savingAccountTransferRecordService.findAllByConditionAndPagination(
-        {
-          ...(traderId && {
-            traderId: getUserId(traderId),
-          }),
-          ...(fromSavingAccountId && {
-            fromSavingAccountId: decodeId(
-              EntityName.SAVING_ACCOUNT,
-              fromSavingAccountId,
-            ),
-          }),
-          ...(toSavingAccountId && {
-            toSavingAccountId: decodeId(
-              EntityName.SAVING_ACCOUNT,
-              toSavingAccountId,
-            ),
-          }),
-          ...(startDealAt && { startDealAt }),
-          ...(endDealAt && { endDealAt }),
-          accountBookId: parentId,
-        },
-        pagination,
-      );
-
-    return {
-      total,
-      data: data.map((it) => ({
-        ...it,
-        id: encodeId(EntityName.SAVING_ACCOUNT_TRANSFER_RECORD, it.id),
-      })),
-    };
-  }
-
-  @ResolveField()
-  async savingAccountTransferRecord(
-    @Parent() parent: GraphqlEntity<AccountBookEntity>,
-    @Args('id') id: string,
-  ) {
-    const transferRecord =
-      await this.savingAccountTransferRecordDataLoader.load(
-        decodeId(EntityName.SAVING_ACCOUNT_TRANSFER_RECORD, id),
-      );
-
-    if (!transferRecord) {
-      throw new ResourceNotFoundException('转账记录不存在');
-    }
-
-    const encodedAccountBookId = encodeId(
-      EntityName.ACCOUNT_BOOK,
-      transferRecord.accountBookId,
-    );
-
-    if (encodedAccountBookId !== parent.id) {
-      // 不暴露其他数据信息，一律提示资源不存在
-      throw new ResourceNotFoundException('转账记录不存在');
-    }
-    return { ...transferRecord, id };
   }
 
   @Mutation()

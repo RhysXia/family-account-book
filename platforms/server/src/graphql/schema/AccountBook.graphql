@@ -12,16 +12,12 @@ input AccountBookFlowRecordFilter {
   过滤交易人的流水
   """
   traderId: ID
-  tagId: ID
-  savingAccountId: ID
-  startDealAt: Date
-  endDealAt: Date
-}
 
-input AccountBookSavingAccountTransferRecordFilter {
-  traderId: ID
-  fromSavingAccountId: ID
-  toSavingAccountId: ID
+  tagId: ID
+
+  categoryId: ID
+
+  savingAccountId: ID
   startDealAt: Date
   endDealAt: Date
 }
@@ -43,22 +39,20 @@ type AccountBook implements EntityDateTime {
   """
   members: [User!]!
 
-  creator: User!
-
-  updater: User!
-
   createdAt: DateTime!
+  createdBy: User!
+
   updatedAt: DateTime!
+  updatedBy: User!
 
   savingAccounts(pagination: Pagination): SavingAccountListWithPagintion!
   savingAccount(id: ID!): SavingAccount!
 
-  savingAccountTransferRecords(
-    filter: AccountBookSavingAccountTransferRecordFilter
+  categories(
+    filter: AccountBookCategoryFilter
     pagination: Pagination
-  ): SavingAccountTransferRecordWithPagintion!
-
-  savingAccountTransferRecord(id: ID!): SavingAccountTransferRecord!
+  ): CategoryListWithPagintion!
+  category(id: ID!): Category!
 
   tags(
     filter: AccountBookTagFilter
@@ -71,12 +65,6 @@ type AccountBook implements EntityDateTime {
     pagination: Pagination
   ): FlowRecordListWithPagintion!
   flowRecord(id: ID!): FlowRecord!
-
-  categories(
-    filter: AccountBookCategoryFilter
-    pagination: Pagination
-  ): CategoryListWithPagintion!
-  category(id: ID!): Category!
 
   """
   账本相关统计数据

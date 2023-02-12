@@ -41,7 +41,7 @@ export const GET_TAG_LIST_WITH_CATEGORY_BY_ACCOUNT_BOOK_ID = gql`
             id
             name
             desc
-            creator {
+            createdBy {
               id
               nickname
             }
@@ -92,7 +92,7 @@ export const useGetTagsWithCategoryByAccountBookId = (variables: {
     node: {
       tags: PaginationResult<
         Tag & {
-          creator: {
+          createdBy: {
             id: string;
             nickname: string;
           };

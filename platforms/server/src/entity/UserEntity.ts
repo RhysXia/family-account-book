@@ -1,14 +1,14 @@
 import {
   Column,
-  DeleteDateColumn,
+  CreateDateColumn,
   Entity,
   Index,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
-import { AbstractTimestampEntity } from './abstract/AbstractTimestampEntity';
 
 @Entity('user')
-export class UserEntity extends AbstractTimestampEntity {
+export class UserEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
@@ -29,9 +29,9 @@ export class UserEntity extends AbstractTimestampEntity {
   @Column({ nullable: true })
   avatar?: string;
 
-  /**
-   * 删除时间
-   */
-  @DeleteDateColumn({ type: 'timestamptz' })
-  deletedAt?: Date;
+  @CreateDateColumn({ type: 'timestamptz' })
+  createdAt!: Date;
+
+  @UpdateDateColumn({ type: 'timestamptz' })
+  updatedAt!: Date;
 }

@@ -9,7 +9,6 @@ import { AccountBookResolver } from './resolver/AccountBookResolver';
 import { SavingAccountResolver } from './resolver/SavingAccountResolver';
 import { UserResolver } from './resolver/UserResolver';
 import { UserDataLoader } from './dataloader/UserDataLoader';
-import { SavingAccountAmountDataLoader } from './dataloader/SavingAccountAmountDataLoader';
 import { AccountBookDataLoader } from './dataloader/AccountBookDataLoader';
 import { QueryComplexityPlugin } from './plugins/QueryComplexityPlugin';
 import { TagResolver } from './resolver/TagResolver';
@@ -18,8 +17,6 @@ import { SavingAccountDataLoader } from './dataloader/SavingAccountDataLoader';
 import { FlowRecordDataLoader } from './dataloader/FlowRecordDataLoader';
 import { DateTimeScalar } from './scalar/DateTimeScalar';
 import { DateScalar } from './scalar/DateScalar';
-import { SavingAccountTransferRecordResolver } from './resolver/SavingAccountTransferRecordResolver';
-import { SavingAccountTransferRecordDataLoader } from './dataloader/SavingAccountTransferRecordDataLoader';
 import { ApolloError } from 'apollo-server-core';
 import {
   AuthentizationException,
@@ -28,7 +25,6 @@ import {
   ResourceNotFoundException,
 } from '../exception/ServiceException';
 import { NodeResolver } from './resolver/NodeResolver';
-import { SavingAccountHistoryResolver } from './resolver/SavingAccountHistoryResolver';
 import { AccountBookStatisticsResolver } from './resolver/AccountBookStatisticsResolver';
 import { CategoryResolver } from './resolver/CategoryResolver';
 import { CategoryDataLoader } from './dataloader/CategoryDataLoader';
@@ -49,7 +45,12 @@ import { CategoryStatisticsResolver } from './resolver/CategoryStatisticsResolve
 
         return {
           typePaths: ['./**/*.graphql'],
-          playground: isPlayground,
+          playground: isPlayground && {
+            settings: {
+              // 包含cookie
+              'request.credentials': 'include',
+            },
+          },
           definitions: isDevelopment
             ? {
                 path: join(process.cwd(), 'src/graphql/graphql.ts'),
@@ -93,11 +94,9 @@ import { CategoryStatisticsResolver } from './resolver/CategoryStatisticsResolve
     CategoryDataLoader,
     TagDataLoader,
     UserDataLoader,
-    SavingAccountAmountDataLoader,
     AccountBookDataLoader,
     SavingAccountDataLoader,
     FlowRecordDataLoader,
-    SavingAccountTransferRecordDataLoader,
     UserResolver,
     AccountBookResolver,
     AccountBookStatisticsResolver,
@@ -106,8 +105,6 @@ import { CategoryStatisticsResolver } from './resolver/CategoryStatisticsResolve
     SavingAccountResolver,
     TagResolver,
     FlowRecordResolver,
-    SavingAccountTransferRecordResolver,
-    SavingAccountHistoryResolver,
     NodeResolver,
   ],
 })
