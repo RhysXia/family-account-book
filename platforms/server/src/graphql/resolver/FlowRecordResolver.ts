@@ -90,7 +90,7 @@ export class FlowRecordResolver {
   async tag(@Parent() parent: GraphqlEntity<FlowRecordEntity>) {
     const tag = parent.tag || (await this.tagDataLoader.load(parent.tagId));
 
-    return tag;
+    return { ...tag, id: encodeId(EntityName.TAG, tag.id) };
   }
 
   @Mutation()
