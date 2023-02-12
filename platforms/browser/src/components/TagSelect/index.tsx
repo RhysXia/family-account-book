@@ -42,10 +42,33 @@ const TagSelect: FC<TagSelectProps> = ({ accountBookId, ...others }) => {
 
   const [searchText, setSearchText] = useState('');
 
+  const [groupMatch = '', tagMatch] = searchText.trim().split(/\s+/);
+
   const filteredTagsGroupByCategory = tagsGroupByCategory
     .map((category) => {
+      if (tagMatch) {
+        if (category.name.includes(groupMatch)) {
+          const filteredTags = category.tags.filter((tag) =>
+            tag.name.includes(tagMatch),
+          );
+          return {
+            ...category,
+            tags: filteredTags,
+          };
+        }
+
+        return {
+          ...category,
+          tags: [],
+        };
+      }
+
+      if (category.name.includes(groupMatch)) {
+        return category;
+      }
+
       const filteredTags = category.tags.filter((tag) =>
-        tag.name.includes(searchText),
+        tag.name.includes(groupMatch),
       );
 
       return {
@@ -54,7 +77,6 @@ const TagSelect: FC<TagSelectProps> = ({ accountBookId, ...others }) => {
       };
     })
     .filter((it) => it.tags.length);
-
   return (
     <Select
       {...others}
