@@ -17,7 +17,7 @@ import {
 } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import { useAtom } from 'jotai';
-import { FC, useCallback } from 'react';
+import { FC, useCallback, useMemo } from 'react';
 
 export type CreateModelProps = {
   visible: boolean;
@@ -41,6 +41,11 @@ const CreateModel: FC<CreateModelProps> = ({
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
 
   const [currentUser] = useAtom(currentUserAtom);
+
+  // currentUser的id不符合要求
+  const normalizedCurrentUser = useMemo(() => {
+    return users.find((it) => it.username === currentUser?.username);
+  }, [users, currentUser]);
 
   const [form] = Form.useForm<{
     amount: number;
@@ -136,10 +141,7 @@ const CreateModel: FC<CreateModelProps> = ({
         }}
         form={form}
         initialValues={{
-          trader: {
-            label: currentUser?.nickname,
-            value: currentUser,
-          },
+          traderId: normalizedCurrentUser?.id,
           dealAt: dayjs(),
         }}
       >

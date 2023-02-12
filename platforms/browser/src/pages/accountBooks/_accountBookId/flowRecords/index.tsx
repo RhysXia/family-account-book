@@ -119,6 +119,39 @@ const Index = () => {
   const columns: Array<Column> = useMemo(
     () => [
       {
+        title: '金额',
+        style: {
+          minWidth: '10%',
+        },
+        render({
+          value,
+          isEdit,
+          onChange,
+        }: RenderProps<
+          FlowRecord & {
+            tag: Itag & {
+              category: Category;
+            };
+          }
+        >) {
+          const type = value.tag.category.type;
+          if (isEdit) {
+            return (
+              <InputNumber
+                size="small"
+                formatter={(v) => `¥ ${v}`}
+                precision={2}
+                value={value.amount}
+                min={type === CategoryType.INCOME ? 0.01 : undefined}
+                max={type === CategoryType.EXPENDITURE ? -0.01 : undefined}
+                onChange={(v) => onChange({ ...value, amount: v })}
+              />
+            );
+          }
+          return <span className="p-2">¥{value.amount.toFixed(2)}</span>;
+        },
+      },
+      {
         title: '标签',
         dataIndex: 'tag',
         style: {
@@ -150,39 +183,6 @@ const Index = () => {
               {value.name}
             </span>
           );
-        },
-      },
-      {
-        title: '金额',
-        style: {
-          minWidth: '10%',
-        },
-        render({
-          value,
-          isEdit,
-          onChange,
-        }: RenderProps<
-          FlowRecord & {
-            tag: Itag & {
-              category: Category;
-            };
-          }
-        >) {
-          const type = value.tag.category.type;
-          if (isEdit) {
-            return (
-              <InputNumber
-                size="small"
-                formatter={(v) => `¥ ${v}`}
-                precision={2}
-                value={value.amount}
-                min={type === CategoryType.INCOME ? 0.01 : undefined}
-                max={type === CategoryType.EXPENDITURE ? -0.01 : undefined}
-                onChange={(v) => onChange({ ...value, amount: v })}
-              />
-            );
-          }
-          return <span className="p-2">¥{value.amount.toFixed(2)}</span>;
         },
       },
       {
