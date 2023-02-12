@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, In } from 'typeorm';
 import { AccountBookEntity } from '../entity/AccountBookEntity';
-import { CategoryEntity } from '../entity/CategoryEntity';
+import { CategoryEntity, CategoryType } from '../entity/CategoryEntity';
 import { FlowRecordEntity } from '../entity/FlowRecordEntity';
 import { SavingAccountEntity } from '../entity/SavingAccountEntity';
 import { TagEntity } from '../entity/TagEntity';
@@ -88,10 +88,11 @@ export class TagService {
     tag: {
       name?: string;
       desc?: string;
+      categoryId?: number;
     },
     user: UserEntity,
   ) {
-    const { desc, name } = tag;
+    const { desc, name, categoryId } = tag;
     return this.dataSource.manager.transaction(async (manager) => {
       let tagEntity: TagEntity;
       try {
@@ -125,6 +126,32 @@ export class TagService {
 
       if (desc) {
         tagEntity.desc = desc;
+      }
+
+      if (categoryId && categoryId !== tagEntity.categoryId) {
+        const categories = await manager.find(CategoryEntity, {
+          where: {
+            id: In([categoryId, tagEntity.categoryId]),
+          },
+        });
+
+        if (categories.length !== 2) {
+          throw new ResourceNotFoundException('分类不存在');
+        }
+
+        const newCategory = categories.find((it) => it.id === categoryId)!;
+        const oldCategory = categories.find(
+          (it) => it.id === tagEntity.categoryId,
+        )!;
+
+        if (
+          newCategory.type !== CategoryType.UNKNOWN &&
+          newCategory.type !== oldCategory.type
+        ) {
+          throw new ParameterException('目标分类和原分类用途不同');
+        }
+
+        tagEntity.category = newCategory;
       }
 
       tagEntity.updatedBy = user;
