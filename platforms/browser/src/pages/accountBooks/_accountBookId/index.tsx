@@ -1,15 +1,16 @@
-import Card from '@/components/Card';
 import Content from '@/components/Content';
 import DatePicker from '@/components/DatePicker';
 import { useGetCategoryListByAccountBookId } from '@/graphql/category';
 import useConstantFn from '@/hooks/useConstanFn';
 import { activeAccountBookAtom } from '@/store';
 import { CategoryType, DateGroupBy } from '@/types';
+import { CategoryTypes } from '@/utils/constants';
 import { Radio, RadioChangeEvent, Tabs } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import { useAtom } from 'jotai';
 import { useCallback, useEffect, useState } from 'react';
 import AmountCard from './commons/AmountCard';
+import FlowRecordPie from './commons/FlowRecordPie';
 import FlowRecordTrend from './commons/FlowRecordTrend';
 
 const Overview = () => {
@@ -147,7 +148,14 @@ const Overview = () => {
         </div>
 
         <div className="">
-          <Card title="各类支出占比">qqqq</Card>
+          {CategoryTypes.map((it) => (
+            <FlowRecordPie
+              categoryType={it}
+              key={it}
+              groupBy={groupBy}
+              dateRange={dateRange}
+            />
+          ))}
         </div>
       </div>
     </Content>

@@ -1,5 +1,5 @@
 import { useAppQuery } from '@/apollo';
-import { CategoryType, DateGroupBy, User } from '@/types';
+import { Category, CategoryType, DateGroupBy, User } from '@/types';
 import { gql } from '@apollo/client';
 
 export const GET_FLOW_RECORD_TOTAL_AMOUNT_BY_ACCOUNT_BOOK_ID = gql`
@@ -172,6 +172,65 @@ export const useGetFlowRecordTotalAmountPerTraderGroupByDateByAccountBookId =
 
     return {
       data: data?.node.statistics.flowRecordTotalAmountPerTraderGroupByDate,
+      ...others,
+    };
+  };
+
+const GET_FLOW_RECORD_TOTAL_AMOUNT_PER_CATEGORY_BY_ACCOUNT_BOOK_ID = gql`
+  query GetFlowRecordTotalAmountPerCategoryByAccountBookId(
+    $accountBookId: ID!
+    $filter: FlowRecordTotalAmountPerCategoryFilter
+  ) {
+    node(id: $accountBookId) {
+      ... on AccountBook {
+        id
+        statistics {
+          id
+          flowRecordTotalAmountPerCategory(filter: $filter) {
+            category {
+              id
+              name
+              type
+              desc
+            }
+            amount
+          }
+        }
+      }
+    }
+  }
+`;
+
+export type FlowRecordTotalAmountPerCategoryFilter = {
+  traderId?: string;
+  categoryType?: CategoryType;
+  savingAccountId?: string;
+  startDate?: string;
+  endDate?: string;
+};
+
+export const useGetFlowRecordTotalAmountPerCategoryByAccountBookId =
+  (variables: {
+    accountBookId: string;
+    filter?: FlowRecordTotalAmountPerTraderFilter;
+  }) => {
+    const { data, ...others } = useAppQuery<{
+      node: {
+        id: string;
+        statistics: {
+          id: string;
+          flowRecordTotalAmountPerCategory: Array<{
+            category: Category;
+            amount: number;
+          }>;
+        };
+      };
+    }>(GET_FLOW_RECORD_TOTAL_AMOUNT_PER_CATEGORY_BY_ACCOUNT_BOOK_ID, {
+      variables,
+    });
+
+    return {
+      data: data?.node.statistics.flowRecordTotalAmountPerCategory,
       ...others,
     };
   };
