@@ -3,11 +3,11 @@ import { CategoryType } from '../types';
 export const CategoryTypeInfoMap = {
   [CategoryType.EXPENDITURE]: {
     text: '支出',
-    color: '#FCA5A5',
+    color: '#cf1322',
   },
   [CategoryType.INCOME]: {
     text: '收入',
-    color: '#6EE7B7',
+    color: '#3f8600',
   },
   [CategoryType.UNKNOWN]: {
     text: '其他',

@@ -94,12 +94,29 @@ const Overview = () => {
 
   return (
     <Content breadcrumbs={breadcrumbs}>
-      <div className="-m-2 space-y-4 bg-gray-100">
-        <h1 className="bg-white font-bold text-lg p-2 rounded">当月统计</h1>
+      <div className="-m-2 -mt-12 space-y-4 bg-gray-100">
+        <div className="flex items-center justify-end sticky top-8 z-50">
+          <div className="space-x-4 bg-white p-2 drop-shadow-lg">
+            <Radio.Group value={groupBy} onChange={handleGroupByChange}>
+              <Radio.Button value="DAY">按日</Radio.Button>
+              <Radio.Button value="MONTH">按月</Radio.Button>
+              <Radio.Button value="YEAR">按年</Radio.Button>
+            </Radio.Group>
+            <DatePicker.RangePicker
+              allowEmpty={[false, true]}
+              value={dateRange}
+              onChange={handleDateChange}
+            />
+          </div>
+        </div>
+
         <div className="-m-2 -mb-0 flex items-center flex-wrap">
+          <div className="md:w-1/2 lg:w-1/4 p-2">
+            <AmountCard dateRange={dateRange} />
+          </div>
           {categoriesData?.data.map((it) => (
             <div key={it.id} className="md:w-1/2 lg:w-1/4 p-2">
-              <AmountCard category={it} />
+              <AmountCard category={it} dateRange={dateRange} />
             </div>
           ))}
         </div>
@@ -108,55 +125,11 @@ const Overview = () => {
             activeKey={activeCategoryType}
             onChange={setActiveCategoryType as any}
             destroyInactiveTabPane={true}
-            tabBarExtraContent={
-              <div className="space-x-4">
-                <Radio.Group value={groupBy} onChange={handleGroupByChange}>
-                  <Radio.Button value="DAY">按日</Radio.Button>
-                  <Radio.Button value="MONTH">按月</Radio.Button>
-                  <Radio.Button value="YEAR">按年</Radio.Button>
-                </Radio.Group>
-                <DatePicker.RangePicker
-                  allowEmpty={[false, true]}
-                  value={dateRange}
-                  onChange={handleDateChange}
-                />
-              </div>
-            }
           >
             <Tabs.TabPane tab="净收入">
               <FlowRecordTrend dateRange={dateRange} groupBy={groupBy} />
             </Tabs.TabPane>
-            {CategoryTypes.map((key) => (
-              <Tabs.TabPane tab={CategoryTypeInfoMap[key].text} key={key}>
-                <FlowRecordTrend
-                  dateRange={dateRange}
-                  groupBy={groupBy}
-                  categoryType={key}
-                />
-              </Tabs.TabPane>
-            ))}
-          </Tabs>
-        </div>
-        <div className="bg-white rounded px-4">
-          <Tabs
-            activeKey={activeCategoryId}
-            onChange={setActiveCategoryId as any}
-            destroyInactiveTabPane={true}
-            tabBarExtraContent={
-              <div className="space-x-4">
-                <Radio.Group value={groupBy} onChange={handleGroupByChange}>
-                  <Radio.Button value="DAY">按日</Radio.Button>
-                  <Radio.Button value="MONTH">按月</Radio.Button>
-                  <Radio.Button value="YEAR">按年</Radio.Button>
-                </Radio.Group>
-                <DatePicker.RangePicker
-                  allowEmpty={[false, true]}
-                  value={dateRange}
-                  onChange={handleDateChange}
-                />
-              </div>
-            }
-          >
+
             {categoriesData?.data.map((it) => (
               <Tabs.TabPane tab={it.name} key={it.id}>
                 <FlowRecordTrend

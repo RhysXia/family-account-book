@@ -8,7 +8,7 @@ export type IndicatorCardProps = {
   action?: ReactNode;
   children: ReactNode;
   footer?: ReactNode;
-  value: string;
+  value: number;
 };
 
 const IndicatorCard: FC<IndicatorCardProps> = ({
@@ -34,7 +34,12 @@ const IndicatorCard: FC<IndicatorCardProps> = ({
         {action && <div>{action}</div>}
       </div>
       <div className="text-3xl text-ellipsis overflow-hidden whitespace-nowrap mt-2 mb-3">
-        <span>{value}</span>
+        <span>
+          {value.toLocaleString('zh-CN', {
+            style: 'currency',
+            currency: 'CNY',
+          })}
+        </span>
       </div>
       <div>{children}</div>
       {footer && (

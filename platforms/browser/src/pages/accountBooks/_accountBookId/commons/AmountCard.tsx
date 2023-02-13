@@ -1,38 +1,30 @@
 import { activeAccountBookAtom } from '@/store';
 import { useAtom } from 'jotai';
-import { FC, useMemo } from 'react';
-import dayjs from 'dayjs';
+import { FC } from 'react';
+import { Dayjs } from 'dayjs';
 import IndicatorCard from '@/components/IndicatorCard';
 import Indicator from '@/components/Indicator';
-import { Category, CategoryType } from '@/types';
+import { Category } from '@/types';
 import {
   useGetFlowRecordTotalAmountByAccountBookId,
   useGetFlowRecordTotalAmountPerTraderByAccountBookId,
 } from '@/graphql/accountBookStatistics';
 
 export type AmountCardProps = {
-  category: Category;
+  category?: Category;
+  dateRange?: [Dayjs | null, Dayjs | null] | null;
 };
 
-const AmountCard: FC<AmountCardProps> = ({ category }) => {
+const AmountCard: FC<AmountCardProps> = ({ category, dateRange }) => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
-
-  const dates = useMemo(() => {
-    const day = dayjs();
-    const lastMonth = day.add(-1, 'month');
-    return [
-      day.startOf('month').toISOString(),
-      lastMonth.startOf('month').toISOString(),
-      lastMonth.endOf('month').toISOString(),
-    ];
-  }, []);
 
   const { data: currentMonthData } = useGetFlowRecordTotalAmountByAccountBookId(
     {
       accountBookId: activeAccountBook!.id,
       filter: {
-        categoryId: category.id,
-        startDate: dates[0],
+        categoryId: category?.id,
+        startDate: dateRange?.[0]?.toISOString(),
+        endDate: dateRange?.[1]?.toISOString(),
       },
     },
   );
@@ -40,9 +32,9 @@ const AmountCard: FC<AmountCardProps> = ({ category }) => {
   const { data: lastMonthData } = useGetFlowRecordTotalAmountByAccountBookId({
     accountBookId: activeAccountBook!.id,
     filter: {
-      categoryId: category.id,
-      startDate: dates[1],
-      endDate: dates[2],
+      categoryId: category?.id,
+      startDate: dateRange?.[0]?.toISOString(),
+      endDate: dateRange?.[1]?.toISOString(),
     },
   });
 
@@ -50,8 +42,9 @@ const AmountCard: FC<AmountCardProps> = ({ category }) => {
     useGetFlowRecordTotalAmountPerTraderByAccountBookId({
       accountBookId: activeAccountBook!.id,
       filter: {
-        categoryId: category.id,
-        startDate: dates[0],
+        categoryId: category?.id,
+        startDate: dateRange?.[0]?.toISOString(),
+        endDate: dateRange?.[1]?.toISOString(),
       },
     });
 
@@ -62,32 +55,26 @@ const AmountCard: FC<AmountCardProps> = ({ category }) => {
   const userDetails = (
     <div className="flex items-center space-x-2 w-full overflow-auto h-6">
       {totalAmountPerTraderData?.map((it) => (
-        <div key={it.trader.id}>
-          {it.trader.nickname}:
-          {(category.type === CategoryType.EXPENDITURE && it.amount < 0
-            ? -it.amount
-            : it.amount
-          ).toLocaleString('zh-CN', {
-            style: 'currency',
-            currency: 'CNY',
-          })}
+        <div key={it.trader.id} className="pr-4">
+          <span className="pr-2">{it.trader.nickname}</span>
+          <span>
+            {it.amount.toLocaleString('zh-CN', {
+              style: 'currency',
+              currency: 'CNY',
+            })}
+          </span>
         </div>
       ))}
     </div>
   );
 
+  const name = category?.name || '净收入';
+
   return (
     <IndicatorCard
-      title={category.name}
-      tips={`月度${category.name}统计`}
-      value={(category.type === CategoryType.EXPENDITURE &&
-      currentMonthAmount < 0
-        ? -currentMonthAmount
-        : currentMonthAmount
-      ).toLocaleString('zh-CN', {
-        style: 'currency',
-        currency: 'CNY',
-      })}
+      title={name}
+      tips={`月度${name}统计`}
+      value={currentMonthAmount}
       footer={userDetails}
     >
       <Indicator

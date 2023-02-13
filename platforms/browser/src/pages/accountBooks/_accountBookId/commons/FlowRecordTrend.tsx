@@ -109,7 +109,7 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
       },
       xAxis: {
         type: 'category',
-        boundaryGap: false,
+        // boundaryGap: false,
       },
       yAxis: {
         type: 'value',
@@ -121,26 +121,27 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
         // const i = index % COLORS.length;
 
         return {
-          type: 'line',
+          type: 'bar',
           stack: 'Total',
           stackStrategy: 'all',
           smooth: true,
+          barMaxWidth: 50,
           emphasis: {
             focus: 'series',
           },
-          areaStyle: {
-            opacity: 0.8,
-            // color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            //   {
-            //     offset: 0,
-            //     color: COLORS[i][0],
-            //   },
-            //   {
-            //     offset: 1,
-            //     color: COLORS[i][1],
-            //   },
-            // ]),
-          },
+          // areaStyle: {
+          //   opacity: 0.8,
+          //   // color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          //   //   {
+          //   //     offset: 0,
+          //   //     color: COLORS[i][0],
+          //   //   },
+          //   //   {
+          //   //     offset: 1,
+          //   //     color: COLORS[i][1],
+          //   //   },
+          //   // ]),
+          // },
         };
       }),
     };
