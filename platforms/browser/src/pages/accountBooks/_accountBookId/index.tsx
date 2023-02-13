@@ -4,7 +4,6 @@ import { useGetCategoryListByAccountBookId } from '@/graphql/category';
 import useConstantFn from '@/hooks/useConstanFn';
 import { activeAccountBookAtom } from '@/store';
 import { CategoryType, DateGroupBy } from '@/types';
-import { CategoryTypeInfoMap, CategoryTypes } from '@/utils/constants';
 import { Radio, RadioChangeEvent, Tabs } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import { useAtom } from 'jotai';
@@ -35,7 +34,6 @@ const Overview = () => {
     },
   });
 
-  const [activeCategoryId, setActiveCategoryId] = useState<string>();
   const [activeCategoryType, setActiveCategoryType] = useState<CategoryType>();
 
   const [dateRange, setDateRange] = useState<
