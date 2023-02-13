@@ -1,3 +1,4 @@
+import Card from '@/components/Card';
 import Content from '@/components/Content';
 import DatePicker from '@/components/DatePicker';
 import { useGetCategoryListByAccountBookId } from '@/graphql/category';
@@ -110,16 +111,21 @@ const Overview = () => {
 
         <div className="-m-2 -mb-0 flex items-center flex-wrap">
           <div className="md:w-1/2 lg:w-1/4 p-2">
-            <AmountCard dateRange={dateRange} />
+            <AmountCard groupBy={groupBy} dateRange={dateRange} />
           </div>
           {categoriesData?.data.map((it) => (
             <div key={it.id} className="md:w-1/2 lg:w-1/4 p-2">
-              <AmountCard category={it} dateRange={dateRange} />
+              <AmountCard
+                groupBy={groupBy}
+                category={it}
+                dateRange={dateRange}
+              />
             </div>
           ))}
         </div>
         <div className="bg-white rounded px-4">
           <Tabs
+            size="large"
             activeKey={activeCategoryType}
             onChange={setActiveCategoryType as any}
             destroyInactiveTabPane={true}
@@ -138,6 +144,10 @@ const Overview = () => {
               </Tabs.TabPane>
             ))}
           </Tabs>
+        </div>
+
+        <div className="">
+          <Card title="各类支出占比">qqqq</Card>
         </div>
       </div>
     </Content>

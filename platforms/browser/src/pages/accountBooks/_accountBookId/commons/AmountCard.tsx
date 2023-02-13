@@ -4,7 +4,7 @@ import { FC } from 'react';
 import { Dayjs } from 'dayjs';
 import IndicatorCard from '@/components/IndicatorCard';
 import Indicator from '@/components/Indicator';
-import { Category } from '@/types';
+import { Category, DateGroupBy } from '@/types';
 import {
   useGetFlowRecordTotalAmountByAccountBookId,
   useGetFlowRecordTotalAmountPerTraderByAccountBookId,
@@ -13,9 +13,16 @@ import {
 export type AmountCardProps = {
   category?: Category;
   dateRange?: [Dayjs | null, Dayjs | null] | null;
+  groupBy: DateGroupBy;
 };
 
-const AmountCard: FC<AmountCardProps> = ({ category, dateRange }) => {
+const groupByText: Record<DateGroupBy, string> = {
+  DAY: '日',
+  MONTH: '月',
+  YEAR: '年',
+};
+
+const AmountCard: FC<AmountCardProps> = ({ category, dateRange, groupBy }) => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
 
   const { data: currentMonthData } = useGetFlowRecordTotalAmountByAccountBookId(
@@ -70,15 +77,17 @@ const AmountCard: FC<AmountCardProps> = ({ category, dateRange }) => {
 
   const name = category?.name || '净收入';
 
+  const text = groupByText[groupBy];
+
   return (
     <IndicatorCard
       title={name}
-      tips={`月度${name}统计`}
+      tips={`${text}度${name}统计`}
       value={currentMonthAmount}
       footer={userDetails}
     >
       <Indicator
-        title="同比上月"
+        title={`同比上${text}`}
         value={
           lastMonthAmount
             ? Math.abs((currentMonthAmount - lastMonthAmount) / lastMonthAmount)
