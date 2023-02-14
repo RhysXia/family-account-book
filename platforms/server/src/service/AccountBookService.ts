@@ -14,6 +14,83 @@ import { applyPagination } from '../utils/applyPagination';
 export class AccountBookService {
   constructor(private readonly dataSource: DataSource) {}
 
+  async findFlowRecordTotalAmountPerCategoryById(
+    {
+      startDate,
+      endDate,
+      savingAccountId,
+      tagId,
+      traderId,
+      categoryType,
+    }: {
+      endDate?: Date;
+      startDate?: Date;
+      savingAccountId?: number;
+      tagId?: number;
+      traderId?: number;
+      categoryType?: CategoryType;
+    },
+    accountBookId: number,
+  ): Promise<
+    Array<{
+      category: CategoryEntity;
+      amount: number;
+    }>
+  > {
+    const qb = this.dataSource.manager
+      .createQueryBuilder(FlowRecordEntity, 'flowRecord')
+      .select('SUM(flowRecord.amount)', 'totalAmount')
+      .addSelect('category.*')
+      .leftJoin('flowRecord.tag', 'tag')
+      .leftJoin('tag.category', 'category')
+      .groupBy('category.id')
+      .where('flowRecord.accountBookId = :accountBookId', { accountBookId });
+
+    if (tagId) {
+      qb.andWhere('flowRecord.tagId = :tagId', {
+        tagId,
+      });
+    }
+
+    if (traderId) {
+      qb.andWhere('flowRecord.traderId = :traderId', {
+        traderId,
+      });
+    }
+
+    if (categoryType) {
+      qb.andWhere('category.type = :categoryType', { categoryType });
+    }
+
+    if (savingAccountId) {
+      qb.andWhere('flowRecord.savingAccountId = :savingAccountId', {
+        savingAccountId,
+      });
+    }
+
+    if (startDate) {
+      qb.andWhere('flowRecord.dealAt >= :startDate', { startDate });
+    }
+
+    if (endDate) {
+      qb.andWhere('flowRecord.dealAt <= :endDate', { endDate });
+    }
+
+    const ret: Array<
+      CategoryEntity & {
+        totalAmount: string | null;
+      }
+    > = await qb.getRawMany();
+
+    return ret.map((it) => {
+      const { totalAmount, ...category } = it;
+      return {
+        amount: +(totalAmount || 0),
+        category,
+      };
+    });
+  }
+
   async findFlowRecordTotalAmountPerTraderByIdAndGroupByDate(
     {
       endDate,

@@ -3,6 +3,7 @@ import { AccountBookService } from '../../service/AccountBookService';
 import {
   DateGroupBy,
   FlowRecordTotalAmountFilter,
+  FlowRecordTotalAmountPerCategoryFilter,
   FlowRecordTotalAmountPerTraderFilter,
 } from '../graphql';
 import { GraphqlEntity } from '../types';
@@ -222,6 +223,63 @@ export class AccountBookStatisticsResolver {
         trader: {
           ...trader,
           id: encodeId(EntityName.USER, trader.id),
+        },
+      };
+    });
+  }
+
+  @ResolveField()
+  async flowRecordTotalAmountPerCategory(
+    @Parent() parent: GraphqlEntity<AccountBookStatistics>,
+    @Args('filter') filter?: FlowRecordTotalAmountPerCategoryFilter,
+  ) {
+    const accountBookId = decodeId(
+      EntityName.ACCOUNT_BOOK_STATISTICS,
+      parent.id,
+    );
+
+    const {
+      traderId,
+      tagId,
+      startDate,
+      endDate,
+      savingAccountId,
+      categoryType,
+    } = filter || {};
+
+    const array =
+      await this.accountBookService.findFlowRecordTotalAmountPerCategoryById(
+        {
+          ...(categoryType && {
+            categoryType,
+          }),
+          ...(traderId && {
+            traderId: getUserId(traderId),
+          }),
+          ...(tagId && {
+            tagId: decodeId(EntityName.TAG, tagId),
+          }),
+          ...(savingAccountId && {
+            savingAccountId: decodeId(
+              EntityName.SAVING_ACCOUNT,
+              savingAccountId,
+            ),
+          }),
+          ...(startDate && { startDate }),
+          ...(endDate && {
+            endDate,
+          }),
+        },
+        accountBookId,
+      );
+
+    return array.map((it) => {
+      const { amount, category } = it;
+      return {
+        amount,
+        category: {
+          ...it.category,
+          id: encodeId(EntityName.CATEGORY, category.id),
         },
       };
     });

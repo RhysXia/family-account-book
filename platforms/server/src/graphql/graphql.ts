@@ -81,6 +81,15 @@ export interface FlowRecordTotalAmountPerTraderFilter {
     endDate?: Nullable<Date>;
 }
 
+export interface FlowRecordTotalAmountPerCategoryFilter {
+    categoryType?: Nullable<CategoryType>;
+    traderId?: Nullable<string>;
+    savingAccountId?: Nullable<string>;
+    tagId?: Nullable<string>;
+    startDate?: Nullable<Date>;
+    endDate?: Nullable<Date>;
+}
+
 export interface CategoryFlowRecordFilter {
     savingAccountId?: Nullable<string>;
     tagId?: Nullable<string>;
@@ -235,6 +244,11 @@ export interface IMutation {
     signUp(user: SignUpUserInput): DetailUser | Promise<DetailUser>;
 }
 
+export interface FlowRecordTotalAmountPerCategory {
+    category: Category;
+    amount: number;
+}
+
 export interface FlowRecordTotalAmountPerUser {
     trader: User;
     amount: number;
@@ -256,6 +270,7 @@ export interface AccountBookStatistics {
     flowRecordTotalAmountPerTrader: FlowRecordTotalAmountPerUser[];
     flowRecordTotalAmountGroupByDate: FlowRecordTotalAmountGroupByDate[];
     flowRecordTotalAmountPerTraderGroupByDate: FlowRecordTotalAmountPerUserGroupByDate[];
+    flowRecordTotalAmountPerCategory: FlowRecordTotalAmountPerCategory[];
 }
 
 export interface Category extends EntityDateTime {

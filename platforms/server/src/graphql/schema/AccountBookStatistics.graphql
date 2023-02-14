@@ -17,6 +17,20 @@ input FlowRecordTotalAmountPerTraderFilter {
   endDate: Date
 }
 
+input FlowRecordTotalAmountPerCategoryFilter {
+  categoryType: CategoryType
+  traderId: ID
+  savingAccountId: ID
+  tagId: ID
+  startDate: Date
+  endDate: Date
+}
+
+type FlowRecordTotalAmountPerCategory {
+  category: Category!
+  amount: Float!
+}
+
 type FlowRecordTotalAmountPerUser {
   trader: User!
   amount: Float!
@@ -62,4 +76,8 @@ type AccountBookStatistics {
     groupBy: DateGroupBy!
     filter: FlowRecordTotalAmountPerTraderFilter
   ): [FlowRecordTotalAmountPerUserGroupByDate!]!
+
+  flowRecordTotalAmountPerCategory(
+    filter: FlowRecordTotalAmountPerCategoryFilter
+  ): [FlowRecordTotalAmountPerCategory!]!
 }

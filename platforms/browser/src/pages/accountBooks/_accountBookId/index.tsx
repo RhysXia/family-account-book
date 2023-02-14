@@ -1,4 +1,3 @@
-import Card from '@/components/Card';
 import Content from '@/components/Content';
 import DatePicker from '@/components/DatePicker';
 import { useGetCategoryListByAccountBookId } from '@/graphql/category';
@@ -10,6 +9,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { useAtom } from 'jotai';
 import { useCallback, useEffect, useState } from 'react';
 import AmountCard from './commons/AmountCard';
+import FlowRecordPie from './commons/FlowRecordPie';
 import FlowRecordTrend from './commons/FlowRecordTrend';
 
 const Overview = () => {
@@ -123,6 +123,22 @@ const Overview = () => {
             </div>
           ))}
         </div>
+
+        <div className="flex flex-row flex-wrap -m-2">
+          <div className="w-1/4 h-96 p-2">
+            <FlowRecordPie
+              categoryType={CategoryType.EXPENDITURE}
+              dateRange={dateRange}
+            />
+          </div>
+          <div className="w-1/4 h-96 p-2">
+            <FlowRecordPie
+              categoryType={CategoryType.INCOME}
+              dateRange={dateRange}
+            />
+          </div>
+        </div>
+
         <div className="bg-white rounded px-4">
           <Tabs
             size="large"
@@ -144,10 +160,6 @@ const Overview = () => {
               </Tabs.TabPane>
             ))}
           </Tabs>
-        </div>
-
-        <div className="">
-          <Card title="各类支出占比">qqqq</Card>
         </div>
       </div>
     </Content>
