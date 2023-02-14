@@ -6,20 +6,19 @@ import { Empty } from 'antd';
 import { Dayjs } from 'dayjs';
 import { useAtom } from 'jotai';
 import { FC, useMemo } from 'react';
-// import * as echarts from 'echarts/core';
 
 export type FlowRecordTrendProps = {
   category?: Category;
-  categoryType?: CategoryType;
   groupBy: DateGroupBy;
   dateRange?: [Dayjs | null, Dayjs | null] | null;
+  enableStack?: boolean;
 };
 
 const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
   category,
   groupBy,
   dateRange,
-  categoryType,
+  enableStack,
 }) => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
 
@@ -28,7 +27,6 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
       accountBookId: activeAccountBook!.id,
       groupBy,
       filter: {
-        categoryType,
         categoryId: category?.id,
         startDate: dateRange?.[0]?.toISOString(),
         endDate: dateRange?.[1]?.toISOString(),
@@ -52,29 +50,38 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
 
     const all: Array<Array<any>> = [];
 
+    let prevArray: Array<any> | undefined;
+
     dates.forEach((date) => {
       const array: Array<any> = [date];
 
-      header.forEach((name) => {
+      header.forEach((name, index) => {
         const dateAmount = source.find(
           (it) => it.trader.nickname === name,
         )!.amountPerDate;
 
-        const amount = dateAmount.find((it) => it.dealAt === date)?.amount || 0;
-
-        array.push(
-          (category?.type || categoryType) === CategoryType.EXPENDITURE
-            ? -amount
-            : amount,
+        let amount = absAmount(
+          dateAmount.find((it) => it.dealAt === date)?.amount || 0,
+          category?.type,
         );
+
+        if (enableStack) {
+          const prevAmount = prevArray?.[index + 1] || 0;
+
+          amount += prevAmount;
+        }
+
+        array.push(amount);
       });
+
       all.push(array);
+      prevArray = array;
     });
 
     all.unshift(['日期', ...header]);
 
     return all;
-  }, [data, category, categoryType]);
+  }, [data, category, enableStack]);
 
   const options = useMemo<EchartsOptions>(() => {
     const categories = dataset[0].slice(1) as Array<string>;
@@ -109,35 +116,32 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
       dataset: {
         source: dataset,
       },
+
       series: categories.map((it, index) => {
         // const i = index % COLORS.length;
 
-        return {
-          type: 'bar',
-          stack: 'Total',
-          stackStrategy: 'all',
-          smooth: true,
-          barMaxWidth: 50,
-          emphasis: {
-            focus: 'series',
-          },
-          // areaStyle: {
-          //   opacity: 0.8,
-          //   // color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-          //   //   {
-          //   //     offset: 0,
-          //   //     color: COLORS[i][0],
-          //   //   },
-          //   //   {
-          //   //     offset: 1,
-          //   //     color: COLORS[i][1],
-          //   //   },
-          //   // ]),
-          // },
-        };
+        return enableStack
+          ? {
+              type: 'line',
+              // stack: 'Total',
+              // stackStrategy: 'all',
+              smooth: true,
+              emphasis: {
+                focus: 'series',
+              },
+            }
+          : {
+              type: 'bar',
+              barMaxWidth: 50,
+              // stack: 'Total',
+              // stackStrategy: 'all',
+              emphasis: {
+                focus: 'series',
+              },
+            };
       }),
     };
-  }, [dataset]);
+  }, [dataset, enableStack]);
 
   const isEmpty = dataset.length < 2;
 
@@ -153,3 +157,6 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
 };
 
 export default FlowRecordTrend;
+
+const absAmount = (amount: number, type?: CategoryType) =>
+  type === CategoryType.EXPENDITURE ? -amount : amount;

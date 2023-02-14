@@ -4,7 +4,7 @@ import { useGetCategoryListByAccountBookId } from '@/graphql/category';
 import useConstantFn from '@/hooks/useConstanFn';
 import { activeAccountBookAtom } from '@/store';
 import { CategoryType, DateGroupBy } from '@/types';
-import { Radio, RadioChangeEvent, Tabs } from 'antd';
+import { Radio, RadioChangeEvent, Switch, Tabs } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import { useAtom } from 'jotai';
 import { useCallback, useEffect, useState } from 'react';
@@ -18,6 +18,8 @@ const Overview = () => {
   const [groupBy, setGroupBy] = useState<DateGroupBy>('DAY');
 
   const [manualDateChange, setManualDateChange] = useState(false);
+
+  const [enableStack, setEnableStack] = useState(false);
 
   const { data: categoriesData } = useGetCategoryListByAccountBookId({
     accountBookId: activeAccountBook!.id,
@@ -145,14 +147,25 @@ const Overview = () => {
             activeKey={activeCategoryType}
             onChange={setActiveCategoryType as any}
             destroyInactiveTabPane={true}
+            tabBarExtraContent={
+              <div>
+                <span className=''>开启累计视图</span>
+                <Switch checked={enableStack} onChange={setEnableStack} />
+              </div>
+            }
           >
             <Tabs.TabPane tab="净收入">
-              <FlowRecordTrend dateRange={dateRange} groupBy={groupBy} />
+              <FlowRecordTrend
+                enableStack={enableStack}
+                dateRange={dateRange}
+                groupBy={groupBy}
+              />
             </Tabs.TabPane>
 
             {categoriesData?.data.map((it) => (
               <Tabs.TabPane tab={it.name} key={it.id}>
                 <FlowRecordTrend
+                  enableStack={enableStack}
                   dateRange={dateRange}
                   groupBy={groupBy}
                   category={it}
