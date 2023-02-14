@@ -112,11 +112,11 @@ const Overview = () => {
         </div>
 
         <div className="-m-2 -mb-0 flex items-center flex-wrap">
-          <div className="md:w-1/2 lg:w-1/4 p-2">
+          <div className="w-1/2 xl:w-1/4 p-2">
             <AmountCard groupBy={groupBy} dateRange={dateRange} />
           </div>
           {categoriesData?.data.map((it) => (
-            <div key={it.id} className="md:w-1/2 lg:w-1/4 p-2">
+            <div key={it.id} className="w-1/2 xl:w-1/4 p-2">
               <AmountCard
                 groupBy={groupBy}
                 category={it}
@@ -127,13 +127,13 @@ const Overview = () => {
         </div>
 
         <div className="flex flex-row flex-wrap -m-2">
-          <div className="w-1/4 h-96 p-2">
+          <div className="w-1/2 xxl:w-1/4 h-96 p-2">
             <FlowRecordPie
               categoryType={CategoryType.EXPENDITURE}
               dateRange={dateRange}
             />
           </div>
-          <div className="w-1/4 h-96 p-2">
+          <div className="w-1/2 xxl:w-1/4 h-96 p-2">
             <FlowRecordPie
               categoryType={CategoryType.INCOME}
               dateRange={dateRange}
