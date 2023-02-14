@@ -4,7 +4,6 @@ import {
   DefaultContext,
   DocumentNode,
   FetchResult,
-  LazyQueryExecFunction,
   LazyQueryHookOptions,
   MutationFunctionOptions,
   MutationHookOptions,
