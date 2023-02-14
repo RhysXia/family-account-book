@@ -1,7 +1,7 @@
 import { activeAccountBookAtom } from '@/store';
 import { useAtom } from 'jotai';
-import { FC } from 'react';
-import { Dayjs } from 'dayjs';
+import { FC, useMemo } from 'react';
+import dayjs from 'dayjs';
 import IndicatorCard from '@/components/IndicatorCard';
 import Indicator from '@/components/Indicator';
 import { Category, DateGroupBy } from '@/types';
@@ -9,29 +9,37 @@ import {
   useGetFlowRecordTotalAmountByAccountBookId,
   useGetFlowRecordTotalAmountPerTraderByAccountBookId,
 } from '@/graphql/accountBookStatistics';
+import { DATE_GROUP_BY_MAP } from '@/utils/constants';
 
 export type AmountCardProps = {
-  category?: Category;
-  dateRange?: [Dayjs | null, Dayjs | null] | null;
   groupBy: DateGroupBy;
+  category?: Category;
 };
 
-const groupByText: Record<DateGroupBy, string> = {
-  DAY: '日',
-  MONTH: '月',
-  YEAR: '年',
-};
-
-const AmountCard: FC<AmountCardProps> = ({ category, dateRange, groupBy }) => {
+const AmountCard: FC<AmountCardProps> = ({ category, groupBy }) => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
+
+  const dateRange = useMemo(() => {
+    const startDate = dayjs().startOf(groupBy);
+    const endDate = startDate.add(1, groupBy);
+
+    return [startDate, endDate];
+  }, [groupBy]);
+
+  const lastDateRange = useMemo(() => {
+    const endDate = dateRange[0];
+    const startDate = dayjs().subtract(1, groupBy);
+
+    return [startDate, endDate];
+  }, [dateRange, groupBy]);
 
   const { data: currentMonthData } = useGetFlowRecordTotalAmountByAccountBookId(
     {
       accountBookId: activeAccountBook!.id,
       filter: {
         categoryId: category?.id,
-        startDate: dateRange?.[0]?.toISOString(),
-        endDate: dateRange?.[1]?.toISOString(),
+        startDate: dateRange[0].toISOString(),
+        endDate: dateRange[1].toISOString(),
       },
     },
   );
@@ -40,8 +48,8 @@ const AmountCard: FC<AmountCardProps> = ({ category, dateRange, groupBy }) => {
     accountBookId: activeAccountBook!.id,
     filter: {
       categoryId: category?.id,
-      startDate: dateRange?.[0]?.toISOString(),
-      endDate: dateRange?.[1]?.toISOString(),
+      startDate: lastDateRange[0].toISOString(),
+      endDate: lastDateRange[1].toISOString(),
     },
   });
 
@@ -77,17 +85,23 @@ const AmountCard: FC<AmountCardProps> = ({ category, dateRange, groupBy }) => {
 
   const name = category?.name || '净收入';
 
-  const text = groupByText[groupBy];
+  const tips = `统计${
+    groupBy === 'DAY'
+      ? '今天'
+      : `${dayjs(dateRange[0]).format('YYYY-MM-DD')}至${dayjs(
+          dateRange[1].subtract(1, 'day'),
+        ).format('YYYY-MM-DD')}`
+  }`;
 
   return (
     <IndicatorCard
       title={name}
-      tips={`${text}度${name}统计`}
+      tips={tips}
       value={currentMonthAmount}
       footer={userDetails}
     >
       <Indicator
-        title={`同比上${text}`}
+        title={`同比上${DATE_GROUP_BY_MAP[groupBy]}`}
         value={
           lastMonthAmount
             ? Math.abs((currentMonthAmount - lastMonthAmount) / lastMonthAmount)

@@ -1,4 +1,4 @@
-import { CategoryType } from '../types';
+import { CategoryType, DateGroupBy } from '../types';
 
 export const CategoryTypeInfoMap = {
   [CategoryType.EXPENDITURE]: {
@@ -26,3 +26,9 @@ export const COLORS = [
   ['rgb(0, 221, 255)', 'rgb(77, 119, 255)'],
   ['rgb(128, 255, 165)', 'rgb(1, 191, 236)'],
 ];
+
+export const DATE_GROUP_BY_MAP: Record<DateGroupBy, string> = {
+  DAY: '日',
+  MONTH: '月',
+  YEAR: '年',
+};

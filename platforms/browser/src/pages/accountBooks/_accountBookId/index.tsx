@@ -4,6 +4,7 @@ import { useGetCategoryListByAccountBookId } from '@/graphql/category';
 import useConstantFn from '@/hooks/useConstanFn';
 import { activeAccountBookAtom } from '@/store';
 import { CategoryType, DateGroupBy } from '@/types';
+import { DATE_GROUP_BY_MAP } from '@/utils/constants';
 import { Radio, RadioChangeEvent, Switch, Tabs } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import { useAtom } from 'jotai';
@@ -15,9 +16,25 @@ import FlowRecordTrend from './commons/FlowRecordTrend';
 const Overview = () => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
 
-  const [groupBy, setGroupBy] = useState<DateGroupBy>('DAY');
+  const [amountGroupBy, setAmountGroupBy] = useState<DateGroupBy>('DAY');
 
-  const [manualDateChange, setManualDateChange] = useState(false);
+  const [pieDateRange, setPieDateRange] = useState<
+    [Dayjs | null, Dayjs | null] | null
+  >(() => {
+    const now = dayjs();
+    return [now.startOf('month'), null];
+  });
+
+  const [lineDateRange, setLineDateRange] = useState<
+    [Dayjs | null, Dayjs | null] | null
+  >(() => {
+    const now = dayjs();
+    return [now.startOf('month'), null];
+  });
+
+  const [lineGroupBy, setLineGroupBy] = useState<DateGroupBy>('DAY');
+
+  const [lineManualDateChange, setLineManualDateChange] = useState(false);
 
   const [enableStack, setEnableStack] = useState(false);
 
@@ -39,48 +56,45 @@ const Overview = () => {
 
   const [activeCategoryType, setActiveCategoryType] = useState<CategoryType>();
 
-  const [dateRange, setDateRange] = useState<
-    [Dayjs | null, Dayjs | null] | null
-  >(() => {
-    const now = dayjs();
-    return [now.startOf('month'), null];
-  });
-
-  const handleDateChange = useCallback(
+  const handleLineDateChange = useCallback(
     (v: [Dayjs | null, Dayjs | null] | null) => {
-      setManualDateChange(true);
-      setDateRange(v);
+      setLineManualDateChange(true);
+      setLineDateRange(v);
     },
     [],
   );
 
   const changeDateRangeOnGroupBy = useConstantFn((groupByProp: DateGroupBy) => {
-    if (manualDateChange) {
+    if (lineManualDateChange) {
       return;
     }
     const now = dayjs();
     switch (groupByProp) {
       case 'DAY': {
-        setDateRange([now.startOf('month'), null]);
+        setLineDateRange([now.startOf('month'), null]);
         break;
       }
       case 'MONTH': {
-        setDateRange([now.startOf('year'), null]);
+        setLineDateRange([now.startOf('year'), null]);
         break;
       }
       case 'YEAR': {
-        setDateRange([null, null]);
+        setLineDateRange([null, null]);
         break;
       }
     }
   });
 
   useEffect(() => {
-    changeDateRangeOnGroupBy(groupBy);
-  }, [groupBy, changeDateRangeOnGroupBy]);
+    changeDateRangeOnGroupBy(lineGroupBy);
+  }, [lineGroupBy, changeDateRangeOnGroupBy]);
 
   const handleGroupByChange = useCallback((e: RadioChangeEvent) => {
-    setGroupBy(e.target.value);
+    setLineGroupBy(e.target.value);
+  }, []);
+
+  const handleAmountGroupByChange = useCallback((e: RadioChangeEvent) => {
+    setAmountGroupBy(e.target.value);
   }, []);
 
   const breadcrumbs = [
@@ -95,52 +109,61 @@ const Overview = () => {
 
   return (
     <Content breadcrumbs={breadcrumbs}>
-      <div className="-m-2 -mt-12 space-y-4 bg-gray-100">
-        <div className="flex items-center justify-end sticky top-8 z-50">
-          <div className="space-x-4 bg-white p-2 drop-shadow-lg">
-            <Radio.Group value={groupBy} onChange={handleGroupByChange}>
-              <Radio.Button value="DAY">按日</Radio.Button>
-              <Radio.Button value="MONTH">按月</Radio.Button>
-              <Radio.Button value="YEAR">按年</Radio.Button>
-            </Radio.Group>
-            <DatePicker.RangePicker
-              allowEmpty={[false, true]}
-              value={dateRange}
-              onChange={handleDateChange}
-            />
-          </div>
+      <div className="-m-2 space-y-4 bg-gray-100">
+        <div className="space-x-4 bg-white p-2 rounded flex items-center justify-between drop-shadow">
+          <span className="text-gray-800 font-bold text-lg">
+            当{DATE_GROUP_BY_MAP[amountGroupBy]}流水统计
+          </span>
+          <Radio.Group
+            value={amountGroupBy}
+            onChange={handleAmountGroupByChange}
+          >
+            <Radio.Button value="DAY">按日</Radio.Button>
+            <Radio.Button value="MONTH">按月</Radio.Button>
+            <Radio.Button value="YEAR">按年</Radio.Button>
+          </Radio.Group>
         </div>
 
         <div className="-m-2 -mb-0 flex items-center flex-wrap">
           <div className="w-1/2 xl:w-1/4 p-2">
-            <AmountCard groupBy={groupBy} dateRange={dateRange} />
+            <AmountCard groupBy={amountGroupBy} />
           </div>
           {categoriesData?.data.map((it) => (
             <div key={it.id} className="w-1/2 xl:w-1/4 p-2">
-              <AmountCard
-                groupBy={groupBy}
-                category={it}
-                dateRange={dateRange}
-              />
+              <AmountCard category={it} groupBy={amountGroupBy} />
             </div>
           ))}
         </div>
 
+        <div className="space-x-4 bg-white p-2 rounded flex items-center justify-between drop-shadow">
+          <span className="text-gray-800 font-bold text-lg">
+            各项流水占比统计
+          </span>
+          <DatePicker.RangePicker
+            allowEmpty={[false, true]}
+            value={pieDateRange}
+            onChange={setPieDateRange}
+          />
+        </div>
         <div className="flex flex-row flex-wrap -m-2">
           <div className="w-1/2 xxl:w-1/4 h-96 p-2">
             <FlowRecordPie
               categoryType={CategoryType.EXPENDITURE}
-              dateRange={dateRange}
+              dateRange={pieDateRange}
             />
           </div>
           <div className="w-1/2 xxl:w-1/4 h-96 p-2">
             <FlowRecordPie
               categoryType={CategoryType.INCOME}
-              dateRange={dateRange}
+              dateRange={pieDateRange}
             />
           </div>
         </div>
-
+        <div className="space-x-4 bg-white p-2 rounded flex items-center justify-between drop-shadow">
+          <span className="text-gray-800 font-bold text-lg">
+            各项流水详细信息统计
+          </span>
+        </div>
         <div className="bg-white rounded px-4">
           <Tabs
             size="large"
@@ -148,17 +171,29 @@ const Overview = () => {
             onChange={setActiveCategoryType as any}
             destroyInactiveTabPane={true}
             tabBarExtraContent={
-              <div>
-                <span className="pr-2">开启累计视图</span>
-                <Switch checked={enableStack} onChange={setEnableStack} />
+              <div className="space-x-4 flex flex-row">
+                <div className="flex items-center">
+                  <span className="pr-2">开启累计视图</span>
+                  <Switch checked={enableStack} onChange={setEnableStack} />
+                </div>
+                <Radio.Group value={lineGroupBy} onChange={handleGroupByChange}>
+                  <Radio.Button value="DAY">按日</Radio.Button>
+                  <Radio.Button value="MONTH">按月</Radio.Button>
+                  <Radio.Button value="YEAR">按年</Radio.Button>
+                </Radio.Group>
+                <DatePicker.RangePicker
+                  allowEmpty={[false, true]}
+                  value={lineDateRange}
+                  onChange={handleLineDateChange}
+                />
               </div>
             }
           >
             <Tabs.TabPane tab="净收入">
               <FlowRecordTrend
                 enableStack={enableStack}
-                dateRange={dateRange}
-                groupBy={groupBy}
+                dateRange={lineDateRange}
+                groupBy={lineGroupBy}
               />
             </Tabs.TabPane>
 
@@ -166,8 +201,8 @@ const Overview = () => {
               <Tabs.TabPane tab={it.name} key={it.id}>
                 <FlowRecordTrend
                   enableStack={enableStack}
-                  dateRange={dateRange}
-                  groupBy={groupBy}
+                  dateRange={lineDateRange}
+                  groupBy={lineGroupBy}
                   category={it}
                 />
               </Tabs.TabPane>

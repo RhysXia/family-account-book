@@ -73,7 +73,7 @@ export class AccountBookService {
     }
 
     if (endDate) {
-      qb.andWhere('flowRecord.dealAt <= :endDate', { endDate });
+      qb.andWhere('flowRecord.dealAt < :endDate', { endDate });
     }
 
     const ret: Array<
@@ -186,7 +186,7 @@ export class AccountBookService {
     }
 
     if (endDate) {
-      qb.andWhere('flowRecord.dealAt <= :endDate', { endDate });
+      qb.andWhere('flowRecord.dealAt < :endDate', { endDate });
     }
 
     const ret: Array<{
@@ -296,7 +296,7 @@ export class AccountBookService {
     }
 
     if (endDate) {
-      qb.andWhere('flowRecord.dealAt <= :endDate', { endDate });
+      qb.andWhere('flowRecord.dealAt < :endDate', { endDate });
     }
 
     const ret: Array<{
@@ -403,7 +403,7 @@ export class AccountBookService {
     }
 
     if (endDate) {
-      qb.andWhere('flowRecord.dealAt <= :endDate', { endDate });
+      qb.andWhere('flowRecord.dealAt < :endDate', { endDate });
     }
 
     if (traderId) {
@@ -485,7 +485,7 @@ export class AccountBookService {
     }
 
     if (endDate) {
-      qb.andWhere('flowRecord.dealAt <= :endDate', { endDate });
+      qb.andWhere('flowRecord.dealAt < :endDate', { endDate });
     }
 
     const ret = await qb.getRawOne<{ totalAmount: string | null }>();

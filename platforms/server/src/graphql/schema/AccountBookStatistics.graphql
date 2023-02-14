@@ -4,7 +4,13 @@ input FlowRecordTotalAmountFilter {
   traderId: ID
   savingAccountId: ID
   tagId: ID
+  """
+  开始时间
+  """
   startDate: Date
+  """
+  结束时间，不包含结束时间点
+  """
   endDate: Date
 }
 
@@ -13,7 +19,13 @@ input FlowRecordTotalAmountPerTraderFilter {
   categoryType: CategoryType
   tagId: ID
   savingAccountId: ID
+  """
+  开始时间
+  """
   startDate: Date
+  """
+  结束时间，不包含结束时间点
+  """
   endDate: Date
 }
 
@@ -22,7 +34,13 @@ input FlowRecordTotalAmountPerCategoryFilter {
   traderId: ID
   savingAccountId: ID
   tagId: ID
+  """
+  开始时间
+  """
   startDate: Date
+  """
+  结束时间，不包含结束时间点
+  """
   endDate: Date
 }
 

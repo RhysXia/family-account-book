@@ -28,7 +28,7 @@ const IndicatorCard: FC<IndicatorCardProps> = ({
     ));
 
   return (
-    <div className="bg-white w-full hover:shadow rounded p-4">
+    <div className="bg-white w-full hover:shadow transition rounded p-4">
       <div className="text-gray-500 flex items-center justify-between">
         <div>{title}</div>
         {action && <div>{action}</div>}
