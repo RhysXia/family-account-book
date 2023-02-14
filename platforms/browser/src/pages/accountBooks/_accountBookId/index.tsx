@@ -4,7 +4,6 @@ import { useGetCategoryListByAccountBookId } from '@/graphql/category';
 import useConstantFn from '@/hooks/useConstanFn';
 import { activeAccountBookAtom } from '@/store';
 import { CategoryType, DateGroupBy } from '@/types';
-import { CategoryTypes } from '@/utils/constants';
 import { Radio, RadioChangeEvent, Tabs } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import { useAtom } from 'jotai';
@@ -124,6 +123,22 @@ const Overview = () => {
             </div>
           ))}
         </div>
+
+        <div className="flex flex-row flex-wrap -m-2">
+          <div className="w-1/4 h-96 p-2">
+            <FlowRecordPie
+              categoryType={CategoryType.EXPENDITURE}
+              dateRange={dateRange}
+            />
+          </div>
+          <div className="w-1/4 h-96 p-2">
+            <FlowRecordPie
+              categoryType={CategoryType.INCOME}
+              dateRange={dateRange}
+            />
+          </div>
+        </div>
+
         <div className="bg-white rounded px-4">
           <Tabs
             size="large"
@@ -145,17 +160,6 @@ const Overview = () => {
               </Tabs.TabPane>
             ))}
           </Tabs>
-        </div>
-
-        <div className="">
-          {CategoryTypes.map((it) => (
-            <FlowRecordPie
-              categoryType={it}
-              key={it}
-              groupBy={groupBy}
-              dateRange={dateRange}
-            />
-          ))}
         </div>
       </div>
     </Content>

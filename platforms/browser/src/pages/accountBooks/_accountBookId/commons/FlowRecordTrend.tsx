@@ -15,14 +15,6 @@ export type FlowRecordTrendProps = {
   dateRange?: [Dayjs | null, Dayjs | null] | null;
 };
 
-const COLORS = [
-  ['rgb(255, 191, 0)', 'rgb(224, 62, 76)'],
-  ['rgb(255, 0, 135)', 'rgb(135, 0, 157)'],
-  ['rgb(55, 162, 255)', 'rgb(116, 21, 219)'],
-  ['rgb(0, 221, 255)', 'rgb(77, 119, 255)'],
-  ['rgb(128, 255, 165)', 'rgb(1, 191, 236)'],
-];
-
 const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
   category,
   groupBy,
@@ -87,7 +79,7 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
   const options = useMemo<EchartsOptions>(() => {
     const categories = dataset[0].slice(1) as Array<string>;
     return {
-      color: COLORS.map((it) => it[0]),
+      // color: COLORS.map((it) => it[0]),
       tooltip: {
         trigger: 'axis',
         axisPointer: {
@@ -154,7 +146,7 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
       {isEmpty ? (
         <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
       ) : (
-        <ReactEcharts className="w-full h-full" options={options} />
+        <ReactEcharts options={options} />
       )}
     </div>
   );

@@ -8,11 +8,14 @@ export type CardProps = HTMLAttributes<HTMLDivElement> & {
 
 const Card: FC<CardProps> = ({ title, children, className, ...others }) => {
   return (
-    <div {...others} className={clsx('bg-white p-2 rounded', className)}>
+    <div
+      {...others}
+      className={clsx('bg-white p-2 rounded flex flex-col', className)}
+    >
       <div className="text-gray-800 text-lg py-2 border-gray-200 border-b">
         {title}
       </div>
-      <div className="py-2">{children}</div>
+      <div className="py-2 w-full flex-1">{children}</div>
     </div>
   );
 };

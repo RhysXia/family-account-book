@@ -13,6 +13,8 @@ import {
   BarSeriesOption,
   LineChart,
   LineSeriesOption,
+  PieChart,
+  PieSeriesOption,
 } from 'echarts/charts';
 import {
   TooltipComponent,
@@ -24,6 +26,7 @@ import {
   LegendComponent,
   LegendComponentOption,
 } from 'echarts/components';
+import { COLORS } from '@/utils/constants';
 
 echarts.use([
   CanvasRenderer,
@@ -35,11 +38,13 @@ echarts.use([
   GridComponent,
   BarChart,
   LineChart,
+  PieChart,
 ]);
 
 export type EchartsOptions = echarts.ComposeOption<
   | BarSeriesOption
   | LineSeriesOption
+  | PieSeriesOption
   | LegendComponentOption
   | TooltipComponentOption
   | DatasetComponentOption
@@ -66,7 +71,9 @@ const ReactEcharts = forwardRef<{ echarts?: echarts.ECharts }, EchartsProps>(
       if (!domRef.current) {
         return;
       }
-      const instance = echarts.init(domRef.current);
+      const instance = echarts.init(domRef.current, {
+        color: COLORS.map((it) => it[0]),
+      });
 
       echartInstance.current = instance;
 

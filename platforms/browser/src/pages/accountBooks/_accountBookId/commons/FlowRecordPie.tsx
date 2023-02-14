@@ -2,24 +2,21 @@ import { activeAccountBookAtom } from '@/store';
 import { useAtom } from 'jotai';
 import { FC, useMemo } from 'react';
 import { Dayjs } from 'dayjs';
-import { CategoryType, DateGroupBy } from '@/types';
+import { CategoryType } from '@/types';
 import { useGetFlowRecordTotalAmountPerCategoryByAccountBookId } from '@/graphql/accountBookStatistics';
 import Card from '@/components/Card';
 import { CategoryTypeInfoMap } from '@/utils/constants';
 import ReactEcharts, { EchartsOptions } from '@/components/ReactEcharts';
 import { Empty } from 'antd';
+import { LabelFormatterCallback } from 'echarts';
+import { CallbackDataParams } from 'echarts/types/dist/shared';
 
 export type AmountCardProps = {
   categoryType: CategoryType;
   dateRange?: [Dayjs | null, Dayjs | null] | null;
-  groupBy: DateGroupBy;
 };
 
-const FlowRecordPie: FC<AmountCardProps> = ({
-  categoryType,
-  dateRange,
-  groupBy,
-}) => {
+const FlowRecordPie: FC<AmountCardProps> = ({ categoryType, dateRange }) => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
 
   const { data } = useGetFlowRecordTotalAmountPerCategoryByAccountBookId({
@@ -34,34 +31,40 @@ const FlowRecordPie: FC<AmountCardProps> = ({
   const options = useMemo<EchartsOptions>(() => {
     const list = data || [];
 
+    const formatter: LabelFormatterCallback<CallbackDataParams> = ({
+      name,
+      value,
+      percent,
+    }) =>
+      `${name} : ${value.toLocaleString('zh-CN', {
+        style: 'currency',
+        currency: 'CNY',
+      })} (${percent}%)`;
+
     return {
-      // color: COLORS.map((it) => it[0]),
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'cross',
-          label: {
-            backgroundColor: '#6a7985',
-          },
-        },
-      },
       grid: {
-        left: 20,
-        right: 40,
-        bottom: 20,
-        top: 30,
-        containLabel: true,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        top: 0,
       },
       legend: {
+        orient: 'vertical',
         right: 0,
       },
       series: [
         {
           name: CategoryTypeInfoMap[categoryType].text,
           type: 'pie',
-          radius: '50%',
+          label: {
+            show: true,
+            formatter,
+          },
+          labelLine: {
+            show: true,
+          },
           data: list.map((it) => ({
-            value: it.amount,
+            value: Math.abs(it.amount),
             name: it.category.name,
           })),
         },
@@ -72,12 +75,17 @@ const FlowRecordPie: FC<AmountCardProps> = ({
   const isEmpty = !data || data.length === 0;
 
   return (
-    <Card title={CategoryTypeInfoMap[categoryType].text}>
-      {isEmpty ? (
-        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-      ) : (
-        <ReactEcharts className="w-full h-full" options={options} />
-      )}
+    <Card
+      className="w-full h-full"
+      title={CategoryTypeInfoMap[categoryType].text}
+    >
+      <div className="w-full h-full flex justify-center items-center">
+        {isEmpty ? (
+          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        ) : (
+          <ReactEcharts className="w-full h-full" options={options} />
+        )}
+      </div>
     </Card>
   );
 };
