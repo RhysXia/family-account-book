@@ -149,7 +149,7 @@ const Overview = () => {
             destroyInactiveTabPane={true}
             tabBarExtraContent={
               <div>
-                <span className=''>开启累计视图</span>
+                <span className="pr-2">开启累计视图</span>
                 <Switch checked={enableStack} onChange={setEnableStack} />
               </div>
             }
