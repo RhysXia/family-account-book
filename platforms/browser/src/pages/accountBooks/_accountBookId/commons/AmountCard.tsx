@@ -1,7 +1,7 @@
 import { activeAccountBookAtom } from '@/store';
 import { useAtom } from 'jotai';
 import { FC, useMemo } from 'react';
-import dayjs from 'dayjs';
+import dayjs, { ManipulateType } from 'dayjs';
 import IndicatorCard from '@/components/IndicatorCard';
 import Indicator from '@/components/Indicator';
 import { Category, DateGroupBy } from '@/types';
@@ -19,19 +19,21 @@ export type AmountCardProps = {
 const AmountCard: FC<AmountCardProps> = ({ category, groupBy }) => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
 
+  const unit = groupBy.toLowerCase() as ManipulateType;
+
   const dateRange = useMemo(() => {
-    const startDate = dayjs().startOf(groupBy);
-    const endDate = startDate.add(1, groupBy);
+    const startDate = dayjs().startOf(unit);
+    const endDate = startDate.add(1, unit);
 
     return [startDate, endDate];
-  }, [groupBy]);
+  }, [unit]);
 
   const lastDateRange = useMemo(() => {
     const endDate = dateRange[0];
-    const startDate = dayjs().subtract(1, groupBy);
+    const startDate = dayjs().subtract(1, unit);
 
     return [startDate, endDate];
-  }, [dateRange, groupBy]);
+  }, [dateRange, unit]);
 
   const { data: currentMonthData } = useGetFlowRecordTotalAmountByAccountBookId(
     {
