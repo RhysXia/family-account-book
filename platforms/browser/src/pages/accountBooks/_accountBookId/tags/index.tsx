@@ -297,13 +297,16 @@ const TagPage = () => {
             ))}
           </Select>
         </div>
-        <Table
-          onEditSubmit={handleEdit}
-          index="id"
-          editable={true}
-          columns={columns}
-          data={data?.data || []}
-        />
+        <div className="overflow-x-auto">
+          <Table
+            className="whitespace-nowrap"
+            onEditSubmit={handleEdit}
+            index="id"
+            editable={true}
+            columns={columns}
+            data={data?.data || []}
+          />
+        </div>
       </div>
       <CreateModal
         visible={createModalVisible}

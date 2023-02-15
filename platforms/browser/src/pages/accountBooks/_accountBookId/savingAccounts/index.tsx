@@ -217,12 +217,15 @@ const SavingAccountPage = () => {
       }
       title="账户列表"
     >
-      <Table
-        columns={columns}
-        editable={true}
-        data={data?.data || []}
-        onEditSubmit={handleEdit}
-      />
+      <div className="overflow-x-auto">
+        <Table
+          columns={columns}
+          editable={true}
+          data={data?.data || []}
+          onEditSubmit={handleEdit}
+          className="whitespace-nowrap"
+        />
+      </div>
       <CreateModal
         visible={createModalVisible}
         onChange={setCreateModalVisible}

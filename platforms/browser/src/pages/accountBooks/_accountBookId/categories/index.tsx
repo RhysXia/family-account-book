@@ -244,12 +244,15 @@ const CategoryPage = () => {
             })}
           </Select>
         </div>
-        <Table
-          editable={true}
-          columns={columns}
-          data={data?.data || []}
-          onEditSubmit={handleEdit}
-        />
+        <div className="overflow-x-auto">
+          <Table
+            className="whitespace-nowrap"
+            editable={true}
+            columns={columns}
+            data={data?.data || []}
+            onEditSubmit={handleEdit}
+          />
+        </div>
       </div>
       <CreateModal
         visible={createModalVisible}

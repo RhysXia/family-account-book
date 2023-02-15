@@ -27,13 +27,31 @@ const Table: FC<TableProps> = ({
       className={clsx('table w-full rounded border-collapse', className)}
     >
       <div className="table-header-group bg-slate-200 font-bold">
-        {columns.map(({ style, title }, i) => {
-          return (
-            <div key={i} className="table-cell p-2" style={style}>
-              {title}
-            </div>
-          );
-        })}
+        {columns.map(
+          (
+            {
+              style,
+              className: _className,
+              headerClassName,
+              headerStyle,
+              title,
+            },
+            i,
+          ) => {
+            return (
+              <div
+                key={i}
+                className={clsx(
+                  'table-cell p-2',
+                  headerClassName || _className,
+                )}
+                style={headerStyle || style}
+              >
+                {title}
+              </div>
+            );
+          },
+        )}
       </div>
       <div className="table-row-group">
         {data.map((it, i) => {

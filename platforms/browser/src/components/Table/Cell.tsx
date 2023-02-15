@@ -16,7 +16,9 @@ export type Render = (data: RenderProps) => ReactNode;
 export type Column = {
   title: string;
   style?: React.CSSProperties;
+  headerStyle?: React.CSSProperties;
   className?: string;
+  headerClassName?: string;
   render?: Render;
   dataIndex?: string;
 };

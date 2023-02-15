@@ -119,6 +119,40 @@ const Index = () => {
   const columns: Array<Column> = useMemo(
     () => [
       {
+        title: '标签',
+        dataIndex: 'tag',
+        style: {
+          minWidth: '15%',
+        },
+        render({
+          value,
+          isEdit,
+          onChange,
+        }: RenderProps<Itag & { category: Category }>) {
+          if (isEdit) {
+            return (
+              <TagSelect
+                className="w-full"
+                accountBookId={activeAccountBook!.id}
+                size="small"
+                value={value.id}
+                onChange={(id) => onChange(tags.find((it) => it.id === id)!)}
+              />
+            );
+          }
+          return (
+            <span
+              className="inline-block leading-4 rounded px-2 py-1 text-white"
+              style={{
+                background: CategoryTypeInfoMap[value.category.type].color,
+              }}
+            >
+              {value.name}
+            </span>
+          );
+        },
+      },
+      {
         title: '金额',
         style: {
           minWidth: '10%',
@@ -152,36 +186,67 @@ const Index = () => {
         },
       },
       {
-        title: '标签',
-        dataIndex: 'tag',
+        title: '交易人员',
+        dataIndex: 'trader',
         style: {
-          minWidth: '15%',
+          minWidth: '10%',
         },
-        render({
-          value,
-          isEdit,
-          onChange,
-        }: RenderProps<Itag & { category: Category }>) {
+        render({ value, isEdit, onChange }: RenderProps<User>) {
           if (isEdit) {
             return (
-              <TagSelect
-                className="w-full"
-                accountBookId={activeAccountBook!.id}
+              <Select
                 size="small"
                 value={value.id}
-                onChange={(id) => onChange(tags.find((it) => it.id === id)!)}
+                onChange={(v) => onChange(users.find((it) => it.id === v)!)}
+              >
+                {users.map((it) => {
+                  return (
+                    <Select.Option value={it.id} key={it.id}>
+                      <span className="flex items-center">{it.nickname}</span>
+                    </Select.Option>
+                  );
+                })}
+              </Select>
+            );
+          }
+          return <span className="p-2">{value.nickname}</span>;
+        },
+      },
+      {
+        title: '用途',
+        dataIndex: 'desc',
+        render({ value, isEdit, onChange }: RenderProps<string>) {
+          if (isEdit) {
+            return (
+              <Input
+                size="small"
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+              />
+            );
+          }
+          return <span className="p-2">{value}</span>;
+        },
+      },
+      {
+        title: '交易日期',
+        dataIndex: 'dealAt',
+        style: {
+          minWidth: '10%',
+        },
+        render({ value, isEdit, onChange }: RenderProps<string>) {
+          if (isEdit) {
+            return (
+              <DatePicker
+                clearIcon={false}
+                size="small"
+                value={dayjs(value)}
+                onChange={(v) => onChange((v as Dayjs).toString())}
               />
             );
           }
           return (
-            <span
-              className="inline-block leading-4 rounded px-2 py-1 text-white"
-              style={{
-                background: CategoryTypeInfoMap[value.category.type].color,
-              }}
-            >
-              {value.name}
-            </span>
+            <span className="p-2">{dayjs(value).format('YYYY-MM-DD')}</span>
           );
         },
       },
@@ -219,71 +284,6 @@ const Index = () => {
             );
           }
           return <span className="p-2">{value.name}</span>;
-        },
-      },
-      {
-        title: '交易日期',
-        dataIndex: 'dealAt',
-        style: {
-          minWidth: '10%',
-        },
-        render({ value, isEdit, onChange }: RenderProps<string>) {
-          if (isEdit) {
-            return (
-              <DatePicker
-                clearIcon={false}
-                size="small"
-                value={dayjs(value)}
-                onChange={(v) => onChange((v as Dayjs).toString())}
-              />
-            );
-          }
-          return (
-            <span className="p-2">{dayjs(value).format('YYYY-MM-DD')}</span>
-          );
-        },
-      },
-      {
-        title: '交易人员',
-        dataIndex: 'trader',
-        style: {
-          minWidth: '10%',
-        },
-        render({ value, isEdit, onChange }: RenderProps<User>) {
-          if (isEdit) {
-            return (
-              <Select
-                size="small"
-                value={value.id}
-                onChange={(v) => onChange(users.find((it) => it.id === v)!)}
-              >
-                {users.map((it) => {
-                  return (
-                    <Select.Option value={it.id} key={it.id}>
-                      <span className="flex items-center">{it.nickname}</span>
-                    </Select.Option>
-                  );
-                })}
-              </Select>
-            );
-          }
-          return <span className="p-2">{value.nickname}</span>;
-        },
-      },
-      {
-        title: '描述',
-        dataIndex: 'desc',
-        render({ value, isEdit, onChange }: RenderProps<string>) {
-          if (isEdit) {
-            return (
-              <Input
-                size="small"
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-              />
-            );
-          }
-          return <span className="p-2">{value}</span>;
         },
       },
       {
@@ -433,14 +433,13 @@ const Index = () => {
             })}
           </Select>
         </div>
-        <div className="w-full overflow-x-auto">
+        <div className="overflow-x-auto">
           <Table
-            className="overflow-x-auto"
-            style={{ minWidth: 500 }}
             data={data?.data || []}
             columns={columns}
             editable={true}
             onEditSubmit={handleEditSubmit}
+            className="whitespace-nowrap"
           />
         </div>
       </div>
