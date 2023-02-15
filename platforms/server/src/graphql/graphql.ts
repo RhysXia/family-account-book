@@ -39,8 +39,8 @@ export interface AccountBookFlowRecordFilter {
     tagId?: Nullable<string>;
     categoryId?: Nullable<string>;
     savingAccountId?: Nullable<string>;
-    startDealAt?: Nullable<Date>;
-    endDealAt?: Nullable<Date>;
+    startDate?: Nullable<Date>;
+    endDate?: Nullable<Date>;
 }
 
 export interface AccountBookCategoryFilter {

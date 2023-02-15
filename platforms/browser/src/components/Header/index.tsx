@@ -1,13 +1,21 @@
 import Logo from './logo.svg';
-import { Avatar, Dropdown, Menu } from 'antd';
+import { Avatar, Dropdown, Menu, Popover } from 'antd';
 import { useAtom } from 'jotai';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { currentUserAtom } from '../../store';
+import { MenuOutlined } from '@ant-design/icons';
+import { useCallback } from 'react';
+import menus from '@/menus';
+import styles from './style.module.less';
 
 const Header = () => {
   const [currentUser] = useAtom(currentUserAtom);
 
   const navigate = useNavigate();
+
+  const { pathname } = useLocation();
+
+  const selectKey = pathname.replace(/\/accountBooks\/[\w\d=]+\/?/, '');
 
   const overlay = (
     <Menu
@@ -33,6 +41,24 @@ const Header = () => {
     />
   );
 
+  const handleSelect = useCallback(
+    (value: { key: string }) => {
+      navigate(value.key);
+    },
+    [navigate],
+  );
+
+  const menusNode = (
+    <Menu
+      onSelect={handleSelect}
+      className=""
+      defaultSelectedKeys={[selectKey]}
+      mode="inline"
+      items={menus}
+      style={{ width: 256 }}
+    />
+  );
+
   return (
     <nav className="bg-gray-800">
       <div className="mx-auto px-6 max-w-full">
@@ -48,12 +74,21 @@ const Header = () => {
               <div className="flex space-x-4"></div>
             </div>
           </div>
-          <div className="space-x-2">
+          <div className="space-x-2 lg:block hidden">
             <Dropdown overlay={overlay}>
               <Avatar className="bg-indigo-500 cursor-pointer">
                 {currentUser?.nickname}
               </Avatar>
             </Dropdown>
+          </div>
+          <div className="space-x-2 lg:hidden">
+            <Popover
+              content={menusNode}
+              showArrow={false}
+              overlayClassName={styles.menus}
+            >
+              <MenuOutlined className="text-white text-lg cursor-pointer" />
+            </Popover>
           </div>
         </div>
       </div>

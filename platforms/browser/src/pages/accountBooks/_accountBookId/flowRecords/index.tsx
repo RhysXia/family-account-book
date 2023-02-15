@@ -378,16 +378,25 @@ const Index = () => {
       pagination={data && getPagination(data.total)}
     >
       <div className="space-y-2">
-        <div className="flex justify-end space-x-2">
+        <div className="flex flex-wrap -m-2 justify-end">
+          <DatePicker.RangePicker
+            className="m-2"
+            placeholder={['交易开始日期', '交易结束时间']}
+            value={dealAtRange}
+            onChange={handleChange(setDealAtRange)}
+            allowEmpty={[true, true]}
+          />
           <TagSelect
+            className="m-2"
             allowClear={true}
             value={tagIdFilter}
             onChange={handleChange(setTagIdFilter)}
             placeholder="请选择标签"
-            style={{ minWidth: 250 }}
+            style={{ minWidth: 200 }}
             accountBookId={activeAccountBook!.id}
           />
           <Select
+            className="m-2"
             style={{ minWidth: 200 }}
             allowClear={true}
             placeholder="请选择交易人员"
@@ -403,9 +412,10 @@ const Index = () => {
             })}
           </Select>
           <Select
+            className="m-2"
             allowClear={true}
             placeholder="请选择账户"
-            style={{ minWidth: 250 }}
+            style={{ minWidth: 200 }}
             value={savingAccountIdFilter}
             onChange={handleChange(setSavingAccountIdFilter)}
           >
@@ -422,12 +432,6 @@ const Index = () => {
               );
             })}
           </Select>
-          <DatePicker.RangePicker
-            placeholder={['交易开始日期', '交易结束时间']}
-            value={dealAtRange}
-            onChange={handleChange(setDealAtRange)}
-            allowEmpty={[true, true]}
-          />
         </div>
         <Table
           data={data?.data || []}

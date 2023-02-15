@@ -35,7 +35,9 @@ const AccountBookPage = () => {
     <div className="flex flex-col min-h-screen">
       <Header />
       <div className="flex flex-1 flex-row">
-        <Aside />
+        <div className="hidden lg:block">
+          <Aside />
+        </div>
         <div className="bg-gray-100 flex flex-1 p-4">
           <Suspense fallback={<Loading />}>
             <Outlet />
