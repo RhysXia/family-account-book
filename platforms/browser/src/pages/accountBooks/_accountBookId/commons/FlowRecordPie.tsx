@@ -23,8 +23,8 @@ const FlowRecordPie: FC<AmountCardProps> = ({ categoryType, dateRange }) => {
     accountBookId: activeAccountBook!.id,
     filter: {
       categoryType,
-      startDate: dateRange?.[0]?.toISOString(),
-      endDate: dateRange?.[1]?.toISOString(),
+      startDealAt: dateRange?.[0]?.toISOString(),
+      endDealAt: dateRange?.[1]?.toISOString(),
     },
   });
 

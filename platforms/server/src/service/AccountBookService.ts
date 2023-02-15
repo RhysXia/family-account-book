@@ -16,15 +16,15 @@ export class AccountBookService {
 
   async findFlowRecordTotalAmountPerCategoryById(
     {
-      startDate,
-      endDate,
+      startDealAt,
+      endDealAt,
       savingAccountId,
       tagId,
       traderId,
       categoryType,
     }: {
-      endDate?: Date;
-      startDate?: Date;
+      endDealAt?: Date;
+      startDealAt?: Date;
       savingAccountId?: number;
       tagId?: number;
       traderId?: number;
@@ -68,12 +68,12 @@ export class AccountBookService {
       });
     }
 
-    if (startDate) {
-      qb.andWhere('flowRecord.dealAt >= :startDate', { startDate });
+    if (startDealAt) {
+      qb.andWhere('flowRecord.dealAt >= :startDealAt', { startDealAt });
     }
 
-    if (endDate) {
-      qb.andWhere('flowRecord.dealAt < :endDate', { endDate });
+    if (endDealAt) {
+      qb.andWhere('flowRecord.dealAt < :endDealAt', { endDealAt });
     }
 
     const ret: Array<
@@ -93,15 +93,15 @@ export class AccountBookService {
 
   async findFlowRecordTotalAmountPerTraderByIdAndGroupByDate(
     {
-      endDate,
-      startDate,
+      endDealAt,
+      startDealAt,
       savingAccountId,
       categoryId,
       categoryType,
       tagId,
     }: {
-      endDate?: Date;
-      startDate?: Date;
+      endDealAt?: Date;
+      startDealAt?: Date;
       savingAccountId?: number;
       tagId?: number;
       categoryId?: number;
@@ -181,12 +181,12 @@ export class AccountBookService {
       });
     }
 
-    if (startDate) {
-      qb.andWhere('flowRecord.dealAt >= :startDate', { startDate });
+    if (startDealAt) {
+      qb.andWhere('flowRecord.dealAt >= :startDealAt', { startDealAt });
     }
 
-    if (endDate) {
-      qb.andWhere('flowRecord.dealAt < :endDate', { endDate });
+    if (endDealAt) {
+      qb.andWhere('flowRecord.dealAt < :endDealAt', { endDealAt });
     }
 
     const ret: Array<{
@@ -226,15 +226,15 @@ export class AccountBookService {
 
   async findFlowRecordTotalAmountPerTraderById(
     {
-      endDate,
-      startDate,
+      endDealAt,
+      startDealAt,
       savingAccountId,
       categoryId,
       categoryType,
       tagId,
     }: {
-      endDate?: Date;
-      startDate?: Date;
+      endDealAt?: Date;
+      startDealAt?: Date;
       savingAccountId?: number;
       tagId?: number;
       categoryId?: number;
@@ -291,12 +291,12 @@ export class AccountBookService {
       });
     }
 
-    if (startDate) {
-      qb.andWhere('flowRecord.dealAt >= :startDate', { startDate });
+    if (startDealAt) {
+      qb.andWhere('flowRecord.dealAt >= :startDealAt', { startDealAt });
     }
 
-    if (endDate) {
-      qb.andWhere('flowRecord.dealAt < :endDate', { endDate });
+    if (endDealAt) {
+      qb.andWhere('flowRecord.dealAt < :endDealAt', { endDealAt });
     }
 
     const ret: Array<{
@@ -327,16 +327,16 @@ export class AccountBookService {
 
   async findFlowRecordTotalAmountByIdAndGroupByDate(
     {
-      startDate,
-      endDate,
+      startDealAt,
+      endDealAt,
       categoryId,
       traderId,
       savingAccountId,
       categoryType,
       tagId,
     }: {
-      startDate?: Date;
-      endDate?: Date;
+      startDealAt?: Date;
+      endDealAt?: Date;
       categoryId?: number;
       traderId?: number;
       tagId?: number;
@@ -398,12 +398,12 @@ export class AccountBookService {
       });
     }
 
-    if (startDate) {
-      qb.andWhere('flowRecord.dealAt >= :startDate', { startDate });
+    if (startDealAt) {
+      qb.andWhere('flowRecord.dealAt >= :startDealAt', { startDealAt });
     }
 
-    if (endDate) {
-      qb.andWhere('flowRecord.dealAt < :endDate', { endDate });
+    if (endDealAt) {
+      qb.andWhere('flowRecord.dealAt < :endDealAt', { endDealAt });
     }
 
     if (traderId) {
@@ -426,16 +426,16 @@ export class AccountBookService {
    */
   async findFlowRecordTotalAmountById(
     {
-      startDate,
-      endDate,
+      startDealAt,
+      endDealAt,
       categoryId,
       traderId,
       savingAccountId,
       categoryType,
       tagId,
     }: {
-      startDate?: Date;
-      endDate?: Date;
+      startDealAt?: Date;
+      endDealAt?: Date;
       categoryId?: number;
       traderId?: number;
       savingAccountId?: number;
@@ -480,12 +480,12 @@ export class AccountBookService {
       qb.andWhere('flowRecord.traderId = :traderId', { traderId });
     }
 
-    if (startDate) {
-      qb.andWhere('flowRecord.dealAt >= :startDate', { startDate });
+    if (startDealAt) {
+      qb.andWhere('flowRecord.dealAt >= :startDealAt', { startDealAt });
     }
 
-    if (endDate) {
-      qb.andWhere('flowRecord.dealAt < :endDate', { endDate });
+    if (endDealAt) {
+      qb.andWhere('flowRecord.dealAt < :endDealAt', { endDealAt });
     }
 
     const ret = await qb.getRawOne<{ totalAmount: string | null }>();

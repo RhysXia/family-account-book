@@ -433,12 +433,16 @@ const Index = () => {
             })}
           </Select>
         </div>
-        <Table
-          data={data?.data || []}
-          columns={columns}
-          editable={true}
-          onEditSubmit={handleEditSubmit}
-        />
+        <div className="w-full overflow-x-auto">
+          <Table
+            className="overflow-x-auto"
+            style={{ minWidth: 500 }}
+            data={data?.data || []}
+            columns={columns}
+            editable={true}
+            onEditSubmit={handleEditSubmit}
+          />
+        </div>
       </div>
       <CreateModel
         tags={tags}

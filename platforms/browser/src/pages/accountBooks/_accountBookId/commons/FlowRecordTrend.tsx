@@ -28,8 +28,8 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
       groupBy,
       filter: {
         categoryId: category?.id,
-        startDate: dateRange?.[0]?.toISOString(),
-        endDate: dateRange?.[1]?.toISOString(),
+        startDealAt: dateRange?.[0]?.toISOString(),
+        endDealAt: dateRange?.[1]?.toISOString(),
       },
     });
 

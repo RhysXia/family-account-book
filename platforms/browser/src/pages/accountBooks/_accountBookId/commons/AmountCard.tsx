@@ -22,17 +22,17 @@ const AmountCard: FC<AmountCardProps> = ({ category, groupBy }) => {
   const unit = groupBy.toLowerCase() as ManipulateType;
 
   const dateRange = useMemo(() => {
-    const startDate = dayjs().startOf(unit);
-    const endDate = startDate.add(1, unit);
+    const startDealAt = dayjs().startOf(unit);
+    const endDealAt = startDealAt.add(1, unit);
 
-    return [startDate, endDate];
+    return [startDealAt, endDealAt];
   }, [unit]);
 
   const lastDateRange = useMemo(() => {
-    const endDate = dateRange[0];
-    const startDate = dayjs().subtract(1, unit);
+    const endDealAt = dateRange[0];
+    const startDealAt = dayjs().subtract(1, unit);
 
-    return [startDate, endDate];
+    return [startDealAt, endDealAt];
   }, [dateRange, unit]);
 
   const { data: currentMonthData } = useGetFlowRecordTotalAmountByAccountBookId(
@@ -40,8 +40,8 @@ const AmountCard: FC<AmountCardProps> = ({ category, groupBy }) => {
       accountBookId: activeAccountBook!.id,
       filter: {
         categoryId: category?.id,
-        startDate: dateRange[0].toISOString(),
-        endDate: dateRange[1].toISOString(),
+        startDealAt: dateRange[0].toISOString(),
+        endDealAt: dateRange[1].toISOString(),
       },
     },
   );
@@ -50,8 +50,8 @@ const AmountCard: FC<AmountCardProps> = ({ category, groupBy }) => {
     accountBookId: activeAccountBook!.id,
     filter: {
       categoryId: category?.id,
-      startDate: lastDateRange[0].toISOString(),
-      endDate: lastDateRange[1].toISOString(),
+      startDealAt: lastDateRange[0].toISOString(),
+      endDealAt: lastDateRange[1].toISOString(),
     },
   });
 
@@ -60,8 +60,8 @@ const AmountCard: FC<AmountCardProps> = ({ category, groupBy }) => {
       accountBookId: activeAccountBook!.id,
       filter: {
         categoryId: category?.id,
-        startDate: dateRange?.[0]?.toISOString(),
-        endDate: dateRange?.[1]?.toISOString(),
+        startDealAt: dateRange?.[0]?.toISOString(),
+        endDealAt: dateRange?.[1]?.toISOString(),
       },
     });
 

@@ -7,11 +7,11 @@ input FlowRecordTotalAmountFilter {
   """
   开始时间
   """
-  startDate: Date
+  startDealAt: Date
   """
   结束时间，不包含结束时间点
   """
-  endDate: Date
+  endDealAt: Date
 }
 
 input FlowRecordTotalAmountPerTraderFilter {
@@ -22,11 +22,11 @@ input FlowRecordTotalAmountPerTraderFilter {
   """
   开始时间
   """
-  startDate: Date
+  startDealAt: Date
   """
   结束时间，不包含结束时间点
   """
-  endDate: Date
+  endDealAt: Date
 }
 
 input FlowRecordTotalAmountPerCategoryFilter {
@@ -37,11 +37,11 @@ input FlowRecordTotalAmountPerCategoryFilter {
   """
   开始时间
   """
-  startDate: Date
+  startDealAt: Date
   """
   结束时间，不包含结束时间点
   """
-  endDate: Date
+  endDealAt: Date
 }
 
 type FlowRecordTotalAmountPerCategory {

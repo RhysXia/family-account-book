@@ -31,8 +31,8 @@ export class AccountBookStatisticsResolver {
     const {
       traderId,
       categoryId,
-      startDate,
-      endDate,
+      startDealAt,
+      endDealAt,
       savingAccountId,
       categoryType,
       tagId,
@@ -52,9 +52,9 @@ export class AccountBookStatisticsResolver {
         ...(savingAccountId && {
           savingAccountId: decodeId(EntityName.SAVING_ACCOUNT, savingAccountId),
         }),
-        ...(startDate && { startDate }),
-        ...(endDate && {
-          endDate,
+        ...(startDealAt && { startDealAt }),
+        ...(endDealAt && {
+          endDealAt,
         }),
         ...(traderId && {
           traderId: getUserId(traderId),
@@ -77,8 +77,8 @@ export class AccountBookStatisticsResolver {
     const {
       categoryId,
       tagId,
-      startDate,
-      endDate,
+      startDealAt,
+      endDealAt,
       savingAccountId,
       categoryType,
     } = filter || {};
@@ -101,9 +101,9 @@ export class AccountBookStatisticsResolver {
               savingAccountId,
             ),
           }),
-          ...(startDate && { startDate }),
-          ...(endDate && {
-            endDate,
+          ...(startDealAt && { startDealAt }),
+          ...(endDealAt && {
+            endDealAt,
           }),
         },
         accountBookId,
@@ -135,8 +135,8 @@ export class AccountBookStatisticsResolver {
     const {
       traderId,
       categoryId,
-      startDate,
-      endDate,
+      startDealAt,
+      endDealAt,
       savingAccountId,
       categoryType,
       tagId,
@@ -156,9 +156,9 @@ export class AccountBookStatisticsResolver {
         ...(savingAccountId && {
           savingAccountId: decodeId(EntityName.SAVING_ACCOUNT, savingAccountId),
         }),
-        ...(startDate && { startDate }),
-        ...(endDate && {
-          endDate,
+        ...(startDealAt && { startDealAt }),
+        ...(endDealAt && {
+          endDealAt,
         }),
         ...(traderId && {
           traderId: getUserId(traderId),
@@ -183,8 +183,8 @@ export class AccountBookStatisticsResolver {
     const {
       categoryId,
       tagId,
-      startDate,
-      endDate,
+      startDealAt,
+      endDealAt,
       savingAccountId,
       categoryType,
     } = filter || {};
@@ -207,9 +207,9 @@ export class AccountBookStatisticsResolver {
               savingAccountId,
             ),
           }),
-          ...(startDate && { startDate }),
-          ...(endDate && {
-            endDate,
+          ...(startDealAt && { startDealAt }),
+          ...(endDealAt && {
+            endDealAt,
           }),
         },
         accountBookId,
@@ -241,8 +241,8 @@ export class AccountBookStatisticsResolver {
     const {
       traderId,
       tagId,
-      startDate,
-      endDate,
+      startDealAt,
+      endDealAt,
       savingAccountId,
       categoryType,
     } = filter || {};
@@ -265,9 +265,9 @@ export class AccountBookStatisticsResolver {
               savingAccountId,
             ),
           }),
-          ...(startDate && { startDate }),
-          ...(endDate && {
-            endDate,
+          ...(startDealAt && { startDealAt }),
+          ...(endDealAt && {
+            endDealAt,
           }),
         },
         accountBookId,

@@ -1,9 +1,10 @@
-import { FC } from 'react';
+import { FC, HTMLAttributes } from 'react';
 import { Column } from './Cell';
 import Row from './Row';
 import { getProp } from './utils';
+import clsx from 'clsx';
 
-export type TableProps = {
+export type TableProps = HTMLAttributes<HTMLTableElement> & {
   columns: Array<Column>;
   editable?: boolean;
   data: Array<any>;
@@ -17,9 +18,14 @@ const Table: FC<TableProps> = ({
   editable = false,
   onEditSubmit,
   index,
+  className,
+  ...others
 }) => {
   return (
-    <div className="table w-full rounded overflow-hidden border-collapse">
+    <div
+      {...others}
+      className={clsx('table w-full rounded border-collapse', className)}
+    >
       <div className="table-header-group bg-slate-200 font-bold">
         {columns.map(({ style, title }, i) => {
           return (

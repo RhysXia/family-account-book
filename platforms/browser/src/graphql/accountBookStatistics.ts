@@ -24,8 +24,8 @@ export type FlowRecordTotalAmountFilter = {
   categoryType?: CategoryType;
   traderId?: string;
   savingAccountId?: string;
-  startDate?: string;
-  endDate?: string;
+  startDealAt?: string;
+  endDealAt?: string;
 };
 
 export const useGetFlowRecordTotalAmountByAccountBookId = (variables: {
@@ -77,8 +77,8 @@ export type FlowRecordTotalAmountPerTraderFilter = {
   categoryId?: string;
   categoryType?: CategoryType;
   savingAccountId?: string;
-  startDate?: string;
-  endDate?: string;
+  startDealAt?: string;
+  endDealAt?: string;
 };
 
 export const useGetFlowRecordTotalAmountPerTraderByAccountBookId = (variables: {
@@ -205,8 +205,8 @@ export type FlowRecordTotalAmountPerCategoryFilter = {
   traderId?: string;
   categoryType?: CategoryType;
   savingAccountId?: string;
-  startDate?: string;
-  endDate?: string;
+  startDealAt?: string;
+  endDealAt?: string;
 };
 
 export const useGetFlowRecordTotalAmountPerCategoryByAccountBookId =

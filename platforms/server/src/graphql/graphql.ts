@@ -39,8 +39,8 @@ export interface AccountBookFlowRecordFilter {
     tagId?: Nullable<string>;
     categoryId?: Nullable<string>;
     savingAccountId?: Nullable<string>;
-    startDate?: Nullable<Date>;
-    endDate?: Nullable<Date>;
+    startDealAt?: Nullable<Date>;
+    endDealAt?: Nullable<Date>;
 }
 
 export interface AccountBookCategoryFilter {
@@ -68,8 +68,8 @@ export interface FlowRecordTotalAmountFilter {
     traderId?: Nullable<string>;
     savingAccountId?: Nullable<string>;
     tagId?: Nullable<string>;
-    startDate?: Nullable<Date>;
-    endDate?: Nullable<Date>;
+    startDealAt?: Nullable<Date>;
+    endDealAt?: Nullable<Date>;
 }
 
 export interface FlowRecordTotalAmountPerTraderFilter {
@@ -77,8 +77,8 @@ export interface FlowRecordTotalAmountPerTraderFilter {
     categoryType?: Nullable<CategoryType>;
     tagId?: Nullable<string>;
     savingAccountId?: Nullable<string>;
-    startDate?: Nullable<Date>;
-    endDate?: Nullable<Date>;
+    startDealAt?: Nullable<Date>;
+    endDealAt?: Nullable<Date>;
 }
 
 export interface FlowRecordTotalAmountPerCategoryFilter {
@@ -86,8 +86,8 @@ export interface FlowRecordTotalAmountPerCategoryFilter {
     traderId?: Nullable<string>;
     savingAccountId?: Nullable<string>;
     tagId?: Nullable<string>;
-    startDate?: Nullable<Date>;
-    endDate?: Nullable<Date>;
+    startDealAt?: Nullable<Date>;
+    endDealAt?: Nullable<Date>;
 }
 
 export interface CategoryFlowRecordFilter {
