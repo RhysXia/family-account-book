@@ -129,7 +129,7 @@ const Overview = () => {
             <AmountCard groupBy={amountGroupBy} />
           </div>
           {categoriesData?.data.map((it) => (
-            <div key={it.id} className="w-1/2 xl:w-1/4 p-2">
+            <div key={it.id} className="w-full sm:w-1/2 xl:w-1/4 p-2">
               <AmountCard category={it} groupBy={amountGroupBy} />
             </div>
           ))}
@@ -147,13 +147,13 @@ const Overview = () => {
           />
         </div>
         <div className="flex flex-row flex-wrap -m-2">
-          <div className="w-full sm:w-1/2 xl:w-1/4 h-96 p-2">
+          <div className="w-full sm:w-1/2 xl:w-1/3 xxl:w-1/4 h-96 p-2">
             <FlowRecordPie
               categoryType={CategoryType.EXPENDITURE}
               dateRange={pieDateRange}
             />
           </div>
-          <div className="w-full sm:w-1/2 xl:w-1/4 h-96 p-2">
+          <div className="w-full sm:w-1/2 xl:w-1/3 xxl:w-1/4 h-96 p-2">
             <FlowRecordPie
               categoryType={CategoryType.INCOME}
               dateRange={pieDateRange}
@@ -189,7 +189,6 @@ const Overview = () => {
         </div>
         <div className="bg-white rounded px-4">
           <Tabs
-            size="large"
             activeKey={activeCategoryType}
             onChange={setActiveCategoryType as any}
             destroyInactiveTabPane={true}

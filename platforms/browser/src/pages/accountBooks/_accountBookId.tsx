@@ -38,7 +38,7 @@ const AccountBookPage = () => {
         <div className="hidden lg:block">
           <Aside />
         </div>
-        <div className="bg-gray-100 flex flex-1 p-4">
+        <div className="bg-gray-100 flex flex-1 p-4 w-full">
           <Suspense fallback={<Loading />}>
             <Outlet />
             <div className="fixed right-5 bottom-5" style={{ zIndex: 9999 }}>

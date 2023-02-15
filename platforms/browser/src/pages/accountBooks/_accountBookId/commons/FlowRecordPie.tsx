@@ -8,8 +8,10 @@ import Card from '@/components/Card';
 import { CategoryTypeInfoMap } from '@/utils/constants';
 import ReactEcharts, { EchartsOptions } from '@/components/ReactEcharts';
 import { Empty } from 'antd';
-import { LabelFormatterCallback } from 'echarts';
-import { CallbackDataParams } from 'echarts/types/dist/shared';
+import {
+  TooltipFormatterCallback,
+  TopLevelFormatterParams,
+} from 'echarts/types/dist/shared';
 
 export type AmountCardProps = {
   categoryType: CategoryType;
@@ -31,15 +33,18 @@ const FlowRecordPie: FC<AmountCardProps> = ({ categoryType, dateRange }) => {
   const options = useMemo<EchartsOptions>(() => {
     const list = data || [];
 
-    const formatter: LabelFormatterCallback<CallbackDataParams> = ({
-      name,
-      value,
-      percent,
-    }) =>
-      `${name} : ${value.toLocaleString('zh-CN', {
+    const formatter: TooltipFormatterCallback<TopLevelFormatterParams> = (
+      params,
+    ) => {
+      if (Array.isArray(params)) {
+        return '';
+      }
+      const { name, value, percent } = params;
+      return `${name} : ${value.toLocaleString('zh-CN', {
         style: 'currency',
         currency: 'CNY',
       })} (${percent}%)`;
+    };
 
     return {
       grid: {
@@ -47,6 +52,11 @@ const FlowRecordPie: FC<AmountCardProps> = ({ categoryType, dateRange }) => {
         right: 0,
         bottom: 0,
         top: 0,
+      },
+      tooltip: {
+        trigger: 'item',
+        formatter,
+        confine: true,
       },
       legend: {
         orient: 'vertical',
@@ -56,12 +66,9 @@ const FlowRecordPie: FC<AmountCardProps> = ({ categoryType, dateRange }) => {
         {
           name: CategoryTypeInfoMap[categoryType].text,
           type: 'pie',
+          radius: '80%',
           label: {
-            show: true,
-            formatter,
-          },
-          labelLine: {
-            show: true,
+            show: false,
           },
           data: list.map((it) => ({
             value: Math.abs(it.amount),
