@@ -106,7 +106,7 @@ const AmountCard: FC<AmountCardProps> = ({ category, groupBy }) => {
         title={`同比上${DATE_GROUP_BY_MAP[groupBy]}`}
         value={
           lastMonthAmount
-            ? Math.abs((currentMonthAmount - lastMonthAmount) / lastMonthAmount)
+            ? (currentMonthAmount - lastMonthAmount) / lastMonthAmount
             : undefined
         }
       />
