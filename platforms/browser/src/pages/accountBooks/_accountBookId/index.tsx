@@ -123,9 +123,7 @@ const Overview = () => {
             </Radio.Group>
           }
         >
-          <span className="text-gray-800 font-bold text-lg">
-            当{DATE_GROUP_BY_MAP[amountGroupBy]}流水统计
-          </span>
+          当{DATE_GROUP_BY_MAP[amountGroupBy]}流水统计
         </Title>
 
         <div className="-m-2 -mb-0 flex items-center flex-wrap">
