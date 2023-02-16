@@ -1,5 +1,6 @@
 import Content from '@/components/Content';
 import DatePicker from '@/components/DatePicker';
+import Title from '@/components/Title';
 import { useGetCategoryListByAccountBookId } from '@/graphql/category';
 import useConstantFn from '@/hooks/useConstanFn';
 import { activeAccountBookAtom } from '@/store';
@@ -110,19 +111,22 @@ const Overview = () => {
   return (
     <Content breadcrumbs={breadcrumbs}>
       <div className="-m-2 space-y-4 bg-gray-100">
-        <div className="space-x-4 bg-white p-2 rounded flex items-center justify-between drop-shadow">
+        <Title
+          extra={
+            <Radio.Group
+              value={amountGroupBy}
+              onChange={handleAmountGroupByChange}
+            >
+              <Radio.Button value="DAY">按日</Radio.Button>
+              <Radio.Button value="MONTH">按月</Radio.Button>
+              <Radio.Button value="YEAR">按年</Radio.Button>
+            </Radio.Group>
+          }
+        >
           <span className="text-gray-800 font-bold text-lg">
             当{DATE_GROUP_BY_MAP[amountGroupBy]}流水统计
           </span>
-          <Radio.Group
-            value={amountGroupBy}
-            onChange={handleAmountGroupByChange}
-          >
-            <Radio.Button value="DAY">按日</Radio.Button>
-            <Radio.Button value="MONTH">按月</Radio.Button>
-            <Radio.Button value="YEAR">按年</Radio.Button>
-          </Radio.Group>
-        </div>
+        </Title>
 
         <div className="-m-2 -mb-0 flex items-center flex-wrap">
           <div className="w-full sm:w-1/2 xl:w-1/4 p-2">
@@ -135,17 +139,17 @@ const Overview = () => {
           ))}
         </div>
 
-        <div className="bg-white rounded flex items-center justify-between drop-shadow flex-wrap">
-          <span className="text-gray-800 font-bold text-lg m-2">
-            各项流水占比统计
-          </span>
-          <DatePicker.RangePicker
-            className="m-2"
-            allowEmpty={[false, true]}
-            value={pieDateRange}
-            onChange={setPieDateRange}
-          />
-        </div>
+        <Title
+          extra={
+            <DatePicker.RangePicker
+              allowEmpty={[false, true]}
+              value={pieDateRange}
+              onChange={setPieDateRange}
+            />
+          }
+        >
+          各项流水占比统计
+        </Title>
         <div className="flex flex-row flex-wrap -m-2">
           <div className="w-full sm:w-1/2 xl:w-1/3 xxl:w-1/4 h-96 p-2">
             <FlowRecordPie
@@ -160,33 +164,28 @@ const Overview = () => {
             />
           </div>
         </div>
-        <div className="bg-white rounded flex items-center justify-between drop-shadow flex-wrap">
-          <span className="text-gray-800 font-bold text-lg p-2">
-            各项流水详细信息统计
-          </span>
-          <div className="flex flex-row flex-wrap">
-            <DatePicker.RangePicker
-              className="m-2"
-              allowEmpty={[false, true]}
-              value={lineDateRange}
-              onChange={handleLineDateChange}
-            />
-            <Radio.Group
-              className="m-2"
-              value={lineGroupBy}
-              onChange={handleGroupByChange}
-            >
-              <Radio.Button value="DAY">按日</Radio.Button>
-              <Radio.Button value="MONTH">按月</Radio.Button>
-              <Radio.Button value="YEAR">按年</Radio.Button>
-            </Radio.Group>
-
-            <div className="flex items-center m-2">
-              <span className="pr-2">开启累计视图</span>
-              <Switch checked={enableStack} onChange={setEnableStack} />
-            </div>
-          </div>
-        </div>
+        <Title
+          extra={
+            <>
+              <DatePicker.RangePicker
+                allowEmpty={[false, true]}
+                value={lineDateRange}
+                onChange={handleLineDateChange}
+              />
+              <Radio.Group value={lineGroupBy} onChange={handleGroupByChange}>
+                <Radio.Button value="DAY">按日</Radio.Button>
+                <Radio.Button value="MONTH">按月</Radio.Button>
+                <Radio.Button value="YEAR">按年</Radio.Button>
+              </Radio.Group>
+              <div className="flex items-center">
+                <span className="pr-2">开启累计视图</span>
+                <Switch checked={enableStack} onChange={setEnableStack} />
+              </div>
+            </>
+          }
+        >
+          各项流水详细信息统计
+        </Title>
         <div className="bg-white rounded px-4">
           <Tabs
             activeKey={activeCategoryType}

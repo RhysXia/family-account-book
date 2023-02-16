@@ -32,13 +32,13 @@ const AccountBookPage = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-white">
       <Header />
       <div className="flex flex-1 flex-row">
         <div className="hidden lg:block">
           <Aside />
         </div>
-        <div className="bg-gray-100 flex flex-1 p-4 w-full">
+        <div className="bg-gray-100 flex flex-1 pt-4 lg:p-4 w-full">
           <Suspense fallback={<Loading />}>
             <Outlet />
             <div className="fixed right-5 bottom-5" style={{ zIndex: 9999 }}>

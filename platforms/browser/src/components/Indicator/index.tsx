@@ -21,7 +21,12 @@ const Indicator: FC<IndicatorProps> = ({ title, value }) => {
     <span className="flex items-center">
       <span>{title}</span>
       <span className="px-2">
-        {value === undefined ? '-' : (Math.abs(value) * 100).toFixed(2) + '%'}
+        {value === undefined
+          ? '-'
+          : Math.abs(value).toLocaleString('zh-CN', {
+              style: 'currency',
+              currency: 'CNY',
+            })}
       </span>
       {icon}
     </span>

@@ -4,7 +4,7 @@ import { FC, useMemo } from 'react';
 import dayjs, { ManipulateType } from 'dayjs';
 import IndicatorCard from '@/components/IndicatorCard';
 import Indicator from '@/components/Indicator';
-import { Category, DateGroupBy } from '@/types';
+import { Category, CategoryType, DateGroupBy } from '@/types';
 import {
   useGetFlowRecordTotalAmountByAccountBookId,
   useGetFlowRecordTotalAmountPerTraderByAccountBookId,
@@ -65,16 +65,26 @@ const AmountCard: FC<AmountCardProps> = ({ category, groupBy }) => {
       },
     });
 
-  const currentMonthAmount = currentMonthData || 0;
+  let currentMonthAmount = currentMonthData || 0;
 
-  const lastMonthAmount = lastMonthData || 0;
+  let lastMonthAmount = lastMonthData || 0;
+
+  if (category?.type === CategoryType.EXPENDITURE) {
+    if (currentMonthAmount) {
+      currentMonthAmount *= -1;
+    }
+
+    if (lastMonthAmount) {
+      lastMonthAmount *= -1;
+    }
+  }
 
   const userDetails = (
-    <div className="flex items-center space-x-2 w-full overflow-auto h-6">
+    <div className="flex items-center space-x-2 h-8 w-full overflow-x-auto whitespace-nowrap">
       {totalAmountPerTraderData?.map((it) => (
         <div key={it.trader.id} className="pr-4">
-          <span className="pr-2">{it.trader.nickname}</span>
-          <span>
+          <span className="inline-block h-full pr-2">{it.trader.nickname}</span>
+          <span className="inline-block h-full">
             {it.amount.toLocaleString('zh-CN', {
               style: 'currency',
               currency: 'CNY',
@@ -104,11 +114,7 @@ const AmountCard: FC<AmountCardProps> = ({ category, groupBy }) => {
     >
       <Indicator
         title={`同比上${DATE_GROUP_BY_MAP[groupBy]}`}
-        value={
-          lastMonthAmount
-            ? (currentMonthAmount - lastMonthAmount) / lastMonthAmount
-            : undefined
-        }
+        value={currentMonthAmount - lastMonthAmount}
       />
     </IndicatorCard>
   );
