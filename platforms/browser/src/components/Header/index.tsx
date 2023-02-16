@@ -4,7 +4,7 @@ import { useAtom } from 'jotai';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { currentUserAtom } from '../../store';
 import { MenuOutlined } from '@ant-design/icons';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import menus from '@/menus';
 import styles from './style.module.less';
 
@@ -16,6 +16,8 @@ const Header = () => {
   const { pathname } = useLocation();
 
   const selectKey = pathname.replace(/\/accountBooks\/[\w\d=]+\/?/, '');
+
+  const [visible, setVisible] = useState(false);
 
   const overlay = (
     <Menu
@@ -44,6 +46,7 @@ const Header = () => {
   const handleSelect = useCallback(
     (value: { key: string }) => {
       navigate(value.key);
+      setVisible(false);
     },
     [navigate],
   );
@@ -51,7 +54,6 @@ const Header = () => {
   const menusNode = (
     <Menu
       onSelect={handleSelect}
-      className=""
       defaultSelectedKeys={[selectKey]}
       mode="inline"
       items={menus}
@@ -83,6 +85,8 @@ const Header = () => {
           </div>
           <div className="space-x-2 lg:hidden">
             <Popover
+              visible={visible}
+              onVisibleChange={setVisible}
               content={menusNode}
               showArrow={false}
               overlayClassName={styles.menus}
