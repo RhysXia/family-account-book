@@ -37,7 +37,9 @@ const Content: FC<ContentProps> = ({
       )}
       <div className="bg-white p-2 rounded">{children}</div>
       {pagination && (
-        <div className="bg-white p-2 rounded text-right">{pagination}</div>
+        <div className=" p-2 rounded text-center md:text-right">
+          {pagination}
+        </div>
       )}
     </div>
   );
