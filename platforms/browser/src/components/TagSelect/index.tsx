@@ -1,8 +1,8 @@
 import { useGetTagsWithCategoryByAccountBookId } from '@/graphql/tag';
 import { CategoryTypeInfoMap } from '@/utils/constants';
-import { Select, SelectProps } from 'antd';
+import { Select, SelectProps, Tag } from 'antd';
 import { FC, useMemo, useState } from 'react';
-import { Category, Tag } from '../../types';
+import { Category, Tag as ITag } from '../../types';
 
 export type TagSelectProps = SelectProps & {
   accountBookId: string;
@@ -16,7 +16,7 @@ const TagSelect: FC<TagSelectProps> = ({ accountBookId, ...others }) => {
   const tags = useMemo(() => tagsData?.data || [], [tagsData]);
 
   const tagsGroupByCategory = useMemo(() => {
-    const map = new Map<string, Array<Tag>>();
+    const map = new Map<string, Array<ITag>>();
 
     const categories: Array<Category> = [];
 
@@ -90,14 +90,9 @@ const TagSelect: FC<TagSelectProps> = ({ accountBookId, ...others }) => {
             {category.tags.map((tag) => {
               return (
                 <Select.Option value={tag.id} key={tag.id}>
-                  <span
-                    className="inline-block leading-4 rounded px-2 py-1 text-white"
-                    style={{
-                      background: CategoryTypeInfoMap[category.type].color,
-                    }}
-                  >
+                  <Tag color={CategoryTypeInfoMap[category.type].color}>
                     {tag.name}
-                  </span>
+                  </Tag>
                 </Select.Option>
               );
             })}

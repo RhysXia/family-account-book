@@ -1,4 +1,4 @@
-import { Button, Input, Modal, Select } from 'antd';
+import { Button, Input, Modal, Select, Tag } from 'antd';
 import { useAtom } from 'jotai';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -167,28 +167,16 @@ const TagPage = () => {
             >
               {categoryData?.data.map((it) => (
                 <Select.Option value={it.id} key={it.id} name={it.name}>
-                  <span
-                    className="inline-block leading-4 rounded px-2 py-1 text-white"
-                    style={{
-                      background: CategoryTypeInfoMap[it.type].color,
-                    }}
-                  >
+                  <Tag color={CategoryTypeInfoMap[it.type].color}>
                     {it.name}
-                  </span>
+                  </Tag>
                 </Select.Option>
               ))}
             </Select>
           );
         }
         return (
-          <span
-            className="inline-block leading-4 rounded px-2 py-1 text-white"
-            style={{
-              background: CategoryTypeInfoMap[value.type].color,
-            }}
-          >
-            {value.name}
-          </span>
+          <Tag color={CategoryTypeInfoMap[value.type].color}>{value.name}</Tag>
         );
       },
     },
@@ -285,14 +273,7 @@ const TagPage = () => {
           >
             {categoryData?.data.map((it) => (
               <Select.Option value={it.id} key={it.id} name={it.name}>
-                <span
-                  className="inline-block leading-4 rounded px-2 py-1 text-white"
-                  style={{
-                    background: CategoryTypeInfoMap[it.type].color,
-                  }}
-                >
-                  {it.name}
-                </span>
+                <Tag color={CategoryTypeInfoMap[it.type].color}>{it.name}</Tag>
               </Select.Option>
             ))}
           </Select>

@@ -23,7 +23,7 @@ import {
 } from '@/types';
 import { CategoryTypeInfoMap } from '@/utils/constants';
 import { CreditCardOutlined } from '@ant-design/icons';
-import { Button, Input, InputNumber, Modal, Select } from 'antd';
+import { Button, Input, InputNumber, Modal, Select, Tag } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import { useAtom } from 'jotai';
 import { useCallback, useMemo, useState } from 'react';
@@ -141,14 +141,9 @@ const Index = () => {
             );
           }
           return (
-            <span
-              className="inline-block leading-4 rounded px-2 py-1 text-white"
-              style={{
-                background: CategoryTypeInfoMap[value.category.type].color,
-              }}
-            >
+            <Tag color={CategoryTypeInfoMap[value.category.type].color}>
               {value.name}
-            </span>
+            </Tag>
           );
         },
       },

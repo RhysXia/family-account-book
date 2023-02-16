@@ -3,11 +3,11 @@ import { CategoryType, DateGroupBy } from '../types';
 export const CategoryTypeInfoMap = {
   [CategoryType.EXPENDITURE]: {
     text: '支出',
-    color: '#cf1322',
+    color: '#3f8600',
   },
   [CategoryType.INCOME]: {
     text: '收入',
-    color: '#3f8600',
+    color: '#cf1322',
   },
   [CategoryType.UNKNOWN]: {
     text: '其他',

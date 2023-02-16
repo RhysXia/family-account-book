@@ -1,7 +1,7 @@
 import { CreateCategoryInput, useCreateCategory } from '@/graphql/category';
 import { activeAccountBookAtom } from '@/store';
 import { CategoryTypes, CategoryTypeInfoMap } from '@/utils/constants';
-import { Modal, Form, Input, Select } from 'antd';
+import { Modal, Form, Input, Select, Tag } from 'antd';
 import { useAtom } from 'jotai';
 import { FC, useCallback } from 'react';
 
@@ -63,14 +63,9 @@ const CreateModal: FC<CreateModalProps> = ({ visible, onChange }) => {
             {CategoryTypes.map((type) => {
               return (
                 <Select.Option key={type} value={type}>
-                  <span
-                    className="inline-block leading-4 rounded px-2 py-1 text-white"
-                    style={{
-                      background: CategoryTypeInfoMap[type].color,
-                    }}
-                  >
+                  <Tag color={CategoryTypeInfoMap[type].color}>
                     {CategoryTypeInfoMap[type].text}
-                  </span>
+                  </Tag>
                 </Select.Option>
               );
             })}
