@@ -89,6 +89,7 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
       // color: COLORS.map((it) => it[0]),
       tooltip: {
         trigger: 'axis',
+        confine: true,
         axisPointer: {
           type: 'cross',
           label: {
