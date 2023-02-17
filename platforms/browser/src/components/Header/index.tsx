@@ -90,6 +90,7 @@ const Header = () => {
               content={menusNode}
               showArrow={false}
               overlayClassName={styles.menus}
+              trigger="click"
             >
               <MenuOutlined className="text-white text-lg cursor-pointer" />
             </Popover>

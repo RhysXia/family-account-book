@@ -28,6 +28,7 @@ export default defineConfig({
   },
   plugins: [
     VitePWA({
+      includeAssets: ['logo.svg'],
       registerType: 'prompt',
       devOptions: {
         // enabled: true,
