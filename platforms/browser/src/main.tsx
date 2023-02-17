@@ -7,6 +7,7 @@ const key = 'upgrade';
 
 const updateSW = registerSW({
   onNeedRefresh() {
+    console.log('onNeedRefresh');
     const btn = (
       <Space>
         <Button
@@ -40,7 +41,7 @@ const updateSW = registerSW({
     });
   },
   onOfflineReady() {
-    console.log('Offline ready');
+    console.log('onOfflineReady');
   },
 });
 
