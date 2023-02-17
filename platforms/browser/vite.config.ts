@@ -32,6 +32,9 @@ export default defineConfig({
       // devOptions: {
       //   enabled: true,
       // },
+      workbox: {
+        // sourcemap: true,
+      },
       manifest: {
         name: '记账平台',
         short_name: '记账平台',
