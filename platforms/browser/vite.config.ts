@@ -29,9 +29,9 @@ export default defineConfig({
   plugins: [
     VitePWA({
       registerType: 'prompt',
-      // devOptions: {
-      //   enabled: true,
-      // },
+      devOptions: {
+        // enabled: true,
+      },
       workbox: {
         // sourcemap: true,
       },

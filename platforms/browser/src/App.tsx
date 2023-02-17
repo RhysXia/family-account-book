@@ -9,11 +9,13 @@ import { useAtomsDevtools } from 'jotai/devtools';
 import RequireAuth from '@/components/RequireAuth';
 
 import './assets/styles/index.less';
+import PWAMessage from './components/PWAMessage';
 
 const App = () => {
   return (
     <StrictMode>
       <ConfigProvider locale={zhCn}>
+        <PWAMessage />
         <ApolloProvider client={apolloClient}>
           <AtomsDevtools>
             <BrowserRouter>
