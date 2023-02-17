@@ -59,20 +59,11 @@ const PWAMessage: FC = () => {
 
 export default PWAMessage;
 
-const intervalMS = 60 * 60 * 1000;
-
 const onRegisteredSW: RegisterSWOptions['onRegisteredSW'] = (
   swScriptUrl,
   registration,
 ) => {
   console.log('SW Registered: ', swScriptUrl, registration);
-
-  registration &&
-    setInterval(async () => {
-      console.log('SW is updating');
-      await registration.update();
-      console.log('SW has updated');
-    }, intervalMS);
 };
 const onRegisterError: RegisterSWOptions['onRegisterError'] = (error) => {
   console.error('SW registration error', error);
