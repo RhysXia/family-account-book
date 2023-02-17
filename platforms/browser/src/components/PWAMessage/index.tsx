@@ -64,6 +64,13 @@ const onRegisteredSW: RegisterSWOptions['onRegisteredSW'] = (
   registration,
 ) => {
   console.log('SW Registered: ', swScriptUrl, registration);
+
+  registration &&
+    setInterval(async () => {
+      console.log('SW start to check new version');
+      await registration.update();
+      console.log('SW finish checking new version');
+    }, 1000 * 60 * 60);
 };
 const onRegisterError: RegisterSWOptions['onRegisterError'] = (error) => {
   console.error('SW registration error', error);
