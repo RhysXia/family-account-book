@@ -4,7 +4,7 @@ import { RegisterSWOptions, useRegisterSW } from 'virtual:pwa-register/react';
 
 const key = 'upgrade';
 
-const PWAMessage: FC<{}> = () => {
+const PWAMessage: FC = () => {
   const {
     needRefresh: [needRefresh, setNeedRefresh],
     updateServiceWorker,
