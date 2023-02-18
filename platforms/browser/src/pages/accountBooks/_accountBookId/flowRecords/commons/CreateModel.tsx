@@ -60,10 +60,14 @@ const CreateModel: FC<CreateModelProps> = ({
     const { amount, dealAt, desc, savingAccountId, tagId, traderId } =
       await form.validateFields();
 
+    const selectedTag = tags.find((it) => it.id === tagId);
+
+    const categoryType = selectedTag?.category.type;
+
     await createFlowRecord({
       variables: {
         flowRecord: {
-          amount,
+          amount: categoryType === CategoryType.EXPENDITURE ? -amount : amount,
           desc,
           savingAccountId,
           tagId,
@@ -79,7 +83,7 @@ const CreateModel: FC<CreateModelProps> = ({
 
     message.success('添加成功');
     await onRefrshSavingAccounts();
-  }, [form, createFlowRecord, onRefrshSavingAccounts]);
+  }, [form, createFlowRecord, onRefrshSavingAccounts, tags]);
 
   const handleClose = useConstantFn(async () => {
     onChange(false);
@@ -134,11 +138,7 @@ const CreateModel: FC<CreateModelProps> = ({
             const categoryType = tag?.category.type;
 
             const amountPrefix =
-              categoryType === CategoryType.INCOME
-                ? '+'
-                : categoryType === CategoryType.EXPENDITURE
-                ? '-'
-                : '';
+              categoryType === CategoryType.EXPENDITURE ? '-' : '';
 
             return (
               <Form.Item
