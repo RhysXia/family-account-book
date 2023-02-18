@@ -51,13 +51,20 @@ const Row: FC<RowProps> = ({
     });
   }, []);
 
-  const handleClickOutside = useCallback(() => {
+  const handleClickOutside = useConstantFn(async () => {
     if (isSelfClick.current) {
       return;
     }
-    setEdit(false);
-    setData(initalData);
-  }, [initalData]);
+    try {
+      if (data === initalData) {
+        return;
+      }
+      await onSubmit?.(data);
+      setEdit(false);
+    } catch (err) {
+      message.error((err as Error).message || (err as any).toString());
+    }
+  });
 
   useEffect(() => {
     window.addEventListener('click', handleClickOutside);

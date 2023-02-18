@@ -86,8 +86,8 @@ export class FlowRecordService {
 
       const flowRecord = await manager
         .createQueryBuilder(FlowRecordEntity, 'flowRecord')
+        .leftJoinAndSelect('flowRecord.tag', 'tag')
         .leftJoin('flowRecord.accountBook', 'accountBook')
-        .leftJoin('flowRecord.tag', 'tag')
         .leftJoin('accountBook.admins', 'admin')
         .leftJoin('accountBook.members', 'member')
         .where('flowRecord.id = :id', { id })
