@@ -92,32 +92,6 @@ const CreateModel: FC<CreateModelProps> = ({
     await handleClose();
   }, [handleCreate, handleClose]);
 
-  const amountRules: Array<FormRule> = [
-    { required: true, message: '金额不能为空' },
-    {
-      async validator(_, value, callback) {
-        const selectedTagId = form.getFieldValue('tagId');
-
-        const selectedTag = tags.find((it) => it.id === selectedTagId);
-
-        if (!selectedTag) {
-          return;
-        }
-
-        if (
-          selectedTag.category.type === CategoryType.EXPENDITURE &&
-          value > 0
-        ) {
-          throw new Error('标签要求流水不能为正');
-        }
-
-        if (selectedTag.category.type === CategoryType.INCOME && value < 0) {
-          throw new Error('标签要求流水不能为负');
-        }
-      },
-    },
-  ];
-
   return (
     <Modal
       visible={visible}
@@ -152,13 +126,46 @@ const CreateModel: FC<CreateModelProps> = ({
         >
           <TagSelect accountBookId={activeAccountBook!.id} />
         </Form.Item>
-        <Form.Item
-          label="金额"
-          name="amount"
-          rules={amountRules}
-          dependencies={['tagId']}
-        >
-          <InputNumber className="w-full" placeholder="请输入金额" />
+        <Form.Item noStyle={true} dependencies={['tagId']}>
+          {({ getFieldValue }) => {
+            const selectTagId = getFieldValue('tagId');
+            const tag = tags.find((it) => it.id === selectTagId);
+
+            const categoryType = tag?.category.type;
+
+            const amountPrefix =
+              categoryType === CategoryType.INCOME
+                ? '+'
+                : categoryType === CategoryType.EXPENDITURE
+                ? '-'
+                : '';
+
+            return (
+              <Form.Item
+                label="金额"
+                dependencies={['tagId']}
+                rules={
+                  [
+                    { required: true, message: '金额不能为空' },
+                    categoryType &&
+                      categoryType !== CategoryType.UNKNOWN && {
+                        type: 'number',
+                        min: 0.01,
+                        message: '金额不能为负',
+                      },
+                  ].filter(Boolean) as Array<FormRule>
+                }
+                name="amount"
+              >
+                <InputNumber
+                  disabled={!tag}
+                  prefix={amountPrefix}
+                  className="w-full"
+                  placeholder={tag ? '请输入金额' : '请先选择标签'}
+                />
+              </Form.Item>
+            );
+          }}
         </Form.Item>
         <Form.Item
           label="账户"
