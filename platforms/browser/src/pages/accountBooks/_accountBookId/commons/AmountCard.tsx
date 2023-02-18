@@ -85,7 +85,10 @@ const AmountCard: FC<AmountCardProps> = ({ category, groupBy }) => {
         <div key={it.trader.id} className="pr-4">
           <span className="inline-block h-full pr-2">{it.trader.nickname}</span>
           <span className="inline-block h-full">
-            {it.amount.toLocaleString('zh-CN', {
+            {(!category || category.type === CategoryType.UNKNOWN
+              ? it.amount
+              : Math.abs(it.amount)
+            ).toLocaleString('zh-CN', {
               style: 'currency',
               currency: 'CNY',
             })}
