@@ -1,12 +1,14 @@
 import { Breadcrumb } from 'antd';
-import { FC, ReactNode } from 'react';
+import clsx from 'clsx';
+import { FC, HTMLAttributes, ReactNode } from 'react';
 
-export type ContentProps = {
+export type ContentProps = HTMLAttributes<HTMLDivElement> & {
   title?: string;
   breadcrumbs?: Array<{ name: string; path?: string }>;
   children: ReactNode;
   action?: ReactNode;
   pagination?: ReactNode;
+  contentClassName?: string;
 };
 
 const Content: FC<ContentProps> = ({
@@ -15,9 +17,12 @@ const Content: FC<ContentProps> = ({
   children,
   action,
   pagination,
+  className,
+  contentClassName,
+  ...others
 }) => {
   return (
-    <div className="w-full space-y-4">
+    <div {...others} className={clsx('w-full space-y-4', className)}>
       {breadcrumbs && (
         <Breadcrumb>
           {breadcrumbs.map((it, index) => (
@@ -35,9 +40,11 @@ const Content: FC<ContentProps> = ({
           {action && <div>{action}</div>}
         </div>
       )}
-      <div className="bg-white p-2 rounded">{children}</div>
+      <div className={clsx('bg-white p-2 rounded', contentClassName)}>
+        {children}
+      </div>
       {pagination && (
-        <div className=" p-2 rounded text-center md:text-right">
+        <div className="p-2 rounded text-center md:text-right">
           {pagination}
         </div>
       )}

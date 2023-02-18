@@ -109,8 +109,8 @@ const Overview = () => {
   ];
 
   return (
-    <Content breadcrumbs={breadcrumbs}>
-      <div className="-m-2 space-y-4 bg-gray-100">
+    <Content breadcrumbs={breadcrumbs} contentClassName="p-0">
+      <div className="space-y-4 bg-gray-100">
         <Title
           extra={
             <Radio.Group
