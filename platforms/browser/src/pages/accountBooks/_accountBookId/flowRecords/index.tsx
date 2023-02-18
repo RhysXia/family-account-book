@@ -208,7 +208,7 @@ const Index = () => {
         },
       },
       {
-        title: '用途',
+        title: '描述',
         dataIndex: 'desc',
         render({ value, isEdit, onChange }: RenderProps<string>) {
           if (isEdit) {

@@ -36,21 +36,21 @@ const items: Array<ItemType> = [
   //     },
   //   ],
   // },
-  {
-    label: '预算管理',
-    key: 'budget-group',
-    icon: <LineChartOutlined />,
-    children: [
-      {
-        label: '列表',
-        key: 'budgets',
-      },
-      // {
-      //   label: '支出详情',
-      //   key: 'expand-detail',
-      // },
-    ],
-  },
+  // {
+  //   label: '预算管理',
+  //   key: 'budget-group',
+  //   icon: <LineChartOutlined />,
+  //   children: [
+  //     {
+  //       label: '列表',
+  //       key: 'budgets',
+  //     },
+  //     // {
+  //     //   label: '支出详情',
+  //     //   key: 'expand-detail',
+  //     // },
+  //   ],
+  // },
   // {
   //   label: '收入管理',
   //   key: 'income-group',
