@@ -1,12 +1,11 @@
 import Logo from './logo.svg';
-import { Avatar, Dropdown, Menu, Popover } from 'antd';
+import { Avatar, Drawer, Dropdown, Menu } from 'antd';
 import { useAtom } from 'jotai';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { currentUserAtom } from '../../store';
 import { MenuOutlined } from '@ant-design/icons';
 import { useCallback, useState } from 'react';
 import menus from '@/menus';
-import styles from './style.module.less';
 
 const Header = () => {
   const [currentUser] = useAtom(currentUserAtom);
@@ -51,24 +50,48 @@ const Header = () => {
     [navigate],
   );
 
-  const menusNode = (
-    <Menu
-      onSelect={handleSelect}
-      defaultSelectedKeys={[selectKey]}
-      mode="inline"
-      items={menus}
-      style={{ width: 256 }}
-    />
-  );
+  const oepnDrawer = useCallback(() => {
+    setVisible(true);
+  }, []);
+
+  const closeDrawer = useCallback(() => {
+    setVisible(false);
+  }, []);
 
   return (
     <nav className="bg-gray-800">
       <div className="mx-auto px-6 max-w-full">
         <div className="relative flex items-center justify-between h-16">
           <div className="flex-1 flex items-center justify-start">
+            <div className="space-x-2 lg:hidden mr-2">
+              <MenuOutlined
+                onClick={oepnDrawer}
+                className="text-white text-lg cursor-pointer flex items-center"
+              />
+              <Drawer
+                closable={false}
+                placement="left"
+                onClose={closeDrawer}
+                visible={visible}
+                bodyStyle={{ padding: 0 }}
+                contentWrapperStyle={{ width: '70%', maxWidth: 300 }}
+                maskClosable={true}
+              >
+                <Menu
+                  onSelect={handleSelect}
+                  defaultSelectedKeys={[selectKey]}
+                  mode="inline"
+                  items={menus}
+                />
+              </Drawer>
+            </div>
             <div className="flex-shrink-0 flex items-center">
-              <img src={Logo} alt="logo" className="h-8 w-auto mr-2" />
-              <h1 className="text-white font-bold text-xl leading-none m-0 ">
+              <img
+                src={Logo}
+                alt="logo"
+                className="h-8 w-auto mr-2 hidden lg:block"
+              />
+              <h1 className="text-white font-bold text-xl leading-none m-0">
                 FAC
               </h1>
             </div>
@@ -76,24 +99,12 @@ const Header = () => {
               <div className="flex space-x-4"></div>
             </div>
           </div>
-          <div className="space-x-2 lg:block hidden">
+          <div className="space-x-2">
             <Dropdown overlay={overlay}>
               <Avatar className="bg-indigo-500 cursor-pointer">
                 {currentUser?.nickname}
               </Avatar>
             </Dropdown>
-          </div>
-          <div className="space-x-2 lg:hidden">
-            <Popover
-              visible={visible}
-              onVisibleChange={setVisible}
-              content={menusNode}
-              showArrow={false}
-              overlayClassName={styles.menus}
-              trigger="click"
-            >
-              <MenuOutlined className="text-white text-lg cursor-pointer" />
-            </Popover>
           </div>
         </div>
       </div>
