@@ -6,6 +6,11 @@ import { join } from 'path';
   imports: [
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '../../../browser', 'dist'),
+      // PWA要求不开启http缓存策略
+      serveStaticOptions: {
+        cacheControl: false,
+        immutable: false,
+      },
     }),
   ],
 })
