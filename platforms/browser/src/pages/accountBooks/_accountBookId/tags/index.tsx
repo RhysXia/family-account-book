@@ -224,7 +224,7 @@ const TagPage = () => {
               onClick={() => {
                 Modal.confirm({
                   title: '确认删除',
-                  content: '确认删除该标签吗？',
+                  content: '删除标签会同步删除全部关联的流水记录，确认删除吗？',
                   onOk: async () => {
                     await handleDeleteTag(value.id);
                   },
