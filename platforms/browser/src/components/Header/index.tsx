@@ -14,7 +14,7 @@ const Header = () => {
 
   const { pathname } = useLocation();
 
-  const selectKey = pathname.replace(/\/accountBooks\/[\w\d=]+\/?/, '');
+  const selectKey = pathname.replace(/^\/accountBooks\/[\w\d=]+\/?/, '');
 
   const [visible, setVisible] = useState(false);
 
@@ -79,7 +79,7 @@ const Header = () => {
               >
                 <Menu
                   onSelect={handleSelect}
-                  defaultSelectedKeys={[selectKey]}
+                  selectedKeys={[selectKey]}
                   mode="inline"
                   items={menus}
                 />

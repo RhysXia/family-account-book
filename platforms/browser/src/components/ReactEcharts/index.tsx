@@ -53,10 +53,11 @@ export type EchartsOptions = echarts.ComposeOption<
 
 export type EchartsProps = HTMLAttributes<HTMLDivElement> & {
   options: EchartsOptions;
+  instanceInterceptor?: (instance: echarts.ECharts) => () => void;
 };
 
 const ReactEcharts = forwardRef<{ echarts?: echarts.ECharts }, EchartsProps>(
-  ({ options, ...others }, ref) => {
+  ({ options, instanceInterceptor, ...others }, ref) => {
     const domRef = useRef<HTMLDivElement>(null);
 
     const echartInstance = useRef<echarts.ECharts>();
@@ -77,6 +78,8 @@ const ReactEcharts = forwardRef<{ echarts?: echarts.ECharts }, EchartsProps>(
 
       echartInstance.current = instance;
 
+      const cancel = instanceInterceptor?.(instance);
+
       const handleResize = () => {
         instance.resize();
       };
@@ -85,10 +88,11 @@ const ReactEcharts = forwardRef<{ echarts?: echarts.ECharts }, EchartsProps>(
 
       return () => {
         window.removeEventListener('resize', handleResize);
+        cancel?.();
         instance.dispose();
         echartInstance.current = undefined;
       };
-    }, []);
+    }, [instanceInterceptor]);
 
     useEffect(() => {
       const instance = echartInstance.current;

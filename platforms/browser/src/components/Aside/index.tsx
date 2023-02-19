@@ -12,7 +12,7 @@ const Aside = () => {
 
   const { pathname } = useLocation();
 
-  const selectKey = pathname.replace(/\/accountBooks\/[\w\d=]+\/?/, '');
+  const selectKey = pathname.replace(/^\/accountBooks\/[\w\d=]+\/?/, '');
 
   const handleSelect = useCallback(
     (value: { key: string }) => {
@@ -34,7 +34,7 @@ const Aside = () => {
       <Menu
         onSelect={handleSelect}
         className="flex-1 w-full border-r-0"
-        defaultSelectedKeys={[selectKey]}
+        selectedKeys={[selectKey]}
         mode="inline"
         items={menus}
       />

@@ -5,17 +5,19 @@ import {
   TopLevelFormatterParams,
 } from 'echarts/types/dist/shared';
 import { FC, HTMLAttributes, useMemo } from 'react';
-import ReactEcharts, { EchartsOptions } from '../ReactEcharts';
+import ReactEcharts, { EchartsOptions, EchartsProps } from '../ReactEcharts';
 
 export type FlowRecordPieProps = HTMLAttributes<HTMLDivElement> & {
   title: string;
-  data?: Array<{ name: string; value: number }>;
+  data?: Array<{ id?: string; name: string; value: number }>;
+  instanceInterceptor?: EchartsProps['instanceInterceptor'];
 };
 
 const FlowRecordPie: FC<FlowRecordPieProps> = ({
   title,
   data,
   className,
+  instanceInterceptor,
   ...others
 }) => {
   const options = useMemo<EchartsOptions>(() => {
@@ -61,6 +63,7 @@ const FlowRecordPie: FC<FlowRecordPieProps> = ({
             show: false,
           },
           data: list.map((it) => ({
+            id: it.id,
             value: Math.abs(it.value),
             name: it.name,
           })),
@@ -81,7 +84,11 @@ const FlowRecordPie: FC<FlowRecordPieProps> = ({
       {isEmpty ? (
         <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
       ) : (
-        <ReactEcharts className="w-full h-full" options={options} />
+        <ReactEcharts
+          className="w-full h-full"
+          options={options}
+          instanceInterceptor={instanceInterceptor}
+        />
       )}
     </div>
   );
