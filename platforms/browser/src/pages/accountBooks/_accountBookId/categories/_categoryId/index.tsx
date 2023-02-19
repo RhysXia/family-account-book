@@ -6,10 +6,10 @@ import { useGetCategoryById } from '@/graphql/category';
 import { useGetFlowRecordTotalAmountPeTagByCategoryId } from '@/graphql/categoryStaticstics';
 import { activeAccountBookAtom } from '@/store';
 import { DateGroupBy } from '@/types';
-import { Radio, RadioChangeEvent, Switch } from 'antd';
+import { Radio, RadioChangeEvent, Select, Switch } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import { useAtom } from 'jotai';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import FlowRecordTrend from '../../commons/FlowRecordTrend';
 
@@ -26,6 +26,7 @@ const Catgeory = () => {
   });
   const [enableStack, setEnableStack] = useState(false);
   const [groupBy, setGroupBy] = useState<DateGroupBy>('DAY');
+  const [traderIdFilter, setTraderIdFilter] = useState<string>();
 
   const { data: category } = useGetCategoryById({ id: categoryId! });
 
@@ -34,8 +35,14 @@ const Catgeory = () => {
     filter: {
       startDealAt: dateRange?.[0]?.toISOString(),
       endDealAt: dateRange?.[1]?.toISOString(),
+      traderId: traderIdFilter,
     },
   });
+
+  const users = useMemo(() => {
+    const { members, admins } = activeAccountBook!;
+    return [...admins, ...members];
+  }, [activeAccountBook]);
 
   const handleGroupByChange = useCallback((e: RadioChangeEvent) => {
     setGroupBy(e.target.value);
@@ -60,11 +67,29 @@ const Catgeory = () => {
       <div className="space-y-4 bg-gray-100">
         <Title
           extra={
-            <DatePicker.RangePicker
-              allowEmpty={[false, true]}
-              value={dateRange}
-              onChange={setDateRange}
-            />
+            <div>
+              <Select
+                className="m-2"
+                style={{ minWidth: 200 }}
+                allowClear={true}
+                placeholder="请选择交易人员"
+                value={traderIdFilter}
+                onChange={setTraderIdFilter}
+              >
+                {users.map((it) => {
+                  return (
+                    <Select.Option value={it.id} key={it.id}>
+                      <span className="flex items-center">{it.nickname}</span>
+                    </Select.Option>
+                  );
+                })}
+              </Select>
+              <DatePicker.RangePicker
+                allowEmpty={[false, true]}
+                value={dateRange}
+                onChange={setDateRange}
+              />
+            </div>
           }
         >{`${category?.name}详细数据`}</Title>
         <div className="flex flex-wrap -mx-2">
@@ -93,6 +118,7 @@ const Catgeory = () => {
               </div>
               <div className="flex-1 pt-4">
                 <FlowRecordTrend
+                  traderId={traderIdFilter}
                   enableStack={enableStack}
                   dateRange={dateRange}
                   groupBy={groupBy}

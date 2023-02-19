@@ -286,11 +286,13 @@ export class FlowRecordService {
       categoryId,
       categoryType,
       tagId,
+      traderId,
     }: {
       endDealAt?: Date;
       startDealAt?: Date;
       savingAccountId?: number;
       tagId?: number;
+      traderId?: number;
       categoryId?: number;
       categoryType?: CategoryType;
     },
@@ -344,6 +346,12 @@ export class FlowRecordService {
     if (tagId) {
       qb.andWhere('flowRecord.tagId = :tagId', {
         tagId,
+      });
+    }
+
+    if (traderId) {
+      qb.andWhere('flowRecord.traderId = :traderId', {
+        traderId,
       });
     }
 

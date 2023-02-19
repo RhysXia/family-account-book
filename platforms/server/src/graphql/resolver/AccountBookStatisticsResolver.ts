@@ -181,6 +181,7 @@ export class AccountBookStatisticsResolver {
     );
 
     const {
+      traderId,
       categoryId,
       tagId,
       startDealAt,
@@ -194,6 +195,9 @@ export class AccountBookStatisticsResolver {
         {
           ...(categoryType && {
             categoryType,
+          }),
+          ...(traderId && {
+            traderId: getUserId(traderId),
           }),
           ...(categoryId && {
             categoryId: decodeId(EntityName.CATEGORY, categoryId),

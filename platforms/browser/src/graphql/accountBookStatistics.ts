@@ -75,6 +75,7 @@ const GET_FLOW_RECORD_TOTAL_AMOUNT_PER_TRADER_BY_ACCOUNT_BOOK_ID = gql`
 
 export type FlowRecordTotalAmountPerTraderFilter = {
   categoryId?: string;
+  traderId?: string;
   categoryType?: CategoryType;
   savingAccountId?: string;
   startDealAt?: string;

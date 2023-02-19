@@ -12,6 +12,7 @@ export type FlowRecordTrendProps = {
   groupBy: DateGroupBy;
   dateRange?: [Dayjs | null, Dayjs | null] | null;
   enableStack?: boolean;
+  traderId?: string;
 };
 
 const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
@@ -19,6 +20,7 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
   groupBy,
   dateRange,
   enableStack,
+  traderId,
 }) => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
 
@@ -30,6 +32,7 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
         categoryId: category?.id,
         startDealAt: dateRange?.[0]?.toISOString(),
         endDealAt: dateRange?.[1]?.toISOString(),
+        traderId,
       },
     });
 

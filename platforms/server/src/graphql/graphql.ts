@@ -73,6 +73,7 @@ export interface FlowRecordTotalAmountFilter {
 }
 
 export interface FlowRecordTotalAmountPerTraderFilter {
+    traderId?: Nullable<string>;
     categoryId?: Nullable<string>;
     categoryType?: Nullable<CategoryType>;
     tagId?: Nullable<string>;

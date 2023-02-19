@@ -15,6 +15,7 @@ input FlowRecordTotalAmountFilter {
 }
 
 input FlowRecordTotalAmountPerTraderFilter {
+  traderId: ID
   categoryId: ID
   categoryType: CategoryType
   tagId: ID
