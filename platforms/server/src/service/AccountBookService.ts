@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, In } from 'typeorm';
 import { AccountBookEntity } from '../entity/AccountBookEntity';
-import { CategoryEntity, CategoryType } from '../entity/CategoryEntity';
+import { CategoryEntity } from '../entity/CategoryEntity';
 import { FlowRecordEntity } from '../entity/FlowRecordEntity';
 import { SavingAccountEntity } from '../entity/SavingAccountEntity';
 import { TagEntity } from '../entity/TagEntity';
 import { UserEntity } from '../entity/UserEntity';
 import { ResourceNotFoundException } from '../exception/ServiceException';
-import { DateGroupBy, Pagination } from '../graphql/graphql';
+import { Pagination } from '../graphql/graphql';
 import { applyPagination } from '../utils/applyPagination';
 
 @Injectable()
