@@ -216,15 +216,13 @@ const SavingAccountPage = () => {
       }
       title="账户列表"
     >
-      <div className="overflow-x-auto">
-        <Table
-          pagination={data && getPagination(data.total)}
-          columns={columns}
-          editable={true}
-          data={data?.data || []}
-          onEditSubmit={handleEdit}
-        />
-      </div>
+      <Table
+        pagination={data && getPagination(data.total)}
+        columns={columns}
+        editable={true}
+        data={data?.data || []}
+        onEditSubmit={handleEdit}
+      />
       <CreateModal
         visible={createModalVisible}
         onChange={setCreateModalVisible}

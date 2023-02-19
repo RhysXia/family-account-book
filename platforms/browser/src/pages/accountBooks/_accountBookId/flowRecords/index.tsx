@@ -180,17 +180,15 @@ const Index = () => {
             allowEmpty={[true, true]}
           />
         </div>
-        <div className="overflow-x-auto">
-          <FlowRecordTable
-            ref={tableRef}
-            categoryId={categoryIdFilter}
-            tagId={tagIdFilter}
-            traderId={traderIdFilter}
-            savingAccountId={savingAccountIdFilter}
-            startDealAt={dealAtRange?.[0]?.format('YYYY-MM-DD')}
-            endDealAt={dealAtRange?.[1]?.format('YYYY-MM-DD')}
-          />
-        </div>
+        <FlowRecordTable
+          ref={tableRef}
+          categoryId={categoryIdFilter}
+          tagId={tagIdFilter}
+          traderId={traderIdFilter}
+          savingAccountId={savingAccountIdFilter}
+          startDealAt={dealAtRange?.[0]?.format('YYYY-MM-DD')}
+          endDealAt={dealAtRange?.[1]?.format('YYYY-MM-DD')}
+        />
       </div>
       <CreateModel
         tags={tags}

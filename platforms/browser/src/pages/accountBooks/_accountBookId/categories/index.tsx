@@ -241,15 +241,13 @@ const CategoryPage = () => {
             })}
           </Select>
         </div>
-        <div className="overflow-x-auto">
-          <Table
-            editable={true}
-            columns={columns}
-            data={data?.data || []}
-            onEditSubmit={handleEdit}
-            pagination={data && getPagination(data.total)}
-          />
-        </div>
+        <Table
+          editable={true}
+          columns={columns}
+          data={data?.data || []}
+          onEditSubmit={handleEdit}
+          pagination={data && getPagination(data.total)}
+        />
       </div>
       <CreateModal
         visible={createModalVisible}

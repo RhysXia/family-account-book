@@ -277,16 +277,14 @@ const TagPage = () => {
             ))}
           </Select>
         </div>
-        <div className="overflow-x-auto">
-          <Table
-            onEditSubmit={handleEdit}
-            index="id"
-            editable={true}
-            columns={columns}
-            data={data?.data || []}
-            pagination={data && getPagination(data.total)}
-          />
-        </div>
+        <Table
+          onEditSubmit={handleEdit}
+          index="id"
+          editable={true}
+          columns={columns}
+          data={data?.data || []}
+          pagination={data && getPagination(data.total)}
+        />
       </div>
       <CreateModal
         visible={createModalVisible}

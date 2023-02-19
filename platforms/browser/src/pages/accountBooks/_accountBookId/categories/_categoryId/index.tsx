@@ -167,15 +167,13 @@ const Catgeory = () => {
               })}
             </Select>
           </div>
-          <div className="overflow-x-auto">
-            <FlowRecordTable
-              tagId={tagIdFilter}
-              categoryId={categoryId}
-              traderId={traderIdFilter}
-              startDealAt={dateRange?.[0]?.format('YYYY-MM-DD')}
-              endDealAt={dateRange?.[1]?.format('YYYY-MM-DD')}
-            />
-          </div>
+          <FlowRecordTable
+            tagId={tagIdFilter}
+            categoryId={categoryId}
+            traderId={traderIdFilter}
+            startDealAt={dateRange?.[0]?.format('YYYY-MM-DD')}
+            endDealAt={dateRange?.[1]?.format('YYYY-MM-DD')}
+          />
         </div>
       </div>
     </Content>

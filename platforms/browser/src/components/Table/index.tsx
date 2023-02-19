@@ -24,55 +24,57 @@ const Table: FC<TableProps> = ({
   ...others
 }) => {
   return (
-    <>
-      <div
-        {...others}
-        className={clsx(
-          'table w-full rounded border-collapse whitespace-nowrap',
-          className,
-        )}
-      >
-        <div className="table-header-group bg-slate-200 font-bold">
-          {columns.map(
-            (
-              {
-                style,
-                className: _className,
-                headerClassName,
-                headerStyle,
-                title,
-              },
-              i,
-            ) => {
-              return (
-                <div
-                  key={i}
-                  className={clsx(
-                    'table-cell p-2',
-                    headerClassName || _className,
-                  )}
-                  style={headerStyle || style}
-                >
-                  {title}
-                </div>
-              );
-            },
+    <div className="w-full">
+      <div className="w-full overflow-x-auto">
+        <div
+          {...others}
+          className={clsx(
+            'table min-w-full rounded border-collapse whitespace-nowrap',
+            className,
           )}
-        </div>
-        <div className="table-row-group">
-          {data.map((it, i) => {
-            const acutalKey = index ? getProp(it, index) || i : i;
-            return (
-              <Row
-                key={acutalKey}
-                columns={columns}
-                data={it}
-                index={i}
-                editable={editable}
-                onSubmit={onEditSubmit}
-              />
-            );
-          })}
+        >
+          <div className="table-header-group bg-slate-200 font-bold">
+            {columns.map(
+              (
+                {
+                  style,
+                  className: _className,
+                  headerClassName,
+                  headerStyle,
+                  title,
+                },
+                i,
+              ) => {
+                return (
+                  <div
+                    key={i}
+                    className={clsx(
+                      'table-cell p-2',
+                      headerClassName || _className,
+                    )}
+                    style={headerStyle || style}
+                  >
+                    {title}
+                  </div>
+                );
+              },
+            )}
+          </div>
+          <div className="table-row-group">
+            {data.map((it, i) => {
+              const acutalKey = index ? getProp(it, index) || i : i;
+              return (
+                <Row
+                  key={acutalKey}
+                  columns={columns}
+                  data={it}
+                  index={i}
+                  editable={editable}
+                  onSubmit={onEditSubmit}
+                />
+              );
+            })}
+          </div>
         </div>
       </div>
       {pagination && (
@@ -80,7 +82,7 @@ const Table: FC<TableProps> = ({
           {pagination}
         </div>
       )}
-    </>
+    </div>
   );
 };
 
