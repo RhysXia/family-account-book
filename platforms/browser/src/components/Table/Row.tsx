@@ -52,7 +52,7 @@ const Row: FC<RowProps> = ({
   }, []);
 
   const handleClickOutside = useConstantFn(async () => {
-    if (isSelfClick.current) {
+    if (isSelfClick.current || !isEdit) {
       return;
     }
     try {
