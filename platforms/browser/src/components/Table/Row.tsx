@@ -56,10 +56,9 @@ const Row: FC<RowProps> = ({
       return;
     }
     try {
-      if (data === initalData) {
-        return;
+      if (data !== initalData) {
+        await onSubmit?.(data);
       }
-      await onSubmit?.(data);
       setEdit(false);
     } catch (err) {
       message.error((err as Error).message || (err as any).toString());

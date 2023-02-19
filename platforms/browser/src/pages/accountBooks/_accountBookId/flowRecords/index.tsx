@@ -65,6 +65,8 @@ const Index = () => {
     [Dayjs | null, Dayjs | null] | null
   >();
 
+  const [categoryIdFilter, setCategoryIdFilter] = useState<string>();
+
   const handleChange = useCallback(
     (fn: (any) => void) => {
       return (args: any) => {
@@ -79,6 +81,7 @@ const Index = () => {
     accountBookId: activeAccountBook!.id,
     filter: {
       tagId: tagIdFilter,
+      categoryId: categoryIdFilter,
       traderId: traderIdFilter,
       savingAccountId: savingAccountIdFilter,
       startDealAt: dealAtRange?.[0]?.format('YYYY-MM-DD'),
@@ -99,6 +102,17 @@ const Index = () => {
       ],
     },
   });
+
+  const categories = useMemo(() => {
+    const map = new Map<string, Category>();
+
+    tags.forEach((t) => {
+      const c = t.category;
+      map.set(c.id, c);
+    });
+
+    return Array.from(map.values());
+  }, [tags]);
 
   const savingAccounts = useMemo(
     () => accountBookWithSavingAccounts?.data || [],
@@ -374,22 +388,39 @@ const Index = () => {
     >
       <div className="space-y-2">
         <div className="flex flex-wrap -m-2 justify-end">
-          <DatePicker.RangePicker
+          <Select
             className="m-2"
-            placeholder={['交易开始日期', '交易结束时间']}
-            value={dealAtRange}
-            onChange={handleChange(setDealAtRange)}
-            allowEmpty={[true, true]}
-          />
-          <TagSelect
+            allowClear={true}
+            value={categoryIdFilter}
+            onChange={handleChange(setCategoryIdFilter)}
+            placeholder="请选择分类"
+            style={{ minWidth: 200 }}
+          >
+            {categories.map((c) => (
+              <Select.Option value={c.id} key={c.id}>
+                {c.name}
+              </Select.Option>
+            ))}
+          </Select>
+          <Select
             className="m-2"
             allowClear={true}
             value={tagIdFilter}
+            disabled={!categoryIdFilter}
             onChange={handleChange(setTagIdFilter)}
             placeholder="请选择标签"
             style={{ minWidth: 200 }}
-            accountBookId={activeAccountBook!.id}
-          />
+          >
+            {tags
+              .filter((it) => it.category.id === categoryIdFilter)
+              .map((it) => (
+                <Select.Option value={it.id} key={it.id}>
+                  <Tag color={CategoryTypeInfoMap[it.category.type].color}>
+                    {it.name}
+                  </Tag>
+                </Select.Option>
+              ))}
+          </Select>
           <Select
             className="m-2"
             style={{ minWidth: 200 }}
@@ -427,6 +458,13 @@ const Index = () => {
               );
             })}
           </Select>
+          <DatePicker.RangePicker
+            className="m-2"
+            placeholder={['交易开始日期', '交易结束时间']}
+            value={dealAtRange}
+            onChange={handleChange(setDealAtRange)}
+            allowEmpty={[true, true]}
+          />
         </div>
         <div className="overflow-x-auto">
           <Table

@@ -72,6 +72,7 @@ export type FlowRecordDetail = FlowRecord & {
 export type AccountBookFlowRecordFilter = {
   savingAccountId?: string;
   tagId?: string;
+  categoryId?: string;
   traderId?: string;
   startDealAt?: string;
   endDealAt?: string;
