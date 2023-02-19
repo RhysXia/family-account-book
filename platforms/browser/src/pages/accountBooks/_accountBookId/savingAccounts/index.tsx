@@ -181,7 +181,8 @@ const SavingAccountPage = () => {
               onClick={() => {
                 Modal.confirm({
                   title: '确认删除',
-                  content: '删除存款账户会同步删除关联的全部流水记录，确认删除吗？',
+                  content:
+                    '删除存款账户会同步删除关联的全部流水记录，确认删除吗？',
                   onOk: async () => {
                     await handleDeleteSavingAccount(value.id);
                   },
