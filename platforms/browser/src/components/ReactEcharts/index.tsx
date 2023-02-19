@@ -73,7 +73,10 @@ const ReactEcharts = forwardRef<{ echarts?: echarts.ECharts }, EchartsProps>(
         return;
       }
       const instance = echarts.init(domRef.current, {
-        color: COLORS.map((it) => it[0]),
+        color: COLORS.reduce((prev, cur) => {
+          prev.push(...cur);
+          return prev;
+        }, []),
       });
 
       echartInstance.current = instance;

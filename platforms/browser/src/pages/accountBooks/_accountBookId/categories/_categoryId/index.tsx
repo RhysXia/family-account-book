@@ -104,7 +104,7 @@ const Catgeory = () => {
           }
         >{`${category?.name}详细数据`}</Title>
         <div className="flex flex-wrap -mx-2">
-          <div className="w-full sm:w-1/2 xl:w-1/3 xxl:w-1/4 h-96 p-2">
+          <div className="w-full sm:w-1/2 xxl:w-1/4 h-96 p-2">
             <FlowRecordPie
               className="bg-white rounded p-2"
               title={category?.name || ''}
@@ -114,7 +114,7 @@ const Catgeory = () => {
               }))}
             />
           </div>
-          <div className="w-full sm:w-1/2 xl:w-1/3 xxl:w-1/4 h-96 p-2">
+          <div className="w-full sm:w-1/2 xxl:w-1/4 h-96 p-2">
             <div className="bg-white flex flex-col rounded w-full h-full p-2">
               <div className="flex items-center justify-end flex-wrap space-x-2 ">
                 <Radio.Group value={groupBy} onChange={handleGroupByChange}>
