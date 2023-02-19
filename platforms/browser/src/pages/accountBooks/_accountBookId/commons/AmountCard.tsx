@@ -81,20 +81,24 @@ const AmountCard: FC<AmountCardProps> = ({ category, groupBy }) => {
 
   const userDetails = (
     <div className="flex items-center space-x-2 h-8 w-full overflow-x-auto whitespace-nowrap">
-      {totalAmountPerTraderData?.map((it) => (
-        <div key={it.trader.id} className="pr-4">
-          <span className="inline-block h-full pr-2">{it.trader.nickname}</span>
-          <span className="inline-block h-full">
-            {(!category || category.type === CategoryType.UNKNOWN
-              ? it.amount
-              : Math.abs(it.amount)
-            ).toLocaleString('zh-CN', {
-              style: 'currency',
-              currency: 'CNY',
-            })}
-          </span>
-        </div>
-      ))}
+      {totalAmountPerTraderData
+        ?.sort((a, b) => (a.trader.nickname > b.trader.nickname ? 1 : -1))
+        .map((it) => (
+          <div key={it.trader.id} className="pr-4">
+            <span className="inline-block h-full pr-2">
+              {it.trader.nickname}
+            </span>
+            <span className="inline-block h-full">
+              {(!category || category.type === CategoryType.UNKNOWN
+                ? it.amount
+                : Math.abs(it.amount)
+              ).toLocaleString('zh-CN', {
+                style: 'currency',
+                currency: 'CNY',
+              })}
+            </span>
+          </div>
+        ))}
     </div>
   );
 
