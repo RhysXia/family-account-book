@@ -295,7 +295,7 @@ const FlowRecordTable = forwardRef<FlowRecordTableRef, FlowRecordTableProps>(
                 onClick={() => {
                   Modal.confirm({
                     title: '确认删除',
-                    content: '确认删除该存款账户吗？',
+                    content: '确认删除该流水记录吗？',
                     onOk: async () => {
                       await handleDelete(value.id);
                     },
