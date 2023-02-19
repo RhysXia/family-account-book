@@ -12,7 +12,7 @@ const usePagination = ({
 }: PaginationProps = {}) => {
   const [params, setParams] = useSearchParams();
 
-  const [page, setPage] = useState(+(params.get('page') || 1));
+  const [page, setPage] = useState(() => +(params.get('page') || 1));
   const [pageSize, setPageSize] = useState(
     +(params.get('pageSize') || defaultPageSize),
   );

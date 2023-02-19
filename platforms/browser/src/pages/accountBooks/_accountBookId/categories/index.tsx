@@ -196,8 +196,6 @@ const CategoryPage = () => {
     },
   ];
 
-  const pagination = data && getPagination(data.total);
-
   const breadcrumbs = [
     {
       name: activeAccountBook!.name,
@@ -217,7 +215,6 @@ const CategoryPage = () => {
           新建
         </Button>
       }
-      pagination={pagination}
     >
       <div className="space-y-2">
         <div className="flex justify-end">
@@ -246,11 +243,11 @@ const CategoryPage = () => {
         </div>
         <div className="overflow-x-auto">
           <Table
-            className="whitespace-nowrap"
             editable={true}
             columns={columns}
             data={data?.data || []}
             onEditSubmit={handleEdit}
+            pagination={data && getPagination(data.total)}
           />
         </div>
       </div>

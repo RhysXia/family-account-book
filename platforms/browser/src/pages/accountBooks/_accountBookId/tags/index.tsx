@@ -252,7 +252,6 @@ const TagPage = () => {
   return (
     <Content
       breadcrumbs={breadcrumbs}
-      pagination={data && getPagination(data.total)}
       title="标签列表"
       action={
         <Button type="primary" onClick={handleCreateButton}>
@@ -280,12 +279,12 @@ const TagPage = () => {
         </div>
         <div className="overflow-x-auto">
           <Table
-            className="whitespace-nowrap"
             onEditSubmit={handleEdit}
             index="id"
             editable={true}
             columns={columns}
             data={data?.data || []}
+            pagination={data && getPagination(data.total)}
           />
         </div>
       </div>

@@ -15,7 +15,7 @@ const Title: FC<TitleProps> = ({ extra, className, children, ...others }) => {
         className,
       )}
     >
-      <span className="text-gray-800 font-bold text-lg">{children}</span>
+      <span className="text-gray-800 font-bold text-lg my-2">{children}</span>
       {extra && (
         <div className={clsx('flex items-center flex-wrap', style.extra)}>
           {extra}

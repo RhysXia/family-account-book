@@ -1,12 +1,15 @@
 import Content from '@/components/Content';
 import DatePicker from '@/components/DatePicker';
 import FlowRecordPie from '@/components/FlowRecordPie';
+import FlowRecordTable from '@/components/FlowRecordTable';
 import Title from '@/components/Title';
 import { useGetCategoryById } from '@/graphql/category';
 import { useGetFlowRecordTotalAmountPeTagByCategoryId } from '@/graphql/categoryStaticstics';
+import { useGetTagsWithCategoryByAccountBookId } from '@/graphql/tag';
 import { activeAccountBookAtom } from '@/store';
 import { DateGroupBy } from '@/types';
-import { Radio, RadioChangeEvent, Select, Switch } from 'antd';
+import { CategoryTypeInfoMap } from '@/utils/constants';
+import { Radio, RadioChangeEvent, Select, Switch, Tag } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import { useAtom } from 'jotai';
 import { useCallback, useMemo, useState } from 'react';
@@ -28,7 +31,16 @@ const Catgeory = () => {
   const [groupBy, setGroupBy] = useState<DateGroupBy>('DAY');
   const [traderIdFilter, setTraderIdFilter] = useState<string>();
 
+  const [tagIdFilter, setTagIdFilter] = useState<string>();
+
   const { data: category } = useGetCategoryById({ id: categoryId! });
+
+  const { data: tagData } = useGetTagsWithCategoryByAccountBookId({
+    accountBookId: activeAccountBook!.id,
+    filter: {
+      categoryId,
+    },
+  });
 
   const { data } = useGetFlowRecordTotalAmountPeTagByCategoryId({
     categoryId: categoryId!,
@@ -67,9 +79,8 @@ const Catgeory = () => {
       <div className="space-y-4 bg-gray-100">
         <Title
           extra={
-            <div>
+            <>
               <Select
-                className="m-2"
                 style={{ minWidth: 200 }}
                 allowClear={true}
                 placeholder="请选择交易人员"
@@ -89,7 +100,7 @@ const Catgeory = () => {
                 value={dateRange}
                 onChange={setDateRange}
               />
-            </div>
+            </>
           }
         >{`${category?.name}详细数据`}</Title>
         <div className="flex flex-wrap -mx-2">
@@ -126,6 +137,36 @@ const Catgeory = () => {
                 />
               </div>
             </div>
+          </div>
+        </div>
+        <div className="bg-white p-2 space-y-2">
+          <div className="flex justify-end items-center">
+            <Select
+              style={{ minWidth: 200 }}
+              allowClear={true}
+              placeholder="请选择标签"
+              value={tagIdFilter}
+              onChange={setTagIdFilter}
+            >
+              {(tagData?.data || []).map((it) => {
+                return (
+                  <Select.Option value={it.id} key={it.id}>
+                    <Tag color={CategoryTypeInfoMap[it.category.type].color}>
+                      {it.name}
+                    </Tag>
+                  </Select.Option>
+                );
+              })}
+            </Select>
+          </div>
+          <div className="overflow-x-auto">
+            <FlowRecordTable
+              tagId={tagIdFilter}
+              categoryId={categoryId}
+              traderId={traderIdFilter}
+              startDealAt={dateRange?.[0]?.format('YYYY-MM-DD')}
+              endDealAt={dateRange?.[1]?.format('YYYY-MM-DD')}
+            />
           </div>
         </div>
       </div>

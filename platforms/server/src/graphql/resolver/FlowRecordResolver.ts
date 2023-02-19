@@ -146,7 +146,7 @@ export class FlowRecordResolver {
           savingAccountId: decodeId(EntityName.SAVING_ACCOUNT, savingAccountId),
         }),
         ...(tagId && {
-          categoryId: decodeId(EntityName.TAG, tagId),
+          tagId: decodeId(EntityName.TAG, tagId),
         }),
       },
       currentUser,

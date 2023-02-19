@@ -7,7 +7,6 @@ export type ContentProps = HTMLAttributes<HTMLDivElement> & {
   breadcrumbs?: Array<{ name: string; path?: string }>;
   children: ReactNode;
   action?: ReactNode;
-  pagination?: ReactNode;
   contentClassName?: string;
 };
 
@@ -16,7 +15,6 @@ const Content: FC<ContentProps> = ({
   breadcrumbs,
   children,
   action,
-  pagination,
   className,
   contentClassName,
   ...others
@@ -43,11 +41,6 @@ const Content: FC<ContentProps> = ({
       <div className={clsx('bg-white p-2 rounded', contentClassName)}>
         {children}
       </div>
-      {pagination && (
-        <div className="p-2 rounded text-center md:text-right">
-          {pagination}
-        </div>
-      )}
     </div>
   );
 };

@@ -49,6 +49,7 @@ const FlowRecordPie: FC<FlowRecordPieProps> = ({
         confine: true,
       },
       legend: {
+        type: 'scroll',
         orient: 'horizontal',
         right: 0,
         width: '100%',

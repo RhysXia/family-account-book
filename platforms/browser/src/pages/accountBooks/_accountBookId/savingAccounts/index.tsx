@@ -209,7 +209,6 @@ const SavingAccountPage = () => {
   return (
     <Content
       breadcrumbs={breadcrumbs}
-      pagination={data && getPagination(data.total)}
       action={
         <Button type="primary" onClick={handleCreateButton}>
           新建
@@ -219,11 +218,11 @@ const SavingAccountPage = () => {
     >
       <div className="overflow-x-auto">
         <Table
+          pagination={data && getPagination(data.total)}
           columns={columns}
           editable={true}
           data={data?.data || []}
           onEditSubmit={handleEdit}
-          className="whitespace-nowrap"
         />
       </div>
       <CreateModal
