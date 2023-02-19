@@ -147,7 +147,7 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
   const isEmpty = dataset.length < 2;
 
   return (
-    <div className="w-full h-60 flex items-center justify-center">
+    <div className="w-full h-full flex items-center justify-center">
       {isEmpty ? (
         <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
       ) : (

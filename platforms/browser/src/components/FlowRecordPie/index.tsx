@@ -1,18 +1,26 @@
 import { Empty } from 'antd';
+import clsx from 'clsx';
 import {
   TooltipFormatterCallback,
   TopLevelFormatterParams,
 } from 'echarts/types/dist/shared';
-import { FC, useMemo } from 'react';
+import { FC, HTMLAttributes, useMemo } from 'react';
 import ReactEcharts, { EchartsOptions } from '../ReactEcharts';
 
-export type FlowRecordPieProps = {
+export type FlowRecordPieProps = HTMLAttributes<HTMLDivElement> & {
   title: string;
-  data: Array<{ name: string; value: number }>;
+  data?: Array<{ name: string; value: number }>;
 };
 
-const FlowRecordPie: FC<FlowRecordPieProps> = ({ title, data }) => {
+const FlowRecordPie: FC<FlowRecordPieProps> = ({
+  title,
+  data,
+  className,
+  ...others
+}) => {
   const options = useMemo<EchartsOptions>(() => {
+    const list = data || [];
+
     const formatter: TooltipFormatterCallback<TopLevelFormatterParams> = (
       params,
     ) => {
@@ -39,18 +47,20 @@ const FlowRecordPie: FC<FlowRecordPieProps> = ({ title, data }) => {
         confine: true,
       },
       legend: {
-        orient: 'vertical',
+        orient: 'horizontal',
         right: 0,
+        width: '100%',
       },
       series: [
         {
+          top: 20,
           name: title,
           type: 'pie',
           radius: '80%',
           label: {
             show: false,
           },
-          data: data.map((it) => ({
+          data: list.map((it) => ({
             value: Math.abs(it.value),
             name: it.name,
           })),
@@ -61,7 +71,13 @@ const FlowRecordPie: FC<FlowRecordPieProps> = ({ title, data }) => {
 
   const isEmpty = !data || data.length === 0;
   return (
-    <div className="w-full h-full flex justify-center items-center">
+    <div
+      {...others}
+      className={clsx(
+        'w-full h-full flex justify-center items-center',
+        className,
+      )}
+    >
       {isEmpty ? (
         <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
       ) : (

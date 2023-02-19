@@ -3,7 +3,7 @@ import { FC, HTMLAttributes, ReactNode } from 'react';
 import style from './style.module.less';
 
 export type TitleProps = HTMLAttributes<HTMLDivElement> & {
-  extra: ReactNode;
+  extra?: ReactNode;
 };
 
 const Title: FC<TitleProps> = ({ extra, className, children, ...others }) => {
@@ -16,9 +16,11 @@ const Title: FC<TitleProps> = ({ extra, className, children, ...others }) => {
       )}
     >
       <span className="text-gray-800 font-bold text-lg">{children}</span>
-      <div className={clsx('flex items-center flex-wrap', style.extra)}>
-        {extra}
-      </div>
+      {extra && (
+        <div className={clsx('flex items-center flex-wrap', style.extra)}>
+          {extra}
+        </div>
+      )}
     </div>
   );
 };

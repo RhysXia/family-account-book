@@ -191,21 +191,25 @@ const Overview = () => {
             destroyInactiveTabPane={true}
           >
             <Tabs.TabPane tab="净收入">
-              <FlowRecordTrend
-                enableStack={enableStack}
-                dateRange={lineDateRange}
-                groupBy={lineGroupBy}
-              />
-            </Tabs.TabPane>
-
-            {categoriesData?.data.map((it) => (
-              <Tabs.TabPane tab={it.name} key={it.id}>
+              <div className="w-full h-60">
                 <FlowRecordTrend
                   enableStack={enableStack}
                   dateRange={lineDateRange}
                   groupBy={lineGroupBy}
-                  category={it}
                 />
+              </div>
+            </Tabs.TabPane>
+
+            {categoriesData?.data.map((it) => (
+              <Tabs.TabPane tab={it.name} key={it.id}>
+                <div className="w-full h-60">
+                  <FlowRecordTrend
+                    enableStack={enableStack}
+                    dateRange={lineDateRange}
+                    groupBy={lineGroupBy}
+                    category={it}
+                  />
+                </div>
               </Tabs.TabPane>
             ))}
           </Tabs>
