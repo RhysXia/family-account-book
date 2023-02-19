@@ -68,6 +68,32 @@ export const useGetCategoryListByAccountBookId = (variables: {
   };
 };
 
+export const GET_CATEGORY_BY_ID = gql`
+  query GetCategoryById($id: ID!) {
+    node(id: $id) {
+      ... on Category {
+        id
+        name
+        type
+        desc
+      }
+    }
+  }
+`;
+
+export const useGetCategoryById = (variables: { id: string }) => {
+  const { data, ...others } = useAppQuery<{
+    node: Category;
+  }>(GET_CATEGORY_BY_ID, {
+    variables,
+  });
+
+  return {
+    data: data?.node,
+    ...others,
+  };
+};
+
 export const GET_CATEGORY_LIST_WITH_TAG_LIST_BY_ACCOUNT_BOOK_ID = gql`
   query GetCategoryListByAccountBookId(
     $accountBookId: ID!

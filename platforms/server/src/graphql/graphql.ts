@@ -109,6 +109,14 @@ export interface UpdateCategoryInput {
     desc?: Nullable<string>;
 }
 
+export interface FlowRecordTotalAmountPerTagFilter {
+    traderId?: Nullable<string>;
+    tagId?: Nullable<string>;
+    savingAccountId?: Nullable<string>;
+    startDealAt?: Nullable<Date>;
+    endDealAt?: Nullable<Date>;
+}
+
 export interface CreateFlowRecordInput {
     desc?: Nullable<string>;
     dealAt: Date;
@@ -296,8 +304,20 @@ export interface CategoryListWithPagintion {
     data: Category[];
 }
 
+export interface FlowRecordTotalAmountPerTag {
+    tag: Tag;
+    amount: number;
+}
+
+export interface FlowRecordTotalAmountPerTagAndTrader {
+    trader: User;
+    data: FlowRecordTotalAmountPerTag[];
+}
+
 export interface CategoryStatistics {
     id: string;
+    flowRecordTotalAmountPerTag: FlowRecordTotalAmountPerTag[];
+    flowRecordTotalAmountPerTagAndTrader: FlowRecordTotalAmountPerTagAndTrader[];
 }
 
 export interface FlowRecordListWithPagintion {

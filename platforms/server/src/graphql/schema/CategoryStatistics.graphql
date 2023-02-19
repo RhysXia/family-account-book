@@ -1,3 +1,35 @@
+input FlowRecordTotalAmountPerTagFilter {
+  traderId: ID
+  tagId: ID
+  savingAccountId: ID
+  """
+  开始时间
+  """
+  startDealAt: Date
+  """
+  结束时间，不包含结束时间点
+  """
+  endDealAt: Date
+}
+
+type FlowRecordTotalAmountPerTag {
+  tag: Tag!
+  amount: Float!
+}
+
+type FlowRecordTotalAmountPerTagAndTrader {
+  trader: User!
+  data: [FlowRecordTotalAmountPerTag!]!
+}
+
 type CategoryStatistics {
   id: ID!
+
+  flowRecordTotalAmountPerTag(
+    filter: FlowRecordTotalAmountPerTagFilter
+  ): [FlowRecordTotalAmountPerTag!]!
+
+  flowRecordTotalAmountPerTagAndTrader(
+    filter: FlowRecordTotalAmountPerTagFilter
+  ): [FlowRecordTotalAmountPerTagAndTrader!]!
 }

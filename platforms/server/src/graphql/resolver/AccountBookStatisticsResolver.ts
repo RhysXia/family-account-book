@@ -1,5 +1,5 @@
 import { Args, Parent, ResolveField, Resolver } from '@nestjs/graphql';
-import { AccountBookService } from '../../service/AccountBookService';
+import { FlowRecordService } from '../../service/FlowRecordService';
 import {
   DateGroupBy,
   FlowRecordTotalAmountFilter,
@@ -16,7 +16,7 @@ export type AccountBookStatistics = {
 
 @Resolver('AccountBookStatistics')
 export class AccountBookStatisticsResolver {
-  constructor(private readonly accountBookService: AccountBookService) {}
+  constructor(private readonly flowRecordService: FlowRecordService) {}
 
   @ResolveField()
   async flowRecordTotalAmount(
@@ -38,7 +38,7 @@ export class AccountBookStatisticsResolver {
       tagId,
     } = filter || {};
 
-    return this.accountBookService.findFlowRecordTotalAmountById(
+    return this.flowRecordService.findFlowRecordTotalAmountByAccountBookId(
       {
         ...(categoryType && {
           categoryType,
@@ -84,7 +84,7 @@ export class AccountBookStatisticsResolver {
     } = filter || {};
 
     const array =
-      await this.accountBookService.findFlowRecordTotalAmountPerTraderById(
+      await this.flowRecordService.findFlowRecordTotalAmountPerTraderByAccountBookId(
         {
           ...(categoryType && {
             categoryType,
@@ -142,7 +142,7 @@ export class AccountBookStatisticsResolver {
       tagId,
     } = filter || {};
 
-    return this.accountBookService.findFlowRecordTotalAmountByIdAndGroupByDate(
+    return this.flowRecordService.findFlowRecordTotalAmountByAccountBookIdAndGroupByDate(
       {
         ...(categoryType && {
           categoryType,
@@ -190,7 +190,7 @@ export class AccountBookStatisticsResolver {
     } = filter || {};
 
     const array =
-      await this.accountBookService.findFlowRecordTotalAmountPerTraderByIdAndGroupByDate(
+      await this.flowRecordService.findFlowRecordTotalAmountPerTraderByAccountBookIdAndGroupByDate(
         {
           ...(categoryType && {
             categoryType,
@@ -248,7 +248,7 @@ export class AccountBookStatisticsResolver {
     } = filter || {};
 
     const array =
-      await this.accountBookService.findFlowRecordTotalAmountPerCategoryById(
+      await this.flowRecordService.findFlowRecordTotalAmountPerCategoryByAccountBookId(
         {
           ...(categoryType && {
             categoryType,

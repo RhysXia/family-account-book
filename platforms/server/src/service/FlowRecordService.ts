@@ -9,20 +9,684 @@ import {
   ParameterException,
   ResourceNotFoundException,
 } from '../exception/ServiceException';
-import { Pagination } from '../graphql/graphql';
+import { DateGroupBy, Pagination } from '../graphql/graphql';
+import { PrefixWrapper } from '../types';
 import { applyPagination } from '../utils/applyPagination';
 
 @Injectable()
 export class FlowRecordService {
   constructor(private readonly dataSource: DataSource) {}
 
+  async findFlowRecordTotalAmountPerTagAndTraderByCategoryId(
+    {
+      endDealAt,
+      startDealAt,
+      savingAccountId,
+      tagId,
+      traderId,
+    }: {
+      endDealAt?: Date;
+      startDealAt?: Date;
+      tagId?: number;
+      savingAccountId?: number;
+      traderId?: number;
+    },
+    categoryId: number,
+  ): Promise<
+    Array<{
+      trader: UserEntity;
+      data: Array<{
+        tag: TagEntity;
+        amount: number;
+      }>;
+    }>
+  > {
+    const qb = this.dataSource.manager
+      .createQueryBuilder(FlowRecordEntity, 'flowRecord')
+      .select('SUM(flowRecord.amount)', 'totalAmount')
+      .leftJoinAndSelect('flowRecord.tag', 'tag')
+      .leftJoinAndSelect('flowRecord.trader', 'trader')
+      .groupBy('tag.id')
+      .addGroupBy('trader.id')
+      .where('tag.categoryId = :categoryId', { categoryId });
+
+    if (traderId) {
+      qb.andWhere('flowRecord.traderId = :traderId', {
+        traderId,
+      });
+    }
+
+    if (tagId) {
+      qb.andWhere('flowRecord.tagId = :tagId', {
+        tagId,
+      });
+    }
+
+    if (savingAccountId) {
+      qb.andWhere('flowRecord.savingAccountId = :savingAccountId', {
+        savingAccountId,
+      });
+    }
+
+    if (startDealAt) {
+      qb.andWhere('flowRecord.dealAt >= :startDealAt', { startDealAt });
+    }
+
+    if (endDealAt) {
+      qb.andWhere('flowRecord.dealAt < :endDealAt', { endDealAt });
+    }
+
+    const ret = await qb.getRawMany<
+      PrefixWrapper<TagEntity, 'tag'> &
+        PrefixWrapper<UserEntity, 'trader'> & {
+          totalAmount: number;
+        }
+    >();
+
+    const traders: Array<UserEntity> = [];
+
+    const map = new Map<
+      number,
+      Array<{
+        amount: number;
+        tag: TagEntity;
+      }>
+    >();
+
+    ret.forEach((it) => {
+      const trader = new UserEntity();
+      const tag = new TagEntity();
+      Object.keys(it).forEach((key) => {
+        const [prefix, ...others] = key.split('_');
+        const originalKey = others.join('_');
+        switch (prefix) {
+          case 'tag': {
+            tag[originalKey] = it[key];
+            break;
+          }
+          case 'trader': {
+            trader[originalKey] = it[key];
+            break;
+          }
+        }
+      });
+
+      if (traders.every((t) => t.id !== trader.id)) {
+        traders.push(trader);
+      }
+
+      const value = map.get(trader.id) || [];
+
+      value.push({
+        amount: +(it.totalAmount || 0),
+        tag,
+      });
+
+      map.set(trader.id, value);
+    });
+
+    return traders.map((it) => ({
+      trader: it,
+      data: map.get(it.id) || [],
+    }));
+  }
+
+  async findFlowRecordTotalAmountPerTagByCategoryId(
+    {
+      endDealAt,
+      startDealAt,
+      savingAccountId,
+      traderId,
+      tagId,
+    }: {
+      endDealAt?: Date;
+      startDealAt?: Date;
+      savingAccountId?: number;
+      traderId?: number;
+      tagId?: number;
+    },
+    categoryId: number,
+  ): Promise<
+    Array<{
+      tag: TagEntity;
+      amount: number;
+    }>
+  > {
+    const qb = this.dataSource.manager
+      .createQueryBuilder(FlowRecordEntity, 'flowRecord')
+      .select('SUM(flowRecord.amount)', 'totalAmount')
+      .addSelect('tag.*')
+      .leftJoin('flowRecord.tag', 'tag')
+      .groupBy('tag.id')
+      .where('tag.categoryId = :categoryId', { categoryId });
+
+    if (traderId) {
+      qb.andWhere('flowRecord.traderId = :traderId', {
+        traderId,
+      });
+    }
+
+    if (tagId) {
+      qb.andWhere('flowRecord.tagId = :tagId', {
+        tagId,
+      });
+    }
+
+    if (savingAccountId) {
+      qb.andWhere('flowRecord.savingAccountId = :savingAccountId', {
+        savingAccountId,
+      });
+    }
+
+    if (startDealAt) {
+      qb.andWhere('flowRecord.dealAt >= :startDealAt', { startDealAt });
+    }
+
+    if (endDealAt) {
+      qb.andWhere('flowRecord.dealAt < :endDealAt', { endDealAt });
+    }
+
+    const ret: Array<
+      TagEntity & {
+        totalAmount: string | null;
+      }
+    > = await qb.getRawMany();
+
+    return ret.map((it) => {
+      const { totalAmount, ...tag } = it;
+      return {
+        amount: +(totalAmount || 0),
+        tag,
+      };
+    });
+  }
+
+  async findFlowRecordTotalAmountPerCategoryByAccountBookId(
+    {
+      startDealAt,
+      endDealAt,
+      savingAccountId,
+      tagId,
+      traderId,
+      categoryType,
+    }: {
+      endDealAt?: Date;
+      startDealAt?: Date;
+      savingAccountId?: number;
+      tagId?: number;
+      traderId?: number;
+      categoryType?: CategoryType;
+    },
+    accountBookId: number,
+  ): Promise<
+    Array<{
+      category: CategoryEntity;
+      amount: number;
+    }>
+  > {
+    const qb = this.dataSource.manager
+      .createQueryBuilder(FlowRecordEntity, 'flowRecord')
+      .select('SUM(flowRecord.amount)', 'totalAmount')
+      .addSelect('category.*')
+      .leftJoin('flowRecord.tag', 'tag')
+      .leftJoin('tag.category', 'category')
+      .groupBy('category.id')
+      .where('flowRecord.accountBookId = :accountBookId', { accountBookId });
+
+    if (tagId) {
+      qb.andWhere('flowRecord.tagId = :tagId', {
+        tagId,
+      });
+    }
+
+    if (traderId) {
+      qb.andWhere('flowRecord.traderId = :traderId', {
+        traderId,
+      });
+    }
+
+    if (categoryType) {
+      qb.andWhere('category.type = :categoryType', { categoryType });
+    }
+
+    if (savingAccountId) {
+      qb.andWhere('flowRecord.savingAccountId = :savingAccountId', {
+        savingAccountId,
+      });
+    }
+
+    if (startDealAt) {
+      qb.andWhere('flowRecord.dealAt >= :startDealAt', { startDealAt });
+    }
+
+    if (endDealAt) {
+      qb.andWhere('flowRecord.dealAt < :endDealAt', { endDealAt });
+    }
+
+    const ret: Array<
+      CategoryEntity & {
+        totalAmount: string | null;
+      }
+    > = await qb.getRawMany();
+
+    return ret.map((it) => {
+      const { totalAmount, ...category } = it;
+      return {
+        amount: +(totalAmount || 0),
+        category,
+      };
+    });
+  }
+
+  async findFlowRecordTotalAmountPerTraderByAccountBookIdAndGroupByDate(
+    {
+      endDealAt,
+      startDealAt,
+      savingAccountId,
+      categoryId,
+      categoryType,
+      tagId,
+    }: {
+      endDealAt?: Date;
+      startDealAt?: Date;
+      savingAccountId?: number;
+      tagId?: number;
+      categoryId?: number;
+      categoryType?: CategoryType;
+    },
+    accountBookId: number,
+    groupBy: DateGroupBy,
+  ): Promise<
+    Array<{
+      trader: {
+        id: number;
+        username: string;
+        password: string;
+        nickname: string;
+        createdAt: Date;
+        updatedAt: Date;
+        email?: string;
+        avatar?: string;
+      };
+      amountPerDate: Array<{
+        dealAt: string;
+        amount: number;
+      }>;
+    }>
+  > {
+    let dataFormat: string;
+
+    switch (groupBy) {
+      case DateGroupBy.YEAR: {
+        dataFormat = 'YYYY';
+        break;
+      }
+      case DateGroupBy.MONTH: {
+        dataFormat = 'YYYY-MM';
+        break;
+      }
+      case DateGroupBy.DAY: {
+        dataFormat = 'YYYY-MM-DD';
+        break;
+      }
+    }
+
+    const qb = this.dataSource.manager
+      .createQueryBuilder(FlowRecordEntity, 'flowRecord')
+      .select(`to_char(flowRecord.dealAt, '${dataFormat}')`, 'deal_at')
+      .addSelect('trader.*')
+      .addSelect('SUM(flowRecord.amount)', 'totalAmount')
+      .leftJoin('flowRecord.trader', 'trader')
+      .groupBy('deal_at, trader.id')
+      .where('flowRecord.accountBookId = :accountBookId', { accountBookId })
+      .orderBy('deal_at', 'ASC');
+
+    if (tagId) {
+      qb.andWhere('flowRecord.tagId = :tagId', {
+        tagId,
+      });
+    }
+
+    if (categoryId || categoryType) {
+      qb.leftJoin('flowRecord.tag', 'tag');
+
+      if (categoryId) {
+        qb.andWhere('tag.categoryId = :categoryId', { categoryId });
+      }
+
+      if (categoryType) {
+        qb.leftJoin('tag.category', 'category').andWhere(
+          'category.type = :categoryType',
+          { categoryType },
+        );
+      }
+    }
+
+    if (savingAccountId) {
+      qb.andWhere('flowRecord.savingAccountId = :savingAccountId', {
+        savingAccountId,
+      });
+    }
+
+    if (startDealAt) {
+      qb.andWhere('flowRecord.dealAt >= :startDealAt', { startDealAt });
+    }
+
+    if (endDealAt) {
+      qb.andWhere('flowRecord.dealAt < :endDealAt', { endDealAt });
+    }
+
+    const ret: Array<{
+      totalAmount: string | null;
+      deal_at: string;
+      createdAt: Date;
+      updatedAt: Date;
+      id: number;
+      nickname: string;
+      username: string;
+      password: string;
+      email: string | null;
+      avatar: string | null;
+      deletedAt: Date | null;
+    }> = await qb.getRawMany();
+
+    const map = new Map<number, Array<{ dealAt: string; amount: number }>>();
+
+    ret.forEach((it) => {
+      const array = map.get(it.id) || [];
+      array.push({ dealAt: it.deal_at, amount: +(it.totalAmount || 0) });
+      map.set(it.id, array);
+    });
+
+    return Array.from(map.keys()).map((id) => {
+      const { avatar, email, ...others } = ret.find((it) => it.id === id)!;
+      return {
+        amountPerDate: map.get(id)!,
+        trader: {
+          ...others,
+          ...(avatar && { avatar }),
+          ...(email && { email }),
+        },
+      };
+    });
+  }
+
+  async findFlowRecordTotalAmountPerTraderByAccountBookId(
+    {
+      endDealAt,
+      startDealAt,
+      savingAccountId,
+      categoryId,
+      categoryType,
+      tagId,
+    }: {
+      endDealAt?: Date;
+      startDealAt?: Date;
+      savingAccountId?: number;
+      tagId?: number;
+      categoryId?: number;
+      categoryType?: CategoryType;
+    },
+    accountBookId: number,
+  ): Promise<
+    Array<{
+      trader: {
+        id: number;
+        username: string;
+        password: string;
+        nickname: string;
+        createdAt: Date;
+        updatedAt: Date;
+        email?: string;
+        avatar?: string;
+      };
+      amount: number;
+    }>
+  > {
+    const qb = this.dataSource.manager
+      .createQueryBuilder(FlowRecordEntity, 'flowRecord')
+      .select('SUM(flowRecord.amount)', 'totalAmount')
+      .addSelect('trader.*')
+      .leftJoin('flowRecord.trader', 'trader')
+      .groupBy('trader.id')
+      .where('flowRecord.accountBookId = :accountBookId', { accountBookId });
+
+    if (tagId) {
+      qb.andWhere('flowRecord.tagId = :tagId', {
+        tagId,
+      });
+    }
+
+    if (categoryId || categoryType) {
+      qb.leftJoin('flowRecord.tag', 'tag');
+
+      if (categoryId) {
+        qb.andWhere('tag.categoryId = :categoryId', { categoryId });
+      }
+
+      if (categoryType) {
+        qb.leftJoin('tag.category', 'category').andWhere(
+          'category.type = :categoryType',
+          { categoryType },
+        );
+      }
+    }
+
+    if (savingAccountId) {
+      qb.andWhere('flowRecord.savingAccountId = :savingAccountId', {
+        savingAccountId,
+      });
+    }
+
+    if (startDealAt) {
+      qb.andWhere('flowRecord.dealAt >= :startDealAt', { startDealAt });
+    }
+
+    if (endDealAt) {
+      qb.andWhere('flowRecord.dealAt < :endDealAt', { endDealAt });
+    }
+
+    const ret: Array<{
+      totalAmount: string | null;
+      createdAt: Date;
+      updatedAt: Date;
+      id: number;
+      nickname: string;
+      username: string;
+      password: string;
+      email: string | null;
+      avatar: string | null;
+      deletedAt: Date | null;
+    }> = await qb.getRawMany();
+
+    return ret.map((it) => {
+      const { totalAmount, email, avatar, ...others } = it;
+      return {
+        amount: +(totalAmount || 0),
+        trader: {
+          ...others,
+          ...(avatar && { avatar }),
+          ...(email && { email }),
+        },
+      };
+    });
+  }
+
+  async findFlowRecordTotalAmountByAccountBookIdAndGroupByDate(
+    {
+      startDealAt,
+      endDealAt,
+      categoryId,
+      traderId,
+      savingAccountId,
+      categoryType,
+      tagId,
+    }: {
+      startDealAt?: Date;
+      endDealAt?: Date;
+      categoryId?: number;
+      traderId?: number;
+      tagId?: number;
+      savingAccountId?: number;
+      categoryType?: CategoryType;
+    },
+    accountBookId: number,
+    groupBy: DateGroupBy,
+  ) {
+    let dataFormat: string;
+
+    switch (groupBy) {
+      case DateGroupBy.YEAR: {
+        dataFormat = 'YYYY';
+        break;
+      }
+      case DateGroupBy.MONTH: {
+        dataFormat = 'YYYY-MM';
+        break;
+      }
+      case DateGroupBy.DAY: {
+        dataFormat = 'YYYY-MM-DD';
+        break;
+      }
+    }
+
+    const qb = this.dataSource.manager
+      .createQueryBuilder(FlowRecordEntity, 'flowRecord')
+      .select(`to_char(flowRecord.dealAt, '${dataFormat}')`, 'deal_at')
+      .addSelect('SUM(flowRecord.amount)', 'totalAmount')
+      .groupBy('deal_at')
+      .where('flowRecord.accountBookId = :accountBookId', { accountBookId })
+      .orderBy('deal_at', 'ASC');
+
+    if (tagId) {
+      qb.andWhere('flowRecord.tagId = :tagId', {
+        tagId,
+      });
+    }
+
+    if (categoryId || categoryType) {
+      qb.leftJoin('flowRecord.tag', 'tag');
+
+      if (categoryId) {
+        qb.andWhere('tag.categoryId = :categoryId', { categoryId });
+      }
+
+      if (categoryType) {
+        qb.leftJoin('tag.category', 'category').andWhere(
+          'category.type = :categoryType',
+          { categoryType },
+        );
+      }
+    }
+
+    if (savingAccountId) {
+      qb.andWhere('flowRecord.savingAccountId = :savingAccountId', {
+        savingAccountId,
+      });
+    }
+
+    if (startDealAt) {
+      qb.andWhere('flowRecord.dealAt >= :startDealAt', { startDealAt });
+    }
+
+    if (endDealAt) {
+      qb.andWhere('flowRecord.dealAt < :endDealAt', { endDealAt });
+    }
+
+    if (traderId) {
+      qb.andWhere('flowRecord.traderId = :traderId', { traderId });
+    }
+
+    const ret: Array<{ deal_at; totalAmount: string | null }> =
+      await qb.getRawMany();
+
+    return ret.map((it) => ({
+      dealAt: it.deal_at,
+      amount: +(it.totalAmount || 0),
+    }));
+  }
+
+  /**
+   * 获取账本下指定时间段特定类型流水的总额
+   * @param arg0
+   * @param accountBookId
+   */
+  async findFlowRecordTotalAmountByAccountBookId(
+    {
+      startDealAt,
+      endDealAt,
+      categoryId,
+      traderId,
+      savingAccountId,
+      categoryType,
+      tagId,
+    }: {
+      startDealAt?: Date;
+      endDealAt?: Date;
+      categoryId?: number;
+      traderId?: number;
+      savingAccountId?: number;
+      tagId?: number;
+      categoryType?: CategoryType;
+    },
+    accountBookId: number,
+  ): Promise<number> {
+    const qb = this.dataSource.manager
+      .createQueryBuilder(FlowRecordEntity, 'flowRecord')
+      .select('SUM(flowRecord.amount)', 'totalAmount')
+      .where('flowRecord.accountBookId = :accountBookId', { accountBookId });
+
+    if (tagId) {
+      qb.andWhere('flowRecord.tagId = :tagId', {
+        tagId,
+      });
+    }
+
+    if (categoryId || categoryType) {
+      qb.leftJoin('flowRecord.tag', 'tag');
+
+      if (categoryId) {
+        qb.andWhere('tag.categoryId = :categoryId', { categoryId });
+      }
+
+      if (categoryType) {
+        qb.leftJoin('tag.category', 'category').andWhere(
+          'category.type = :categoryType',
+          { categoryType },
+        );
+      }
+    }
+
+    if (savingAccountId) {
+      qb.andWhere('flowRecord.savingAccountId = :savingAccountId', {
+        savingAccountId,
+      });
+    }
+
+    if (traderId) {
+      qb.andWhere('flowRecord.traderId = :traderId', { traderId });
+    }
+
+    if (startDealAt) {
+      qb.andWhere('flowRecord.dealAt >= :startDealAt', { startDealAt });
+    }
+
+    if (endDealAt) {
+      qb.andWhere('flowRecord.dealAt < :endDealAt', { endDealAt });
+    }
+
+    const ret = await qb.getRawOne<{ totalAmount: string | null }>();
+
+    return +(ret?.totalAmount || 0);
+  }
+
   async findByIdsAndUserId(ids: Array<number>, userId: number) {
     const flowRecords = await this.dataSource.manager
-      .createQueryBuilder(SavingAccountEntity, 'savingAccount')
-      .leftJoin('savingAccount.accountBook', 'accountBook')
+      .createQueryBuilder(FlowRecordEntity, 'flowRecord')
+      .leftJoin('flowRecord.accountBook', 'accountBook')
       .leftJoin('accountBook.admins', 'admin')
       .leftJoin('accountBook.members', 'member')
-      .where('savingAccount.id IN (:...ids)', { ids })
+      .where('flowRecord.id IN (:...ids)', { ids })
       .andWhere('admin.id = :adminId OR member.id = :memberId', {
         adminId: userId,
         memberId: userId,
