@@ -9,7 +9,7 @@ import { useGetTagsWithCategoryByAccountBookId } from '@/graphql/tag';
 import { activeAccountBookAtom } from '@/store';
 import { DateGroupBy } from '@/types';
 import { CategoryTypeInfoMap } from '@/utils/constants';
-import { Radio, RadioChangeEvent, Select, Switch, Tag } from 'antd';
+import { Radio, RadioChangeEvent, Select, Spin, Switch, Tag } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import { useAtom } from 'jotai';
 import { useCallback, useMemo, useState } from 'react';
@@ -73,6 +73,14 @@ const Catgeory = () => {
       name: category?.name || '',
     },
   ];
+
+  if (!category) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <Spin />
+      </div>
+    );
+  }
 
   return (
     <Content breadcrumbs={breadcrumbs} contentClassName="p-0">

@@ -1,7 +1,7 @@
 import { Spin } from 'antd';
 import { useAtom } from 'jotai';
 import { Suspense, useEffect } from 'react';
-import { Outlet, useNavigate, useParams } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import Aside from '@/components/Aside';
 import Header from '@/components/Header';
 import { activeAccountBookAtom } from '@/store';
@@ -16,6 +16,7 @@ const AccountBookPage = () => {
   const [, setActiveAccountBook] = useAtom(activeAccountBookAtom);
 
   const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   const { data, error } = useGetAccountBookById({ id: accountBookId! });
 
@@ -26,6 +27,10 @@ const AccountBookPage = () => {
       navigate('/notfound');
     }
   }, [data, error, setActiveAccountBook, navigate]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
 
   if (!data) {
     return null;
