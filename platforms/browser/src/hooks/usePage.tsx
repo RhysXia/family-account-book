@@ -19,6 +19,13 @@ const usePagination = ({
 
   const handlePaginationChange = useConstantFn(
     (newPage: number, newPageSize: number) => {
+      const prevPage = +(params.get('page') || 1);
+      const prevPageSize = +(params.get('pageSize') || defaultPageSize);
+
+      if (newPage === prevPage && newPageSize === prevPageSize) {
+        return;
+      }
+
       params.set('page', '' + newPage);
       params.set('pageSize', '' + newPageSize);
       setParams(params);
