@@ -17,7 +17,7 @@ import FlowRecordTrend from './commons/FlowRecordTrend';
 const Overview = () => {
   const [activeAccountBook] = useAtom(activeAccountBookAtom);
 
-  const [amountGroupBy, setAmountGroupBy] = useState<DateGroupBy>('DAY');
+  const [amountGroupBy, setAmountGroupBy] = useState<DateGroupBy>('MONTH');
 
   const [pieDateRange, setPieDateRange] = useState<
     [Dayjs | null, Dayjs | null] | null
