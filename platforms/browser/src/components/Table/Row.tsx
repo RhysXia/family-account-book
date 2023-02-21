@@ -8,7 +8,8 @@ import {
   useState,
   KeyboardEvent,
 } from 'react';
-import Cell, { Column } from './Cell';
+import Cell from './Cell';
+import { Column } from './type';
 
 export type RowProps = {
   columns: Array<Column>;

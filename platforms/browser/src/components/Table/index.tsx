@@ -1,8 +1,9 @@
 import { FC, HTMLAttributes, ReactNode } from 'react';
-import { Column } from './Cell';
 import Row from './Row';
 import { getProp } from './utils';
 import clsx from 'clsx';
+import { Column } from './type';
+import Header from './Header';
 
 export type TableProps = HTMLAttributes<HTMLTableElement> & {
   columns: Array<Column>;
@@ -33,33 +34,7 @@ const Table: FC<TableProps> = ({
             className,
           )}
         >
-          <div className="table-header-group bg-slate-200 font-bold">
-            {columns.map(
-              (
-                {
-                  style,
-                  className: _className,
-                  headerClassName,
-                  headerStyle,
-                  title,
-                },
-                i,
-              ) => {
-                return (
-                  <div
-                    key={i}
-                    className={clsx(
-                      'table-cell p-2',
-                      headerClassName || _className,
-                    )}
-                    style={headerStyle || style}
-                  >
-                    {title}
-                  </div>
-                );
-              },
-            )}
-          </div>
+          <Header columns={columns} />
           <div className="table-row-group">
             {data.map((it, i) => {
               const acutalKey = index ? getProp(it, index) || i : i;

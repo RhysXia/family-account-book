@@ -1,27 +1,9 @@
 import useConstantFn from '@/hooks/useConstanFn';
 import { Input } from 'antd';
-import { FC, ReactNode } from 'react';
+import { FC } from 'react';
 import clsx from 'clsx';
 import { getProp, mergeProp } from './utils';
-
-export type RenderProps<T = any> = {
-  value: T;
-  onChange: (value: T) => void;
-  index: number;
-  isEdit: boolean;
-};
-
-export type Render = (data: RenderProps) => ReactNode;
-
-export type Column = {
-  title: string;
-  style?: React.CSSProperties;
-  headerStyle?: React.CSSProperties;
-  className?: string;
-  headerClassName?: string;
-  render?: Render;
-  dataIndex?: string;
-};
+import { Column, Render } from './type';
 
 export type CellProps = {
   column: Column;
