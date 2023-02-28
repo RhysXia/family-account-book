@@ -870,6 +870,7 @@ export class FlowRecordService {
       await manager.save(newSavingAccount);
 
       flowRecord.amount = actualAmount;
+      flowRecord.savingAccountId = actualSavingAccount;
 
       return manager.save(flowRecord);
     });
