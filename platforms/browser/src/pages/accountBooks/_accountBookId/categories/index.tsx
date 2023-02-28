@@ -11,7 +11,7 @@ import CreateModal from './commons/CreateModal';
 import usePagination from '@/hooks/usePage';
 import Content from '@/components/Content';
 import Table from '@/components/Table';
-import { Column, RenderProps } from '@/components/Table/Cell';
+import { Column, RenderProps } from '@/components/Table';
 import {
   useDeleteCategory,
   useGetCategoryListByAccountBookId,

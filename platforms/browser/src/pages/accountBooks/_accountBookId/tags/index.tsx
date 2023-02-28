@@ -8,7 +8,7 @@ import { fromTime } from '@/utils/dayjs';
 import Content from '@/components/Content';
 import CreateModal from './commons/CreateModal';
 import Table from '@/components/Table';
-import { Column, RenderProps } from '@/components/Table/Cell';
+import { Column, RenderProps } from '@/components/Table';
 import usePagination from '@/hooks/usePage';
 import { CategoryTypeInfoMap } from '@/utils/constants';
 import {

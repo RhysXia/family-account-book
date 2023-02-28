@@ -5,6 +5,8 @@ import clsx from 'clsx';
 import { Column } from './type';
 import Header from './Header';
 
+export * from './type';
+
 export type TableProps = HTMLAttributes<HTMLTableElement> & {
   columns: Array<Column>;
   editable?: boolean;

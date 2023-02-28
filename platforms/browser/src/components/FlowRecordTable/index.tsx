@@ -24,7 +24,7 @@ import { useAtom } from 'jotai';
 import { forwardRef, useCallback, useImperativeHandle, useMemo } from 'react';
 import DatePicker from '../DatePicker';
 import Table from '../Table';
-import { Column, RenderProps } from '../Table/Cell';
+import { Column, RenderProps } from '../Table';
 import TagSelect from '../TagSelect';
 
 export type FlowRecordTableProps = {
