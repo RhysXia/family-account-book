@@ -194,7 +194,7 @@ const Index = () => {
         tags={tags}
         users={users}
         onChange={setModalVisible}
-        onRefrshSavingAccounts={handleRefreshSavingAccounts}
+        onRefreshSavingAccounts={handleRefreshSavingAccounts}
         visible={modalVisible}
         savingAccounts={savingAccounts}
       />

@@ -60,7 +60,7 @@ const Header = () => {
 
   return (
     <nav className="bg-gray-800">
-      <div className="mx-auto px-6 max-w-full">
+      <div className="mx-auto px-2 lg:px-4 max-w-full">
         <div className="relative flex items-center justify-between h-16">
           <div className="flex-1 flex items-center justify-start">
             <div className="space-x-2 lg:hidden mr-2">

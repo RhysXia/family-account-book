@@ -50,7 +50,7 @@ export const useGetFlowRecordTotalAmountByAccountBookId = (variables: {
   };
 };
 
-const GET_FLOW_RECORD_TOTAL_AMOUNT_PER_TRADER_BY_ACCOUNT_BOOK_ID = gql`
+export const GET_FLOW_RECORD_TOTAL_AMOUNT_PER_TRADER_BY_ACCOUNT_BOOK_ID = gql`
   query GetFlowRecordTotalAmountPerTraderByAccountBookId(
     $accountBookId: ID!
     $filter: FlowRecordTotalAmountPerTraderFilter
@@ -167,7 +167,6 @@ export const useGetFlowRecordTotalAmountPerTraderGroupByDateByAccountBookId =
       GET_FLOW_RECORD_TOTAL_AMOUNT_PER_TRADER_GROUP_BY_DATE_BY_ACCOUNT_BOOK_ID,
       {
         variables,
-        fetchPolicy: 'cache-and-network',
       },
     );
 
@@ -177,7 +176,7 @@ export const useGetFlowRecordTotalAmountPerTraderGroupByDateByAccountBookId =
     };
   };
 
-const GET_FLOW_RECORD_TOTAL_AMOUNT_PER_CATEGORY_BY_ACCOUNT_BOOK_ID = gql`
+export const GET_FLOW_RECORD_TOTAL_AMOUNT_PER_CATEGORY_BY_ACCOUNT_BOOK_ID = gql`
   query GetFlowRecordTotalAmountPerCategoryByAccountBookId(
     $accountBookId: ID!
     $filter: FlowRecordTotalAmountPerCategoryFilter

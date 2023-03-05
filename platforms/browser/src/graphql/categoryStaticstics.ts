@@ -2,7 +2,7 @@ import { useAppQuery } from '@/apollo';
 import { Tag } from '@/types';
 import { gql } from '@apollo/client';
 
-const GET_FLOW_RECORD_TOTAL_AMOUNT_PER_TAG_BY_CATEGORY_ID = gql`
+export const GET_FLOW_RECORD_TOTAL_AMOUNT_PER_TAG_BY_CATEGORY_ID = gql`
   query GetFlowRecordTotalAmountPerTagByCategoryId(
     $categoryId: ID!
     $filter: FlowRecordTotalAmountPerTagFilter

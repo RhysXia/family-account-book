@@ -1,24 +1,27 @@
 import { Spin } from 'antd';
 import { useAtom } from 'jotai';
-import { Suspense, useEffect } from 'react';
+import { Suspense, useCallback, useEffect, useState } from 'react';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import Aside from '@/components/Aside';
 import Header from '@/components/Header';
 import { activeAccountBookAtom } from '@/store';
 import { useGetAccountBookById } from '@/graphql/accountBook';
-import { CalculatorOutlined } from '@ant-design/icons';
+import { CalculatorOutlined, EditOutlined } from '@ant-design/icons';
 import FloatingButton from '@/components/FloatingButton';
 import Calculator from '@/components/Calculator';
+import AddFlowRecord from './commons/AddFlowRecord';
 
 const AccountBookPage = () => {
   const { accountBookId } = useParams();
 
-  const [, setActiveAccountBook] = useAtom(activeAccountBookAtom);
+  const [accountBook, setActiveAccountBook] = useAtom(activeAccountBookAtom);
 
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
   const { data, error } = useGetAccountBookById({ id: accountBookId! });
+
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     if (data) {
@@ -31,6 +34,10 @@ const AccountBookPage = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
+
+  const handleModalVisible = useCallback((v: boolean) => {
+    setModalVisible(v);
+  }, []);
 
   if (!data) {
     return null;
@@ -47,6 +54,10 @@ const AccountBookPage = () => {
           <Suspense fallback={<Loading />}>
             <Outlet />
             <div className="fixed right-5 bottom-5" style={{ zIndex: 9999 }}>
+              <FloatingButton
+                onClick={() => setModalVisible(true)}
+                icon={<EditOutlined />}
+              ></FloatingButton>
               <FloatingButton icon={<CalculatorOutlined />}>
                 <Calculator />
               </FloatingButton>
@@ -54,6 +65,9 @@ const AccountBookPage = () => {
           </Suspense>
         </div>
       </div>
+      {accountBook && (
+        <AddFlowRecord visible={modalVisible} onChange={handleModalVisible} />
+      )}
     </div>
   );
 };

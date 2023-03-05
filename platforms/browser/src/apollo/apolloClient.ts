@@ -12,7 +12,7 @@ const apolloClient = new ApolloClient({
   defaultOptions: {
     watchQuery: {
       // cahce-first 对 refetchQueries 支持有问题
-      fetchPolicy: 'cache-and-network',
+      fetchPolicy: 'cache-first',
     },
   },
 });

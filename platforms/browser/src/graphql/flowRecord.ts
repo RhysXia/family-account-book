@@ -10,6 +10,12 @@ import {
   Category,
 } from '@/types';
 import { gql } from '@apollo/client';
+import {
+  GET_FLOW_RECORD_TOTAL_AMOUNT_BY_ACCOUNT_BOOK_ID,
+  GET_FLOW_RECORD_TOTAL_AMOUNT_PER_TRADER_BY_ACCOUNT_BOOK_ID,
+  GET_FLOW_RECORD_TOTAL_AMOUNT_PER_TRADER_GROUP_BY_DATE_BY_ACCOUNT_BOOK_ID,
+} from './accountBookStatistics';
+import { GET_FLOW_RECORD_TOTAL_AMOUNT_PER_TAG_BY_CATEGORY_ID } from './categoryStaticstics';
 
 export const GET_FLOW_RECORD_LIST_BY_ACCOUNT_BOOK_ID = gql`
   query GetFlowRecordListByAccountBookId(
@@ -124,7 +130,13 @@ export const useCreateFlowRecord = () => {
         return [];
       }
 
-      return [GET_FLOW_RECORD_LIST_BY_ACCOUNT_BOOK_ID];
+      return [
+        GET_FLOW_RECORD_LIST_BY_ACCOUNT_BOOK_ID,
+        GET_FLOW_RECORD_TOTAL_AMOUNT_BY_ACCOUNT_BOOK_ID,
+        GET_FLOW_RECORD_TOTAL_AMOUNT_PER_TRADER_BY_ACCOUNT_BOOK_ID,
+        GET_FLOW_RECORD_TOTAL_AMOUNT_PER_TRADER_GROUP_BY_DATE_BY_ACCOUNT_BOOK_ID,
+        GET_FLOW_RECORD_TOTAL_AMOUNT_PER_TAG_BY_CATEGORY_ID,
+      ];
     },
   });
 };
@@ -159,7 +171,13 @@ export const useUpdateFlowRecord = () => {
         return [];
       }
 
-      return [GET_FLOW_RECORD_LIST_BY_ACCOUNT_BOOK_ID];
+      return [
+        GET_FLOW_RECORD_LIST_BY_ACCOUNT_BOOK_ID,
+        GET_FLOW_RECORD_TOTAL_AMOUNT_BY_ACCOUNT_BOOK_ID,
+        GET_FLOW_RECORD_TOTAL_AMOUNT_PER_TRADER_BY_ACCOUNT_BOOK_ID,
+        GET_FLOW_RECORD_TOTAL_AMOUNT_PER_TRADER_GROUP_BY_DATE_BY_ACCOUNT_BOOK_ID,
+        GET_FLOW_RECORD_TOTAL_AMOUNT_PER_TAG_BY_CATEGORY_ID,
+      ];
     },
   });
 };
@@ -182,7 +200,13 @@ export const useDeleteFlowRecord = () => {
         return [];
       }
 
-      return [GET_FLOW_RECORD_LIST_BY_ACCOUNT_BOOK_ID];
+      return [
+        GET_FLOW_RECORD_LIST_BY_ACCOUNT_BOOK_ID,
+        GET_FLOW_RECORD_TOTAL_AMOUNT_BY_ACCOUNT_BOOK_ID,
+        GET_FLOW_RECORD_TOTAL_AMOUNT_PER_TRADER_BY_ACCOUNT_BOOK_ID,
+        GET_FLOW_RECORD_TOTAL_AMOUNT_PER_TRADER_GROUP_BY_DATE_BY_ACCOUNT_BOOK_ID,
+        GET_FLOW_RECORD_TOTAL_AMOUNT_PER_TAG_BY_CATEGORY_ID,
+      ];
     },
   });
 };

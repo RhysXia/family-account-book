@@ -24,7 +24,7 @@ export type CreateModelProps = {
   tags: Array<Tag & { category: Category }>;
   savingAccounts: Array<SavingAccount>;
   onChange: (v: boolean) => void;
-  onRefrshSavingAccounts: () => Promise<void>;
+  onRefreshSavingAccounts: () => Promise<void>;
   users: Array<User>;
 };
 
@@ -33,7 +33,7 @@ const CreateModel: FC<CreateModelProps> = ({
   tags,
   savingAccounts,
   onChange,
-  onRefrshSavingAccounts,
+  onRefreshSavingAccounts,
   users,
 }) => {
   const [createFlowRecord] = useCreateFlowRecord();
@@ -82,8 +82,8 @@ const CreateModel: FC<CreateModelProps> = ({
     form.setFieldValue('desc', undefined);
 
     message.success('添加成功');
-    await onRefrshSavingAccounts();
-  }, [form, createFlowRecord, onRefrshSavingAccounts, tags]);
+    await onRefreshSavingAccounts();
+  }, [form, createFlowRecord, onRefreshSavingAccounts, tags]);
 
   const handleClose = useConstantFn(async () => {
     onChange(false);
