@@ -127,11 +127,11 @@ const Overview = () => {
         </Title>
 
         <div className="-m-2 -mb-0 flex items-center flex-wrap">
-          <div className="w-full sm:w-1/2 xl:w-1/4 p-2">
+          <div className="w-full sm:w-1/2 xl:w-1/3 2xl:w-1/4 p-2">
             <AmountCard groupBy={amountGroupBy} />
           </div>
           {categoriesData?.data.map((it) => (
-            <div key={it.id} className="w-full sm:w-1/2 xl:w-1/4 p-2">
+            <div key={it.id} className="w-full sm:w-1/2 xl:w-1/3 2xl:w-1/4 p-2">
               <AmountCard category={it} groupBy={amountGroupBy} />
             </div>
           ))}
@@ -149,13 +149,13 @@ const Overview = () => {
           各项流水占比统计
         </Title>
         <div className="flex flex-row flex-wrap -m-2">
-          <div className="w-full sm:w-1/2 xl:w-1/3 xxl:w-1/4 h-96 p-2">
+          <div className="w-full sm:w-1/2 xl:w-1/3 2xl:w-1/4 h-96 p-2">
             <FlowRecordPie
               categoryType={CategoryType.EXPENDITURE}
               dateRange={pieDateRange}
             />
           </div>
-          <div className="w-full sm:w-1/2 xl:w-1/3 xxl:w-1/4 h-96 p-2">
+          <div className="w-full sm:w-1/2 xl:w-1/3 2xl:w-1/4 h-96 p-2">
             <FlowRecordPie
               categoryType={CategoryType.INCOME}
               dateRange={pieDateRange}

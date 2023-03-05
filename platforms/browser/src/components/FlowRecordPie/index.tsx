@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import {
   TooltipFormatterCallback,
   TopLevelFormatterParams,
+  LabelFormatterCallback,
 } from 'echarts/types/dist/shared';
 import { FC, HTMLAttributes, useMemo } from 'react';
 import ReactEcharts, { EchartsOptions, EchartsProps } from '../ReactEcharts';
@@ -36,6 +37,14 @@ const FlowRecordPie: FC<FlowRecordPieProps> = ({
       })} (${percent}%)`;
     };
 
+    const labelFormatter: LabelFormatterCallback = (params) => {
+      if (Array.isArray(params)) {
+        return '';
+      }
+      const { name, percent } = params;
+      return `${name}\n\n${percent}%`;
+    };
+
     return {
       grid: {
         left: 0,
@@ -59,9 +68,13 @@ const FlowRecordPie: FC<FlowRecordPieProps> = ({
           top: 20,
           name: title,
           type: 'pie',
-          radius: '80%',
+          radius: '70%',
           label: {
-            show: false,
+            show: true,
+            formatter: labelFormatter,
+          },
+          labelLine: {
+            show: true,
           },
           data: list.map((it) => ({
             id: it.id,
