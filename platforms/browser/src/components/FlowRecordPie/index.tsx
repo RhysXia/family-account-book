@@ -41,8 +41,8 @@ const FlowRecordPie: FC<FlowRecordPieProps> = ({
       if (Array.isArray(params)) {
         return '';
       }
-      const { name, percent } = params;
-      return `${name}\n\n${percent}%`;
+      const { percent } = params;
+      return `${percent}%`;
     };
 
     return {
