@@ -115,7 +115,8 @@ const CreateModel: FC<CreateModelProps> = ({
     >
       <Form
         labelCol={{
-          span: 4,
+          xs: 0,
+          sm: 4,
         }}
         form={form}
         initialValues={{
@@ -128,7 +129,10 @@ const CreateModel: FC<CreateModelProps> = ({
           name="tagId"
           rules={[{ required: true, message: '标签不能为空' }]}
         >
-          <TagSelect accountBookId={activeAccountBook!.id} />
+          <TagSelect
+            placeholder="请选择标签"
+            accountBookId={activeAccountBook!.id}
+          />
         </Form.Item>
         <Form.Item noStyle={true} dependencies={['tagId']}>
           {({ getFieldValue }) => {
@@ -172,7 +176,7 @@ const CreateModel: FC<CreateModelProps> = ({
           name="savingAccountId"
           rules={[{ required: true, message: '账本不能为空' }]}
         >
-          <Select>
+          <Select placeholder="请选择账户">
             {savingAccounts.map((it) => {
               return (
                 <Select.Option value={it.id} key={it.id}>
@@ -192,14 +196,18 @@ const CreateModel: FC<CreateModelProps> = ({
           name="dealAt"
           rules={[{ required: true, message: '交易时间不能为空' }]}
         >
-          <DatePicker className="w-full" clearIcon={false} />
+          <DatePicker
+            placeholder="请选择交易时间"
+            className="w-full"
+            clearIcon={false}
+          />
         </Form.Item>
         <Form.Item
           label="交易人员"
           name="traderId"
           rules={[{ required: true, message: '交易人员不能为空' }]}
         >
-          <Select className="w-full">
+          <Select className="w-full" placeholder="请选择交易人员">
             {users.map((it) => {
               return (
                 <Select.Option value={it.id} key={it.id}>
