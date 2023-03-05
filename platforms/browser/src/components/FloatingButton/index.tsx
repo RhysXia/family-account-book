@@ -27,7 +27,7 @@ const FloatingButton: FC<FloatingButtonProps> = ({
       getPopupContainer={(trigger) => trigger.parentElement!}
       visible={!!children && visible}
       title={children}
-      placement="leftBottom"
+      placement="top"
       overlayInnerStyle={{ padding: 0 }}
       showArrow={false}
     >

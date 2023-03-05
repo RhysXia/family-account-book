@@ -17,7 +17,7 @@ import {
 } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import { useAtom } from 'jotai';
-import { FC, useCallback, useMemo } from 'react';
+import { FC, useCallback, useEffect, useMemo } from 'react';
 
 export type CreateModelProps = {
   visible: boolean;
@@ -96,11 +96,29 @@ const CreateModel: FC<CreateModelProps> = ({
     await handleClose();
   }, [handleCreate, handleClose]);
 
+  // 修复ios下 背景会滚动的问题
+  useEffect(() => {
+    if (visible) {
+      const cb = (e: TouchEvent) => {
+        e.preventDefault();
+      };
+
+      document.addEventListener('touchmove', cb, {
+        passive: false,
+      });
+
+      return () => {
+        document.removeEventListener('touchmove', cb);
+      };
+    }
+  }, [visible]);
+
   return (
     <Modal
       visible={visible}
       onCancel={handleClose}
       title="添加流水"
+      maskClosable={false}
       footer={
         <>
           <Button onClick={handleClose}>取消</Button>

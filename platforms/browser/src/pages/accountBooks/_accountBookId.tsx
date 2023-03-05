@@ -6,9 +6,8 @@ import Aside from '@/components/Aside';
 import Header from '@/components/Header';
 import { activeAccountBookAtom } from '@/store';
 import { useGetAccountBookById } from '@/graphql/accountBook';
-import { CalculatorOutlined, EditOutlined } from '@ant-design/icons';
+import { EditOutlined } from '@ant-design/icons';
 import FloatingButton from '@/components/FloatingButton';
-import Calculator from '@/components/Calculator';
 import AddFlowRecord from './commons/AddFlowRecord';
 
 const AccountBookPage = () => {
@@ -53,14 +52,14 @@ const AccountBookPage = () => {
         <div className="bg-gray-100 flex flex-1 pt-4 px-2 lg:px-4 w-full">
           <Suspense fallback={<Loading />}>
             <Outlet />
-            <div className="fixed right-5 bottom-5" style={{ zIndex: 9999 }}>
+            <div className="fixed right-5 bottom-5" style={{ zIndex: 500 }}>
               <FloatingButton
                 onClick={() => setModalVisible(true)}
                 icon={<EditOutlined />}
               ></FloatingButton>
-              <FloatingButton icon={<CalculatorOutlined />}>
+              {/* <FloatingButton icon={<CalculatorOutlined />}>
                 <Calculator />
-              </FloatingButton>
+              </FloatingButton> */}
             </div>
           </Suspense>
         </div>
