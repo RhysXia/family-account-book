@@ -130,6 +130,10 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
               // stack: 'Total',
               // stackStrategy: 'all',
               smooth: true,
+              label: {
+                show: true,
+                position: 'top',
+              },
               emphasis: {
                 focus: 'series',
               },
@@ -137,6 +141,10 @@ const FlowRecordTrend: FC<FlowRecordTrendProps> = ({
           : {
               type: 'bar',
               barMaxWidth: 50,
+              label: {
+                show: true,
+                position: 'top',
+              },
               // stack: 'Total',
               // stackStrategy: 'all',
               emphasis: {
